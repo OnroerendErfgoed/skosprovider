@@ -5,7 +5,6 @@ import unittest
 import os
 import sys
 sys.path.insert(0, os.path.abspath('..'))
-print(sys.path)
 
 from skosprovider.providers import (
     FlatDictionaryProvider,
@@ -69,6 +68,9 @@ class FlatDictionaryProviderTests(unittest.TestCase):
     def test_expand_concept(self):
         self.assertEquals([1], trees.expand_concept(1))
 
+    def test_expand_unexisting_concept(self):
+        self.assertEquals(False, trees.expand_concept(987654321))
+
     def test_get_all(self):
         self.assertEquals(trees.get_all(),
                           [{'id': 1, 'label': 'De Lariks'},
@@ -105,3 +107,6 @@ class TreeDictionaryProviderTests(unittest.TestCase):
 
     def test_expand_concept(self):
         self.assertEquals([4, 7,8,9], geo.expand_concept(4))
+
+    def test_expand_unexisting_concept(self):
+        self.assertEquals(False, geo.expand_concept(987654321))

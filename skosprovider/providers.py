@@ -97,7 +97,6 @@ class VocabularyProvider:
         Returns a list of all id's that are narrower concepts or the concept
         itself.
         '''
-        return [id]
 
 
 class FlatDictionaryProvider(VocabularyProvider):
@@ -156,6 +155,12 @@ class FlatDictionaryProvider(VocabularyProvider):
                 alt = l['label']
         return alt
 
+    def expand_concept(self, id):
+        for c in self.list:
+            if c['id'] == id:
+                return [c['id']]
+        return False
+
 
 class TreeDictionaryProvider(FlatDictionaryProvider):
     '''An extension of the FlatDictionaryProvider that can handle hierarchical
@@ -173,3 +178,4 @@ class TreeDictionaryProvider(FlatDictionaryProvider):
                     for cid in c['narrower']:
                         ret = ret + self.expand_concept(cid)
                 return ret
+        return False
