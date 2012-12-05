@@ -26,7 +26,7 @@ setup(
                      open('HISTORY.rst').read(),
     author='Koen Van Daele',
     author_email='koen_van_daele@telenet.be',
-    url='http://koenedaele.github.com/skosprovider',
+    url='http://github.com/koenedaele/skosprovider',
     packages=packages,
     package_data={'': ['LICENSE']},
     package_dir={'skosprovider': 'skosprovider'},
