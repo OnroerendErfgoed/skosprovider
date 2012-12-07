@@ -32,7 +32,8 @@ class Registry:
         '''Launch a query across all or a selection of providers.
 
         If the keyword providers is present, it should be a list of
-        skos provider id's. The query will then only be passed to these providers.
+        skos provider id's. The query will then only be passed to
+        these providers.
 
         Returns a list of dicts. Each dict has two keys: id and concepts.
         '''

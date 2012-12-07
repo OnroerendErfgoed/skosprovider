@@ -108,7 +108,7 @@ class FlatDictionaryProvider(VocabularyProvider):
     '''
 
     def __init__(self, metadata, list):
-        super(FlatDictionaryProvider,self).__init__(metadata)
+        super(FlatDictionaryProvider, self).__init__(metadata)
         self.list = list
 
     def get_by_id(self, id):
