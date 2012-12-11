@@ -12,9 +12,11 @@ from skosprovider.providers import (
     )
 
 larch = {'id': 1, 'labels': [{'type': 'pref', 'lang': 'en', 'label': 'The Larch'},
-                             {'type': 'pref', 'lang': 'nl', 'label': 'De Lariks'}]}
+                             {'type': 'pref', 'lang': 'nl', 'label': 'De Lariks'}],
+                  'notes': [{'type': 'definition', 'lang': 'en', 'note': 'A type of tree.'}]}
 chestnut = {'id': 2, 'labels': [{'type': 'pref', 'lang': 'en', 'label': 'The Chestnut'},
-                                {'type': 'alt', 'lang': 'nl', 'label': 'De Paardekastanje'}]}
+                                {'type': 'alt', 'lang': 'nl', 'label': 'De Paardekastanje'}],
+                     'notes': [{'type': 'definition', 'lang': 'en', 'note': 'A different type of tree.'}]}
 
 trees = FlatDictionaryProvider(
     {'id': 'TREES', 'default_language': 'nl'},
