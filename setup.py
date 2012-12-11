@@ -20,8 +20,8 @@ requires = []
 
 setup(
     name='skosprovider',
-    version='0.1.0',
-    description='Abstraction layer on SKOS vocabularies.',
+    version='0.1.1',
+    description='Abstraction layer for SKOS vocabularies.',
     long_description=open('README.rst').read() + '\n\n' +
                      open('HISTORY.rst').read(),
     author='Koen Van Daele',
@@ -40,7 +40,9 @@ setup(
         'Natural Language :: English',
         'License :: OSI Approved :: MIT License',
         'Programming Language :: Python',
+        'Programming Language :: Python :: 2.6',
         'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3.2',
     ),
 )
 
