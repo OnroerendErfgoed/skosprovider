@@ -22,6 +22,9 @@ class RegistryTests(unittest.TestCase):
         self.assertEquals(self.reg.get_providers(), [])
         self.assertEquals(self.reg.get_providers(ids=[]), [])
 
+    def test_empty_getProviderById(self):
+        self.assertFalse(self.reg.get_provider('TREES'))
+
     def test_empty_findConcepts(self):
         self.assertEquals(self.reg.find({}), [])
 
@@ -38,6 +41,10 @@ class RegistryTests(unittest.TestCase):
         self.assertEquals(self.reg.get_providers(ids=['TREES']), [self.prov])
         self.assertEquals(self.reg.get_providers(), [self.prov])
         self.assertEquals(self.reg.get_providers(ids=['GEOGRAPHY']), [])
+
+    def test_one_provider_getPoviderWithId(self):
+        self.reg.register_provider(self.prov)
+        self.assertEquals(self.reg.get_provider('TREES'), self.prov)
 
     def test_one_provider_findConcepts(self):
         self.reg.register_provider(self.prov)

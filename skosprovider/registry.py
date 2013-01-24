@@ -8,7 +8,8 @@ operations to all or several providers at the same time.
 
 
 class Registry:
-    '''This registry collects all vocab providers.
+    '''
+    This registry collects all skos providers.
     '''
 
     def __init__(self):
@@ -16,6 +17,17 @@ class Registry:
 
     def register_provider(self, provider):
         self.providers.append(provider)
+
+    def get_provider(self, id):
+        '''
+        Get a provider by id.
+
+        Returns the provider or False if the id is unknown.
+        '''
+        for p in self.providers:
+            if p.get_vocabulary_id() == id:
+                return p
+        return False
 
     def get_providers(self, **kwargs):
         '''Get all providers registered.
