@@ -16,6 +16,9 @@ class Registry:
         self.providers = []
 
     def register_provider(self, provider):
+        if self.get_provider(provider.get_vocabulary_id()):
+            raise Exception('A provider with this id \
+                            has already been registered.')
         self.providers.append(provider)
 
     def get_provider(self, id):

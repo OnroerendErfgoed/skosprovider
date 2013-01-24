@@ -2,7 +2,10 @@
 
 import unittest
 
-from test_providers import trees
+from test_providers import (
+    trees,
+    geo
+)
 
 from skosprovider.registry import (
     Registry
@@ -13,10 +16,16 @@ class RegistryTests(unittest.TestCase):
     def setUp(self):
         self.reg = Registry()
         self.prov = trees
+        self.prov2 = geo
 
     def tearDown(self):
         self.reg = None
         self.prov = None
+        self.prov2 = None
+
+    def test_empty_register_provider(self):
+        self.reg.register_provider(self.prov)
+        self.assertEquals(self.reg.get_provider('TREES'), self.prov)
 
     def test_empty_getProviders(self):
         self.assertEquals(self.reg.get_providers(), [])
@@ -29,7 +38,19 @@ class RegistryTests(unittest.TestCase):
         self.assertEquals(self.reg.find({}), [])
 
     def test_empty_getAllConcepts(self):
-        self.assertEquals(self.reg.get_all(), [])
+      self.assertEquals(self.reg.get_all(), [])
+
+    def test_one_provider_register_provider(self):
+        self.reg.register_provider(self.prov)
+        self.assertEquals(self.reg.get_provider('TREES'), self.prov)
+        self.reg.register_provider(self.prov2)
+        self.assertEquals(self.reg.get_provider('GEOGRAPHY'), self.prov2)
+
+    def test_one_provider_register_double_provider(self):
+        self.reg.register_provider(self.prov)
+        self.assertEquals(self.reg.get_provider('TREES'), self.prov)
+        with self.assertRaises(Exception) as cm:
+            self.reg.register_provider(self.prov)
 
     def test_one_provider_getProviders(self):
         self.reg.register_provider(self.prov)
