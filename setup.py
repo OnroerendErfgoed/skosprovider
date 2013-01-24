@@ -10,8 +10,6 @@ try:
 except ImportError:
     from distutils.core import setup
 
-os.environ['PYTHONDONTWRITEBYTECODE'] = '1'
-
 packages = [
     'skosprovider',
 ]
@@ -45,5 +43,3 @@ setup(
         'Programming Language :: Python :: 3.2',
     ),
 )
-
-del os.environ['PYTHONDONTWRITEBYTECODE']
