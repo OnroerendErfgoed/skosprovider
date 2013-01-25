@@ -13,13 +13,13 @@ class Registry:
     '''
 
     def __init__(self):
-        self.providers = []
+        self.providers = {}
 
     def register_provider(self, provider):
-        if self.get_provider(provider.get_vocabulary_id()):
+        if provider.get_vocabulary_id() in self.providers:
             raise Exception('A provider with this id \
                             has already been registered.')
-        self.providers.append(provider)
+        self.providers[provider.get_vocabulary_id()] = provider
 
     def get_provider(self, id):
         '''
@@ -27,10 +27,7 @@ class Registry:
 
         Returns the provider or False if the id is unknown.
         '''
-        for p in self.providers:
-            if p.get_vocabulary_id() == id:
-                return p
-        return False
+        return self.providers.get(id, False)
 
     def get_providers(self, **kwargs):
         '''Get all providers registered.
@@ -38,10 +35,10 @@ class Registry:
         If keyword ids is present, get only the providers with this id.
         '''
         if not 'ids' in kwargs:
-            return self.providers
+            return self.providers.values()
         else:
-            return [p for p in self.providers
-                    if p.get_vocabulary_id() in kwargs['ids']]
+            return [self.providers[k] for k in self.providers.keys() 
+                    if k in kwargs['ids']]
 
     def find(self, query, **kwargs):
         '''Launch a query across all or a selection of providers.
@@ -65,4 +62,4 @@ class Registry:
         Returns a list of dicts. Each dict has two keys: id and concepts.
         '''
         return [{'id': p.get_vocabulary_id(), 'concepts': p.get_all()}
-                for p in self.providers]
+                for p in self.providers.values()]
