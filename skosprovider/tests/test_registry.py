@@ -49,8 +49,7 @@ class RegistryTests(unittest.TestCase):
     def test_one_provider_register_double_provider(self):
         self.reg.register_provider(self.prov)
         self.assertEquals(self.reg.get_provider('TREES'), self.prov)
-        with self.assertRaises(Exception) as cm:
-            self.reg.register_provider(self.prov)
+        self.assertRaises(Exception, self.reg.register_provider, self.prov)
 
     def test_one_provider_getProviders(self):
         self.reg.register_provider(self.prov)
