@@ -35,7 +35,7 @@ class Registry:
         If keyword ids is present, get only the providers with this id.
         '''
         if not 'ids' in kwargs:
-            return self.providers.values()
+            return list(self.providers.values())
         else:
             return [self.providers[k] for k in self.providers.keys() 
                     if k in kwargs['ids']]
