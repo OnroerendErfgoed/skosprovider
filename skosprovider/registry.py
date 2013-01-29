@@ -6,6 +6,8 @@ This registry helps us find providers during runtime. We can also apply some
 operations to all or several providers at the same time.
 '''
 
+class RegistryException(Exception):
+    pass
 
 class Registry:
     '''
@@ -17,8 +19,8 @@ class Registry:
 
     def register_provider(self, provider):
         if provider.get_vocabulary_id() in self.providers:
-            raise Exception('A provider with this id \
-                            has already been registered.')
+            raise RegistryException(
+                'A provider with this id has already been registered.')
         self.providers[provider.get_vocabulary_id()] = provider
 
     def remove_provider(self, id):

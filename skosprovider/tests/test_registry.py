@@ -8,7 +8,8 @@ from test_providers import (
 )
 
 from skosprovider.registry import (
-    Registry
+    Registry,
+    RegistryException
 )
 
 
@@ -52,7 +53,7 @@ class RegistryTests(unittest.TestCase):
     def test_one_provider_register_double_provider(self):
         self.reg.register_provider(self.prov)
         self.assertEquals(self.reg.get_provider('TREES'), self.prov)
-        self.assertRaises(Exception, self.reg.register_provider, self.prov)
+        self.assertRaises(RegistryException, self.reg.register_provider, self.prov)
 
     def test_one_provider_removeProvider(self):
         self.reg.register_provider(self.prov)
