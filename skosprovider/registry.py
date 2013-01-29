@@ -21,6 +21,19 @@ class Registry:
                             has already been registered.')
         self.providers[provider.get_vocabulary_id()] = provider
 
+    def remove_provider(self, id):
+        '''
+        Remove the provider with the given id.
+        
+        Returns the provider or False if the id is unknown.
+        '''
+        if id in self.providers:
+            p = self.providers.get(id, False)
+            del self.providers[id]
+            return p
+        else:
+            return False
+
     def get_provider(self, id):
         '''
         Get a provider by id.

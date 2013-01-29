@@ -27,6 +27,9 @@ class RegistryTests(unittest.TestCase):
         self.reg.register_provider(self.prov)
         self.assertEquals(self.reg.get_provider('TREES'), self.prov)
 
+    def test_empty_register_removeProvider(self):
+        self.assertFalse(self.reg.remove_provider('TREES'))
+
     def test_empty_getProviders(self):
         self.assertEquals(self.reg.get_providers(), [])
         self.assertEquals(self.reg.get_providers(ids=[]), [])
@@ -38,7 +41,7 @@ class RegistryTests(unittest.TestCase):
         self.assertEquals(self.reg.find({}), [])
 
     def test_empty_getAllConcepts(self):
-      self.assertEquals(self.reg.get_all(), [])
+        self.assertEquals(self.reg.get_all(), [])
 
     def test_one_provider_register_provider(self):
         self.reg.register_provider(self.prov)
@@ -50,6 +53,12 @@ class RegistryTests(unittest.TestCase):
         self.reg.register_provider(self.prov)
         self.assertEquals(self.reg.get_provider('TREES'), self.prov)
         self.assertRaises(Exception, self.reg.register_provider, self.prov)
+
+    def test_one_provider_removeProvider(self):
+        self.reg.register_provider(self.prov)
+        self.assertEquals(self.reg.get_provider('TREES'), self.prov)
+        self.reg.remove_provider('TREES')
+        self.assertFalse(self.reg.get_provider('TREES'))
 
     def test_one_provider_getProviders(self):
         self.reg.register_provider(self.prov)
