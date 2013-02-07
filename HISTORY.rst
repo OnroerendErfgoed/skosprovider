@@ -1,6 +1,13 @@
 History
 =======
 
+0.1.2 (2013-02-07)
+------------------
+
+- Providers can be removed from the registry
+- Added the ability to get a single provider from the registry
+- No longer possible to register the same provider twice
+
 0.1.1 (2012-12-11)
 ------------------
 
