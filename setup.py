@@ -32,7 +32,7 @@ setup(
     install_requires=requires,
     license='MIT',
     zip_safe=False,
-    classifiers=(
+    classifiers=[
         'Development Status :: 3 - Alpha',
         'Intended Audience :: Developers',
         'Natural Language :: English',
@@ -41,5 +41,5 @@ setup(
         'Programming Language :: Python :: 2.6',
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3.2',
-    ),
+    ],
 )
