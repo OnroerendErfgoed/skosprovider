@@ -148,7 +148,24 @@ class FlatDictionaryProviderTests(unittest.TestCase):
         self.assertEquals(trees.get_all(language='en'),
                           [{'id': 1, 'label': 'The Larch'},
                            {'id': 2, 'label': 'The Chestnut'}])
+    
+    def test_find_larch(self):
+        self.assertEqual(
+            trees.find({'label': 'The Larch'}),
+            [{'id': 1, 'label': 'De Lariks'}]
+        )
 
+    def test_find_lar(self):
+        self.assertEqual(
+            trees.find({'label': 'The Lar'}),
+            [{'id': 1, 'label': 'De Lariks'}]
+        )
+
+    def test_find_empty_label(self):
+        self.assertEqual(
+            trees.find({'label': ''}),
+            []
+        )
 
 class TreeDictionaryProviderTests(unittest.TestCase):
     def setUp(self):
