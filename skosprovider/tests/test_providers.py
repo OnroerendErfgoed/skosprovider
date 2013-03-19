@@ -167,6 +167,12 @@ class FlatDictionaryProviderTests(unittest.TestCase):
             []
         )
 
+    def test_find_all(self):
+        self.assertEqual(
+            trees.find({}),
+            trees.get_all()
+        )
+
 class TreeDictionaryProviderTests(unittest.TestCase):
     def setUp(self):
         pass

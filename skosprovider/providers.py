@@ -118,6 +118,8 @@ class FlatDictionaryProvider(VocabularyProvider):
         return False
 
     def find(self, query, **kwargs):
+        if 'label' not in query:
+            return self.get_all(**kwargs)
         if query['label'] == '':
             return []
         language = self._get_language(**kwargs)
