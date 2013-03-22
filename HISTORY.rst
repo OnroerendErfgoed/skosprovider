@@ -1,11 +1,11 @@
 History
 =======
 
-0.1.3 (2013-03-??)
+0.1.3 (2013-03-22)
 ------------------
 
 - Find empty label now returns no results
-- Find without a label now call get_all
+- Find without a label now calls get_all
 
 0.1.2 (2013-02-07)
 ------------------
