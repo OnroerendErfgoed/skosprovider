@@ -6,10 +6,31 @@ except ImportError:  # pragma NO COVER
     import unittest  # noqa
 
 from skosprovider.skos import (
+    Label,
     ConceptScheme,
     Concept,
     Collection
 )
+
+class LabelTest(unittest.TestCase):
+
+    def setUp(self):
+        pass
+
+    def tearDown(self):
+        pass
+
+    def testConstructor(self):
+        l = Label('Knokke-Heist', type="prefLabel", language='nl-BE')
+        self.assertEqual('Knokke-Heist', l.label)
+        self.assertEqual('prefLabel', l.type)
+        self.assertEqual('nl-BE', l.language)
+
+    def testIsValidType(self):
+        self.assertTrue(Label.is_valid_type('prefLabel'))
+        self.assertFalse(Label.is_valid_type('voorkeursLabel'))
+        l = Label('Knokke-Heist')
+        self.assertTrue(l.is_valid_type('prefLabel'))
 
 class ConceptTest(unittest.TestCase):
 
