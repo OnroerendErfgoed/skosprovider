@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 
-import unittest
+try:
+    import unittest2 as unittest
+except ImportError:  # pragma NO COVER
+    import unittest  # noqa
 
 from skosprovider.skos import (
     ConceptScheme,
