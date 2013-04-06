@@ -120,16 +120,17 @@ class ConceptTest(unittest.TestCase):
         self.assertIn('notes', c)
         self.assertIn('broader', c)
         self.assertIn('narrower', c)
+        self.assertIn('related', c)
 
     def testIter(self):
         c = Concept(1)
-        keys = ['id', 'labels', 'notes', 'broader', 'narrower']
+        keys = ['id', 'labels', 'notes', 'broader', 'narrower', 'related']
         for k in c.keys():
             self.assertIn(k, keys)
 
     def testLen(self):
         c = Concept(1)
-        self.assertEqual(5, len(c))
+        self.assertEqual(6, len(c))
 
     def testLabel(self):
         labels = self._get_labels()

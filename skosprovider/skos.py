@@ -64,12 +64,17 @@ class Concept(collections.Mapping):
     A SKOS Concept.
     '''
     
-    def __init__(self, id, labels=[], notes=[], broader=[], narrower=[]):
+    def __init__(
+            self, id, 
+            labels=[], notes=[], 
+            broader=[], narrower=[], related=[]
+        ):
         self.id = id
         self.labels = labels
         self.notes = notes
         self.broader = broader
         self.narrower = narrower
+        self.related = related
 
     def __getitem__(self, item):
         if item in self.__dict__.keys():
