@@ -7,6 +7,7 @@ except ImportError:  # pragma NO COVER
 
 from skosprovider.skos import (
     Label,
+    Note,
     ConceptScheme,
     Concept,
     Collection,
@@ -32,6 +33,28 @@ class LabelTest(unittest.TestCase):
         self.assertFalse(Label.is_valid_type('voorkeursLabel'))
         l = Label('Knokke-Heist')
         self.assertTrue(l.is_valid_type('prefLabel'))
+
+
+class NoteTest(unittest.TestCase):
+
+    def setUp(self):
+        pass
+
+    def tearDown(self):
+        pass
+
+    def testConstructor(self):
+        n = Note('Een gemeente in West-Vlaanderen.', type="note", language='nl-BE')
+        self.assertEqual('Een gemeente in West-Vlaanderen.', n.note)
+        self.assertEqual('note', n.type)
+        self.assertEqual('nl-BE', n.language)
+
+    def testIsValidType(self):
+        self.assertTrue(Note.is_valid_type('note'))
+        self.assertFalse(Label.is_valid_type('notitie'))
+        n = Note('A community in West-Flanders.', 'definition', 'en')
+        self.assertTrue(n.is_valid_type('definition'))
+
 
 class ConceptSchemeTest(unittest.TestCase):
 

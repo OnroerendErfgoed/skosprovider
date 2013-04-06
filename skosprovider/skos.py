@@ -20,6 +20,32 @@ class Label:
         return type in ['prefLabel', 'altLabel', 'hiddenLabel']
 
 
+class Note:
+    '''
+    A SKOS Note.
+    '''
+
+    def __init__(self, note, type="note", language = None):
+        self.note = note
+        self.type = type
+        self.language = language
+
+    @staticmethod
+    def is_valid_type(type):
+        '''
+        Check if the argument is a valid SKOS note type.
+        '''
+        return type in [
+            'note', 
+            'changeNote', 
+            'definition',
+            'editorialNote',
+            'example',
+            'historyNote',
+            'scopeNote'
+        ]
+
+
 class ConceptScheme:
     '''
     A SKOS ConceptScheme.
