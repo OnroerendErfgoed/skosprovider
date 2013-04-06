@@ -49,6 +49,38 @@ class Concept(collections.Mapping):
     def __len__(self):
         return len(self.__dict__)
 
+    def label(self, language = 'any'):
+        '''
+        Provide a label for this concept.
+
+        This method tries to find a label by looking if there's
+        a pref label for the specified language. If there's no pref label, 
+        it looks for an alt label. It disregards hidden labels.
+
+        If language 'any' was specified, all labels will be considered, 
+        regardless of language.
+
+        To find a label without a specified language, pass `None` as language.
+
+        If a language or None was specified, and no label could be found, this
+        method will automatically try to find a label in some other language.
+
+        Finally, if no label could be found, None is returned.
+        '''
+        alt = None
+        for l in self.labels:
+            if language == 'any' or l.language == language:
+                if l.type == 'prefLabel':
+                    return l
+                if alt is None and l.type == 'altLabel':
+                    alt = l
+        if alt is not None:
+            return alt
+        elif language != 'any':
+            return self.label('any')
+        else:
+            return None
+
 
 class Collection:
     '''
