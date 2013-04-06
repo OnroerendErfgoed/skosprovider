@@ -36,6 +36,12 @@ class Note:
         self.type = type
         self.language = language
 
+    def __eq__(self, other):
+        return self.__dict__ == other.__dict__ 
+
+    def __ne__(self, other):
+        return not self == other
+
     @staticmethod
     def is_valid_type(type):
         '''

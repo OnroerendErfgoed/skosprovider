@@ -59,6 +59,16 @@ class NoteTest(unittest.TestCase):
         self.assertEqual('note', n.type)
         self.assertEqual('nl-BE', n.language)
 
+    def testEquality(self):
+        n1 = Note('A note.')
+        n2 = Note('A note.', 'note', None)
+        self.assertEqual(n1, n2)
+
+    def testInEquality(self):
+        n1 = Note('A note.')
+        n2 = Note('A note.', 'definition')
+        self.assertNotEqual(n1, n2)
+
     def testIsValidType(self):
         self.assertTrue(Note.is_valid_type('note'))
         self.assertFalse(Label.is_valid_type('notitie'))
