@@ -13,10 +13,14 @@ class Label:
         self.language = language
 
     def __eq__(self, other):
-        return self.__dict__ == other.__dict__ 
+        return self.__dict__ == (other if type(other) == dict else other.__dict__)
 
     def __ne__(self, other):
         return not self == other
+
+    def __getitem__(self, item):
+        if item in self.__dict__.keys():
+            return self.__dict__[item]
 
     @staticmethod
     def is_valid_type(type):
@@ -37,7 +41,7 @@ class Note:
         self.language = language
 
     def __eq__(self, other):
-        return self.__dict__ == other.__dict__ 
+        return self.__dict__ == (other if type(other) == dict else other.__dict__)
 
     def __ne__(self, other):
         return not self == other
@@ -82,7 +86,7 @@ class Concept(collections.Mapping):
             broader=[], narrower=[], related=[]
         ):
         self.id = id
-        self.labels = labels
+        self.labels = [dict_to_label(l) for l in labels]
         self.notes = notes
         self.broader = broader
         self.narrower = narrower
@@ -134,6 +138,7 @@ def label(labels = [], language = 'any'):
     '''
     alt = None
     for l in labels:
+        l = dict_to_label(l)
         if language == 'any' or l.language == language:
             if l.type == 'prefLabel':
                 return l
@@ -145,3 +150,14 @@ def label(labels = [], language = 'any'):
         return label(labels, 'any')
     else:
         return None
+
+
+def dict_to_label(dict):
+    if isinstance(dict, Label):
+        return dict
+    else:
+        return Label(
+            dict['label'], 
+            dict['type'] if 'type' in dict else 'prefLabel' , 
+            dict['language'] if 'language' in dict else None
+        )

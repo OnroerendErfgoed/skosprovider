@@ -39,11 +39,20 @@ class LabelTest(unittest.TestCase):
         l2 = Label('Knokke-Heist', 'prefLabel', None)
         self.assertEqual(l1, l2)
 
-    def testInEquality(self):
+    def testInequality(self):
         l1 = Label('Knokke-Heist')
         l2 = Label('Knokke', 'altLabel')
         self.assertNotEqual(l1, l2)
 
+    def testDictEquality(self):
+        l1 = Label('Knokke-Heist')
+        l2 = {'label': 'Knokke-Heist', 'type': 'prefLabel', 'language': None}
+        self.assertEqual(l1, l2)
+
+    def testDictInequality(self):
+        l1 = Label('Knokke-Heist')
+        l2 = {'label': 'Knokke', 'type': 'altLabel', 'language': None}
+        self.assertNotEqual(l1, l2)
 
 class NoteTest(unittest.TestCase):
 
@@ -245,3 +254,11 @@ class LabelFunctionTest(unittest.TestCase):
         self.assertEqual(kh, label(labels, 'en'))
         self.assertEqual(kh, label(labels, None))
 
+    def test_dict_pref(self):
+        kh = self._get_knokke_heist_nl()
+        khd = kh.__dict__
+        labels=[khd]
+        self.assertEqual(kh, label(labels))
+        self.assertEqual(kh, label(labels, 'nl-BE'))
+        self.assertEqual(kh, label(labels, 'en'))
+        self.assertEqual(kh, label(labels, None))
