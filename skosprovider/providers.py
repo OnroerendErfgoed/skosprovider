@@ -12,6 +12,10 @@ configurations to handle different vocabs.
 
 import abc
 
+from .skos import (
+    Concept
+)
+
 
 class VocabularyProvider:
     '''An interface that all vocabulary providers must follow.
@@ -58,7 +62,7 @@ class VocabularyProvider:
     def get_by_id(self, id):
         '''Get all information on a concept, based on id.
 
-        Returns a dict that contains at least an id and one label.
+        Returns a :class:`skosprovider.skos.Concept`.
 
         Returns False if the concept is unknown to the provider.
         '''
@@ -103,13 +107,20 @@ class FlatDictionaryProvider(VocabularyProvider):
     '''A simple vocab provider that use a python list of dicts.
 
     The provider expects a list with elements that are dicts that represent
-    the concepts. This provider assume there is no hierarchy
-    (broader/narrower).
+    the concepts. This provider assumeis there is no hierarchy
+    (broader/narrower) or relations between concepts.
     '''
 
     def __init__(self, metadata, list):
         super(FlatDictionaryProvider, self).__init__(metadata)
-        self.list = list
+        self.list = [self._concept_from_dict(c) for c in list]
+
+    def _concept_from_dict(self, data):
+        return Concept(
+            data['id'],
+            data['labels'] if 'labels' in data else [],
+            data['notes'] if 'notes' in data else []
+        )
 
     def get_by_id(self, id):
         for c in self.list:
@@ -128,36 +139,15 @@ class FlatDictionaryProvider(VocabularyProvider):
             if any(
                 [l['label'].find(query['label']) >= 0 for l in c['labels']]
             ):
-                ctmp = {'id': c['id']}
-                ctmp['label'] = self._get_label(c, language)
-                ret.append(ctmp)
+                ret.append({'id': c['id'], 'label': c.label(language).label})
         return ret
 
     def get_all(self, **kwargs):
         language = self._get_language(**kwargs)
         ret = []
         for c in self.list:
-            ctmp = {'id': c['id']}
-            ctmp['label'] = self._get_label(c, language)
-            ret.append(ctmp)
+            ret.append({'id': c['id'], 'label': c.label(language).label})
         return ret
-
-    def _get_label(self, concept, language):
-        '''Provide a label for a concept.
-
-        This method tries to find a label for a concept by looking if there's
-        a pref label for a certain language. If there's no pref label for a
-        certain language, it looks for an alt label.
-
-        If no label could be found, None is returned.
-        '''
-        alt = None
-        for l in concept['labels']:
-            if l['type'] == 'pref' and l['lang'] == language:
-                return l['label']
-            if l['type'] == 'alt' and l['lang'] == language:
-                alt = l['label']
-        return alt
 
     def expand_concept(self, id):
         for c in self.list:
@@ -173,6 +163,16 @@ class TreeDictionaryProvider(FlatDictionaryProvider):
     This provider can check if a concept has narrower concepts and use that to
     expand a certain concept.
     '''
+
+    def _concept_from_dict(self, data):
+        return Concept(
+            data['id'],
+            data['labels'] if 'labels' in data else [],
+            data['notes'] if 'notes' in data else [],
+            data['broader'] if 'broader' in data else [],
+            data['narrower'] if 'narrower' in data else [],
+            data['related'] if 'related' in data else [],
+        )
 
     def expand_concept(self, id):
         ret = [id]

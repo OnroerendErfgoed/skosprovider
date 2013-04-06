@@ -10,8 +10,8 @@ from skosprovider.providers import (
 larch = {
     'id': 1,
     'labels': [
-        {'type': 'pref', 'lang': 'en', 'label': 'The Larch'},
-        {'type': 'pref', 'lang': 'nl', 'label': 'De Lariks'}
+        {'type': 'prefLabel', 'language': 'en', 'label': 'The Larch'},
+        {'type': 'prefLabel', 'language': 'nl', 'label': 'De Lariks'}
     ],
     'notes': [
         {'type': 'definition', 'lang': 'en', 'note': 'A type of tree.'}
@@ -21,8 +21,8 @@ larch = {
 chestnut = {
     'id': 2,
     'labels': [
-        {'type': 'pref', 'lang': 'en', 'label': 'The Chestnut'},
-        {'type': 'alt', 'lang': 'nl', 'label': 'De Paardekastanje'}
+        {'type': 'prefLabel', 'language': 'en', 'label': 'The Chestnut'},
+        {'type': 'altLabel', 'language': 'nl', 'label': 'De Paardekastanje'}
     ],
     'notes': [
         {
@@ -40,7 +40,7 @@ trees = FlatDictionaryProvider(
 world = {
     'id': 1,
     'labels': [
-        {'type': 'pref', 'lang': 'en', 'label': 'World'}
+        {'type': 'prefLabel', 'language': 'en', 'label': 'World'}
     ],
     'narrower': [2, 3]
 }
@@ -51,31 +51,31 @@ geo = TreeDictionaryProvider(
         world,
         {
             'id': 2,
-            'labels': [{'type': 'pref', 'lang': 'en', 'label': 'Europe'}],
+            'labels': [{'type': 'prefLabel', 'language': 'en', 'label': 'Europe'}],
             'narrower': [4, 5], 'broader': [1]
         }, {
             'id': 3,
             'labels': [
-                {'type': 'pref', 'lang': 'en', 'label': 'North-America'}
+                {'type': 'prefLabel', 'language': 'en', 'label': 'North-America'}
             ],
             'narrower': [6], 'broader': [1]
         }, {
             'id': 4,
             'labels': [
-                {'type': 'pref', 'lang': 'en', 'label': 'Belgium'}
+                {'type': 'prefLabel', 'language': 'en', 'label': 'Belgium'}
             ],
             'narrower': [7, 8, 9], 'broader': [2]
         }, {
             'id': 5,
             'labels': [
-                {'type': 'pref', 'lang': 'en', 'label': 'United Kingdom'}
+                {'type': 'prefLabel', 'language': 'en', 'label': 'United Kingdom'}
             ],
             'broader': [2]
         }, {
             'id': 6,
             'labels': [
                 {
-                    'type': 'pref', 'lang': 'en',
+                    'type': 'prefLabel', 'language': 'en',
                     'label': 'United States of America'
                 }
             ],
@@ -83,19 +83,19 @@ geo = TreeDictionaryProvider(
         }, {
             'id': 7,
             'labels': [
-                {'type': 'pref', 'lang': 'en', 'label': 'Flanders'}
+                {'type': 'prefLabel', 'language': 'en', 'label': 'Flanders'}
             ],
             'broader': [4]
         }, {
             'id': 8,
             'labels': [
-                {'type': 'pref', 'lang': 'en', 'label': 'Brussels'}
+                {'type': 'prefLabel', 'language': 'en', 'label': 'Brussels'}
             ],
             'broader': [4]
         }, {
             'id': 9,
             'labels': [
-                {'type': 'pref', 'lang': 'en', 'label': 'Wallonie'}
+                {'type': 'prefLabel', 'language': 'en', 'label': 'Wallonie'}
             ],
             'broader': [4]
         }
@@ -120,7 +120,10 @@ class FlatDictionaryProviderTests(unittest.TestCase):
         )
 
     def test_get_by_id(self):
-        self.assertEquals(larch, trees.get_by_id(1))
+        lariks = trees.get_by_id(1)
+        self.assertEqual(larch['id'], lariks['id'])
+        self.assertEqual(larch['labels'], lariks['labels'])
+        self.assertEqual(larch['notes'], lariks['notes'])
 
     def test_get_unexisting_by_id(self):
         self.assertEquals(False, trees.get_by_id(987654321))
@@ -187,7 +190,10 @@ class TreeDictionaryProviderTests(unittest.TestCase):
         self.assertEquals({'id': 'GEOGRAPHY'}, geo.get_metadata())
 
     def test_get_by_id(self):
-        self.assertEquals(world, geo.get_by_id(1))
+        wereld = geo.get_by_id(1)
+        self.assertEqual(world['id'], wereld['id'])
+        self.assertEqual(world['labels'], wereld['labels'])
+        self.assertEqual(world['narrower'], wereld['narrower'])
 
     def test_expand_concept(self):
         self.assertEquals([4, 7, 8, 9], geo.expand_concept(4))
