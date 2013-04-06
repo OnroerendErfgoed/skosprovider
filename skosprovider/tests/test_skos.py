@@ -34,6 +34,16 @@ class LabelTest(unittest.TestCase):
         l = Label('Knokke-Heist')
         self.assertTrue(l.is_valid_type('prefLabel'))
 
+    def testEquality(self):
+        l1 = Label('Knokke-Heist')
+        l2 = Label('Knokke-Heist', 'prefLabel', None)
+        self.assertEqual(l1, l2)
+
+    def testInEquality(self):
+        l1 = Label('Knokke-Heist')
+        l2 = Label('Knokke', 'altLabel')
+        self.assertNotEqual(l1, l2)
+
 
 class NoteTest(unittest.TestCase):
 
