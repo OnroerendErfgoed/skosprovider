@@ -9,7 +9,8 @@ from skosprovider.skos import (
     Label,
     ConceptScheme,
     Concept,
-    Collection
+    Collection,
+    label
 )
 
 class LabelTest(unittest.TestCase):
@@ -32,6 +33,39 @@ class LabelTest(unittest.TestCase):
         l = Label('Knokke-Heist')
         self.assertTrue(l.is_valid_type('prefLabel'))
 
+class ConceptSchemeTest(unittest.TestCase):
+
+    def setUp(self):
+        pass
+
+    def tearDown(self):
+        pass
+
+    def _get_gemeenten_nl(self):
+        return Label('Gemeenten', type="prefLabel", language='nl-BE')
+
+    def _get_fusiegemeenten_nl(self):
+        return Label('Fusiegemeenten', type="altLabel", language='nl-BE')
+
+    def _get_communities_en(self):
+        return Label('Communities', type="prefLabel", language='en')
+
+    def _get_labels(self):
+        return [
+            self._get_gemeenten_nl(), 
+            self._get_fusiegemeenten_nl(),
+            self._get_communities_en()
+        ]
+
+    def testLabel(self):
+        labels = self._get_labels()
+        cs = ConceptScheme('GEMEENTEN', labels=labels)
+        self.assertEqual(label(labels), cs.label())
+        self.assertEqual(label(labels, 'nl'), cs.label('nl'))
+        self.assertEqual(label(labels, 'en'), cs.label('en'))
+        self.assertEqual(label(labels, None), cs.label(None))
+
+
 class ConceptTest(unittest.TestCase):
 
     def setUp(self):
@@ -39,6 +73,22 @@ class ConceptTest(unittest.TestCase):
 
     def tearDown(self):
         pass
+
+    def _get_knokke_heist_nl(self):
+        return Label('Knokke-Heist', type="prefLabel", language='nl-BE')
+
+    def _get_cnocke_heyst_nl(self):
+        return Label('Cnock-Heyst', type="altLabel", language='nl-BE')
+
+    def _get_knokke_heist_en(self):
+        return Label('Knocke-Heyst', type="prefLabel", language='en')
+
+    def _get_labels(self):
+        return [
+            self._get_knokke_heist_nl(), 
+            self._get_cnocke_heyst_nl(),
+            self._get_knokke_heist_en()
+        ]
 
     def testIn(self):
         c = Concept(1)
@@ -58,11 +108,50 @@ class ConceptTest(unittest.TestCase):
         c = Concept(1)
         self.assertEqual(5, len(c))
 
-    def test_label_empty(self):
-        c = Concept(1)
-        self.assertEqual(None, c.label())
-        self.assertEqual(None, c.label('nl-BE'))
-        self.assertEqual(None, c.label(None))
+    def testLabel(self):
+        labels = self._get_labels()
+        c = Concept(1, labels=labels)
+        self.assertEqual(label(labels), c.label())
+        self.assertEqual(label(labels, 'nl'), c.label('nl'))
+        self.assertEqual(label(labels, 'en'), c.label('en'))
+        self.assertEqual(label(labels, None), c.label(None))
+
+
+class CollectionTest(unittest.TestCase):
+
+    def setUp(self):
+        pass
+
+    def tearDown(self):
+        pass
+
+    def _get_deelgemeenten_nl(self):
+        return Label('Deelgemeenten', type="prefLabel", language='nl-BE')
+
+    def _get_prefusiegemeenten_nl(self):
+        return Label('Prefusiegemeenten', type="altLabel", language='nl-BE')
+
+    def _get_labels(self):
+        return [
+            self._get_deelgemeenten_nl(), 
+            self._get_prefusiegemeenten_nl(),
+        ]
+
+    def testLabel(self):
+        labels = self._get_labels()
+        coll = Collection('DEELGEMEENTEN', labels=labels)
+        self.assertEqual(label(labels), coll.label())
+        self.assertEqual(label(labels, 'nl'), coll.label('nl'))
+        self.assertEqual(label(labels, 'en'), coll.label('en'))
+        self.assertEqual(label(labels, None), coll.label(None))
+
+class LabelFunctionTest(unittest.TestCase):
+
+    def setUp(self):
+        pass
+
+    def tearDown(self):
+        pass
 
     def _get_knokke_heist_nl(self):
         return Label('Knokke-Heist', type="prefLabel", language='nl-BE')
@@ -73,36 +162,42 @@ class ConceptTest(unittest.TestCase):
     def _get_knokke_heist_en(self):
         return Label('Knocke-Heyst', type="prefLabel", language='en')
 
+    def test_label_empty(self):
+        self.assertEqual(None, label([]))
+        self.assertEqual(None, label([], 'nl-BE'))
+        self.assertEqual(None, label([], None))
+
     def test_label_pref(self):
         kh = self._get_knokke_heist_nl()
-        c = Concept(1, labels=[kh])
-        self.assertEqual(kh, c.label())
-        self.assertEqual(kh, c.label('nl-BE'))
-        self.assertEqual(kh, c.label('en'))
-        self.assertEqual(kh, c.label(None))
+        labels=[kh]
+        self.assertEqual(kh, label(labels))
+        self.assertEqual(kh, label(labels, 'nl-BE'))
+        self.assertEqual(kh, label(labels, 'en'))
+        self.assertEqual(kh, label(labels, None))
 
     def test_label_pref_nl_and_en(self):
         kh = self._get_knokke_heist_nl()
         khen = self._get_knokke_heist_en()
-        c = Concept(1, labels=[kh, khen])
-        self.assertIn(c.label(), [kh, khen])
-        self.assertEqual(kh, c.label('nl-BE'))
-        self.assertEqual(khen, c.label('en'))
-        self.assertIn(c.label(None), [kh, khen])
+        labels=[kh, khen]
+        self.assertIn(label(labels), [kh, khen])
+        self.assertEqual(kh, label(labels, 'nl-BE'))
+        self.assertEqual(khen, label(labels, 'en'))
+        self.assertIn(label(labels, None), [kh, khen])
 
     def test_label_alt(self):
         ch = self._get_cnocke_heyst_nl()
-        c = Concept(1, labels=[ch])
-        self.assertEqual(ch, c.label())
-        self.assertEqual(ch, c.label('nl-BE'))
-        self.assertEqual(ch, c.label('en'))
-        self.assertEqual(ch, c.label(None))
+        labels=[ch]
+        self.assertEqual(ch, label(labels))
+        self.assertEqual(ch, label(labels, 'nl-BE'))
+        self.assertEqual(ch, label(labels, 'en'))
+        self.assertEqual(ch, label(labels, None))
 
     def test_pref_precedes_alt(self):
         kh = self._get_knokke_heist_nl()
         ch = self._get_cnocke_heyst_nl()
-        c = Concept(1, labels=[kh, ch])
-        self.assertEqual(kh, c.label())
-        self.assertEqual(kh, c.label('nl-BE'))
-        self.assertEqual(kh, c.label('en'))
-        self.assertEqual(kh, c.label(None))
+        labels=[kh, ch]
+        self.assertEqual(kh, label(labels))
+        self.assertEqual(kh, label(labels, 'nl-BE'))
+        self.assertEqual(kh, label(labels, 'en'))
+        self.assertEqual(kh, label(labels, None))
+

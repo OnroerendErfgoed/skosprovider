@@ -24,7 +24,13 @@ class ConceptScheme:
     '''
     A SKOS ConceptScheme.
     '''
-    pass
+    
+    def __init__(self, id, labels = []):
+        self.id = id
+        self.labels = labels
+
+    def label(self, language = 'any'):
+        return label(self.labels, language)
 
 
 class Concept(collections.Mapping):
@@ -50,40 +56,49 @@ class Concept(collections.Mapping):
         return len(self.__dict__)
 
     def label(self, language = 'any'):
-        '''
-        Provide a label for this concept.
-
-        This method tries to find a label by looking if there's
-        a pref label for the specified language. If there's no pref label, 
-        it looks for an alt label. It disregards hidden labels.
-
-        If language 'any' was specified, all labels will be considered, 
-        regardless of language.
-
-        To find a label without a specified language, pass `None` as language.
-
-        If a language or None was specified, and no label could be found, this
-        method will automatically try to find a label in some other language.
-
-        Finally, if no label could be found, None is returned.
-        '''
-        alt = None
-        for l in self.labels:
-            if language == 'any' or l.language == language:
-                if l.type == 'prefLabel':
-                    return l
-                if alt is None and l.type == 'altLabel':
-                    alt = l
-        if alt is not None:
-            return alt
-        elif language != 'any':
-            return self.label('any')
-        else:
-            return None
-
+        return label(self.labels, language)
 
 class Collection:
     '''
     A SKOS Collection.
     '''
-    pass
+    
+    def __init__(self, id, labels = []):
+        self.id = id
+        self.labels = labels
+
+    def label(self, language = 'any'):
+        return label(self.labels, language)
+
+
+def label(labels = [], language = 'any'):
+    '''
+    Provide a label for this concept.
+
+    This method tries to find a label by looking if there's
+    a pref label for the specified language. If there's no pref label, 
+    it looks for an alt label. It disregards hidden labels.
+
+    If language 'any' was specified, all labels will be considered, 
+    regardless of language.
+
+    To find a label without a specified language, pass `None` as language.
+
+    If a language or None was specified, and no label could be found, this
+    method will automatically try to find a label in some other language.
+
+    Finally, if no label could be found, None is returned.
+    '''
+    alt = None
+    for l in labels:
+        if language == 'any' or l.language == language:
+            if l.type == 'prefLabel':
+                return l
+            if alt is None and l.type == 'altLabel':
+                alt = l
+    if alt is not None:
+        return alt
+    elif language != 'any':
+        return label(labels, 'any')
+    else:
+        return None
