@@ -1,10 +1,10 @@
-skosprovider: vocabulary abstraction
-====================================
+.. Skosprovider documentation master file, created by
+   sphinx-quickstart on Sun Apr  7 22:37:01 2013.
+   You can adapt this file completely to your liking, but it should at least
+   contain the root `toctree` directive.
 
-This library helps abstract vocabularies that stick to the SKOS specification.
-
-.. image:: https://travis-ci.org/koenedaele/skosprovider.png?branch=master
-        :target: https://travis-ci.org/koenedaele/skosprovider
+Welcome to Skosprovider's documentation!
+========================================
 
 Skosprovider provides an interface that can be included in an application to 
 allow it to talk to different SKOS vocabularies. These vocabularies could be
@@ -19,3 +19,20 @@ Other known providers:
 * https://github.com/koenedaele/skosprovider_oe: This providers implements the 
   provider interface for the thesauri deliverd by 
   https://inventaris.onroerenderfgoed.be/thesaurus 
+
+Contents:
+
+.. toctree::
+   :maxdepth: 2
+
+   api
+   changes
+   glossary
+
+Indices and tables
+==================
+
+* :ref:`genindex`
+* :ref:`modindex`
+* :ref:`search`
+

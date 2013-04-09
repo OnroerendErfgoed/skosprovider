@@ -18,6 +18,9 @@ develop-eggs
 lib
 lib64
 
+# Sphinx
+docs/_build
+
 # Installer logs
 pip-log.txt
 

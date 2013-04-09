@@ -157,8 +157,8 @@ class FlatDictionaryProvider(VocabularyProvider):
 
 
 class TreeDictionaryProvider(FlatDictionaryProvider):
-    '''An extension of the FlatDictionaryProvider that can handle hierarchical
-    data.
+    '''An extension of the :class:`FlatDictionaryProvider` that can handle 
+    hierarchical data.
 
     This provider can check if a concept has narrower concepts and use that to
     expand a certain concept.
