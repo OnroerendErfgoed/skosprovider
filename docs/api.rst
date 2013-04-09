@@ -2,6 +2,12 @@
 API Documentation
 =================
 
+Skos module
+-----------
+
+.. automodule:: skosprovider.skos
+   :members:
+
 Providers module
 ----------------
 

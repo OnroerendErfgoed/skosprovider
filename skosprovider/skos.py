@@ -1,10 +1,14 @@
 # -*- coding: utf-8 -*-
 
+'''
+This module contains a read-only model of the :term:`SKOS` specification.
+'''
+
 import collections
 
 class Label:
     '''
-    A SKOS Label.
+    A :term:`SKOS` Label.
     '''
 
     def __init__(self, label, type="prefLabel", language = None):
@@ -32,7 +36,7 @@ class Label:
 
 class Note:
     '''
-    A SKOS Note.
+    A :term:`SKOS` Note.
     '''
 
     def __init__(self, note, type="note", language = None):
@@ -64,7 +68,7 @@ class Note:
 
 class ConceptScheme:
     '''
-    A SKOS ConceptScheme.
+    A :term:`SKOS` ConceptScheme.
     '''
     
     def __init__(self, id, labels = []):
@@ -77,7 +81,7 @@ class ConceptScheme:
 
 class Concept(collections.Mapping):
     '''
-    A SKOS Concept.
+    A :term:`SKOS` Concept.
     '''
     
     def __init__(
@@ -107,7 +111,7 @@ class Concept(collections.Mapping):
 
 class Collection:
     '''
-    A SKOS Collection.
+    A :term:`SKOS` Collection.
     '''
     
     def __init__(self, id, labels = []):
@@ -120,7 +124,11 @@ class Collection:
 
 def label(labels = [], language = 'any'):
     '''
-    Provide a label for this concept.
+    Provide a label for a list of labels.
+
+    The items in the list of labels are assumed to be either instances of 
+    :class:`Label`, or dicts with at least the key `label` in them. These will 
+    be passed to the :func:`dict_to_label` function.
 
     This method tries to find a label by looking if there's
     a pref label for the specified language. If there's no pref label, 
@@ -153,6 +161,13 @@ def label(labels = [], language = 'any'):
 
 
 def dict_to_label(dict):
+    '''
+    Transform a dict with keys `label`, `type` and `language` into a 
+    :class:`Label`.
+
+    If the argument passed is already a :class:`label`, this method just returns 
+    the argument.
+    '''
     if isinstance(dict, Label):
         return dict
     else:
