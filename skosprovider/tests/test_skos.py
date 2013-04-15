@@ -190,6 +190,10 @@ class CollectionTest(unittest.TestCase):
             self._get_prefusiegemeenten_nl(),
         ]
 
+    def testId(self):
+        coll = Collection('DEELGEMEENTEN')
+        self.assertEqual('DEELGEMEENTEN', coll.id)
+
     def testLabel(self):
         labels = self._get_labels()
         coll = Collection('DEELGEMEENTEN', labels=labels)

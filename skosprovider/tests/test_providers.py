@@ -8,7 +8,7 @@ from skosprovider.providers import (
 )
 
 larch = {
-    'id': 1,
+    'id': '1',
     'labels': [
         {'type': 'prefLabel', 'language': 'en', 'label': 'The Larch'},
         {'type': 'prefLabel', 'language': 'nl', 'label': 'De Lariks'}
@@ -19,7 +19,7 @@ larch = {
 }
 
 chestnut = {
-    'id': 2,
+    'id': '2',
     'labels': [
         {'type': 'prefLabel', 'language': 'en', 'label': 'The Chestnut'},
         {'type': 'altLabel', 'language': 'nl', 'label': 'De Paardekastanje'}
@@ -38,7 +38,7 @@ trees = FlatDictionaryProvider(
 )
 
 world = {
-    'id': 1,
+    'id': '1',
     'labels': [
         {'type': 'prefLabel', 'language': 'en', 'label': 'World'}
     ],
@@ -125,19 +125,28 @@ class FlatDictionaryProviderTests(unittest.TestCase):
         self.assertEqual(larch['labels'], lariks['labels'])
         self.assertEqual(larch['notes'], lariks['notes'])
 
+    def test_get_by_id_string(self):
+        lariks = trees.get_by_id('1')
+        self.assertEqual(larch['id'], lariks['id'])
+        self.assertEqual(larch['labels'], lariks['labels'])
+        self.assertEqual(larch['notes'], lariks['notes'])
+
+    def test_get_by_id_is_type_agnostic(self):
+        self.assertEqual(trees.get_by_id(1), trees.get_by_id('1'))
+
     def test_get_unexisting_by_id(self):
         self.assertEquals(False, trees.get_by_id(987654321))
 
     def test_expand_concept(self):
-        self.assertEquals([1], trees.expand_concept(1))
+        self.assertEquals(['1'], trees.expand_concept(1))
 
     def test_expand_unexisting_concept(self):
         self.assertEquals(False, trees.expand_concept(987654321))
 
     def test_get_all(self):
         self.assertEquals(trees.get_all(),
-                          [{'id': 1, 'label': 'De Lariks'},
-                           {'id': 2, 'label': 'De Paardekastanje'}])
+                          [{'id': '1', 'label': 'De Lariks'},
+                           {'id': '2', 'label': 'De Paardekastanje'}])
 
     def test_get_all_default_language(self):
         trees = FlatDictionaryProvider(
@@ -145,23 +154,23 @@ class FlatDictionaryProviderTests(unittest.TestCase):
             [larch]
         )
         self.assertEquals(trees.get_all(),
-                          [{'id': 1, 'label': 'The Larch'}])
+                          [{'id': '1', 'label': 'The Larch'}])
 
     def test_get_all_english(self):
         self.assertEquals(trees.get_all(language='en'),
-                          [{'id': 1, 'label': 'The Larch'},
-                           {'id': 2, 'label': 'The Chestnut'}])
+                          [{'id': '1', 'label': 'The Larch'},
+                           {'id': '2', 'label': 'The Chestnut'}])
     
     def test_find_larch(self):
         self.assertEqual(
             trees.find({'label': 'The Larch'}),
-            [{'id': 1, 'label': 'De Lariks'}]
+            [{'id': '1', 'label': 'De Lariks'}]
         )
 
     def test_find_lar(self):
         self.assertEqual(
             trees.find({'label': 'The Lar'}),
-            [{'id': 1, 'label': 'De Lariks'}]
+            [{'id': '1', 'label': 'De Lariks'}]
         )
 
     def test_find_empty_label(self):
@@ -197,6 +206,9 @@ class TreeDictionaryProviderTests(unittest.TestCase):
 
     def test_expand_concept(self):
         self.assertEquals([4, 7, 8, 9], geo.expand_concept(4))
+
+    def test_expand_concept_string(self):
+        self.assertEquals([4, 7, 8, 9], geo.expand_concept('4'))
 
     def test_expand_unexisting_concept(self):
         self.assertEquals(False, geo.expand_concept(987654321))

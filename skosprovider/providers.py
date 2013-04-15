@@ -62,9 +62,14 @@ class VocabularyProvider:
     def get_by_id(self, id):
         '''Get all information on a concept, based on id.
 
-        Returns a :class:`skosprovider.skos.Concept`.
+        Providers should assume that all id's passed are strings. If a provider 
+        knows that internally it uses numeric identifiers, it's up to the 
+        provider to do the typecasting. Generally, this should not be done by
+        changing the id's themselves (eg. from int to str), but by doing the
+        id comparisons in a type agnostic way.
 
-        Returns False if the concept is unknown to the provider.
+        Returns a :class:`skosprovider.skos.Concept` or `False` if the concept 
+        is unknown to the provider.
         '''
 
     @abc.abstractmethod
@@ -73,8 +78,8 @@ class VocabularyProvider:
 
         Returns a list of all concepts. For each concept an
         id is present and a label. The label is determined by looking at the
-        **kwargs parameter, the default language of the provider and falls
-        back to en if nothing is present.
+        `**kwargs` parameter, the default language of the provider and falls
+        back to `en` if nothing is present.
         '''
 
     @abc.abstractmethod
@@ -87,8 +92,8 @@ class VocabularyProvider:
 
         Returns a list of concepts that match the query. For each concept an
         id is present and a label. The label is determined by looking at the
-        **kwargs parameter, the default language of the provider and falls
-        back to en if nothing is present.
+        `**kwargs` parameter, the default language of the provider and falls
+        back to `en` if nothing is present.
         '''
 
     def expand_concept(self, id):
@@ -123,8 +128,9 @@ class FlatDictionaryProvider(VocabularyProvider):
         )
 
     def get_by_id(self, id):
+        id = str(id)
         for c in self.list:
-            if c['id'] == id:
+            if str(c['id']) == id:
                 return c
         return False
 
@@ -150,8 +156,9 @@ class FlatDictionaryProvider(VocabularyProvider):
         return ret
 
     def expand_concept(self, id):
+        id = str(id)
         for c in self.list:
-            if c['id'] == id:
+            if str(c['id']) == id:
                 return [c['id']]
         return False
 
@@ -175,9 +182,10 @@ class TreeDictionaryProvider(FlatDictionaryProvider):
         )
 
     def expand_concept(self, id):
-        ret = [id]
+        id = str(id)
         for c in self.list:
-            if c['id'] == id:
+            if str(c['id']) == id:
+                ret = [c['id']]
                 if 'narrower' in c:
                     for cid in c['narrower']:
                         ret = ret + self.expand_concept(cid)
