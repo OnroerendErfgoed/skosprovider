@@ -103,8 +103,8 @@ class VocabularyProvider:
         This method should recurse and also return narrower concepts
         of narrower concepts.
 
-        Returns a list of all id's that are narrower concepts or the concept
-        itself.
+        :param id: A concept id.
+        :rtype: A list of id's.
         '''
 
 
