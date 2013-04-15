@@ -10,6 +10,21 @@ class Label:
     '''
     A :term:`SKOS` Label.
     '''
+    
+    label = None
+    '''
+    The label itself (eg. `churches`, `trees`, `Spitfires`, ...)
+    '''
+
+    type = "prefLabel"
+    '''
+    The type of this label ( `prefLabel`, `altLabel`, `hiddenLabel`).
+    '''
+
+    language = None
+    '''
+    The language the label is in (eg. `en`, `en-US`, `nl`, `nl-BE`).
+    '''
 
     def __init__(self, label, type="prefLabel", language = None):
         self.label = label

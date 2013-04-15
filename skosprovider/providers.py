@@ -13,7 +13,8 @@ configurations to handle different vocabs.
 import abc
 
 from .skos import (
-    Concept
+    Concept,
+    Collection
 )
 
 
@@ -47,20 +48,20 @@ class VocabularyProvider:
     def get_vocabulary_id(self):
         '''Get an identifier for the vocabulary.
 
-        Returns a string or number.
+        :rtype: String or number.
         '''
         return self.metadata.get('id')
 
     def get_metadata(self):
         '''Get some metadata on the provider or the vocab it represents.
 
-        Returns a dict.
+        :rtype: Dict.
         '''
         return self.metadata
 
     @abc.abstractmethod
     def get_by_id(self, id):
-        '''Get all information on a concept, based on id.
+        '''Get all information on a concept or collection, based on id.
 
         Providers should assume that all id's passed are strings. If a provider 
         knows that internally it uses numeric identifiers, it's up to the 
@@ -68,8 +69,13 @@ class VocabularyProvider:
         changing the id's themselves (eg. from int to str), but by doing the
         id comparisons in a type agnostic way.
 
-        Returns a :class:`skosprovider.skos.Concept` or `False` if the concept 
-        is unknown to the provider.
+        Since this method could be used to find both concepts and collections,
+        it's assumed that there are no id collisions between concepts and 
+        collections.
+
+        :rtype: :class:`skosprovider.skos.Concept` or 
+            :class:`skosprovider.skos.Collection` or `False` if the concept or
+            collection is unknown to the provider.
         '''
 
     @abc.abstractmethod
@@ -90,10 +96,24 @@ class VocabularyProvider:
         be passed. Currently only searching on label (eg. {'label': 'tree'}) is
         expected.
 
-        Returns a list of concepts that match the query. For each concept an
-        id is present and a label. The label is determined by looking at the
-        `**kwargs` parameter, the default language of the provider and falls
-        back to `en` if nothing is present.
+        :param query: A dict that can be used to express a query. The following 
+            keys are permitted:
+
+            * `label`: Search for something with this label value.
+            * `type`: Limit the search to certain SKOS elements. If not present
+                `all` is assumed:
+            
+                * `concept`: Only return :class:`skosprovider.skos.Concept` instances.
+                * `collection`: Only return :class:`skosprovider.skos.Collection` instances.
+                * `all`: Return both :class:`skosprovider.skos.Concept` and
+                    :class:`skosprovider.skos.Collection` instances.
+
+        :returns: A list of concepts that match the query. For each concept an
+            id is present and a label. The label is determined by looking at the
+            `**kwargs` parameter, the default language of the provider and falls
+            back to `en` if nothing is present.
+        :rtype: A list of dicts. Each dict contains at least an `id` and a 
+            `label` key.
         '''
 
     def expand_concept(self, id):
@@ -104,7 +124,7 @@ class VocabularyProvider:
         of narrower concepts.
 
         :param id: A concept id.
-        :rtype: A list of id's.
+        :rtype: A list of id's or `False` if the concept doesn't exist.
         '''
 
 
@@ -112,25 +132,31 @@ class FlatDictionaryProvider(VocabularyProvider):
     '''A simple vocab provider that use a python list of dicts.
 
     The provider expects a list with elements that are dicts that represent
-    the concepts. This provider assumeis there is no hierarchy
+    the concepts. This provider assumes there is no hierarchy
     (broader/narrower) or relations between concepts.
     '''
 
     def __init__(self, metadata, list):
         super(FlatDictionaryProvider, self).__init__(metadata)
-        self.list = [self._concept_from_dict(c) for c in list]
+        self.list = [self._from_dict(c) for c in list]
 
-    def _concept_from_dict(self, data):
-        return Concept(
-            data['id'],
-            data['labels'] if 'labels' in data else [],
-            data['notes'] if 'notes' in data else []
-        )
+    def _from_dict(self, data):
+        if 'type' in data and data['type'] == 'collection':
+            return Collection(
+                data['id'],
+                data['labels'] if 'labels' in data else []
+            )
+        else:
+            return Concept(
+                data['id'],
+                data['labels'] if 'labels' in data else [],
+                data['notes'] if 'notes' in data else []
+            )
 
     def get_by_id(self, id):
         id = str(id)
         for c in self.list:
-            if str(c['id']) == id:
+            if str(c.id) == id:
                 return c
         return False
 
@@ -143,7 +169,7 @@ class FlatDictionaryProvider(VocabularyProvider):
         ret = []
         for c in self.list:
             if any(
-                [l['label'].find(query['label']) >= 0 for l in c['labels']]
+                [l['label'].find(query['label']) >= 0 for l in c.labels]
             ):
                 ret.append({'id': c['id'], 'label': c.label(language).label})
         return ret
@@ -152,14 +178,14 @@ class FlatDictionaryProvider(VocabularyProvider):
         language = self._get_language(**kwargs)
         ret = []
         for c in self.list:
-            ret.append({'id': c['id'], 'label': c.label(language).label})
+            ret.append({'id': c.id, 'label': c.label(language).label})
         return ret
 
     def expand_concept(self, id):
         id = str(id)
         for c in self.list:
-            if str(c['id']) == id:
-                return [c['id']]
+            if str(c.id) == id:
+                return [c.id]
         return False
 
 
@@ -171,21 +197,27 @@ class TreeDictionaryProvider(FlatDictionaryProvider):
     expand a certain concept.
     '''
 
-    def _concept_from_dict(self, data):
-        return Concept(
-            data['id'],
-            data['labels'] if 'labels' in data else [],
-            data['notes'] if 'notes' in data else [],
-            data['broader'] if 'broader' in data else [],
-            data['narrower'] if 'narrower' in data else [],
-            data['related'] if 'related' in data else [],
-        )
+    def _from_dict(self, data):
+        if 'type' in data and data['type'] == 'collection':
+            return Collection(
+                data['id'],
+                data['labels'] if 'labels' in data else [],
+            )
+        else:
+            return Concept(
+                data['id'],
+                data['labels'] if 'labels' in data else [],
+                data['notes'] if 'notes' in data else [],
+                data['broader'] if 'broader' in data else [],
+                data['narrower'] if 'narrower' in data else [],
+                data['related'] if 'related' in data else [],
+            )
 
     def expand_concept(self, id):
         id = str(id)
         for c in self.list:
-            if str(c['id']) == id:
-                ret = [c['id']]
+            if str(c.id) == id and isinstance(c, Concept):
+                ret = [c.id]
                 if 'narrower' in c:
                     for cid in c['narrower']:
                         ret = ret + self.expand_concept(cid)

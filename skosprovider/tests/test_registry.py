@@ -109,7 +109,8 @@ class RegistryTests(unittest.TestCase):
                     'id': 'TREES',
                     'concepts': [
                         {'id': '1', 'label': 'De Lariks'},
-                        {'id': '2', 'label': 'De Paardekastanje'}
+                        {'id': '2', 'label': 'De Paardekastanje'},
+                        {'id': 3, 'label': 'Bomen per soort'}
                     ]
                 }
             ]

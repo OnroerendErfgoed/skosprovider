@@ -32,9 +32,19 @@ chestnut = {
     ]
 }
 
+species = {
+    'id': 3,
+    'labels': [
+        {'type': 'prefLabel', 'language': 'en', 'label': 'Trees by species'},
+        {'type': 'prefLabel', 'language': 'nl', 'label': 'Bomen per soort'}
+    ],
+    'type': 'collection',
+    'members': ['1', '2']
+}
+
 trees = FlatDictionaryProvider(
     {'id': 'TREES', 'default_language': 'nl'},
-    [larch, chestnut]
+    [larch, chestnut, species]
 )
 
 world = {
@@ -98,6 +108,13 @@ geo = TreeDictionaryProvider(
                 {'type': 'prefLabel', 'language': 'en', 'label': 'Wallonie'}
             ],
             'broader': [4]
+        }, {
+            'id': '333',
+            'type': 'collection',
+            'labels': [
+                {'type': 'prefLabel', 'language': 'en', 'label': 'Places where dutch is spoken'}
+            ],
+            'members': ['4', '7', '8']
         }
     ]
 )
@@ -146,7 +163,8 @@ class FlatDictionaryProviderTests(unittest.TestCase):
     def test_get_all(self):
         self.assertEquals(trees.get_all(),
                           [{'id': '1', 'label': 'De Lariks'},
-                           {'id': '2', 'label': 'De Paardekastanje'}])
+                           {'id': '2', 'label': 'De Paardekastanje'},
+                           {'id': 3, 'label': 'Bomen per soort'}])
 
     def test_get_all_default_language(self):
         trees = FlatDictionaryProvider(
@@ -159,7 +177,8 @@ class FlatDictionaryProviderTests(unittest.TestCase):
     def test_get_all_english(self):
         self.assertEquals(trees.get_all(language='en'),
                           [{'id': '1', 'label': 'The Larch'},
-                           {'id': '2', 'label': 'The Chestnut'}])
+                           {'id': '2', 'label': 'The Chestnut'},
+                           {'id': 3, 'label': 'Trees by species'}])
     
     def test_find_larch(self):
         self.assertEqual(
