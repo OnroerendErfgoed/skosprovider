@@ -179,7 +179,7 @@ class FlatDictionaryProviderTests(unittest.TestCase):
                           [{'id': '1', 'label': 'The Larch'},
                            {'id': '2', 'label': 'The Chestnut'},
                            {'id': 3, 'label': 'Trees by species'}])
-    
+
     def test_find_larch(self):
         self.assertEqual(
             trees.find({'label': 'The Larch'}),
@@ -204,7 +204,9 @@ class FlatDictionaryProviderTests(unittest.TestCase):
             trees.get_all()
         )
 
+
 class TreeDictionaryProviderTests(unittest.TestCase):
+
     def setUp(self):
         pass
 

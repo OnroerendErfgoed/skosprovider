@@ -53,7 +53,11 @@ class RegistryTests(unittest.TestCase):
     def test_one_provider_register_double_provider(self):
         self.reg.register_provider(self.prov)
         self.assertEquals(self.reg.get_provider('TREES'), self.prov)
-        self.assertRaises(RegistryException, self.reg.register_provider, self.prov)
+        self.assertRaises(
+            RegistryException,
+            self.reg.register_provider,
+            self.prov
+        )
 
     def test_one_provider_removeProvider(self):
         self.reg.register_provider(self.prov)
@@ -80,7 +84,7 @@ class RegistryTests(unittest.TestCase):
         self.reg.register_provider(self.prov)
         self.assertEquals(self.reg.find({'label': 'The Larch'}),
                           [{'id': 'TREES',
-                            'concepts': [{'id':'1', 'label': 'De Lariks'}]}])
+                            'concepts': [{'id': '1', 'label': 'De Lariks'}]}])
 
     def test_one_provider_findConceptsWithProviderid(self):
         self.reg.register_provider(self.prov)

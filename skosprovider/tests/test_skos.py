@@ -202,6 +202,7 @@ class CollectionTest(unittest.TestCase):
         self.assertEqual(label(labels, 'en'), coll.label('en'))
         self.assertEqual(label(labels, None), coll.label(None))
 
+
 class LabelFunctionTest(unittest.TestCase):
 
     def setUp(self):
@@ -226,7 +227,7 @@ class LabelFunctionTest(unittest.TestCase):
 
     def test_label_pref(self):
         kh = self._get_knokke_heist_nl()
-        labels=[kh]
+        labels = [kh]
         self.assertEqual(kh, label(labels))
         self.assertEqual(kh, label(labels, 'nl-BE'))
         self.assertEqual(kh, label(labels, 'en'))
@@ -235,7 +236,7 @@ class LabelFunctionTest(unittest.TestCase):
     def test_label_pref_nl_and_en(self):
         kh = self._get_knokke_heist_nl()
         khen = self._get_knokke_heist_en()
-        labels=[kh, khen]
+        labels = [kh, khen]
         self.assertIn(label(labels), [kh, khen])
         self.assertEqual(kh, label(labels, 'nl-BE'))
         self.assertEqual(khen, label(labels, 'en'))
@@ -243,7 +244,7 @@ class LabelFunctionTest(unittest.TestCase):
 
     def test_label_alt(self):
         ch = self._get_cnocke_heyst_nl()
-        labels=[ch]
+        labels = [ch]
         self.assertEqual(ch, label(labels))
         self.assertEqual(ch, label(labels, 'nl-BE'))
         self.assertEqual(ch, label(labels, 'en'))
@@ -252,7 +253,7 @@ class LabelFunctionTest(unittest.TestCase):
     def test_pref_precedes_alt(self):
         kh = self._get_knokke_heist_nl()
         ch = self._get_cnocke_heyst_nl()
-        labels=[kh, ch]
+        labels = [kh, ch]
         self.assertEqual(kh, label(labels))
         self.assertEqual(kh, label(labels, 'nl-BE'))
         self.assertEqual(kh, label(labels, 'en'))
@@ -261,7 +262,7 @@ class LabelFunctionTest(unittest.TestCase):
     def test_dict_pref(self):
         kh = self._get_knokke_heist_nl()
         khd = kh.__dict__
-        labels=[khd]
+        labels = [khd]
         self.assertEqual(kh, label(labels))
         self.assertEqual(kh, label(labels, 'nl-BE'))
         self.assertEqual(kh, label(labels, 'en'))

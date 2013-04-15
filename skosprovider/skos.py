@@ -6,11 +6,12 @@ This module contains a read-only model of the :term:`SKOS` specification.
 
 import collections
 
+
 class Label:
     '''
     A :term:`SKOS` Label.
     '''
-    
+
     label = None
     '''
     The label itself (eg. `churches`, `trees`, `Spitfires`, ...)
@@ -26,7 +27,7 @@ class Label:
     The language the label is in (eg. `en`, `en-US`, `nl`, `nl-BE`).
     '''
 
-    def __init__(self, label, type="prefLabel", language = None):
+    def __init__(self, label, type="prefLabel", language=None):
         self.label = label
         self.type = type
         self.language = language
@@ -54,7 +55,7 @@ class Note:
     A :term:`SKOS` Note.
     '''
 
-    def __init__(self, note, type="note", language = None):
+    def __init__(self, note, type="note", language=None):
         self.note = note
         self.type = type
         self.language = language
@@ -71,8 +72,8 @@ class Note:
         Check if the argument is a valid SKOS note type.
         '''
         return type in [
-            'note', 
-            'changeNote', 
+            'note',
+            'changeNote',
             'definition',
             'editorialNote',
             'example',
@@ -85,12 +86,12 @@ class ConceptScheme:
     '''
     A :term:`SKOS` ConceptScheme.
     '''
-    
-    def __init__(self, id, labels = []):
+
+    def __init__(self, id, labels=[]):
         self.id = id
         self.labels = labels
 
-    def label(self, language = 'any'):
+    def label(self, language='any'):
         return label(self.labels, language)
 
 
@@ -98,12 +99,10 @@ class Concept(collections.Mapping):
     '''
     A :term:`SKOS` Concept.
     '''
-    
-    def __init__(
-            self, id, 
-            labels=[], notes=[], 
-            broader=[], narrower=[], related=[]
-        ):
+   
+    def __init__(self, id,
+                 labels=[], notes=[],
+                 broader=[], narrower=[], related=[]):
         self.id = id
         self.labels = [dict_to_label(l) for l in labels]
         self.notes = notes
@@ -121,23 +120,24 @@ class Concept(collections.Mapping):
     def __len__(self):
         return len(self.__dict__)
 
-    def label(self, language = 'any'):
+    def label(self, language='any'):
         return label(self.labels, language)
+
 
 class Collection:
     '''
     A :term:`SKOS` Collection.
     '''
     
-    def __init__(self, id, labels = []):
+    def __init__(self, id, labels=[]):
         self.id = id
         self.labels = labels
 
-    def label(self, language = 'any'):
+    def label(self, language='any'):
         return label(self.labels, language)
 
 
-def label(labels = [], language = 'any'):
+def label(labels=[], language='any'):
     '''
     Provide a label for a list of labels.
 
@@ -188,6 +188,6 @@ def dict_to_label(dict):
     else:
         return Label(
             dict['label'], 
-            dict['type'] if 'type' in dict else 'prefLabel' , 
+            dict['type'] if 'type' in dict else 'prefLabel', 
             dict['language'] if 'language' in dict else None
         )
