@@ -20,3 +20,8 @@ Registry module
 .. automodule:: skosprovider.registry
    :members:
 
+Utils module
+---------------
+
+.. automodule:: skosprovider.utils
+   :members:

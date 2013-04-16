@@ -131,7 +131,7 @@ class Collection:
     
     def __init__(self, id, labels=[], members=[]):
         self.id = id
-        self.labels = labels
+        self.labels = [dict_to_label(l) for l in labels]
         self.members = members
 
     def label(self, language='any'):

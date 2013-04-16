@@ -16,7 +16,7 @@ larch = {
         {'type': 'prefLabel', 'language': 'nl', 'label': 'De Lariks'}
     ],
     'notes': [
-        {'type': 'definition', 'lang': 'en', 'note': 'A type of tree.'}
+        {'type': 'definition', 'language': 'en', 'note': 'A type of tree.'}
     ]
 }
 
@@ -28,7 +28,7 @@ chestnut = {
     ],
     'notes': [
         {
-            'type': 'definition', 'lang': 'en',
+            'type': 'definition', 'language': 'en',
             'note': 'A different type of tree.'
         }
     ]
