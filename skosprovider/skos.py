@@ -105,7 +105,7 @@ class Concept(collections.Mapping):
                  broader=[], narrower=[], related=[]):
         self.id = id
         self.labels = [dict_to_label(l) for l in labels]
-        self.notes = notes
+        self.notes = [dict_to_note(n) for n in notes]
         self.broader = broader
         self.narrower = narrower
         self.related = related
@@ -181,7 +181,7 @@ def dict_to_label(dict):
     Transform a dict with keys `label`, `type` and `language` into a 
     :class:`Label`.
 
-    If the argument passed is already a :class:`label`, this method just returns 
+    If the argument passed is already a :class:`Label`, this method just returns 
     the argument.
     '''
     if isinstance(dict, Label):
@@ -190,5 +190,22 @@ def dict_to_label(dict):
         return Label(
             dict['label'], 
             dict['type'] if 'type' in dict else 'prefLabel', 
+            dict['language'] if 'language' in dict else None
+        )
+
+def dict_to_note(dict):
+    '''
+    Transform a dict with keys `note`, `type` and `language` into a 
+    :class:`Note`.
+
+    If the argument passed is already a :class:`Note`, this method just returns 
+    the argument.
+    '''
+    if isinstance(dict, Note):
+        return dict
+    else:
+        return Note(
+            dict['note'], 
+            dict['type'] if 'type' in dict else 'note', 
             dict['language'] if 'language' in dict else None
         )

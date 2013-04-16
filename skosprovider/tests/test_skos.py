@@ -11,7 +11,9 @@ from skosprovider.skos import (
     ConceptScheme,
     Concept,
     Collection,
-    label
+    label,
+    dict_to_label,
+    dict_to_note
 )
 
 class LabelTest(unittest.TestCase):
@@ -76,6 +78,16 @@ class NoteTest(unittest.TestCase):
     def testInEquality(self):
         n1 = Note('A note.')
         n2 = Note('A note.', 'definition')
+        self.assertNotEqual(n1, n2)
+
+    def testDictEquality(self):
+        n1 = Note('A note.')
+        n2 = {'note': 'A note.', 'type': 'note', 'language': None}
+        self.assertEqual(n1, n2)
+
+    def testDictInequality(self):
+        n1 = Note('A note.')
+        n2 = {'note': 'A note.', 'type': 'definition', 'language': None}
         self.assertNotEqual(n1, n2)
 
     def testIsValidType(self):
@@ -212,6 +224,31 @@ class CollectionTest(unittest.TestCase):
         coll = Collection('DEELGEMEENTEN', labels, [1, 2 ])
         self.assertTrue(set([1, 2]), set(coll.members))
 
+
+class DictToNoteFunctionTest(unittest.TestCase):
+
+    def testDictToNodeWithDict(self):
+        d = dict_to_note({'note': 'A note.', 'type': 'note'})
+        self.assertEqual('A note.', d.note)
+        self.assertEqual('note', d.type)
+
+    def testDictToNodeWithNote(self):
+        d = dict_to_note(Note('A note.', 'note'))
+        self.assertEqual('A note.', d.note)
+        self.assertEqual('note', d.type)
+
+
+class DictToLabelFunctionTest(unittest.TestCase):
+
+    def testDictToLabelWithDict(self):
+        l = dict_to_label({'label': 'A label.', 'type': 'prefLabel'})
+        self.assertEqual('A label.', l.label)
+        self.assertEqual('prefLabel', l.type)
+
+    def testDictToLabelWithlabel(self):
+        l = dict_to_label(Label('A label.', 'prefLabel'))
+        self.assertEqual('A label.', l.label)
+        self.assertEqual('prefLabel', l.type)
 
 
 class LabelFunctionTest(unittest.TestCase):
