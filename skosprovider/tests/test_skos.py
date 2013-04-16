@@ -202,6 +202,17 @@ class CollectionTest(unittest.TestCase):
         self.assertEqual(label(labels, 'en'), coll.label('en'))
         self.assertEqual(label(labels, None), coll.label(None))
 
+    def testEmptyMembers(self):
+        labels = self._get_labels()
+        coll = Collection('DEELGEMEENTEN', labels, [])
+        self.assertEqual([], coll.members)
+
+    def testMembers(self):
+        labels = self._get_labels()
+        coll = Collection('DEELGEMEENTEN', labels, [1, 2 ])
+        self.assertItemsEqual([1, 2], coll.members)
+
+
 
 class LabelFunctionTest(unittest.TestCase):
 

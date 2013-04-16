@@ -129,9 +129,10 @@ class Collection:
     A :term:`SKOS` Collection.
     '''
     
-    def __init__(self, id, labels=[]):
+    def __init__(self, id, labels=[], members=[]):
         self.id = id
         self.labels = labels
+        self.members = members
 
     def label(self, language='any'):
         return label(self.labels, language)
