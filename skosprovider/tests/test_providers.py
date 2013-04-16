@@ -2,6 +2,8 @@
 
 import unittest
 
+import warnings
+
 from skosprovider.providers import (
     FlatDictionaryProvider,
     TreeDictionaryProvider
@@ -154,11 +156,21 @@ class FlatDictionaryProviderTests(unittest.TestCase):
     def test_get_unexisting_by_id(self):
         self.assertEquals(False, trees.get_by_id(987654321))
 
-    def test_expand_concept(self):
-        self.assertEquals(['1'], trees.expand_concept(1))
+    def test_expand_concept_deprecated(self):
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter('always')
+            trees.expand_concept(1)
+            self.assertEqual(1, len(w))
+            self.assertEqual(w[-1].category, DeprecationWarning)
 
-    def test_expand_unexisting_concept(self):
-        self.assertEquals(False, trees.expand_concept(987654321))
+    def test_expand_concept(self):
+        self.assertEquals(['1'], trees.expand(1))
+
+    def test_expand_unexisting(self):
+        self.assertEquals(False, trees.expand(987654321))
+
+    def test_expand_collection(self):
+        self.assertEquals(['1', '2'], trees.expand(3))
 
     def test_get_all(self):
         self.assertEquals(trees.get_all(),
@@ -214,10 +226,10 @@ class TreeDictionaryProviderTests(unittest.TestCase):
         pass
 
     def test_get_vocabulary_id(self):
-        self.assertEquals('GEOGRAPHY', geo.get_vocabulary_id())
+        self.assertEqual('GEOGRAPHY', geo.get_vocabulary_id())
 
     def test_get_metadata(self):
-        self.assertEquals({'id': 'GEOGRAPHY'}, geo.get_metadata())
+        self.assertEqual({'id': 'GEOGRAPHY'}, geo.get_metadata())
 
     def test_get_by_id(self):
         wereld = geo.get_by_id(1)
@@ -225,11 +237,19 @@ class TreeDictionaryProviderTests(unittest.TestCase):
         self.assertEqual(world['labels'], wereld['labels'])
         self.assertEqual(world['narrower'], wereld['narrower'])
 
-    def test_expand_concept(self):
-        self.assertEquals([4, 7, 8, 9], geo.expand_concept(4))
+    def test_get_colletion_by_id(self):
+        dutch_speaking = geo.get_by_id(333)
+        self.assertEqual('333', dutch_speaking.id)
+        self.assertEqual(['4', '7', '8'], dutch_speaking.members)
 
-    def test_expand_concept_string(self):
-        self.assertEquals([4, 7, 8, 9], geo.expand_concept('4'))
+    def test_expand(self):
+        self.assertTrue(set([4, 7, 8, 9]), set(geo.expand(4)))
 
-    def test_expand_unexisting_concept(self):
-        self.assertEquals(False, geo.expand_concept(987654321))
+    def test_expand_string(self):
+        self.assertTrue(set([4, 7, 8, 9]), set(geo.expand('4')))
+
+    def test_expand_unexisting(self):
+        self.assertEqual(False, geo.expand(987654321))
+
+    def test_expand_collection(self):
+        self.assertTrue(set([4, 7, 8, 9]), set(geo.expand(333)))

@@ -12,6 +12,8 @@ configurations to handle different vocabs.
 
 import abc
 
+import warnings
+
 from .skos import (
     Concept,
     Collection
@@ -120,11 +122,35 @@ class VocabularyProvider:
         '''Expand a concept to the concept itself and all it's narrower
         concepts.
 
-        This method should recurse and also return narrower concepts
-        of narrower concepts.
+        This method has been deprectad, please use :meth:`expand`.
 
         :param id: A concept id.
         :rtype: A list of id's or `False` if the concept doesn't exist.
+        '''
+        warnings.warn(
+            'expand_concept has been deprecated, please use expand',
+            DeprecationWarning
+        )
+        return self.expand(id)
+
+    def expand(self, id):
+        '''Expand a concept or collection to all it's narrower
+        concepts.
+
+        This method should recurse and also return narrower concepts
+        of narrower concepts.
+
+        If the id passed belongs to a :class:`skosprovider.skos.Concept`, 
+        the id of the concept itself should be include in the return value. 
+
+        If the id passed belongs to a :class:`skosprovider.skos.Collection`,
+        the id of the collection itself must not be present in the return value.
+        In this case the return value includes all the member concepts and their 
+        narrower concepts.
+
+        :param id: A concept or collection id.
+        :rtype: A list of id's or `False` if the concept or collection doesn't 
+            exist.
         '''
 
 
@@ -144,7 +170,8 @@ class FlatDictionaryProvider(VocabularyProvider):
         if 'type' in data and data['type'] == 'collection':
             return Collection(
                 data['id'],
-                data['labels'] if 'labels' in data else []
+                data['labels'] if 'labels' in data else [],
+                data['members'] if 'members' in data else []
             )
         else:
             return Concept(
@@ -181,11 +208,14 @@ class FlatDictionaryProvider(VocabularyProvider):
             ret.append({'id': c.id, 'label': c.label(language).label})
         return ret
 
-    def expand_concept(self, id):
+    def expand(self, id):
         id = str(id)
         for c in self.list:
-            if str(c.id) == id:
-                return [c.id]
+            if str(c.id) == id: 
+                if isinstance(c, Concept):
+                    return [c.id]
+                elif isinstance(c, Collection):
+                    return c.members
         return False
 
 
@@ -202,6 +232,7 @@ class TreeDictionaryProvider(FlatDictionaryProvider):
             return Collection(
                 data['id'],
                 data['labels'] if 'labels' in data else [],
+                data['members'] if 'members' in data else []
             )
         else:
             return Concept(
@@ -213,13 +244,19 @@ class TreeDictionaryProvider(FlatDictionaryProvider):
                 data['related'] if 'related' in data else [],
             )
 
-    def expand_concept(self, id):
+    def expand(self, id):
         id = str(id)
         for c in self.list:
-            if str(c.id) == id and isinstance(c, Concept):
-                ret = [c.id]
-                if 'narrower' in c:
-                    for cid in c['narrower']:
-                        ret = ret + self.expand_concept(cid)
-                return ret
+            if str(c.id) == id: 
+                if isinstance(c, Concept):
+                    ret = set([c.id])
+                    if 'narrower' in c:
+                        for cid in c['narrower']:
+                            ret |= set(self.expand(cid))
+                    return list(ret)
+                elif isinstance(c, Collection):
+                    ret = set([])
+                    for m in c.members:
+                        ret |= set(self.expand(m))
+                    return list(ret)
         return False
