@@ -210,7 +210,7 @@ class CollectionTest(unittest.TestCase):
     def testMembers(self):
         labels = self._get_labels()
         coll = Collection('DEELGEMEENTEN', labels, [1, 2 ])
-        self.assertItemsEqual([1, 2], coll.members)
+        self.assertTrue(set([1, 2]), set(coll.members))
 
 
 
