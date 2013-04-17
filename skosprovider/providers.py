@@ -145,7 +145,7 @@ class VocabularyProvider:
 
         If the id passed belongs to a :class:`skosprovider.skos.Collection`,
         the id of the collection itself must not be present in the return value.
-        In this case the return value includes all the member concepts and their 
+        In this case the return value includes all the member concepts and their
         narrower concepts.
 
         :param id: A concept or collection id.
@@ -247,7 +247,7 @@ class TreeDictionaryProvider(FlatDictionaryProvider):
     def expand(self, id):
         id = str(id)
         for c in self.list:
-            if str(c.id) == id: 
+            if str(c.id) == id:
                 if isinstance(c, Concept):
                     ret = set([c.id])
                     if 'narrower' in c:

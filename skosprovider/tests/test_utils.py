@@ -16,11 +16,11 @@ from skosprovider.providers import (
 
 from test_providers import (
     larch,
-    chestnut,
     species,
     trees,
     geo
 )
+
 
 class DictDumperTest(unittest.TestCase):
 
@@ -33,7 +33,9 @@ class DictDumperTest(unittest.TestCase):
                 {'type': 'prefLabel', 'language': 'nl', 'label': 'De Lariks'}
             ],
             'notes': [
-                {'type': 'definition', 'language': 'en', 'note': 'A type of tree.'}
+                {'type': 'definition', 
+                 'language': 'en', 
+                 'note': 'A type of tree.'}
             ],
             'narrower': [],
             'broader': [],
@@ -44,8 +46,12 @@ class DictDumperTest(unittest.TestCase):
             'id': '2',
             'type': 'concept',
             'labels': [
-                {'type': 'prefLabel', 'language': 'en', 'label': 'The Chestnut'},
-                {'type': 'altLabel', 'language': 'nl', 'label': 'De Paardekastanje'}
+                {'type': 'prefLabel', 
+                 'language': 'en', 
+                 'label': 'The Chestnut'},
+                {'type': 'altLabel', 
+                 'language': 'nl', 
+                 'label': 'De Paardekastanje'}
             ],
             'notes': [
                 {
@@ -69,7 +75,6 @@ class DictDumperTest(unittest.TestCase):
             'broader': [],
             'related': []
         }
-            
 
     def tearDown(self):
         del self.larch_dump
@@ -88,7 +93,7 @@ class DictDumperTest(unittest.TestCase):
 
     def testOneElementProvider(self):
         pv = self._get_flat_provider([larch])
-        self.assertEqual([self.larch_dump],dict_dumper(pv))
+        self.assertEqual([self.larch_dump], dict_dumper(pv))
 
     def testFlatProvider(self):
         self.assertEqual(

@@ -147,10 +147,10 @@ def label(labels=[], language='any'):
     be passed to the :func:`dict_to_label` function.
 
     This method tries to find a label by looking if there's
-    a pref label for the specified language. If there's no pref label, 
+    a pref label for the specified language. If there's no pref label,
     it looks for an alt label. It disregards hidden labels.
 
-    If language 'any' was specified, all labels will be considered, 
+    If language 'any' was specified, all labels will be considered,
     regardless of language.
 
     To find a label without a specified language, pass `None` as language.
@@ -178,24 +178,25 @@ def label(labels=[], language='any'):
 
 def dict_to_label(dict):
     '''
-    Transform a dict with keys `label`, `type` and `language` into a 
+    Transform a dict with keys `label`, `type` and `language` into a
     :class:`Label`.
 
-    If the argument passed is already a :class:`Label`, this method just returns 
+    If the argument passed is already a :class:`Label`, this method just returns
     the argument.
     '''
     if isinstance(dict, Label):
         return dict
     else:
         return Label(
-            dict['label'], 
-            dict['type'] if 'type' in dict else 'prefLabel', 
+            dict['label'],
+            dict['type'] if 'type' in dict else 'prefLabel',
             dict['language'] if 'language' in dict else None
         )
 
+
 def dict_to_note(dict):
     '''
-    Transform a dict with keys `note`, `type` and `language` into a 
+    Transform a dict with keys `note`, `type` and `language` into a
     :class:`Note`.
 
     If the argument passed is already a :class:`Note`, this method just returns 

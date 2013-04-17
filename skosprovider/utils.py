@@ -8,13 +8,14 @@ from skosprovider.skos import (
     Collection
 )
 
+
 def dict_dumper(provider):
     '''
-    Dump a provider to a format that can be passed to a 
-    :class:`skosprovider.providers.FlatDictionaryProvider` or a 
+    Dump a provider to a format that can be passed to a
+    :class:`skosprovider.providers.FlatDictionaryProvider` or a
     :class:`skosprovider.providers.TreeDictionaryProvider`.
 
-    :param skosprovider.providers.VocabularyProvider provider: The provider 
+    :param skosprovider.providers.VocabularyProvider provider: The provider
         that wil be turned into a `dict`.
     :rtype: A list of dicts.
     '''

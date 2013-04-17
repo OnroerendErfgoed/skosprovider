@@ -16,6 +16,7 @@ from skosprovider.skos import (
     dict_to_note
 )
 
+
 class LabelTest(unittest.TestCase):
 
     def setUp(self):
@@ -55,6 +56,7 @@ class LabelTest(unittest.TestCase):
         l1 = Label('Knokke-Heist')
         l2 = {'label': 'Knokke', 'type': 'altLabel', 'language': None}
         self.assertNotEqual(l1, l2)
+
 
 class NoteTest(unittest.TestCase):
 
@@ -221,7 +223,7 @@ class CollectionTest(unittest.TestCase):
 
     def testMembers(self):
         labels = self._get_labels()
-        coll = Collection('DEELGEMEENTEN', labels, [1, 2 ])
+        coll = Collection('DEELGEMEENTEN', labels, [1, 2])
         self.assertTrue(set([1, 2]), set(coll.members))
 
 
