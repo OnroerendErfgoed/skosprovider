@@ -82,9 +82,9 @@ class VocabularyProvider:
 
     @abc.abstractmethod
     def get_all(self, **kwargs):
-        '''Returns all concepts in this provider.
+        '''Returns all concepts and collections in this provider.
 
-        Returns a list of all concepts. For each concept an
+        Returns a list of concepts and collections. For each an
         id is present and a label. The label is determined by looking at the
         `**kwargs` parameter, the default language of the provider and falls
         back to `en` if nothing is present.
@@ -102,13 +102,25 @@ class VocabularyProvider:
             keys are permitted:
 
             * `label`: Search for something with this label value.
-            * `type`: Limit the search to certain SKOS elements. If not present
-                `all` is assumed:
+            * `type`: Limit the search to certain SKOS elements. If not \
+                present `all` is assumed:
             
-                * `concept`: Only return :class:`skosprovider.skos.Concept` instances.
-                * `collection`: Only return :class:`skosprovider.skos.Collection` instances.
-                * `all`: Return both :class:`skosprovider.skos.Concept` and
+                * `concept`: Only return :class:`skosprovider.skos.Concept` \
+                    instances.
+                * `collection`: Only return \
                     :class:`skosprovider.skos.Collection` instances.
+                * `all`: Return both :class:`skosprovider.skos.Concept` and \
+                    :class:`skosprovider.skos.Collection` instances.
+            * `collection`: Search only for concepts belonging to a certain \
+                collection. This argument should be a dict with two keys:
+
+                * `id`: The id of a collection. Required.
+                * `depth`: Can be `members` or `all`. Optional. If not \
+                    present, `members` is assumed, meaning only concepts that \
+                    are a direct member of the collection should be \
+                    considered. When set to `all`, this method \
+                    should return concepts that are a member of the collection \
+                    or are a narrower concept of a member of the collection.
 
         :returns: A list of concepts that match the query. For each concept an
             id is present and a label. The label is determined by looking at the
