@@ -116,11 +116,12 @@ class VocabularyProvider:
 
                 * `id`: The id of a collection. Required.
                 * `depth`: Can be `members` or `all`. Optional. If not \
-                    present, `members` is assumed, meaning only concepts that \
-                    are a direct member of the collection should be \
-                    considered. When set to `all`, this method \
-                    should return concepts that are a member of the collection \
-                    or are a narrower concept of a member of the collection.
+                    present, `members` is assumed, meaning only concepts or \
+                    collections that are a direct member of the collection \
+                    should be considered. When set to `all`, this method \
+                    should return concepts and collections that are a member \
+                    of the collection or are a narrower concept of a member \
+                    of the collection.
 
         :returns: A list of concepts that match the query. For each concept an
             id is present and a label. The label is determined by looking at the
