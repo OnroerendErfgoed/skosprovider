@@ -201,18 +201,34 @@ class FlatDictionaryProvider(VocabularyProvider):
         return False
 
     def find(self, query, **kwargs):
-        if 'label' not in query:
-            return self.get_all(**kwargs)
-        if query['label'] == '':
+        if 'label' in query and query['label'] == '':
             return []
-        language = self._get_language(**kwargs)
         ret = []
         for c in self.list:
-            if any(
-                [l['label'].find(query['label']) >= 0 for l in c.labels]
-            ):
-                ret.append({'id': c['id'], 'label': c.label(language).label})
+            include = True
+            if include and 'label' in query:
+                if not any([l['label'].find(query['label']) >= 0 for l in c.labels]):
+                    include = False
+            if include and 'type' in query and query['type'] != 'all':
+                if query['type'] == 'concept' and not isinstance(c, Concept):
+                    include = False
+                elif query['type'] == 'collection' and not isinstance(c, Collection):
+                    include = False
+            if include:
+                ret.append(self._get_find_dict(c, **kwargs))
         return ret
+
+    def _get_find_dict(self, c, **kwargs):
+        '''
+        Return a dict that can be used in the return list of the :meth:`find` 
+        method.
+
+        :param c: A :class:`skosprovider.skos.Concept` or 
+            :class:`skosprovider.skos.Collection`.
+        :rtype: dict
+        '''
+        language = self._get_language(**kwargs)
+        return {'id': c.id, 'label': c.label(language).label}
 
     def get_all(self, **kwargs):
         language = self._get_language(**kwargs)

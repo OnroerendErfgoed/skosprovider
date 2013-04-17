@@ -1,12 +1,20 @@
 # -*- coding: utf-8 -*-
 
-import unittest
+try:
+    import unittest2 as unittest
+except ImportError:  # pragma NO COVER
+    import unittest  # noqa
 
 import warnings
 
 from skosprovider.providers import (
     FlatDictionaryProvider,
     TreeDictionaryProvider
+)
+
+from skosprovider.skos import (
+    Concept,
+    Collection
 )
 
 larch = {
@@ -192,6 +200,18 @@ class FlatDictionaryProviderTests(unittest.TestCase):
                            {'id': '2', 'label': 'The Chestnut'},
                            {'id': 3, 'label': 'Trees by species'}])
 
+    def test_find_all(self):
+        c = trees.find({'type': 'all'})
+        self.assertEqual(3, len(c))
+
+    def test_find_concepts(self):
+        c = trees.find({'type': 'concept'})
+        self.assertEqual(2, len(c))
+
+    def test_find_collections(self):
+        c = trees.find({'type': 'collection'})
+        self.assertEqual(1, len(c))
+
     def test_find_larch(self):
         self.assertEqual(
             trees.find({'label': 'The Larch'}),
@@ -210,7 +230,27 @@ class FlatDictionaryProviderTests(unittest.TestCase):
             []
         )
 
-    def test_find_all(self):
+    def test_find_es(self):
+        c = trees.find({'label': 'es'})
+        self.assertEqual(2, len(c))
+
+    def test_find_all_es(self):
+        c = trees.find({'label': 'es', 'type': 'all'})
+        self.assertEqual(2, len(c))
+
+    def test_find_concepts_es(self):
+        c = trees.find({'label': 'es', 'type': 'concept'})
+        self.assertEqual(1, len(c))
+        for cc in c:
+            self.assertIsInstance(trees.get_by_id(cc['id']), Concept)
+
+    def  test_find_collections_es(self):
+        c = trees.find({'label': 'es', 'type': 'collection'})
+        self.assertEqual(1, len(c))
+        for cc in c:
+            self.assertIsInstance(trees.get_by_id(cc['id']), Collection)
+
+    def test_find_no_arguments(self):
         self.assertEqual(
             trees.find({}),
             trees.get_all()
