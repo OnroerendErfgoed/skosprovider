@@ -256,6 +256,21 @@ class FlatDictionaryProviderTests(unittest.TestCase):
             trees.get_all()
         )
 
+    def test_find_in_collection(self):
+        c = trees.find({'collection': {'id': 3}})
+        self.assertEqual(2, len(c))
+        for cc in c:
+            self.assertIsInstance(trees.get_by_id(cc['id']), Concept)
+
+    def test_find_in_collection_es(self):
+        c = trees.find({'collection': {'id': 3}, 'label': 'es'})
+        self.assertEqual(1, len(c))
+        for cc in c:
+            self.assertIsInstance(trees.get_by_id(cc['id']), Concept)
+
+    def test_find_in_unexisting_collection(self):
+        self.assertRaises(ValueError, trees.find, {'collection': {'id': 404}})
+
 
 class TreeDictionaryProviderTests(unittest.TestCase):
 
@@ -293,3 +308,26 @@ class TreeDictionaryProviderTests(unittest.TestCase):
 
     def test_expand_collection(self):
         self.assertTrue(set([4, 7, 8, 9]), set(geo.expand(333)))
+
+    def test_find_in_collection(self):
+        c = geo.find({'collection': {'id': 333}})
+        self.assertEqual(3, len(c))
+        for cc in c:
+            self.assertIsInstance(geo.get_by_id(cc['id']), Concept)
+
+    def test_find_in_collection_depth_all(self):
+        c = geo.find({
+            'collection': {'id': 333, 'depth': 'all'}
+        })
+        self.assertEqual(4, len(c))
+        for cc in c:
+            self.assertIsInstance(geo.get_by_id(cc['id']), Concept)
+
+    def test_find_in_collection_depth_all_wallon(self):
+        c = geo.find({
+            'collection': {'id': '333', 'depth': 'all'}, 
+            'label': 'Wallon'
+        })
+        self.assertEqual(1, len(c))
+        for cc in c:
+            self.assertIsInstance(geo.get_by_id(cc['id']), Concept)

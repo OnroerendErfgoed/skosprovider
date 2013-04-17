@@ -206,14 +206,28 @@ class FlatDictionaryProvider(VocabularyProvider):
         ret = []
         for c in self.list:
             include = True
-            if include and 'label' in query:
-                if not any([l['label'].find(query['label']) >= 0 for l in c.labels]):
-                    include = False
             if include and 'type' in query and query['type'] != 'all':
                 if query['type'] == 'concept' and not isinstance(c, Concept):
                     include = False
                 elif query['type'] == 'collection' and not isinstance(c, Collection):
                     include = False
+            if include and 'label' in query:
+                if not any([l['label'].find(query['label']) >= 0 for l in c.labels]):
+                    include = False
+            if include and 'collection' in query:
+                coll = self.get_by_id(query['collection']['id'])
+                if not coll or not isinstance(coll, Collection):
+                    raise ValueError(
+                        'You are searching for items in an unexisting collection.'
+                    )
+                else:
+                    if 'depth' in query['collection'] and query['collection']['depth'] == 'all':
+                        members = self.expand(coll.id)
+                    else:
+                        members = coll.members
+                    members = [str(id) for id in members]
+                    if not str(c.id) in members:
+                        include = False
             if include:
                 ret.append(self._get_find_dict(c, **kwargs))
         return ret
