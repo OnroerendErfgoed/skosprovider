@@ -2,6 +2,8 @@
 
 '''
 This module contains a read-only model of the :term:`SKOS` specification.
+
+.. versionadded:: 0.2.0
 '''
 
 import collections

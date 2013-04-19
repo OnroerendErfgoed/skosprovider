@@ -135,7 +135,8 @@ class VocabularyProvider:
         '''Expand a concept to the concept itself and all it's narrower
         concepts.
 
-        This method has been deprectad, please use :meth:`expand`.
+        .. deprecated:: 0.2.0
+            This method has been deprectad, please use :meth:`expand`.
 
         :param id: A concept id.
         :rtype: A list of id's or `False` if the concept doesn't exist.
@@ -168,31 +169,18 @@ class VocabularyProvider:
         '''
 
 
-class FlatDictionaryProvider(VocabularyProvider):
-    '''A simple vocab provider that use a python list of dicts.
+class MemoryProvider(VocabularyProvider):
+    '''
+    An provider that keeps everything in memory.
 
-    The provider expects a list with elements that are dicts that represent
-    the concepts. This provider assumes there is no hierarchy
-    (broader/narrower) or relations between concepts.
+    The data is passed in the constructor of this provider as a list of
+    :class:`skosprovider.skos.Concept` and :class:`skosprovider.skos.Collection` 
+    instances.
     '''
 
     def __init__(self, metadata, list):
-        super(FlatDictionaryProvider, self).__init__(metadata)
-        self.list = [self._from_dict(c) for c in list]
-
-    def _from_dict(self, data):
-        if 'type' in data and data['type'] == 'collection':
-            return Collection(
-                data['id'],
-                data['labels'] if 'labels' in data else [],
-                data['members'] if 'members' in data else []
-            )
-        else:
-            return Concept(
-                data['id'],
-                data['labels'] if 'labels' in data else [],
-                data['notes'] if 'notes' in data else []
-            )
+        super(MemoryProvider, self).__init__(metadata)
+        self.list = list
 
     def get_by_id(self, id):
         id = str(id)
@@ -255,21 +243,31 @@ class FlatDictionaryProvider(VocabularyProvider):
     def expand(self, id):
         id = str(id)
         for c in self.list:
-            if str(c.id) == id: 
+            if str(c.id) == id:
                 if isinstance(c, Concept):
-                    return [c.id]
+                    ret = set([c.id])
+                    if 'narrower' in c:
+                        for cid in c['narrower']:
+                            ret |= set(self.expand(cid))
+                    return list(ret)
                 elif isinstance(c, Collection):
-                    return c.members
+                    ret = set([])
+                    for m in c.members:
+                        ret |= set(self.expand(m))
+                    return list(ret)
         return False
 
 
-class TreeDictionaryProvider(FlatDictionaryProvider):
-    '''An extension of the :class:`FlatDictionaryProvider` that can handle 
-    hierarchical data.
+class DictionaryProvider(MemoryProvider):
+    '''A simple vocab provider that use a python list of dicts.
 
-    This provider can check if a concept has narrower concepts and use that to
-    expand a certain concept.
+    The provider expects a list with elements that are dicts that represent
+    the concepts.
     '''
+
+    def __init__(self, metadata, list):
+        list = [self._from_dict(c) for c in list]
+        super(DictionaryProvider, self).__init__(metadata, list)
 
     def _from_dict(self, data):
         if 'type' in data and data['type'] == 'collection':
@@ -288,19 +286,35 @@ class TreeDictionaryProvider(FlatDictionaryProvider):
                 data['related'] if 'related' in data else [],
             )
 
-    def expand(self, id):
-        id = str(id)
-        for c in self.list:
-            if str(c.id) == id:
-                if isinstance(c, Concept):
-                    ret = set([c.id])
-                    if 'narrower' in c:
-                        for cid in c['narrower']:
-                            ret |= set(self.expand(cid))
-                    return list(ret)
-                elif isinstance(c, Collection):
-                    ret = set([])
-                    for m in c.members:
-                        ret |= set(self.expand(m))
-                    return list(ret)
-        return False
+class FlatDictionaryProvider(DictionaryProvider):
+    '''
+    A provider that uses a list of dicts.
+
+    .. deprecated:: 0.2.0
+        This provider has been deprecated and will be removed in 
+        version 0.3.0. Please use :class:`DictionaryProvider`.
+    '''
+    def __init__(self, metadata, list):
+        warnings.warn(
+            'FlatDictionaryProvider has been deprecated, \
+            please use DictionaryProvider',
+            DeprecationWarning
+        )
+        super(FlatDictionaryProvider, self).__init__(metadata, list)
+
+class TreeDictionaryProvider(DictionaryProvider):
+    '''
+    A provider that uses a list of dicts and supports hierarchies.
+
+    .. deprecated:: 0.2.0
+        This provider has been deprecated and will be removed in 
+        version 0.3.0. Please use :class:`DictionaryProvider`.
+    '''
+    
+    def __init__(self, metadata, list):
+        warnings.warn(
+            'TreeDictionaryProvider has been deprecated, \
+            please use DictionaryProvider',
+            DeprecationWarning
+        )
+        super(TreeDictionaryProvider, self).__init__(metadata, list)

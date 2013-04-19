@@ -18,6 +18,8 @@ def dict_dumper(provider):
     :param skosprovider.providers.VocabularyProvider provider: The provider
         that wil be turned into a `dict`.
     :rtype: A list of dicts.
+
+    .. versionadded:: 0.2.0
     '''
     ret = []
     for stuff in provider.get_all():

@@ -8,6 +8,7 @@ except ImportError:  # pragma NO COVER
 import warnings
 
 from skosprovider.providers import (
+    DictionaryProvider,
     FlatDictionaryProvider,
     TreeDictionaryProvider
 )
@@ -52,7 +53,7 @@ species = {
     'members': ['1', '2']
 }
 
-trees = FlatDictionaryProvider(
+trees = DictionaryProvider(
     {'id': 'TREES', 'default_language': 'nl'},
     [larch, chestnut, species]
 )
@@ -65,7 +66,7 @@ world = {
     'narrower': [2, 3]
 }
 
-geo = TreeDictionaryProvider(
+geo = DictionaryProvider(
     {'id': 'GEOGRAPHY'},
     [
         world,
@@ -130,7 +131,7 @@ geo = TreeDictionaryProvider(
 )
 
 
-class FlatDictionaryProviderTests(unittest.TestCase):
+class TreesDictionaryProviderTests(unittest.TestCase):
     def setUp(self):
         pass
 
@@ -187,7 +188,7 @@ class FlatDictionaryProviderTests(unittest.TestCase):
                            {'id': 3, 'label': 'Bomen per soort'}])
 
     def test_get_all_default_language(self):
-        trees = FlatDictionaryProvider(
+        trees = DictionaryProvider(
             {'id': 'TREES'},
             [larch]
         )
@@ -272,7 +273,7 @@ class FlatDictionaryProviderTests(unittest.TestCase):
         self.assertRaises(ValueError, trees.find, {'collection': {'id': 404}})
 
 
-class TreeDictionaryProviderTests(unittest.TestCase):
+class GeoDictionaryProviderTests(unittest.TestCase):
 
     def setUp(self):
         pass
@@ -331,3 +332,21 @@ class TreeDictionaryProviderTests(unittest.TestCase):
         self.assertEqual(1, len(c))
         for cc in c:
             self.assertIsInstance(geo.get_by_id(cc['id']), Concept)
+
+class FlatDictionaryProviderTests(unittest.TestCase):
+
+    def test_deprecated(self):
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter('always')
+            fd = FlatDictionaryProvider({},[])
+            self.assertEqual(1, len(w))
+            self.assertEqual(w[-1].category, DeprecationWarning)
+
+class TreeDictionaryProviderTests(unittest.TestCase):
+
+    def test_deprecated(self):
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter('always')
+            fd = TreeDictionaryProvider({},[])
+            self.assertEqual(1, len(w))
+            self.assertEqual(w[-1].category, DeprecationWarning)

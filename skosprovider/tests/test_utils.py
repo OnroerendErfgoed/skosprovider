@@ -10,8 +10,7 @@ from skosprovider.utils import (
 )
 
 from skosprovider.providers import (
-    FlatDictionaryProvider,
-    TreeDictionaryProvider
+    DictionaryProvider,
 )
 
 from test_providers import (
@@ -82,10 +81,10 @@ class DictDumperTest(unittest.TestCase):
         del self.world_dump
 
     def _get_flat_provider(self, dictionary):
-        return FlatDictionaryProvider({'id': 'TEST'}, dictionary)
+        return DictionaryProvider({'id': 'TEST'}, dictionary)
 
     def _get_tree_provider(self, dictionary):
-        return TreeDictionaryProvider({'id': 'TEST'}, dictionary)
+        return DictionaryProvider({'id': 'TEST'}, dictionary)
 
     def testEmptyProvider(self):
         pv = self._get_flat_provider([])
