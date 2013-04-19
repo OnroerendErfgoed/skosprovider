@@ -286,6 +286,39 @@ class DictionaryProvider(MemoryProvider):
                 data['related'] if 'related' in data else [],
             )
 
+
+class SimpleCsvProvider(MemoryProvider):
+    '''
+    A provider that reads a simple csv format into memory.
+
+    The supported csv format looks like this:
+    <id>,<preflabel>,<note>
+
+    .. versionadded:: 0.2.0
+    '''
+
+    def __init__(self, metadata, reader):
+        '''
+        :param metadata: A metadata dictionary.
+        :param reader: A csv reader.
+        '''
+        list = [self._from_row(row) for row in reader]
+        super(SimpleCsvProvider, self).__init__(metadata, list)
+
+    def _from_row(self, row):
+        id = row[0]
+        labels = [{'label':row[1], 'type':'prefLabel'}]
+        if row[2]:
+            notes = [{'note':row[2], 'type':'note'}]
+        else:
+            notes = []
+        return Concept(
+            id=id,
+            labels=labels,
+            notes=notes
+        )
+
+
 class FlatDictionaryProvider(DictionaryProvider):
     '''
     A provider that uses a list of dicts.

@@ -7,15 +7,20 @@ except ImportError:  # pragma NO COVER
 
 import warnings
 
+import os
+import csv
+
 from skosprovider.providers import (
     DictionaryProvider,
     FlatDictionaryProvider,
-    TreeDictionaryProvider
+    TreeDictionaryProvider,
+    SimpleCsvProvider
 )
 
 from skosprovider.skos import (
     Concept,
-    Collection
+    Collection,
+    Note
 )
 
 larch = {
@@ -350,3 +355,44 @@ class TreeDictionaryProviderTests(unittest.TestCase):
             fd = TreeDictionaryProvider({},[])
             self.assertEqual(1, len(w))
             self.assertEqual(w[-1].category, DeprecationWarning)
+
+class SimpleCsvProviderTests(unittest.TestCase):
+
+    def setUp(self):
+        self.ifile  = open(
+            os.path.join(os.path.dirname(__file__), 'data', 'menu.csv'), 
+            "r"
+        )
+        reader = csv.reader(self.ifile)
+        self.csvprovider = SimpleCsvProvider(
+            {'id': 'MENU'}, 
+            reader
+        )
+
+    def tearDown(self):
+        self.ifile.close()
+        del self.csvprovider
+
+    def testCount(self):
+        self.assertEqual(11, len(self.csvprovider.get_all()))
+
+    def testGetEggAndBacon(self):
+        eb = self.csvprovider.get_by_id(1)
+        self.assertIsInstance(eb, Concept)
+        self.assertEqual('1', eb.id)
+        self.assertEqual('Egg and Bacon', eb.label().label)
+        self.assertEqual('prefLabel', eb.label().type)
+        self.assertEqual([], eb.notes)
+
+    def testFindSpam(self):
+        spam = self.csvprovider.find({'label': 'Spam'})
+        self.assertEqual(8, len(spam))
+
+    def testGetLobster(self):
+        eb = self.csvprovider.get_by_id(11)
+        self.assertIsInstance(eb, Concept)
+        self.assertEqual('11', eb.id)
+        self.assertEqual('Lobster Thermidor', eb.label().label)
+        self.assertIsInstance(eb.notes[0], Note)
+        self.assertIn('Mornay', eb.notes[0].note)
+        self.assertEqual('note', eb.notes[0].type)
