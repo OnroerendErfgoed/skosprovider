@@ -146,6 +146,7 @@ class VocabularyProvider:
         )
         return self.expand(id)
 
+    @abc.abstractmethod
     def expand(self, id):
         '''Expand a concept or collection to all it's narrower
         concepts.
