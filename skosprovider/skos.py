@@ -48,6 +48,8 @@ class Label:
     def is_valid_type(type):
         '''
         Check if the argument is a valid SKOS label type.
+
+        :param string type: The type to be checked. 
         '''
         return type in ['prefLabel', 'altLabel', 'hiddenLabel']
 
@@ -55,6 +57,19 @@ class Label:
 class Note:
     '''
     A :term:`SKOS` Note.
+    '''
+
+    note = None
+    '''The note itself'''
+
+    type = "note"
+    '''
+    The type of this note ( `note`, `defintion`, `scopeNote`, ...).
+    '''
+
+    language = None
+    '''
+    The language the label is in (eg. `en`, `en-US`, `nl`, `nl-BE`).
     '''
 
     def __init__(self, note, type="note", language=None):
@@ -72,6 +87,8 @@ class Note:
     def is_valid_type(type):
         '''
         Check if the argument is a valid SKOS note type.
+
+        :param string type: The type to be checked. 
         '''
         return type in [
             'note',
@@ -94,6 +111,14 @@ class ConceptScheme:
         self.labels = labels
 
     def label(self, language='any'):
+        '''
+        Provide a single label for this conceptscheme.
+
+        This uses the :func:`label` function to determine which label to return.
+
+        :param string language: The preferred language to receive the label in.
+        :rtype: :class:`skosprovider.skos.Label` or False if no labels was found.
+        '''
         return label(self.labels, language)
 
 
@@ -123,6 +148,14 @@ class Concept(collections.Mapping):
         return len(self.__dict__)
 
     def label(self, language='any'):
+        '''
+        Provide a single label for this concept.
+
+        This uses the :func:`label` function to determine which label to return.
+
+        :param string language: The preferred language to receive the label in.
+        :rtype: :class:`skosprovider.skos.Label` or False if no labels was found.
+        '''
         return label(self.labels, language)
 
 
@@ -137,6 +170,14 @@ class Collection:
         self.members = members
 
     def label(self, language='any'):
+        '''
+        Provide a single label for this collection.
+
+        This uses the :func:`label` function to determine which label to return.
+
+        :param string language: The preferred language to receive the label in.µ
+        :rtype: :class:`skosprovider.skos.Label` or False if no labels was found.
+        '''
         return label(self.labels, language)
 
 
