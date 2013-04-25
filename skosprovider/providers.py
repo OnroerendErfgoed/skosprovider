@@ -178,9 +178,27 @@ class MemoryProvider(VocabularyProvider):
     instances.
     '''
 
-    def __init__(self, metadata, list):
+    case_insensitive = True
+    '''
+    Is searching for labels case insensitive?
+
+    By default a search for a label is done case insensitive. Older versions of 
+    this provider were case sensitive. If this behaviour is decided, this can 
+    be triggered by providing a `case_insensitive` keyword to the constructor.
+    '''
+
+    def __init__(self, metadata, list, **kwargs):
+        '''
+        :param dict metadata: A dictionary with keywords like language.
+        :param list list: A list of :class:`skosprovider.skos.Concept` and 
+            :class:`skosprovider.skos.Collection` instances.
+        :param Boolean case_insensitive: Should searching for labels be done 
+            case-insensitive?
+        '''
         super(MemoryProvider, self).__init__(metadata)
         self.list = list
+        if 'case_insensitive' in kwargs:
+            self.case_insensitive = kwargs['case_insensitive']
 
     def get_by_id(self, id):
         id = str(id)
@@ -201,7 +219,11 @@ class MemoryProvider(VocabularyProvider):
                 elif query['type'] == 'collection' and not isinstance(c, Collection):
                     include = False
             if include and 'label' in query:
-                if not any([l['label'].find(query['label']) >= 0 for l in c.labels]):
+                if not self.case_insensitive:
+                    finder = lambda l, query: l['label'].find(query['label'])
+                else:
+                    finder = lambda l, query: l['label'].upper().find(query['label'].upper())
+                if not any([finder(l, query) >= 0 for l in c.labels]):
                     include = False
             if include and 'collection' in query:
                 coll = self.get_by_id(query['collection']['id'])
@@ -265,9 +287,9 @@ class DictionaryProvider(MemoryProvider):
     the concepts.
     '''
 
-    def __init__(self, metadata, list):
+    def __init__(self, metadata, list, **kwargs):
         list = [self._from_dict(c) for c in list]
-        super(DictionaryProvider, self).__init__(metadata, list)
+        super(DictionaryProvider, self).__init__(metadata, list, **kwargs)
 
     def _from_dict(self, data):
         if 'type' in data and data['type'] == 'collection':

@@ -224,16 +224,37 @@ class TreesDictionaryProviderTests(unittest.TestCase):
             [{'id': '1', 'label': 'De Lariks'}]
         )
 
-    def test_find_lar(self):
+    def test_find_The_Lar(self):
         self.assertEqual(
             trees.find({'label': 'The Lar'}),
             [{'id': '1', 'label': 'De Lariks'}]
+        )
+
+    def test_find_case_sensitive(self):
+        trees = DictionaryProvider(
+            {'id': 'TREES', 'default_language': 'nl'},
+            [larch, chestnut, species],
+            case_insensitive = False
+        )
+        self.assertEqual(
+            trees.find({'label': 'The Lar'}),
+            [{'id': '1', 'label': 'De Lariks'}]
+        )
+        self.assertEqual(
+            trees.find({'label': 'lar'}),
+            []
         )
 
     def test_find_empty_label(self):
         self.assertEqual(
             trees.find({'label': ''}),
             []
+        )
+
+    def test_find_lar(self):
+        self.assertEqual(
+            trees.find({'label': 'lar'}),
+            [{'id': '1', 'label': 'De Lariks'}]
         )
 
     def test_find_es(self):
@@ -250,7 +271,7 @@ class TreesDictionaryProviderTests(unittest.TestCase):
         for cc in c:
             self.assertIsInstance(trees.get_by_id(cc['id']), Concept)
 
-    def  test_find_collections_es(self):
+    def test_find_collections_es(self):
         c = trees.find({'label': 'es', 'type': 'collection'})
         self.assertEqual(1, len(c))
         for cc in c:
