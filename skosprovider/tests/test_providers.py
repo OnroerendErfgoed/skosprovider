@@ -246,10 +246,8 @@ class TreesDictionaryProviderTests(unittest.TestCase):
         )
 
     def test_find_empty_label(self):
-        self.assertEqual(
-            trees.find({'label': ''}),
-            []
-        )
+        c = trees.find({'label': ''})
+        self.assertEqual(3, len(c))
 
     def test_find_lar(self):
         self.assertEqual(

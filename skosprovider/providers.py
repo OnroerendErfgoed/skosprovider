@@ -101,7 +101,8 @@ class VocabularyProvider:
         :param query: A dict that can be used to express a query. The following 
             keys are permitted:
 
-            * `label`: Search for something with this label value.
+            * `label`: Search for something with this label value. An empty label
+                is equal to searching for all concepts.
             * `type`: Limit the search to certain SKOS elements. If not \
                 present `all` is assumed:
             
@@ -208,8 +209,6 @@ class MemoryProvider(VocabularyProvider):
         return False
 
     def find(self, query, **kwargs):
-        if 'label' in query and query['label'] == '':
-            return []
         ret = []
         for c in self.list:
             include = True
