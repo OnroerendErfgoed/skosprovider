@@ -65,17 +65,17 @@ class VocabularyProvider:
     def get_by_id(self, id):
         '''Get all information on a concept or collection, based on id.
 
-        Providers should assume that all id's passed are strings. If a provider 
-        knows that internally it uses numeric identifiers, it's up to the 
+        Providers should assume that all id's passed are strings. If a provider
+        knows that internally it uses numeric identifiers, it's up to the
         provider to do the typecasting. Generally, this should not be done by
         changing the id's themselves (eg. from int to str), but by doing the
         id comparisons in a type agnostic way.
 
         Since this method could be used to find both concepts and collections,
-        it's assumed that there are no id collisions between concepts and 
+        it's assumed that there are no id collisions between concepts and
         collections.
 
-        :rtype: :class:`skosprovider.skos.Concept` or 
+        :rtype: :class:`skosprovider.skos.Concept` or
             :class:`skosprovider.skos.Collection` or `False` if the concept or
             collection is unknown to the provider.
         '''
@@ -98,14 +98,14 @@ class VocabularyProvider:
         be passed. Currently only searching on label (eg. {'label': 'tree'}) is
         expected.
 
-        :param query: A dict that can be used to express a query. The following 
+        :param query: A dict that can be used to express a query. The following
             keys are permitted:
 
-            * `label`: Search for something with this label value. An empty label
-                is equal to searching for all concepts.
+            * `label`: Search for something with this label value. An empty \
+                label is equal to searching for all concepts.
             * `type`: Limit the search to certain SKOS elements. If not \
                 present `all` is assumed:
-            
+
                 * `concept`: Only return :class:`skosprovider.skos.Concept` \
                     instances.
                 * `collection`: Only return \
@@ -125,10 +125,10 @@ class VocabularyProvider:
                     of the collection.
 
         :returns: A list of concepts that match the query. For each concept an
-            id is present and a label. The label is determined by looking at the
-            `**kwargs` parameter, the default language of the provider and falls
-            back to `en` if nothing is present.
-        :rtype: A list of dicts. Each dict contains at least an `id` and a 
+            id is present and a label. The label is determined by looking at
+            the `**kwargs` parameter, the default language of the provider
+            and falls back to `en` if nothing is present.
+        :rtype: A list of dicts. Each dict contains at least an `id` and a
             `label` key.
         '''
 
@@ -156,16 +156,16 @@ class VocabularyProvider:
         This method should recurse and also return narrower concepts
         of narrower concepts.
 
-        If the id passed belongs to a :class:`skosprovider.skos.Concept`, 
-        the id of the concept itself should be include in the return value. 
+        If the id passed belongs to a :class:`skosprovider.skos.Concept`,
+        the id of the concept itself should be include in the return value.
 
         If the id passed belongs to a :class:`skosprovider.skos.Collection`,
-        the id of the collection itself must not be present in the return value.
-        In this case the return value includes all the member concepts and their
-        narrower concepts.
+        the id of the collection itself must not be present in the return value
+        In this case the return value includes all the member concepts and
+        their narrower concepts.
 
         :param id: A concept or collection id.
-        :rtype: A list of id's or `False` if the concept or collection doesn't 
+        :rtype: A list of id's or `False` if the concept or collection doesn't
             exist.
         '''
 
@@ -175,7 +175,7 @@ class MemoryProvider(VocabularyProvider):
     An provider that keeps everything in memory.
 
     The data is passed in the constructor of this provider as a list of
-    :class:`skosprovider.skos.Concept` and :class:`skosprovider.skos.Collection` 
+    :class:`skosprovider.skos.Concept` and :class:`skosprovider.skos.Collection`
     instances.
     '''
 
@@ -328,9 +328,9 @@ class SimpleCsvProvider(MemoryProvider):
 
     def _from_row(self, row):
         id = row[0]
-        labels = [{'label':row[1], 'type':'prefLabel'}]
+        labels = [{'label': row[1], 'type':'prefLabel'}]
         if row[2]:
-            notes = [{'note':row[2], 'type':'note'}]
+            notes = [{'note': row[2], 'type':'note'}]
         else:
             notes = []
         return Concept(
@@ -356,6 +356,7 @@ class FlatDictionaryProvider(DictionaryProvider):
         )
         super(FlatDictionaryProvider, self).__init__(metadata, list)
 
+
 class TreeDictionaryProvider(DictionaryProvider):
     '''
     A provider that uses a list of dicts and supports hierarchies.
@@ -364,7 +365,7 @@ class TreeDictionaryProvider(DictionaryProvider):
         This provider has been deprecated and will be removed in 
         version 0.3.0. Please use :class:`DictionaryProvider`.
     '''
-    
+
     def __init__(self, metadata, list):
         warnings.warn(
             'TreeDictionaryProvider has been deprecated, \

@@ -67,7 +67,11 @@ class NoteTest(unittest.TestCase):
         pass
 
     def testConstructor(self):
-        n = Note('Een gemeente in West-Vlaanderen.', type="note", language='nl-BE')
+        n = Note(
+            'Een gemeente in West-Vlaanderen.',
+            type="note",
+            language='nl-BE'
+        )
         self.assertEqual('Een gemeente in West-Vlaanderen.', n.note)
         self.assertEqual('note', n.type)
         self.assertEqual('nl-BE', n.language)
@@ -118,7 +122,7 @@ class ConceptSchemeTest(unittest.TestCase):
 
     def _get_labels(self):
         return [
-            self._get_gemeenten_nl(), 
+            self._get_gemeenten_nl(),
             self._get_fusiegemeenten_nl(),
             self._get_communities_en()
         ]
@@ -151,7 +155,7 @@ class ConceptTest(unittest.TestCase):
 
     def _get_labels(self):
         return [
-            self._get_knokke_heist_nl(), 
+            self._get_knokke_heist_nl(),
             self._get_cnocke_heyst_nl(),
             self._get_knokke_heist_en()
         ]
@@ -200,7 +204,7 @@ class CollectionTest(unittest.TestCase):
 
     def _get_labels(self):
         return [
-            self._get_deelgemeenten_nl(), 
+            self._get_deelgemeenten_nl(),
             self._get_prefusiegemeenten_nl(),
         ]
 

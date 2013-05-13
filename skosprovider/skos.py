@@ -49,7 +49,7 @@ class Label:
         '''
         Check if the argument is a valid SKOS label type.
 
-        :param string type: The type to be checked. 
+        :param string type: The type to be checked.
         '''
         return type in ['prefLabel', 'altLabel', 'hiddenLabel']
 
@@ -88,7 +88,7 @@ class Note:
         '''
         Check if the argument is a valid SKOS note type.
 
-        :param string type: The type to be checked. 
+        :param string type: The type to be checked.
         '''
         return type in [
             'note',
@@ -114,7 +114,8 @@ class ConceptScheme:
         '''
         Provide a single label for this conceptscheme.
 
-        This uses the :func:`label` function to determine which label to return.
+        This uses the :func:`label` function to determine which label to
+        return.
 
         :param string language: The preferred language to receive the label in.
         :rtype: :class:`skosprovider.skos.Label` or False if no labels was found.
@@ -126,7 +127,7 @@ class Concept(collections.Mapping):
     '''
     A :term:`SKOS` Concept.
     '''
-   
+
     def __init__(self, id,
                  labels=[], notes=[],
                  broader=[], narrower=[], related=[]):
@@ -163,7 +164,7 @@ class Collection:
     '''
     A :term:`SKOS` Collection.
     '''
-    
+
     def __init__(self, id, labels=[], members=[]):
         self.id = id
         self.labels = [dict_to_label(l) for l in labels]
@@ -185,8 +186,8 @@ def label(labels=[], language='any'):
     '''
     Provide a label for a list of labels.
 
-    The items in the list of labels are assumed to be either instances of 
-    :class:`Label`, or dicts with at least the key `label` in them. These will 
+    The items in the list of labels are assumed to be either instances of
+    :class:`Label`, or dicts with at least the key `label` in them. These will
     be passed to the :func:`dict_to_label` function.
 
     This method tries to find a label by looking if there's
@@ -224,8 +225,8 @@ def dict_to_label(dict):
     Transform a dict with keys `label`, `type` and `language` into a
     :class:`Label`.
 
-    If the argument passed is already a :class:`Label`, this method just returns
-    the argument.
+    If the argument passed is already a :class:`Label`, this method just 
+    returns the argument.
     '''
     if isinstance(dict, Label):
         return dict

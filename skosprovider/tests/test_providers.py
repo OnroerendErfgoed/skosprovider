@@ -77,12 +77,17 @@ geo = DictionaryProvider(
         world,
         {
             'id': 2,
-            'labels': [{'type': 'prefLabel', 'language': 'en', 'label': 'Europe'}],
+            'labels': [
+                {'type': 'prefLabel', 'language': 'en', 'label': 'Europe'}
+            ],
             'narrower': [4, 5], 'broader': [1]
         }, {
             'id': 3,
             'labels': [
-                {'type': 'prefLabel', 'language': 'en', 'label': 'North-America'}
+                {
+                    'type': 'prefLabel', 'language': 'en',
+                    'label': 'North-America'
+                }
             ],
             'narrower': [6], 'broader': [1]
         }, {
@@ -94,7 +99,10 @@ geo = DictionaryProvider(
         }, {
             'id': 5,
             'labels': [
-                {'type': 'prefLabel', 'language': 'en', 'label': 'United Kingdom'}
+                {
+                    'type': 'prefLabel', 'language': 'en',
+                    'label': 'United Kingdom'
+                }
             ],
             'broader': [2]
         }, {
@@ -128,7 +136,10 @@ geo = DictionaryProvider(
             'id': '333',
             'type': 'collection',
             'labels': [
-                {'type': 'prefLabel', 'language': 'en', 'label': 'Places where dutch is spoken'}
+                {
+                    'type': 'prefLabel', 'language': 'en',
+                    'label': 'Places where dutch is spoken'
+                }
             ],
             'members': ['4', '7', '8']
         }
@@ -234,7 +245,7 @@ class TreesDictionaryProviderTests(unittest.TestCase):
         trees = DictionaryProvider(
             {'id': 'TREES', 'default_language': 'nl'},
             [larch, chestnut, species],
-            case_insensitive = False
+            case_insensitive=False
         )
         self.assertEqual(
             trees.find({'label': 'The Lar'}),
@@ -350,41 +361,46 @@ class GeoDictionaryProviderTests(unittest.TestCase):
 
     def test_find_in_collection_depth_all_wallon(self):
         c = geo.find({
-            'collection': {'id': '333', 'depth': 'all'}, 
+            'collection': {'id': '333', 'depth': 'all'},
             'label': 'Wallon'
         })
         self.assertEqual(1, len(c))
         for cc in c:
             self.assertIsInstance(geo.get_by_id(cc['id']), Concept)
 
+
 class FlatDictionaryProviderTests(unittest.TestCase):
 
     def test_deprecated(self):
         with warnings.catch_warnings(record=True) as w:
             warnings.simplefilter('always')
-            fd = FlatDictionaryProvider({},[])
+            fd = FlatDictionaryProvider({}, [])
+            self.assertIsInstance(fd, DictionaryProvider)
             self.assertEqual(1, len(w))
             self.assertEqual(w[-1].category, DeprecationWarning)
+
 
 class TreeDictionaryProviderTests(unittest.TestCase):
 
     def test_deprecated(self):
         with warnings.catch_warnings(record=True) as w:
             warnings.simplefilter('always')
-            fd = TreeDictionaryProvider({},[])
+            td = TreeDictionaryProvider({}, [])
+            self.assertIsInstance(td, DictionaryProvider)
             self.assertEqual(1, len(w))
             self.assertEqual(w[-1].category, DeprecationWarning)
+
 
 class SimpleCsvProviderTests(unittest.TestCase):
 
     def setUp(self):
-        self.ifile  = open(
-            os.path.join(os.path.dirname(__file__), 'data', 'menu.csv'), 
+        self.ifile = open(
+            os.path.join(os.path.dirname(__file__), 'data', 'menu.csv'),
             "r"
         )
         reader = csv.reader(self.ifile)
         self.csvprovider = SimpleCsvProvider(
-            {'id': 'MENU'}, 
+            {'id': 'MENU'},
             reader
         )
 
