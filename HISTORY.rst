@@ -1,7 +1,7 @@
 History
 =======
 
-0.2.0 (2013-05-??)
+0.2.0 (2013-05-16)
 ------------------
 
 - Major rewrite and refactoring. Tried to keep BC in place as much as possible,
