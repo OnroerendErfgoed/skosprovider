@@ -18,7 +18,7 @@ requires = []
 
 setup(
     name='skosprovider',
-    version='0.1.4dev',
+    version='0.2.0',
     description='Abstraction layer for SKOS vocabularies.',
     long_description=open('README.rst').read() + '\n\n' +
                      open('HISTORY.rst').read(),
@@ -42,4 +42,5 @@ setup(
         'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3.2',
     ],
+    test_suite='nose.collector'
 )

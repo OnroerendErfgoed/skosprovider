@@ -1,6 +1,21 @@
 History
 =======
 
+0.2.0 (2013-05-16)
+------------------
+
+- Major rewrite and refactoring. Tried to keep BC in place as much as possible,
+  but did change some stuff.
+- Added a read only SKOS domain model in the :mod:`skosprovider.skos` module.
+- Providers no longer return dicts as concepts, but instances of 
+  :class:`skosprovider.skos.Concept`.
+- Added support for skos collections with a 
+  :class:`skosprovider.skos.collection` object.
+- Expanded concept query syntax. Now allows for querying on type 
+  (concept or collection) and on collection membership. See 
+  :meth:`skosprovider.providers.VocabularyProvider.find`.
+- Added :func:`skosprovider.utils.dict_dumper`.
+
 0.1.3 (2013-03-22)
 ------------------
 

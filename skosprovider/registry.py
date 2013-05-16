@@ -6,8 +6,10 @@ This registry helps us find providers during runtime. We can also apply some
 operations to all or several providers at the same time.
 '''
 
+
 class RegistryException(Exception):
     pass
+
 
 class Registry:
     '''
@@ -26,7 +28,7 @@ class Registry:
     def remove_provider(self, id):
         '''
         Remove the provider with the given id.
-        
+
         Returns the provider or False if the id is unknown.
         '''
         if id in self.providers:
@@ -52,7 +54,7 @@ class Registry:
         if not 'ids' in kwargs:
             return list(self.providers.values())
         else:
-            return [self.providers[k] for k in self.providers.keys() 
+            return [self.providers[k] for k in self.providers.keys()
                     if k in kwargs['ids']]
 
     def find(self, query, **kwargs):
