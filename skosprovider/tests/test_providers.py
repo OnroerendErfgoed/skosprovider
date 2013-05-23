@@ -431,3 +431,12 @@ class SimpleCsvProviderTests(unittest.TestCase):
         self.assertIsInstance(eb.notes[0], Note)
         self.assertIn('Mornay', eb.notes[0].note)
         self.assertEqual('note', eb.notes[0].type)
+
+    def testFindSausageCaseInsensitive(self):
+        sausages = self.csvprovider.find({'label': 'sausage'})
+        self.assertEqual(4, len(sausages))
+
+    def testFindSausageCaseSensitive(self):
+        self.csvprovider.case_insensitive = False
+        sausages = self.csvprovider.find({'label': 'Sausage'})
+        self.assertEqual(1, len(sausages))
