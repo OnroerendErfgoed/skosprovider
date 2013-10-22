@@ -172,7 +172,7 @@ class VocabularyProvider:
 
 class MemoryProvider(VocabularyProvider):
     '''
-    An provider that keeps everything in memory.
+    A provider that keeps everything in memory.
 
     The data is passed in the constructor of this provider as a list of
     :class:`skosprovider.skos.Concept` and :class:`skosprovider.skos.Collection`
