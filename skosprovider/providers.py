@@ -184,7 +184,7 @@ class MemoryProvider(VocabularyProvider):
     Is searching for labels case insensitive?
 
     By default a search for a label is done case insensitive. Older versions of 
-    this provider were case sensitive. If this behaviour is decided, this can 
+    this provider were case sensitive. If this behaviour is desired, this can 
     be triggered by providing a `case_insensitive` keyword to the constructor.
     '''
 
