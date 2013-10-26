@@ -16,9 +16,14 @@ SKOS, vocabulary or thesaurus system.
 
 Other known providers:
  
-* https://github.com/koenedaele/skosprovider_oe: This providers implements the 
-  provider interface for the thesauri deliverd by 
+* `Skosprovider_oe <https://github.com/koenedaele/skosprovider_oe>`_: This 
+  provider implements the :class:`skosprovider.providers.VocabularyProvider` 
+  interface for the thesauri deliverd by 
   https://inventaris.onroerenderfgoed.be/thesaurus 
+* `Skosprovider_sqlalchemy <http://skosprovider-sqlalchemy.readthedocs.org/en/latest/>`_: 
+  An implementation of the 
+  :class:`VocabularyProvider <skosprovider.providers.VocabularyProvider>` 
+  interface with a `SQLAlchemy <http://www.sqlalchemy.org>`_ backend.
 
 Contents:
 
