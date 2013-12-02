@@ -5,6 +5,8 @@ This library helps abstract vocabularies that stick to the SKOS specification.
 
 .. image:: https://travis-ci.org/koenedaele/skosprovider.png?branch=master
         :target: https://travis-ci.org/koenedaele/skosprovider
+.. image:: https://badge.fury.io/py/skosprovider.png
+        :target: http://badge.fury.io/py/skosprovider
 
 Skosprovider provides an interface that can be included in an application to 
 allow it to talk to different SKOS vocabularies. These vocabularies could be
