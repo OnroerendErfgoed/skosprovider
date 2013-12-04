@@ -12,8 +12,6 @@ import csv
 
 from skosprovider.providers import (
     DictionaryProvider,
-    FlatDictionaryProvider,
-    TreeDictionaryProvider,
     SimpleCsvProvider
 )
 
@@ -367,28 +365,6 @@ class GeoDictionaryProviderTests(unittest.TestCase):
         self.assertEqual(1, len(c))
         for cc in c:
             self.assertIsInstance(geo.get_by_id(cc['id']), Concept)
-
-
-class FlatDictionaryProviderTests(unittest.TestCase):
-
-    def test_deprecated(self):
-        with warnings.catch_warnings(record=True) as w:
-            warnings.simplefilter('always')
-            fd = FlatDictionaryProvider({}, [])
-            self.assertIsInstance(fd, DictionaryProvider)
-            self.assertEqual(1, len(w))
-            self.assertEqual(w[-1].category, DeprecationWarning)
-
-
-class TreeDictionaryProviderTests(unittest.TestCase):
-
-    def test_deprecated(self):
-        with warnings.catch_warnings(record=True) as w:
-            warnings.simplefilter('always')
-            td = TreeDictionaryProvider({}, [])
-            self.assertIsInstance(td, DictionaryProvider)
-            self.assertEqual(1, len(w))
-            self.assertEqual(w[-1].category, DeprecationWarning)
 
 
 class SimpleCsvProviderTests(unittest.TestCase):

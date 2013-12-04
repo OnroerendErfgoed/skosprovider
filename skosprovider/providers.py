@@ -338,38 +338,3 @@ class SimpleCsvProvider(MemoryProvider):
             labels=labels,
             notes=notes
         )
-
-
-class FlatDictionaryProvider(DictionaryProvider):
-    '''
-    A provider that uses a list of dicts.
-
-    .. deprecated:: 0.2.0
-        This provider has been deprecated and will be removed in 
-        version 0.3.0. Please use :class:`DictionaryProvider`.
-    '''
-    def __init__(self, metadata, list):
-        warnings.warn(
-            'FlatDictionaryProvider has been deprecated, \
-            please use DictionaryProvider',
-            DeprecationWarning
-        )
-        super(FlatDictionaryProvider, self).__init__(metadata, list)
-
-
-class TreeDictionaryProvider(DictionaryProvider):
-    '''
-    A provider that uses a list of dicts and supports hierarchies.
-
-    .. deprecated:: 0.2.0
-        This provider has been deprecated and will be removed in 
-        version 0.3.0. Please use :class:`DictionaryProvider`.
-    '''
-
-    def __init__(self, metadata, list):
-        warnings.warn(
-            'TreeDictionaryProvider has been deprecated, \
-            please use DictionaryProvider',
-            DeprecationWarning
-        )
-        super(TreeDictionaryProvider, self).__init__(metadata, list)
