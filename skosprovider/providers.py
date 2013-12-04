@@ -293,18 +293,18 @@ class DictionaryProvider(MemoryProvider):
     def _from_dict(self, data):
         if 'type' in data and data['type'] == 'collection':
             return Collection(
-                data['id'],
-                data['labels'] if 'labels' in data else [],
-                data['members'] if 'members' in data else []
+                id=data['id'],
+                labels=data['labels'] if 'labels' in data else [],
+                members=data['members'] if 'members' in data else []
             )
         else:
             return Concept(
-                data['id'],
-                data['labels'] if 'labels' in data else [],
-                data['notes'] if 'notes' in data else [],
-                data['broader'] if 'broader' in data else [],
-                data['narrower'] if 'narrower' in data else [],
-                data['related'] if 'related' in data else [],
+                id=data['id'],
+                labels=data['labels'] if 'labels' in data else [],
+                notes=data['notes'] if 'notes' in data else [],
+                broader=data['broader'] if 'broader' in data else [],
+                narrower=data['narrower'] if 'narrower' in data else [],
+                related=data['related'] if 'related' in data else [],
             )
 
 
