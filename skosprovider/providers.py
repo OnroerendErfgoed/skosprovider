@@ -137,7 +137,7 @@ class VocabularyProvider:
         concepts.
 
         .. deprecated:: 0.2.0
-            This method has been deprectad, please use :meth:`expand`.
+            This method has been deprecated, please use :meth:`expand`.
 
         :param id: A concept id.
         :rtype: A list of id's or `False` if the concept doesn't exist.
