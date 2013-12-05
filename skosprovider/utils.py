@@ -28,6 +28,7 @@ def dict_dumper(provider):
             notes = [n.__dict__ for n in c.notes]
             ret.append({
                 'id': c.id,
+                'uri': c.uri,
                 'type': 'concept',
                 'labels': labels,
                 'notes': notes,
@@ -38,6 +39,7 @@ def dict_dumper(provider):
         elif isinstance(c, Collection):
             ret.append({
                 'id': c.id,
+                'uri': c.uri,
                 'type': 'collection',
                 'labels': labels,
                 'members': c.members

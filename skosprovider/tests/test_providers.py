@@ -23,6 +23,7 @@ from skosprovider.skos import (
 
 larch = {
     'id': '1',
+    'uri': 'http://id.trees.org/1',
     'labels': [
         {'type': 'prefLabel', 'language': 'en', 'label': 'The Larch'},
         {'type': 'prefLabel', 'language': 'nl', 'label': 'De Lariks'}
@@ -34,6 +35,7 @@ larch = {
 
 chestnut = {
     'id': '2',
+    'uri': 'http://id.trees.org/2',
     'labels': [
         {'type': 'prefLabel', 'language': 'en', 'label': 'The Chestnut'},
         {'type': 'altLabel', 'language': 'nl', 'label': 'De Paardekastanje'}
@@ -48,6 +50,7 @@ chestnut = {
 
 species = {
     'id': 3,
+    'uri': 'http://id.trees.org/3',
     'labels': [
         {'type': 'prefLabel', 'language': 'en', 'label': 'Trees by species'},
         {'type': 'prefLabel', 'language': 'nl', 'label': 'Bomen per soort'}
@@ -164,12 +167,14 @@ class TreesDictionaryProviderTests(unittest.TestCase):
     def test_get_by_id(self):
         lariks = trees.get_by_id(1)
         self.assertEqual(larch['id'], lariks['id'])
+        self.assertEqual(larch['uri'], lariks['uri'])
         self.assertEqual(larch['labels'], lariks['labels'])
         self.assertEqual(larch['notes'], lariks['notes'])
 
     def test_get_by_id_string(self):
         lariks = trees.get_by_id('1')
         self.assertEqual(larch['id'], lariks['id'])
+        self.assertEqual(larch['uri'], lariks['uri'])
         self.assertEqual(larch['labels'], lariks['labels'])
         self.assertEqual(larch['notes'], lariks['notes'])
 
@@ -370,6 +375,7 @@ class GeoDictionaryProviderTests(unittest.TestCase):
 class SimpleCsvProviderTests(unittest.TestCase):
 
     def setUp(self):
+        from skosprovider.uri import UriPatternGenerator
         self.ifile = open(
             os.path.join(os.path.dirname(__file__), 'data', 'menu.csv'),
             "r"
@@ -377,7 +383,8 @@ class SimpleCsvProviderTests(unittest.TestCase):
         reader = csv.reader(self.ifile)
         self.csvprovider = SimpleCsvProvider(
             {'id': 'MENU'},
-            reader
+            reader,
+            uri_generator=UriPatternGenerator('http://id.python.org/menu/%s')
         )
 
     def tearDown(self):
@@ -391,6 +398,7 @@ class SimpleCsvProviderTests(unittest.TestCase):
         eb = self.csvprovider.get_by_id(1)
         self.assertIsInstance(eb, Concept)
         self.assertEqual('1', eb.id)
+        self.assertEqual('http://id.python.org/menu/1', eb.uri)
         self.assertEqual('Egg and Bacon', eb.label().label)
         self.assertEqual('prefLabel', eb.label().type)
         self.assertEqual([], eb.notes)

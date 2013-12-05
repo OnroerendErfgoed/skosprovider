@@ -26,6 +26,7 @@ class DictDumperTest(unittest.TestCase):
     def setUp(self):
         self.larch_dump = {
             'id': '1',
+            'uri': 'http://id.trees.org/1',
             'type': 'concept',
             'labels': [
                 {'type': 'prefLabel', 'language': 'en', 'label': 'The Larch'},
@@ -43,6 +44,7 @@ class DictDumperTest(unittest.TestCase):
 
         self.chestnut_dump = {
             'id': '2',
+            'uri': 'http://id.trees.org/2',
             'type': 'concept',
             'labels': [
                 {'type': 'prefLabel', 
@@ -64,6 +66,7 @@ class DictDumperTest(unittest.TestCase):
         }
         self.world_dump = {
             'id': '1',
+            'uri': 'urn:x-skosprovider:geography:1',
             'type': 'concept',
             'labels': [
                 {'type': 'prefLabel', 'language': 'en', 'label': 'World'}

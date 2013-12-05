@@ -19,6 +19,8 @@ from .skos import (
     Collection
 )
 
+from .uri import DefaultUrnGenerator
+
 
 class VocabularyProvider:
     '''An interface that all vocabulary providers must follow.
@@ -26,7 +28,7 @@ class VocabularyProvider:
 
     __metaclass__ = abc.ABCMeta
 
-    def __init__(self, metadata):
+    def __init__(self, metadata, **kwargs):
         '''Create a new provider and register some metadata.
 
         Expected metadata:
@@ -35,6 +37,10 @@ class VocabularyProvider:
            returning labels if no language is specified.
         '''
         self.metadata = metadata
+        if 'uri_generator' in kwargs:
+            self.uri_generator = kwargs.get('uri_generator')
+        else:
+            self.uri_generator = DefaultUrnGenerator(self.metadata.get('id'))
 
     def _get_language(self, **kwargs):
         '''Determine what language to render labels in.
@@ -196,7 +202,7 @@ class MemoryProvider(VocabularyProvider):
         :param Boolean case_insensitive: Should searching for labels be done 
             case-insensitive?
         '''
-        super(MemoryProvider, self).__init__(metadata)
+        super(MemoryProvider, self).__init__(metadata, **kwargs)
         self.list = list
         if 'case_insensitive' in kwargs:
             self.case_insensitive = kwargs['case_insensitive']
@@ -287,19 +293,21 @@ class DictionaryProvider(MemoryProvider):
     '''
 
     def __init__(self, metadata, list, **kwargs):
-        list = [self._from_dict(c) for c in list]
-        super(DictionaryProvider, self).__init__(metadata, list, **kwargs)
+        super(DictionaryProvider, self).__init__(metadata, [], **kwargs)
+        self.list = [self._from_dict(c) for c in list]
 
     def _from_dict(self, data):
         if 'type' in data and data['type'] == 'collection':
             return Collection(
                 id=data['id'],
+                uri=data['uri'] if 'uri' in data else self.uri_generator.generate(data['id']),
                 labels=data['labels'] if 'labels' in data else [],
                 members=data['members'] if 'members' in data else []
             )
         else:
             return Concept(
                 id=data['id'],
+                uri=data['uri'] if 'uri' in data else self.uri_generator.generate(data['id']),
                 labels=data['labels'] if 'labels' in data else [],
                 notes=data['notes'] if 'notes' in data else [],
                 broader=data['broader'] if 'broader' in data else [],
@@ -318,13 +326,13 @@ class SimpleCsvProvider(MemoryProvider):
     .. versionadded:: 0.2.0
     '''
 
-    def __init__(self, metadata, reader):
+    def __init__(self, metadata, reader, **kwargs):
         '''
         :param metadata: A metadata dictionary.
         :param reader: A csv reader.
         '''
-        list = [self._from_row(row) for row in reader]
-        super(SimpleCsvProvider, self).__init__(metadata, list)
+        super(SimpleCsvProvider, self).__init__(metadata, [], **kwargs)
+        self.list = [self._from_row(row) for row in reader]
 
     def _from_row(self, row):
         id = row[0]
@@ -335,6 +343,7 @@ class SimpleCsvProvider(MemoryProvider):
             notes = []
         return Concept(
             id=id,
+            uri=self.uri_generator.generate(id),
             labels=labels,
             notes=notes
         )
