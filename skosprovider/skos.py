@@ -104,10 +104,19 @@ class Note:
 class ConceptScheme:
     '''
     A :term:`SKOS` ConceptScheme.
+
+    :param string uri: A :term:`URI` for this conceptscheme.
+    :param list labels: A list of :class:`skosprovider.skos.Label` instances.
     '''
 
-    def __init__(self, id, labels=[]):
-        self.id = id
+    uri = None
+    '''A :term:`URI` for this conceptscheme.'''
+
+    labels = []
+    '''A list of labels for this conceptscheme.'''
+
+    def __init__(self, uri, labels=[]):
+        self.uri = uri
         self.labels = labels
 
     def label(self, language='any'):
@@ -128,10 +137,23 @@ class Concept(collections.Mapping):
     A :term:`SKOS` Concept.
     '''
 
-    def __init__(self, id,
+    id = None
+    '''An id for this Concept within a vocabulary
+    
+    eg. 12345
+    '''
+
+    uri = None
+    '''A proper uri for this Concept
+    
+    eg. `http://id.example.com/skos/trees/1`
+    '''
+
+    def __init__(self, id, uri = None,
                  labels=[], notes=[],
                  broader=[], narrower=[], related=[]):
         self.id = id
+        self.uri = uri
         self.labels = [dict_to_label(l) for l in labels]
         self.notes = [dict_to_note(n) for n in notes]
         self.broader = broader
@@ -165,8 +187,21 @@ class Collection:
     A :term:`SKOS` Collection.
     '''
 
-    def __init__(self, id, labels=[], members=[]):
+    id = None
+    '''An id for this Collection within a vocabulary'''
+
+    uri = None
+    '''A proper uri for this Collection'''
+
+    labels = []
+    '''A :class:`list` of :class:`skosprovider.skos.label` instances.'''
+
+    members = []
+    '''A :class:`list` of concept ids.'''
+
+    def __init__(self, id, uri=None, labels=[], members=[]):
         self.id = id
+        self.uri = uri
         self.labels = [dict_to_label(l) for l in labels]
         self.members = members
 

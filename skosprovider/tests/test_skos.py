@@ -129,7 +129,10 @@ class ConceptSchemeTest(unittest.TestCase):
 
     def testLabel(self):
         labels = self._get_labels()
-        cs = ConceptScheme('GEMEENTEN', labels=labels)
+        cs = ConceptScheme(
+            uri='urn:x-skosprovider:gemeenten',
+            labels=labels
+        )
         self.assertEqual(label(labels), cs.label())
         self.assertEqual(label(labels, 'nl'), cs.label('nl'))
         self.assertEqual(label(labels, 'en'), cs.label('en'))
@@ -163,6 +166,7 @@ class ConceptTest(unittest.TestCase):
     def testIn(self):
         c = Concept(1)
         self.assertIn('id', c)
+        self.assertIn('uri', c)
         self.assertIn('labels', c)
         self.assertIn('notes', c)
         self.assertIn('broader', c)
@@ -171,13 +175,13 @@ class ConceptTest(unittest.TestCase):
 
     def testIter(self):
         c = Concept(1)
-        keys = ['id', 'labels', 'notes', 'broader', 'narrower', 'related']
+        keys = ['id', 'uri', 'labels', 'notes', 'broader', 'narrower', 'related']
         for k in c.keys():
             self.assertIn(k, keys)
 
     def testLen(self):
         c = Concept(1)
-        self.assertEqual(6, len(c))
+        self.assertEqual(7, len(c))
 
     def testLabel(self):
         labels = self._get_labels()
@@ -186,6 +190,11 @@ class ConceptTest(unittest.TestCase):
         self.assertEqual(label(labels, 'nl'), c.label('nl'))
         self.assertEqual(label(labels, 'en'), c.label('en'))
         self.assertEqual(label(labels, None), c.label(None))
+
+    def testUri(self):
+        c = Concept(1, uri='urn:x-skosprovider:gemeenten:1')
+        self.assertEqual(1, c.id)
+        self.assertEqual('urn:x-skosprovider:gemeenten:1', c.uri)
 
 
 class CollectionTest(unittest.TestCase):
@@ -209,12 +218,17 @@ class CollectionTest(unittest.TestCase):
         ]
 
     def testId(self):
-        coll = Collection('DEELGEMEENTEN')
-        self.assertEqual('DEELGEMEENTEN', coll.id)
+        coll = Collection(350)
+        self.assertEqual(350, coll.id)
+
+    def testUri(self):
+        c = Collection(350, uri='urn:x-skosprovider:gemeenten:350')
+        self.assertEqual(350, c.id)
+        self.assertEqual('urn:x-skosprovider:gemeenten:350', c.uri)
 
     def testLabel(self):
         labels = self._get_labels()
-        coll = Collection('DEELGEMEENTEN', labels=labels)
+        coll = Collection(350, labels=labels)
         self.assertEqual(label(labels), coll.label())
         self.assertEqual(label(labels, 'nl'), coll.label('nl'))
         self.assertEqual(label(labels, 'en'), coll.label('en'))
@@ -222,12 +236,20 @@ class CollectionTest(unittest.TestCase):
 
     def testEmptyMembers(self):
         labels = self._get_labels()
-        coll = Collection('DEELGEMEENTEN', labels, [])
+        coll = Collection(
+            350,
+            labels=labels,
+            members=[]
+        )
         self.assertEqual([], coll.members)
 
     def testMembers(self):
         labels = self._get_labels()
-        coll = Collection('DEELGEMEENTEN', labels, [1, 2])
+        coll = Collection(
+            id=350,
+            labels=labels,
+            members=[1, 2]
+        )
         self.assertTrue(set([1, 2]), set(coll.members))
 
 
