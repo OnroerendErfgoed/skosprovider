@@ -171,6 +171,10 @@ class TreesDictionaryProviderTests(unittest.TestCase):
         self.assertEqual(larch['labels'], lariks['labels'])
         self.assertEqual(larch['notes'], lariks['notes'])
 
+    def test_get_by_uri(self):
+        lariks = trees.get_by_uri('http://id.trees.org/1')
+        self.assertEqual('http://id.trees.org/1', lariks.uri)
+
     def test_get_by_id_string(self):
         lariks = trees.get_by_id('1')
         self.assertEqual(larch['id'], lariks['id'])
@@ -183,6 +187,9 @@ class TreesDictionaryProviderTests(unittest.TestCase):
 
     def test_get_unexisting_by_id(self):
         self.assertEquals(False, trees.get_by_id(987654321))
+
+    def test_get_unexisting_by_uri(self):
+        self.assertEquals(False, trees.get_by_uri('urn:x-skosprovider:987654321'))
 
     def test_expand_concept_deprecated(self):
         with warnings.catch_warnings(record=True) as w:
@@ -331,8 +338,19 @@ class GeoDictionaryProviderTests(unittest.TestCase):
         self.assertEqual(world['labels'], wereld['labels'])
         self.assertEqual(world['narrower'], wereld['narrower'])
 
+    def test_get_by_uri(self):
+        wereld = geo.get_by_uri('urn:x-skosprovider:geography:1')
+        self.assertEqual(world['id'], wereld['id'])
+        self.assertEqual(world['labels'], wereld['labels'])
+        self.assertEqual(world['narrower'], wereld['narrower'])
+
     def test_get_colletion_by_id(self):
         dutch_speaking = geo.get_by_id(333)
+        self.assertEqual('333', dutch_speaking.id)
+        self.assertEqual(['4', '7', '8'], dutch_speaking.members)
+
+    def test_get_colletion_by_uri(self):
+        dutch_speaking = geo.get_by_uri('urn:x-skosprovider:geography:333')
         self.assertEqual('333', dutch_speaking.id)
         self.assertEqual(['4', '7', '8'], dutch_speaking.members)
 
@@ -402,6 +420,12 @@ class SimpleCsvProviderTests(unittest.TestCase):
         self.assertEqual('Egg and Bacon', eb.label().label)
         self.assertEqual('prefLabel', eb.label().type)
         self.assertEqual([], eb.notes)
+
+    def testGetEggAndSpamByUri(self):
+        eb = self.csvprovider.get_by_uri('http://id.python.org/menu/3')
+        self.assertIsInstance(eb, Concept)
+        self.assertEqual('3', eb.id)
+        self.assertEqual('http://id.python.org/menu/3', eb.uri)
 
     def testFindSpam(self):
         spam = self.csvprovider.find({'label': 'Spam'})

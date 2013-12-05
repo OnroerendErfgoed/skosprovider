@@ -87,6 +87,15 @@ class VocabularyProvider:
         '''
 
     @abc.abstractmethod
+    def get_by_uri(self, uri):
+        '''Get all information on a concept or collection, based on a uri.
+
+        :rtype: :class:`skosprovider.skos.Concept` or
+            :class:`skosprovider.skos.Collection` or `False` if the concept or
+            collection is unknown to the provider.
+        '''
+
+    @abc.abstractmethod
     def get_all(self, **kwargs):
         '''Returns all concepts and collections in this provider.
 
@@ -211,6 +220,13 @@ class MemoryProvider(VocabularyProvider):
         id = str(id)
         for c in self.list:
             if str(c.id) == id:
+                return c
+        return False
+
+    def get_by_uri(self, uri):
+        uri = str(uri)
+        for c in self.list:
+            if str(c.uri) == uri:
                 return c
         return False
 
