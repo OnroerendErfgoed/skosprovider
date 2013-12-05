@@ -16,3 +16,9 @@ Glossary
     model for data definition organised around `triples`. These triples forms a 
     directed, labeled graph, where the edges represent the named link between 
     two resources, represented by the graph nodes.
+
+   URI
+    A `Uniform Resource Identifier`.
+
+   URN
+    A URN is a specific form of a :term:`URI`.

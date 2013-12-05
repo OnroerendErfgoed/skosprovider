@@ -20,6 +20,12 @@ Registry module
 .. automodule:: skosprovider.registry
    :members:
 
+Uri module
+----------
+
+.. automodule:: skosprovider.uri
+   :members:
+
 Utils module
 ---------------
 
