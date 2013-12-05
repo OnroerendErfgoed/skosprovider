@@ -86,6 +86,17 @@ class RegistryTests(unittest.TestCase):
                           [{'id': 'TREES',
                             'concepts': [{'id': '1', 'label': 'De Lariks'}]}])
 
+    def test_one_provider_getConceptByUri(self):
+        self.reg.register_provider(self.prov)
+        c = self.reg.get_by_uri('http://id.trees.org/1')
+        self.assertEqual(c.id, '1')
+        self.assertEqual(c.uri, 'http://id.trees.org/1')
+
+    def test_one_provider_getConceptByUnexistingUri(self):
+        self.reg.register_provider(self.prov)
+        c = self.reg.get_by_uri('http://id.thingy.com/123456')
+        self.assertFalse(c)
+
     def test_one_provider_findConceptsWithProviderid(self):
         self.reg.register_provider(self.prov)
         self.assertEquals(
