@@ -50,4 +50,4 @@ class DefaultUrnGenerator(UriGenerator):
         self.vocabulary_id = vocabulary_id
 
     def generate(self, id):
-        return self.pattern % (self.vocabulary_id, id)
+        return (self.pattern % (self.vocabulary_id, id)).lower()
