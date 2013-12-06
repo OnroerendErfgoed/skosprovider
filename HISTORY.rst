@@ -1,3 +1,12 @@
+0.2.1 (2013-12-06)
+------------------
+
+- Make the :class:'skosprovider.providers.MemoryProvider` forward compatible
+  by constructing :class:`skosprovider.skos.Concept` and 
+  :class:`skosprovider.skos.Collection` objects with keywords.
+- Soms minor fixes in documentation.
+- Added an extra unit test.
+
 0.2.0 (2013-05-16)
 ------------------
 
@@ -7,7 +16,7 @@
 - Providers no longer return dicts as concepts, but instances of 
   :class:`skosprovider.skos.Concept`.
 - Added support for skos collections with a 
-  :class:`skosprovider.skos.collection` object.
+  :class:`skosprovider.skos.Collection` object.
 - Expanded concept query syntax. Now allows for querying on type 
   (concept or collection) and on collection membership. See 
   :meth:`skosprovider.providers.VocabularyProvider.find`.
