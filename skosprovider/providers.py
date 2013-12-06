@@ -316,14 +316,14 @@ class DictionaryProvider(MemoryProvider):
         if 'type' in data and data['type'] == 'collection':
             return Collection(
                 id=data['id'],
-                uri=data['uri'] if 'uri' in data else self.uri_generator.generate(data['id']),
+                uri=data['uri'] if 'uri' in data else self.uri_generator.generate(type='collection', id=data['id']),
                 labels=data['labels'] if 'labels' in data else [],
                 members=data['members'] if 'members' in data else []
             )
         else:
             return Concept(
                 id=data['id'],
-                uri=data['uri'] if 'uri' in data else self.uri_generator.generate(data['id']),
+                uri=data['uri'] if 'uri' in data else self.uri_generator.generate(type='concept', id=data['id']),
                 labels=data['labels'] if 'labels' in data else [],
                 notes=data['notes'] if 'notes' in data else [],
                 broader=data['broader'] if 'broader' in data else [],
@@ -359,7 +359,7 @@ class SimpleCsvProvider(MemoryProvider):
             notes = []
         return Concept(
             id=id,
-            uri=self.uri_generator.generate(id),
+            uri=self.uri_generator.generate(type='concept', id=id),
             labels=labels,
             notes=notes
         )
