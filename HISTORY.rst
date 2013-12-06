@@ -8,6 +8,14 @@
   :class:`skosprovider.registry.Registry` by :term:`URI`.
 - Added :mod:`skosprovider.uri` module to handle generating of :term:`URI`.
 
+0.2.1 (2013-12-06)
+------------------
+
+- Make the :class:'skosprovider.providers.MemoryProvider` forward compatible
+  by constructing :class:`skosprovider.skos.Concept` and 
+  :class:`skosprovider.skos.Collection` objects with keywords.
+- Soms minor fixes in documentation.
+- Added an extra unit test.
 
 0.2.0 (2013-05-16)
 ------------------
