@@ -1,3 +1,14 @@
+0.3.0 (2013-12-??)
+------------------
+
+- Added support for :term:`URI`. A :class:`skosprovider.skos.Concept`, 
+  :class:`skosprovider.skos.Collection` or 
+  :class:`skosprovider.skos.ConceptScheme` can now have a :term:`URI`.
+- Query a :class:`skosprovider.providers.VocabularyProvider` or the 
+  :class:`skosprovider.registry.Registry` by :term:`URI`.
+- Added :mod:`skosprovider.uri` module to handle generating of :term:`URI`.
+
+
 0.2.0 (2013-05-16)
 ------------------
 
@@ -7,7 +18,7 @@
 - Providers no longer return dicts as concepts, but instances of 
   :class:`skosprovider.skos.Concept`.
 - Added support for skos collections with a 
-  :class:`skosprovider.skos.collection` object.
+  :class:`skosprovider.skos.Collection` object.
 - Expanded concept query syntax. Now allows for querying on type 
   (concept or collection) and on collection membership. See 
   :meth:`skosprovider.providers.VocabularyProvider.find`.
