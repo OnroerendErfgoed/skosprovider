@@ -6,8 +6,8 @@ This abstraction allows our application to work with both local and remote
 vocabs (be they SOAP, REST, XML-RPC or something else).
 
 The basic idea is that we have skos providers. Each provider is an instance
-of a VocabularyProvider. The same class can thus be reused with different
-configurations to handle different vocabs.
+of a :class:`VocabularyProvider`. The same class can thus be reused with 
+different configurations to handle different vocabs.
 '''
 
 import abc
