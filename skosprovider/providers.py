@@ -88,7 +88,8 @@ class VocabularyProvider:
 
     @abc.abstractmethod
     def get_by_uri(self, uri):
-        '''Get all information on a concept or collection, based on a uri.
+        '''Get all information on a concept or collection, based on a 
+        :term:`URI`.
 
         :rtype: :class:`skosprovider.skos.Concept` or
             :class:`skosprovider.skos.Collection` or `False` if the concept or
@@ -110,8 +111,21 @@ class VocabularyProvider:
         '''Find concepts that match a certain query.
 
         Currently query is expected to be a dict, so that complex queries can
-        be passed. Currently only searching on label (eg. {'label': 'tree'}) is
-        expected.
+        be passed. You can use this dict to search for concepts or collections
+        with a certain label, with a certain type and for concepts that belong
+        to a certain collection.
+
+        .. code-block:: python
+
+            # Find anything that has a label of church.
+            provider.find({'label': 'church'}
+            
+            # Find all concepts that are a part of collection 5.
+            provider.find({'type': 'concept', 'collection': {'id': 5})
+
+            # Find all concepts, collections or children of these
+            # that belong to collection 5.
+            provider.find({'collection': {'id': 5, 'depth': 'all'}) 
 
         :param query: A dict that can be used to express a query. The following
             keys are permitted:
