@@ -7,6 +7,7 @@ This module provides utilities for working with :term:`URIS <URI>`.
 
 import abc
 
+
 class UriGenerator(object):
     '''
     An abstract class for generating URIs.
@@ -19,6 +20,7 @@ class UriGenerator(object):
         '''
         Generate a :term:`URI` based on parameters passed.
         '''
+
 
 class UriPatternGenerator(UriGenerator):
     '''
@@ -40,8 +42,8 @@ class UriPatternGenerator(UriGenerator):
 
 class DefaultUrnGenerator(UriGenerator):
     '''
-    Generate a :term:`URN` specific to skosprovider. 
-    
+    Generate a :term:`URN` specific to skosprovider.
+
     Used for providers that do not implement a specific :class:`UriGenerator`.
 
     :param vocabulary_id: An identifier for the vocabulary we're generating
@@ -65,8 +67,8 @@ class DefaultUrnGenerator(UriGenerator):
 
 class TypedUrnGenerator(DefaultUrnGenerator):
     '''
-    Generate a :term:`URN` specific to skosprovider that contains a type. 
-    
+    Generate a :term:`URN` specific to skosprovider that contains a type.
+
     :param vocabulary_id: An identifier for the vocabulary we're generating
         URIs for.
     '''
@@ -81,10 +83,12 @@ class TypedUrnGenerator(DefaultUrnGenerator):
         Generate a :term:`URI` based on parameters passed.
 
         :param id: The id of the concept or collection.
-        :param type: What we're generating a :term:`URI` for: `concept` 
+        :param type: What we're generating a :term:`URI` for: `concept`
             or `collection`.
         :rtype: string
         '''
         if kwargs['type'] not in ['concept', 'collection']:
             raise ValueError('Type %s is invalid' % kwargs['type'])
-        return (self.pattern % (self.vocabulary_id, kwargs['type'], kwargs['id'])).lower()
+        return (
+            self.pattern % (self.vocabulary_id, kwargs['type'], kwargs['id'])
+        ).lower()

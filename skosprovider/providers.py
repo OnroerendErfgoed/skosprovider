@@ -119,7 +119,7 @@ class VocabularyProvider:
 
             # Find anything that has a label of church.
             provider.find({'label': 'church'}
-            
+
             # Find all concepts that are a part of collection 5.
             provider.find({'type': 'concept', 'collection': {'id': 5})
 
@@ -212,7 +212,7 @@ class MemoryProvider(VocabularyProvider):
     '''
     Is searching for labels case insensitive?
 
-    By default a search for a label is done case insensitive. Older versions of 
+    By default a search for a label is done case insensitive. Older versions of
     this provider were case sensitive. If this behaviour is desired, this can 
     be triggered by providing a `case_insensitive` keyword to the constructor.
     '''

@@ -139,17 +139,17 @@ class Concept(collections.Mapping):
 
     id = None
     '''An id for this Concept within a vocabulary
-    
+
     eg. 12345
     '''
 
     uri = None
     '''A proper uri for this Concept
-    
+
     eg. `http://id.example.com/skos/trees/1`
     '''
 
-    def __init__(self, id, uri = None,
+    def __init__(self, id, uri=None,
                  labels=[], notes=[],
                  broader=[], narrower=[], related=[]):
         self.id = id
@@ -260,7 +260,7 @@ def dict_to_label(dict):
     Transform a dict with keys `label`, `type` and `language` into a
     :class:`Label`.
 
-    If the argument passed is already a :class:`Label`, this method just 
+    If the argument passed is already a :class:`Label`, this method just
     returns the argument.
     '''
     if isinstance(dict, Label):
@@ -278,14 +278,14 @@ def dict_to_note(dict):
     Transform a dict with keys `note`, `type` and `language` into a
     :class:`Note`.
 
-    If the argument passed is already a :class:`Note`, this method just returns 
+    If the argument passed is already a :class:`Note`, this method just returns
     the argument.
     '''
     if isinstance(dict, Note):
         return dict
     else:
         return Note(
-            dict['note'], 
-            dict['type'] if 'type' in dict else 'note', 
+            dict['note'],
+            dict['type'] if 'type' in dict else 'note',
             dict['language'] if 'language' in dict else None
         )

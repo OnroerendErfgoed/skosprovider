@@ -21,6 +21,7 @@ class UriPatternGeneratorTest(unittest.TestCase):
             urigen.generate(id=1)
         )
 
+
 class DefaultUrnGeneratorTest(unittest.TestCase):
 
     def setUp(self):

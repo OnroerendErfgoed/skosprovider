@@ -175,7 +175,9 @@ class ConceptTest(unittest.TestCase):
 
     def testIter(self):
         c = Concept(1)
-        keys = ['id', 'uri', 'labels', 'notes', 'broader', 'narrower', 'related']
+        keys = [
+            'id', 'uri', 'labels', 'notes', 'broader', 'narrower', 'related'
+        ]
         for k in c.keys():
             self.assertIn(k, keys)
 
