@@ -186,10 +186,10 @@ class TreesDictionaryProviderTests(unittest.TestCase):
         self.assertEqual(trees.get_by_id(1), trees.get_by_id('1'))
 
     def test_get_unexisting_by_id(self):
-        self.assertEquals(False, trees.get_by_id(987654321))
+        self.assertFalse(trees.get_by_id(987654321))
 
     def test_get_unexisting_by_uri(self):
-        self.assertEquals(False, trees.get_by_uri('urn:x-skosprovider:987654321'))
+        self.assertFalse(trees.get_by_uri('urn:x-skosprovider:987654321'))
 
     def test_expand_concept_deprecated(self):
         with warnings.catch_warnings(record=True) as w:

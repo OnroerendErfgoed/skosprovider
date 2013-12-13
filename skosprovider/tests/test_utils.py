@@ -33,8 +33,8 @@ class DictDumperTest(unittest.TestCase):
                 {'type': 'prefLabel', 'language': 'nl', 'label': 'De Lariks'}
             ],
             'notes': [
-                {'type': 'definition', 
-                 'language': 'en', 
+                {'type': 'definition',
+                 'language': 'en',
                  'note': 'A type of tree.'}
             ],
             'narrower': [],
@@ -47,11 +47,11 @@ class DictDumperTest(unittest.TestCase):
             'uri': 'http://id.trees.org/2',
             'type': 'concept',
             'labels': [
-                {'type': 'prefLabel', 
-                 'language': 'en', 
+                {'type': 'prefLabel',
+                 'language': 'en',
                  'label': 'The Chestnut'},
-                {'type': 'altLabel', 
-                 'language': 'nl', 
+                {'type': 'altLabel',
+                 'language': 'nl',
                  'label': 'De Paardekastanje'}
             ],
             'notes': [
