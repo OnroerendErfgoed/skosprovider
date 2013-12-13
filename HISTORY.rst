@@ -7,6 +7,10 @@
 - Query a :class:`skosprovider.providers.VocabularyProvider` or the 
   :class:`skosprovider.registry.Registry` by :term:`URI`.
 - Added :mod:`skosprovider.uri` module to handle generating of :term:`URI`.
+- Added a :meth:`~skosprovider.providers.VocabularyProvider.get_top_concepts`
+  method to :class:`skosprovider.providers.VocabularyProvider`. This method
+  returns the Top Concepts in a ConceptScheme (the concepts that don't have
+  a broader concept).
 
 0.2.1 (2013-12-06)
 ------------------

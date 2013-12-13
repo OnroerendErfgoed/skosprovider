@@ -107,6 +107,21 @@ class VocabularyProvider:
         '''
 
     @abc.abstractmethod
+    def get_top_concepts(self, **kwargs):
+        '''
+        Returns all top-level concepts in this provider.
+
+        Top-level concepts are concepts that have no broader concepts 
+        themselves. They might have narrower concepts, but this is not 
+        mandatory.
+
+        Returns a list of concepts, NOT collections. For each an
+        id is present and a label. The label is determined by looking at the
+        `**kwargs` parameter, the default language of the provider and falls
+        back to `en` if nothing is present.
+        '''
+
+    @abc.abstractmethod
     def find(self, query, **kwargs):
         '''Find concepts that match a certain query.
 
@@ -295,6 +310,14 @@ class MemoryProvider(VocabularyProvider):
         ret = []
         for c in self.list:
             ret.append({'id': c.id, 'label': c.label(language).label})
+        return ret
+
+    def get_top_concepts(self, **kwargs):
+        language = self._get_language(**kwargs)
+        ret = []
+        for c in self.list:
+            if isinstance(c, Concept) and len(c.broader) == 00:
+                ret.append({'id': c.id, 'label': c.label(language).label})
         return ret
 
     def expand(self, id):

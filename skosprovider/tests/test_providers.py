@@ -221,6 +221,11 @@ class TreesDictionaryProviderTests(unittest.TestCase):
         self.assertEquals(trees.get_all(),
                           [{'id': '1', 'label': 'The Larch'}])
 
+    def test_get_top_concepts_default_language(self):
+        self.assertEquals(trees.get_top_concepts(),
+                          [{'id': '1', 'label': 'De Lariks'},
+                           {'id': '2', 'label': 'De Paardekastanje'}])
+
     def test_get_all_english(self):
         self.assertEquals(trees.get_all(language='en'),
                           [{'id': '1', 'label': 'The Larch'},
@@ -331,6 +336,11 @@ class GeoDictionaryProviderTests(unittest.TestCase):
 
     def test_get_metadata(self):
         self.assertEqual({'id': 'GEOGRAPHY'}, geo.get_metadata())
+
+    def test_get_top_concepts(self):
+        top = geo.get_top_concepts()
+        self.assertEqual(1, len(top))
+        self.assertEqual([{'id': '1', 'label': 'World'}], top)
 
     def test_get_by_id(self):
         wereld = geo.get_by_id(1)
