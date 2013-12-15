@@ -20,11 +20,15 @@ cataloguing things, but where it can be expected that different instances will
 require different thesauri or would need to be able to talk to existing vocabulary
 systems.
 
-Some sample providers are present in this package. The :class:`skosprovider.providers.DictionaryProvider` 
-uses a simple python dict as the datastore. It can be considered the reference
-implementation for the :class:`skosprovider.providers.VocabularyProvider` interface. 
-Most likely you will want to implement a provider for your own SKOS, vocabulary or 
+Some sample providers are present in this package. The 
+:class:`skosprovider.providers.DictionaryProvider` uses a simple python dict 
+as the datastore. It can be considered the reference implementation for the 
+:class:`skosprovider.providers.VocabularyProvider` interface. Most likely you 
+will want to implement a provider for your own SKOS, vocabulary or 
 thesaurus system.
+
+Other providers
+---------------
 
 Currently the following other providers exist:
  
@@ -43,3 +47,18 @@ Currently the following other providers exist:
 Currently there also exists a library to integrate Skosprovider with
 `Pyramid <http://www.pylonsproject.org/>`_ at 
 `pyramid_skosprovider <https://github.com/koenedaele/pyramid_skosprovider>`_.
+
+Deviations from SKOS
+--------------------
+
+In a few places we've deviated a bit from the :term:`SKOS` standard:
+
+* While :term:`SKOS` technically allows for things like a broader/narrower
+  relation between `concepts` in different `conceptschemes`, Skosprovider 
+  assumes that all hierarchical or associative relations should be between
+  `concepts` in the same `conceptscheme`. For relations between concepts in
+  different schemes, the :term:`SKOS` mappings should be considered.
+* The :term:`SKOS` standard allows a `concept` that is marked as a `topConcept` 
+  to have a broader `concept`. Skosprovider expects that the concepts returned
+  by the :meth:`skosprovider.providers.VocabularyProvider.get_top_concepts` do
+  not have any broader concepts.

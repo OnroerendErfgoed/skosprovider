@@ -10,6 +10,7 @@ Content
    :maxdepth: 2
 
    intro
+   development
    api
    changes
    glossary
