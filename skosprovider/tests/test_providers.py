@@ -322,6 +322,23 @@ class TreesDictionaryProviderTests(unittest.TestCase):
     def test_find_in_unexisting_collection(self):
         self.assertRaises(ValueError, trees.find, {'collection': {'id': 404}})
 
+    def test_get_display_top(self):
+        self.assertEqual(trees.get_top_concepts(), trees.get_top_display())
+
+    def test_get_display_children_unexisting_concept(self):
+        self.assertFalse(trees.get_children_display(404))
+
+    def test_get_display_children_concept(self):
+        self.assertEqual([],trees.get_children_display(1))
+        self.assertEqual([],trees.get_children_display(2))
+
+    def test_get_display_children_collection(self):
+        self.assertEqual(
+            [{'id': '1', 'label': 'De Lariks'},
+             {'id': '2', 'label': 'De Paardekastanje'}],
+            trees.get_children_display(3)
+        )
+
 
 class GeoDictionaryProviderTests(unittest.TestCase):
 
@@ -398,6 +415,28 @@ class GeoDictionaryProviderTests(unittest.TestCase):
         self.assertEqual(1, len(c))
         for cc in c:
             self.assertIsInstance(geo.get_by_id(cc['id']), Concept)
+
+    def test_get_display_top(self):
+        self.assertEqual(geo.get_top_concepts(), geo.get_top_display())
+
+    def test_get_display_children_unexisting_concept(self):
+        self.assertFalse(geo.get_children_display(404))
+
+    def test_get_display_children_concept(self):
+        self.assertEqual(
+            [{'id': 2, 'label': 'Europe'}, {'id': 3, 'label': 'North-America'}],
+            geo.get_children_display(1)
+        )
+
+    def test_get_display_children_collection(self):
+        self.assertEqual(
+            [
+                {'id': 4, 'label': 'Belgium'},
+                {'id': 7, 'label': 'Flanders'},
+                {'id': 8, 'label': 'Brussels'}
+            ],
+            geo.get_children_display(333)
+        )
 
 
 class SimpleCsvProviderTests(unittest.TestCase):

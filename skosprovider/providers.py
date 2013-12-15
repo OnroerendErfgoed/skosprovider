@@ -115,10 +115,10 @@ class VocabularyProvider:
         themselves. They might have narrower concepts, but this is not 
         mandatory.
 
-        Returns a list of concepts, NOT collections. For each an
-        id is present and a label. The label is determined by looking at the
-        `**kwargs` parameter, the default language of the provider and falls
-        back to `en` if nothing is present.
+        :rtype: Returns a list of concepts, NOT collections. For each an
+            id is present and a label. The label is determined by looking 
+            at the `**kwargs` parameter, the default language of the provider 
+            and falls back to `en` if nothing is present.
         '''
 
     @abc.abstractmethod
@@ -211,6 +211,33 @@ class VocabularyProvider:
         :param id: A concept or collection id.
         :rtype: A list of id's or `False` if the concept or collection doesn't
             exist.
+        '''
+
+    def get_top_display(self, **kwargs):
+        '''
+        Returns all concepts or collections that form the top-level of a display
+        hierarchy.
+
+        As opposed to the :meth:`get_top_concepts`, this method can possibly
+        return both concepts and collections. 
+
+        :rtype: Returns a list of concepts and collections. For each an
+            id is present and a label. The label is determined by looking at 
+            the `**kwargs` parameter, the default language of the provider 
+            and falls back to `en` if nothing is present.
+        '''
+
+    def get_children_display(self, id, **kwargs):
+        '''
+        Return a list of concepts or collections that should be displayed
+        under this concept or collection.
+
+        :param id: A concept or collection id.
+        :rtype: A list of concepts and collections. For each an
+            id is present and a label. The label is determined by looking at
+            the `**kwargs` parameter, the default language of the provider 
+            and falls back to `en` if nothing is present. If the id does not 
+            exist, return `False`.
         '''
 
 
@@ -337,6 +364,24 @@ class MemoryProvider(VocabularyProvider):
                     return list(ret)
         return False
 
+    def get_top_display(self, **kwargs):
+        return self.get_top_concepts(**kwargs)
+
+    def get_children_display(self, id, **kwargs):
+        c = self.get_by_id(id)
+        if not c:
+            return False
+        language = self._get_language(**kwargs)
+        ret = []
+        if isinstance(c, Concept):
+            display_children = c.narrower
+        else:
+            display_children = c.members
+        for id in display_children:
+            dc = self.get_by_id(id)
+            ret.append({'id': dc.id, 'label': dc.label(language).label})
+        return ret
+
 
 class DictionaryProvider(MemoryProvider):
     '''A simple vocab provider that use a python list of dicts.
@@ -375,6 +420,9 @@ class SimpleCsvProvider(MemoryProvider):
 
     The supported csv format looks like this:
     <id>,<preflabel>,<note>
+
+    This provider essentialy provides a flat list of concepts. This is commonly
+    associated with short lookup-lists.
 
     .. versionadded:: 0.2.0
     '''
