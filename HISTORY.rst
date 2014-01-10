@@ -18,7 +18,7 @@
 0.2.1 (2013-12-06)
 ------------------
 
-- Make the :class:'skosprovider.providers.MemoryProvider` forward compatible
+- Make the :class:`skosprovider.providers.MemoryProvider` forward compatible
   by constructing :class:`skosprovider.skos.Concept` and 
   :class:`skosprovider.skos.Collection` objects with keywords.
 - Soms minor fixes in documentation.
