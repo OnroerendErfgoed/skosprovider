@@ -8,7 +8,7 @@ allow it to talk to different :term:`SKOS` vocabularies. These vocabularies coul
 defined locally or accessed remotely through webservices.
 
 Adhering to this interface in you application decouples your application and the
-actuals thesaurus. This makes unit testing easy because it allows you to swap
+actual thesaurus. This makes unit testing easy because it allows you to swap
 a remote and a local implementation. It also makes it easy to switch from a 
 simple, static implementation based on a csv file to a more complete implementation
 using you relation database.
@@ -36,13 +36,13 @@ Currently the following other providers exist:
   provider implements the :class:`skosprovider.providers.VocabularyProvider` 
   interface for the thesauri attached to the 
   `Inventaris Onroerend Erfgoed <https://inventaris.onroerenderfgoed.be/thesaurus>`_.
-  This provider also demonstrates making the switch from a term based thesaurus
-  to a concept based one.
+  It also demonstrates making the switch from a term based thesaurus to a 
+  concept based one.
 * `Skosprovider_sqlalchemy <http://skosprovider-sqlalchemy.readthedocs.org/en/latest/>`_: 
   An implementation of the 
   :class:`VocabularyProvider <skosprovider.providers.VocabularyProvider>` 
   interface with a `SQLAlchemy <http://www.sqlalchemy.org>`_ backend. This allows
-  using a RDBMS for for reading but also writing :term:`SKOS` concepts.
+  using a RDBMS for reading, but also writing, :term:`SKOS` concepts.
 
 Currently there also exists a library to integrate Skosprovider with
 `Pyramid <http://www.pylonsproject.org/>`_ at 
