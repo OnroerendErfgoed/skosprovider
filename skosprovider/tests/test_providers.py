@@ -205,7 +205,7 @@ class TreesDictionaryProviderTests(unittest.TestCase):
         self.assertEquals(False, trees.expand(987654321))
 
     def test_expand_collection(self):
-        self.assertEquals(['1', '2'], trees.expand(3))
+        self.assertEquals(set(['1', '2']), set(trees.expand(3)))
 
     def test_get_all(self):
         self.assertEquals(trees.get_all(),
