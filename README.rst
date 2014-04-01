@@ -10,16 +10,19 @@ This library helps abstract vocabularies that stick to the SKOS specification.
 .. image:: https://badge.fury.io/py/skosprovider.png
         :target: http://badge.fury.io/py/skosprovider
 
-Skosprovider provides an interface that can be included in an application to 
-allow it to talk to different SKOS vocabularies. These vocabularies could be
-defined locally or accessed remotely through webservices.
+Building the docs
+-----------------
 
-A sample provider is present in this package, using a simple python dict as
-the datastore. Most likely you will want to implement a provider for your own
-SKOS, vocabulary or thesaurus system.
+More information about this library can be found in :file:`docs`. The docs can be 
+built using `Sphinx <http://sphinx-doc.org>`_.
 
-Other known providers:
- 
-* https://github.com/koenedaele/skosprovider_oe: This providers implements the 
-  provider interface for the thesauri deliverd by 
-  https://inventaris.onroerenderfgoed.be/thesaurus 
+Please make sure you have installed Sphinx in the same environment where 
+skosprovider is present.
+
+.. code-block:: bash
+
+    # activate your virtual env
+    $ pip install sphinx
+    $ python setup.py develop
+    $ cd docs
+    $ make html
