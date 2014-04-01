@@ -3,7 +3,7 @@
 Development
 ===========
 
-While skosprovider is still in Alpha development, the basic premise is fairly
+While skosprovider is still in development, the basic premise is fairly
 stable and the API changes have been fairly minor from version to version.
 
 We try to cover as much code as we can with unit tests. You can run them using
@@ -15,8 +15,10 @@ to maintain 100% coverage.
 
     $ tox
     # No coverage
-    $ nosetests 
+    $ py.test 
     # Coverage
-    $ nosetests --config nose_cover.cfg
+    $ py.test --cov skosprovider --cov-report term-missing
+    # Only run a subset of the tests
+    $ py.test skosprovider/tests/test_registry.py
 
 .. _tox: http://tox.testrun.org
