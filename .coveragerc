@@ -1,2 +1,5 @@
 [run]
 source = skosprovider
+
+[report]
+show_missing = True
