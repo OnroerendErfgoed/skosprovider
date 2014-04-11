@@ -14,6 +14,8 @@
 - Added the :meth:`~skosprovider.providers.VocabularyProvider.get_top_display` 
   and :meth:`~skosprovider.providers.VocabularyProvider.get_children_display`
   methods to handle generating a display hierarchy for a certain provider.
+- Reworking tests. Now using pytest in stead of nose.
+- Adding code coverage based on `Coveralls <https://coveralls.io>`_.
 
 0.2.1 (2013-12-06)
 ------------------
