@@ -20,6 +20,12 @@ class Registry:
         self.providers = {}
 
     def register_provider(self, provider):
+        '''
+        Register a :class:`skosprovider.providers.VocabularyProvider`.
+
+        :param skosprovider.providers.VocabularyProvider provider: The provider
+            to register.
+        '''
         if provider.get_vocabulary_id() in self.providers:
             raise RegistryException(
                 'A provider with this id has already been registered.')
@@ -29,7 +35,9 @@ class Registry:
         '''
         Remove the provider with the given id.
 
-        Returns the provider or False if the id is unknown.
+        :param str id: The identifier for the provider.
+        :returns: A :class:`skosprovider.providers.VocabularyProvider` or False 
+            if the id is unknown.
         '''
         if id in self.providers:
             p = self.providers.get(id, False)
@@ -42,7 +50,9 @@ class Registry:
         '''
         Get a provider by id.
 
-        Returns the provider or False if the id is unknown.
+        :param str id: The identifier for the provider.
+        :returns: A :class:`skosprovider.providers.VocabularyProvider` or False 
+            if the id is unknown.
         '''
         return self.providers.get(id, False)
 
@@ -60,11 +70,23 @@ class Registry:
     def find(self, query, **kwargs):
         '''Launch a query across all or a selection of providers.
 
-        If the keyword providers is present, it should be a list of
-        skos provider id's. The query will then only be passed to
-        these providers.
+        .. code-block:: python
 
-        Returns a list of dicts. Each dict has two keys: id and concepts.
+            # Find anything that has a label of church in any provider.
+            registry.find({'label': 'church'})
+
+            # Find anything that has a label of church the BUILDINGS provider.
+            registry.find({'label': 'church'}, providers=['BUILIDINGS'])
+
+        :param list providers: Optional. If present, it should be a list of
+            skosprovider id's. The query will then only be passed to
+            these providers.
+        :param dict query: The query parameters that will be passed on to each
+            :meth:`~skosprovider.providers.VocabularyProvider.find` method of
+            the selected 
+            :class:`providers <skosprovider.providers.VocabularyProvider>`.
+        :returns: a list of :class:`dict`. 
+            Each dict has two keys: id and concepts.
         '''
         if not 'providers' in kwargs:
             providers = self.get_providers()
@@ -76,7 +98,8 @@ class Registry:
     def get_all(self):
         '''Get all concepts from all providers.
 
-        Returns a list of dicts. Each dict has two keys: id and concepts.
+        :returns: a list of :class:`dict`. 
+            Each dict has two keys: id and concepts.
         '''
         return [{'id': p.get_vocabulary_id(), 'concepts': p.get_all()}
                 for p in self.providers.values()]
