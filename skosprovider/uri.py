@@ -5,6 +5,8 @@ This module provides utilities for working with :term:`URIS <URI>`.
 .. versionadded:: 0.3.0
 '''
 
+from __future__ import unicode_literals
+
 import abc
 
 

@@ -6,9 +6,11 @@ This abstraction allows our application to work with both local and remote
 vocabs (be they SOAP, REST, XML-RPC or something else).
 
 The basic idea is that we have skos providers. Each provider is an instance
-of a :class:`VocabularyProvider`. The same class can thus be reused with 
+of a :class:`VocabularyProvider`. The same class can thus be reused with
 different configurations to handle different vocabs.
 '''
+
+from __future__ import unicode_literals
 
 import abc
 
@@ -88,7 +90,7 @@ class VocabularyProvider:
 
     @abc.abstractmethod
     def get_by_uri(self, uri):
-        '''Get all information on a concept or collection, based on a 
+        '''Get all information on a concept or collection, based on a
         :term:`URI`.
 
         :rtype: :class:`skosprovider.skos.Concept` or
@@ -111,13 +113,13 @@ class VocabularyProvider:
         '''
         Returns all top-level concepts in this provider.
 
-        Top-level concepts are concepts that have no broader concepts 
-        themselves. They might have narrower concepts, but this is not 
+        Top-level concepts are concepts that have no broader concepts
+        themselves. They might have narrower concepts, but this is not
         mandatory.
 
         :rtype: Returns a list of concepts, NOT collections. For each an
-            id is present and a label. The label is determined by looking 
-            at the `**kwargs` parameter, the default language of the provider 
+            id is present and a label. The label is determined by looking
+            at the `**kwargs` parameter, the default language of the provider
             and falls back to `en` if nothing is present.
         '''
 
@@ -140,7 +142,7 @@ class VocabularyProvider:
 
             # Find all concepts, collections or children of these
             # that belong to collection 5.
-            provider.find({'collection': {'id': 5, 'depth': 'all'}) 
+            provider.find({'collection': {'id': 5, 'depth': 'all'})
 
         :param query: A dict that can be used to express a query. The following
             keys are permitted:
@@ -215,15 +217,15 @@ class VocabularyProvider:
 
     def get_top_display(self, **kwargs):
         '''
-        Returns all concepts or collections that form the top-level of a display
-        hierarchy.
+        Returns all concepts or collections that form the top-level of a
+        display hierarchy.
 
         As opposed to the :meth:`get_top_concepts`, this method can possibly
-        return both concepts and collections. 
+        return both concepts and collections.
 
         :rtype: Returns a list of concepts and collections. For each an
-            id is present and a label. The label is determined by looking at 
-            the `**kwargs` parameter, the default language of the provider 
+            id is present and a label. The label is determined by looking at
+            the `**kwargs` parameter, the default language of the provider
             and falls back to `en` if nothing is present.
         '''
 
@@ -235,8 +237,8 @@ class VocabularyProvider:
         :param id: A concept or collection id.
         :rtype: A list of concepts and collections. For each an
             id is present and a label. The label is determined by looking at
-            the `**kwargs` parameter, the default language of the provider 
-            and falls back to `en` if nothing is present. If the id does not 
+            the `**kwargs` parameter, the default language of the provider
+            and falls back to `en` if nothing is present. If the id does not
             exist, return `False`.
         '''
 
@@ -246,7 +248,7 @@ class MemoryProvider(VocabularyProvider):
     A provider that keeps everything in memory.
 
     The data is passed in the constructor of this provider as a list of
-    :class:`skosprovider.skos.Concept` and :class:`skosprovider.skos.Collection`
+    :class:`skosprovider.skos.Concept` and :class:`skosprovider.skos.Collection
     instances.
     '''
 
@@ -255,16 +257,16 @@ class MemoryProvider(VocabularyProvider):
     Is searching for labels case insensitive?
 
     By default a search for a label is done case insensitive. Older versions of
-    this provider were case sensitive. If this behaviour is desired, this can 
+    this provider were case sensitive. If this behaviour is desired, this can
     be triggered by providing a `case_insensitive` keyword to the constructor.
     '''
 
     def __init__(self, metadata, list, **kwargs):
         '''
         :param dict metadata: A dictionary with keywords like language.
-        :param list list: A list of :class:`skosprovider.skos.Concept` and 
+        :param list list: A list of :class:`skosprovider.skos.Concept` and
             :class:`skosprovider.skos.Collection` instances.
-        :param Boolean case_insensitive: Should searching for labels be done 
+        :param Boolean case_insensitive: Should searching for labels be done
             case-insensitive?
         '''
         super(MemoryProvider, self).__init__(metadata, **kwargs)
@@ -322,10 +324,10 @@ class MemoryProvider(VocabularyProvider):
 
     def _get_find_dict(self, c, **kwargs):
         '''
-        Return a dict that can be used in the return list of the :meth:`find` 
+        Return a dict that can be used in the return list of the :meth:`find`
         method.
 
-        :param c: A :class:`skosprovider.skos.Concept` or 
+        :param c: A :class:`skosprovider.skos.Concept` or
             :class:`skosprovider.skos.Collection`.
         :rtype: dict
         '''

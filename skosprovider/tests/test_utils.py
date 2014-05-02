@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from __future__ import unicode_literals
+
 try:
     import unittest2 as unittest
 except ImportError:  # pragma NO COVER
@@ -52,7 +54,10 @@ class DictDumperTest(unittest.TestCase):
                  'label': 'The Chestnut'},
                 {'type': 'altLabel',
                  'language': 'nl',
-                 'label': 'De Paardekastanje'}
+                 'label': 'De Paardekastanje'},
+                {'type': 'altLabel',
+                 'language': 'fr',
+                 'label': 'la châtaigne'}
             ],
             'notes': [
                 {

@@ -6,6 +6,8 @@ This registry helps us find providers during runtime. We can also apply some
 operations to all or several providers at the same time.
 '''
 
+from __future__ import unicode_literals
+
 
 class RegistryException(Exception):
     pass
@@ -36,8 +38,8 @@ class Registry:
         Remove the provider with the given id.
 
         :param str id: The identifier for the provider.
-        :returns: A :class:`skosprovider.providers.VocabularyProvider` or False 
-            if the id is unknown.
+        :returns: A :class:`skosprovider.providers.VocabularyProvider` or
+            False if the id is unknown.
         '''
         if id in self.providers:
             p = self.providers.get(id, False)
@@ -51,8 +53,8 @@ class Registry:
         Get a provider by id.
 
         :param str id: The identifier for the provider.
-        :returns: A :class:`skosprovider.providers.VocabularyProvider` or False 
-            if the id is unknown.
+        :returns: A :class:`skosprovider.providers.VocabularyProvider`
+            or False if the id is unknown.
         '''
         return self.providers.get(id, False)
 
@@ -83,9 +85,9 @@ class Registry:
             these providers.
         :param dict query: The query parameters that will be passed on to each
             :meth:`~skosprovider.providers.VocabularyProvider.find` method of
-            the selected 
+            the selected.
             :class:`providers <skosprovider.providers.VocabularyProvider>`.
-        :returns: a list of :class:`dict`. 
+        :returns: a list of :class:`dict`.
             Each dict has two keys: id and concepts.
         '''
         if not 'providers' in kwargs:
@@ -98,7 +100,7 @@ class Registry:
     def get_all(self):
         '''Get all concepts from all providers.
 
-        :returns: a list of :class:`dict`. 
+        :returns: a list of :class:`dict`.
             Each dict has two keys: id and concepts.
         '''
         return [{'id': p.get_vocabulary_id(), 'concepts': p.get_all()}

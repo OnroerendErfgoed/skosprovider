@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from __future__ import unicode_literals
+
 try:
     import unittest2 as unittest
 except ImportError:  # pragma NO COVER
@@ -38,7 +40,8 @@ chestnut = {
     'uri': 'http://id.trees.org/2',
     'labels': [
         {'type': 'prefLabel', 'language': 'en', 'label': 'The Chestnut'},
-        {'type': 'altLabel', 'language': 'nl', 'label': 'De Paardekastanje'}
+        {'type': 'altLabel', 'language': 'nl', 'label': 'De Paardekastanje'},
+        {'type': 'altLabel', 'language': 'fr', 'label': 'la châtaigne'}
     ],
     'notes': [
         {
@@ -232,6 +235,12 @@ class TreesDictionaryProviderTests(unittest.TestCase):
                            {'id': '2', 'label': 'The Chestnut'},
                            {'id': 3, 'label': 'Trees by species'}])
 
+    def test_get_all_french(self):
+        self.assertEquals(trees.get_all(language='fr'),
+                          [{'id': '1', 'label': 'The Larch'},
+                           {'id': '2', 'label': 'la châtaigne'},
+                           {'id': 3, 'label': 'Trees by species'}])
+
     def test_find_all(self):
         c = trees.find({'type': 'all'})
         self.assertEqual(3, len(c))
@@ -329,8 +338,8 @@ class TreesDictionaryProviderTests(unittest.TestCase):
         self.assertFalse(trees.get_children_display(404))
 
     def test_get_display_children_concept(self):
-        self.assertEqual([],trees.get_children_display(1))
-        self.assertEqual([],trees.get_children_display(2))
+        self.assertEqual([], trees.get_children_display(1))
+        self.assertEqual([], trees.get_children_display(2))
 
     def test_get_display_children_collection(self):
         self.assertEqual(
@@ -424,7 +433,10 @@ class GeoDictionaryProviderTests(unittest.TestCase):
 
     def test_get_display_children_concept(self):
         self.assertEqual(
-            [{'id': 2, 'label': 'Europe'}, {'id': 3, 'label': 'North-America'}],
+            [
+                {'id': 2, 'label': 'Europe'},
+                {'id': 3, 'label': 'North-America'}
+            ],
             geo.get_children_display(1)
         )
 
