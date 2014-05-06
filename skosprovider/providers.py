@@ -182,7 +182,7 @@ class VocabularyProvider:
 
         :returns: A :class:`lst` of concepts and collections. Each of these 
             is a dict with the following keys: 
-            
+
             * id: id within the conceptscheme
             * uri: :term:`uri` of the concept or collection
             * type: concept or collection
@@ -238,12 +238,12 @@ class VocabularyProvider:
 
         :returns: A :class:`lst` of concepts and collections. Each of these 
             is a dict with the following keys: 
-            
+
             * id: id within the conceptscheme
             * uri: :term:`uri` of the concept or collection
             * type: concept or collection
-            * label: A label to represent the concept or collection. It is \
-                determined by looking at the `**kwargs` parameter, the default \ 
+            * label: A label to represent the concept or collection. It is\
+                determined by looking at the `**kwargs` parameter, the default\ 
                 language of the provider and finally falls back to `en`.
         '''
 
@@ -255,7 +255,7 @@ class VocabularyProvider:
         :param str id: A concept or collection id.
         :returns: A :class:`lst` of concepts and collections. Each of these 
             is a dict with the following keys: 
-            
+
             * id: id within the conceptscheme
             * uri: :term:`uri` of the concept or collection
             * type: concept or collection

@@ -214,10 +214,23 @@ class TreesDictionaryProviderTests(unittest.TestCase):
         self.assertEquals(
             trees.get_all(),
             [
-                {'id': '1', 'uri': 'http://id.trees.org/1''', 'type': 'concept', 'label': 'De Lariks'},
-                {'id': '2', 'uri': 'http://id.trees.org/2', 'type': 'concept', 'label': 'De Paardekastanje'},
-                {'id': 3, 'uri': 'http://id.trees.org/3', 'type': 'collection', 'label': 'Bomen per soort'}
-             ]
+                {
+                    'id': '1',
+                    'uri': 'http://id.trees.org/1',
+                    'type': 'concept',
+                    'label': 'De Lariks'
+                }, {
+                    'id': '2',
+                    'uri': 'http://id.trees.org/2',
+                    'type': 'concept',
+                    'label': 'De Paardekastanje'
+                }, {
+                    'id': 3,
+                    'uri': 'http://id.trees.org/3',
+                    'type': 'collection',
+                    'label': 'Bomen per soort'
+                }
+            ]
         )
 
     def test_get_all_default_language(self):
@@ -247,7 +260,7 @@ class TreesDictionaryProviderTests(unittest.TestCase):
                     'type': 'concept',
                     'label': 'De Lariks'
                 }, {
-                    'id': '2', 
+                    'id': '2',
                     'uri': 'http://id.trees.org/2',
                     'type': 'concept',
                     'label': 'De Paardekastanje'
@@ -270,7 +283,7 @@ class TreesDictionaryProviderTests(unittest.TestCase):
                     'type': 'concept',
                     'label': 'The Chestnut'
                 }, {
-                    'id': 3, 
+                    'id': 3,
                     'uri': 'http://id.trees.org/3',
                     'type': 'collection',
                     'label': 'Trees by species'
@@ -289,12 +302,12 @@ class TreesDictionaryProviderTests(unittest.TestCase):
                     'type': 'concept',
                     'label': 'The Larch'
                 }, {
-                    'id': '2', 
+                    'id': '2',
                     'uri': 'http://id.trees.org/2',
                     'type': 'concept',
                     'label': 'la châtaigne'
                 }, {
-                    'id': 3, 
+                    'id': 3,
                     'uri': 'http://id.trees.org/3',
                     'type': 'collection',
                     'label': 'Trees by species'

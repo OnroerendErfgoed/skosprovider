@@ -96,7 +96,7 @@ class RegistryTests(unittest.TestCase):
                             'type': 'concept',
                             'label': 'De Lariks'
                         }
-                     ]
+                    ]
                 }
             ]
         )
