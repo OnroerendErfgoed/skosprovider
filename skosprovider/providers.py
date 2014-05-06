@@ -106,7 +106,7 @@ class VocabularyProvider:
             with the following keys: 
             
             * id: id within the conceptscheme
-            * uri: uri of the concept or collection
+            * uri: :term:`uri` of the concept or collection
             * type: concept or collection
             * label: A label to represent the concept or collection. It is \
                 determined by looking at the `**kwargs` parameter, the default \ 
@@ -126,7 +126,7 @@ class VocabularyProvider:
             is a dict with the following keys: 
             
             * id: id within the conceptscheme
-            * uri: uri of the concept or collection
+            * uri: :term:`uri` of the concept or collection
             * type: concept or collection
             * label: A label to represent the concept or collection. It is \
                 determined by looking at the `**kwargs` parameter, the default \ 
@@ -184,7 +184,7 @@ class VocabularyProvider:
             is a dict with the following keys: 
             
             * id: id within the conceptscheme
-            * uri: uri of the concept or collection
+            * uri: :term:`uri` of the concept or collection
             * type: concept or collection
             * label: A label to represent the concept or collection. It is \
                 determined by looking at the `**kwargs` parameter, the default \ 
@@ -240,7 +240,7 @@ class VocabularyProvider:
             is a dict with the following keys: 
             
             * id: id within the conceptscheme
-            * uri: uri of the concept or collection
+            * uri: :term:`uri` of the concept or collection
             * type: concept or collection
             * label: A label to represent the concept or collection. It is \
                 determined by looking at the `**kwargs` parameter, the default \ 
@@ -257,7 +257,7 @@ class VocabularyProvider:
             is a dict with the following keys: 
             
             * id: id within the conceptscheme
-            * uri: uri of the concept or collection
+            * uri: :term:`uri` of the concept or collection
             * type: concept or collection
             * label: A label to represent the concept or collection. It is \
                 determined by looking at the `**kwargs` parameter, the default \ 
@@ -270,7 +270,7 @@ class MemoryProvider(VocabularyProvider):
     A provider that keeps everything in memory.
 
     The data is passed in the constructor of this provider as a :class:`lst` of
-    :class:`skosprovider.skos.Concept` and :class:`skosprovider.skos.Collection
+    :class:`skosprovider.skos.Concept` and :class:`skosprovider.skos.Collection`
     instances.
     '''
 

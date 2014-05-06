@@ -14,6 +14,8 @@
 - Added the :meth:`~skosprovider.providers.VocabularyProvider.get_top_display` 
   and :meth:`~skosprovider.providers.VocabularyProvider.get_children_display`
   methods to handle generating a display hierarchy for a certain provider.
+- A method that used to return a list of dicts containing an id and a label, 
+  now also returns a uri and a type (concept/collection) for each dict. (#2)
 - Reworking tests. Now using pytest in stead of nose.
 - Adding code coverage based on `Coveralls <https://coveralls.io>`_.
 
