@@ -211,35 +211,96 @@ class TreesDictionaryProviderTests(unittest.TestCase):
         self.assertEquals(set(['1', '2']), set(trees.expand(3)))
 
     def test_get_all(self):
-        self.assertEquals(trees.get_all(),
-                          [{'id': '1', 'label': 'De Lariks'},
-                           {'id': '2', 'label': 'De Paardekastanje'},
-                           {'id': 3, 'label': 'Bomen per soort'}])
+        self.assertEquals(
+            trees.get_all(),
+            [
+                {'id': '1', 'uri': 'http://id.trees.org/1''', 'type': 'concept', 'label': 'De Lariks'},
+                {'id': '2', 'uri': 'http://id.trees.org/2', 'type': 'concept', 'label': 'De Paardekastanje'},
+                {'id': 3, 'uri': 'http://id.trees.org/3', 'type': 'collection', 'label': 'Bomen per soort'}
+             ]
+        )
 
     def test_get_all_default_language(self):
         trees = DictionaryProvider(
             {'id': 'TREES'},
             [larch]
         )
-        self.assertEquals(trees.get_all(),
-                          [{'id': '1', 'label': 'The Larch'}])
+        self.assertEquals(
+            trees.get_all(),
+            [
+                {
+                    'id': '1',
+                    'uri': 'http://id.trees.org/1',
+                    'type': 'concept',
+                    'label': 'The Larch'
+                }
+            ]
+        )
 
     def test_get_top_concepts_default_language(self):
-        self.assertEquals(trees.get_top_concepts(),
-                          [{'id': '1', 'label': 'De Lariks'},
-                           {'id': '2', 'label': 'De Paardekastanje'}])
+        self.assertEquals(
+            trees.get_top_concepts(),
+            [
+                {
+                    'id': '1',
+                    'uri': 'http://id.trees.org/1',
+                    'type': 'concept',
+                    'label': 'De Lariks'
+                }, {
+                    'id': '2', 
+                    'uri': 'http://id.trees.org/2',
+                    'type': 'concept',
+                    'label': 'De Paardekastanje'
+                }
+            ]
+        )
 
     def test_get_all_english(self):
-        self.assertEquals(trees.get_all(language='en'),
-                          [{'id': '1', 'label': 'The Larch'},
-                           {'id': '2', 'label': 'The Chestnut'},
-                           {'id': 3, 'label': 'Trees by species'}])
+        self.assertEquals(
+            trees.get_all(language='en'),
+            [
+                {
+                    'id': '1',
+                    'uri': 'http://id.trees.org/1',
+                    'type': 'concept',
+                    'label': 'The Larch'
+                }, {
+                    'id': '2',
+                    'uri': 'http://id.trees.org/2',
+                    'type': 'concept',
+                    'label': 'The Chestnut'
+                }, {
+                    'id': 3, 
+                    'uri': 'http://id.trees.org/3',
+                    'type': 'collection',
+                    'label': 'Trees by species'
+                }
+            ]
+        )
 
     def test_get_all_french(self):
-        self.assertEquals(trees.get_all(language='fr'),
-                          [{'id': '1', 'label': 'The Larch'},
-                           {'id': '2', 'label': 'la châtaigne'},
-                           {'id': 3, 'label': 'Trees by species'}])
+        self.assertEquals(
+            trees.get_all(language='fr'),
+            [
+
+                {
+                    'id': '1',
+                    'uri': 'http://id.trees.org/1',
+                    'type': 'concept',
+                    'label': 'The Larch'
+                }, {
+                    'id': '2', 
+                    'uri': 'http://id.trees.org/2',
+                    'type': 'concept',
+                    'label': 'la châtaigne'
+                }, {
+                    'id': 3, 
+                    'uri': 'http://id.trees.org/3',
+                    'type': 'collection',
+                    'label': 'Trees by species'
+                }
+            ]
+        )
 
     def test_find_all(self):
         c = trees.find({'type': 'all'})
@@ -256,13 +317,27 @@ class TreesDictionaryProviderTests(unittest.TestCase):
     def test_find_larch(self):
         self.assertEqual(
             trees.find({'label': 'The Larch'}),
-            [{'id': '1', 'label': 'De Lariks'}]
+            [
+                {
+                    'id': '1',
+                    'uri': 'http://id.trees.org/1', 
+                    'type': 'concept', 
+                    'label': 'De Lariks'
+                }
+            ]
         )
 
     def test_find_The_Lar(self):
         self.assertEqual(
             trees.find({'label': 'The Lar'}),
-            [{'id': '1', 'label': 'De Lariks'}]
+            [
+                {
+                    'id': '1',
+                    'uri': 'http://id.trees.org/1', 
+                    'type': 'concept', 
+                    'label': 'De Lariks'
+                }
+            ]
         )
 
     def test_find_case_sensitive(self):
@@ -273,7 +348,14 @@ class TreesDictionaryProviderTests(unittest.TestCase):
         )
         self.assertEqual(
             trees.find({'label': 'The Lar'}),
-            [{'id': '1', 'label': 'De Lariks'}]
+            [
+                {
+                    'id': '1',
+                    'uri': 'http://id.trees.org/1', 
+                    'type': 'concept', 
+                    'label': 'De Lariks'
+                }
+            ]
         )
         self.assertEqual(
             trees.find({'label': 'lar'}),
@@ -287,7 +369,14 @@ class TreesDictionaryProviderTests(unittest.TestCase):
     def test_find_lar(self):
         self.assertEqual(
             trees.find({'label': 'lar'}),
-            [{'id': '1', 'label': 'De Lariks'}]
+            [
+                {
+                    'id': '1',
+                    'uri': 'http://id.trees.org/1', 
+                    'type': 'concept', 
+                    'label': 'De Lariks'
+                }
+            ]
         )
 
     def test_find_es(self):
@@ -343,9 +432,20 @@ class TreesDictionaryProviderTests(unittest.TestCase):
 
     def test_get_display_children_collection(self):
         self.assertEqual(
-            [{'id': '1', 'label': 'De Lariks'},
-             {'id': '2', 'label': 'De Paardekastanje'}],
-            trees.get_children_display(3)
+            trees.get_children_display(3),
+            [
+                {
+                    'id': '1', 
+                    'uri': 'http://id.trees.org/1', 
+                    'type': 'concept', 
+                    'label': 'De Lariks'
+                }, {
+                    'id': '2', 
+                    'uri': 'http://id.trees.org/2', 
+                    'type': 'concept', 
+                    'label': 'De Paardekastanje'
+                }
+            ]
         )
 
 
@@ -366,7 +466,17 @@ class GeoDictionaryProviderTests(unittest.TestCase):
     def test_get_top_concepts(self):
         top = geo.get_top_concepts()
         self.assertEqual(1, len(top))
-        self.assertEqual([{'id': '1', 'label': 'World'}], top)
+        self.assertEqual(
+            top,
+            [
+                {
+                    'id': '1',
+                    'uri': 'urn:x-skosprovider:geography:1',
+                    'type': 'concept',
+                    'label': 'World'
+                }
+            ]
+        )
 
     def test_get_by_id(self):
         wereld = geo.get_by_id(1)
@@ -433,19 +543,41 @@ class GeoDictionaryProviderTests(unittest.TestCase):
 
     def test_get_display_children_concept(self):
         self.assertEqual(
+            geo.get_children_display(1),
             [
-                {'id': 2, 'label': 'Europe'},
-                {'id': 3, 'label': 'North-America'}
-            ],
-            geo.get_children_display(1)
+                {
+                    'id': 2,
+                    'uri': 'urn:x-skosprovider:geography:2',
+                    'type': 'concept',
+                    'label': 'Europe'
+                }, {
+                    'id': 3,
+                    'type': 'concept',
+                    'uri': 'urn:x-skosprovider:geography:3',
+                    'label': 'North-America'
+                }
+            ]
         )
 
     def test_get_display_children_collection(self):
         self.assertEqual(
             [
-                {'id': 4, 'label': 'Belgium'},
-                {'id': 7, 'label': 'Flanders'},
-                {'id': 8, 'label': 'Brussels'}
+                {
+                    'id': 4,
+                    'uri': 'urn:x-skosprovider:geography:4',
+                    'type': 'concept',
+                    'label': 'Belgium'
+                }, {
+                    'id': 7, 
+                    'uri': 'urn:x-skosprovider:geography:7',
+                    'type': 'concept',
+                    'label': 'Flanders'
+                }, {
+                    'id': 8,
+                    'uri': 'urn:x-skosprovider:geography:8',
+                    'type': 'concept',
+                    'label': 'Brussels'
+                }
             ],
             geo.get_children_display(333)
         )

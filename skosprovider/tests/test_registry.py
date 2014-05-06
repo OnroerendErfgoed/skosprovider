@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+from __future__ import unicode_literals
+
 import unittest
 
 from test_providers import (
@@ -82,9 +84,22 @@ class RegistryTests(unittest.TestCase):
 
     def test_one_provider_findConcepts(self):
         self.reg.register_provider(self.prov)
-        self.assertEquals(self.reg.find({'label': 'The Larch'}),
-                          [{'id': 'TREES',
-                            'concepts': [{'id': '1', 'label': 'De Lariks'}]}])
+        self.assertEquals(
+            self.reg.find({'label': 'The Larch'}),
+            [
+                {
+                    'id': 'TREES',
+                    'concepts': [
+                        {
+                            'id': '1',
+                            'uri': 'http://id.trees.org/1',
+                            'type': 'concept',
+                            'label': 'De Lariks'
+                        }
+                     ]
+                }
+            ]
+        )
 
     def test_one_provider_getConceptByUri(self):
         self.reg.register_provider(self.prov)
@@ -105,7 +120,12 @@ class RegistryTests(unittest.TestCase):
                 {
                     'id': 'TREES',
                     'concepts': [
-                        {'id': '1', 'label': 'De Lariks'}
+                        {
+                            'id': '1',
+                            'uri': 'http://id.trees.org/1',
+                            'type': 'concept',
+                            'label': 'De Lariks'
+                        }
                     ]
                 }
             ]
@@ -123,9 +143,22 @@ class RegistryTests(unittest.TestCase):
                 {
                     'id': 'TREES',
                     'concepts': [
-                        {'id': '1', 'label': 'De Lariks'},
-                        {'id': '2', 'label': 'De Paardekastanje'},
-                        {'id': 3, 'label': 'Bomen per soort'}
+                        {
+                            'id': '1',
+                            'uri': 'http://id.trees.org/1',
+                            'type': 'concept',
+                            'label': 'De Lariks'
+                        }, {
+                            'id': '2',
+                            'uri': 'http://id.trees.org/2',
+                            'type': 'concept',
+                            'label': 'De Paardekastanje'
+                        }, {
+                            'id': 3,
+                            'uri': 'http://id.trees.org/3',
+                            'type': 'collection',
+                            'label': 'Bomen per soort'
+                        }
                     ]
                 }
             ]

@@ -102,10 +102,15 @@ class VocabularyProvider:
     def get_all(self, **kwargs):
         '''Returns all concepts and collections in this provider.
 
-        Returns a list of concepts and collections. For each an
-        id is present and a label. The label is determined by looking at the
-        `**kwargs` parameter, the default language of the provider and falls
-        back to `en` if nothing is present.
+        :returns: A :class:`lst` of concepts and collections. Each of these is a dict
+            with the following keys: 
+            
+            * id: id within the conceptscheme
+            * uri: uri of the concept or collection
+            * type: concept or collection
+            * label: A label to represent the concept or collection. It is \
+                determined by looking at the `**kwargs` parameter, the default \ 
+                language of the provider and finally falls back to `en`.
         '''
 
     @abc.abstractmethod
@@ -117,10 +122,15 @@ class VocabularyProvider:
         themselves. They might have narrower concepts, but this is not
         mandatory.
 
-        :rtype: Returns a list of concepts, NOT collections. For each an
-            id is present and a label. The label is determined by looking
-            at the `**kwargs` parameter, the default language of the provider
-            and falls back to `en` if nothing is present.
+        :returns: A :class:`lst` of concepts, NOTcollections. Each of these 
+            is a dict with the following keys: 
+            
+            * id: id within the conceptscheme
+            * uri: uri of the concept or collection
+            * type: concept or collection
+            * label: A label to represent the concept or collection. It is \
+                determined by looking at the `**kwargs` parameter, the default \ 
+                language of the provider and finally falls back to `en`.
         '''
 
     @abc.abstractmethod
@@ -170,12 +180,15 @@ class VocabularyProvider:
                     of the collection or are a narrower concept of a member \
                     of the collection.
 
-        :returns: A list of concepts that match the query. For each concept an
-            id is present and a label. The label is determined by looking at
-            the `**kwargs` parameter, the default language of the provider
-            and falls back to `en` if nothing is present.
-        :rtype: A list of dicts. Each dict contains at least an `id` and a
-            `label` key.
+        :returns: A :class:`lst` of concepts and collections. Each of these 
+            is a dict with the following keys: 
+            
+            * id: id within the conceptscheme
+            * uri: uri of the concept or collection
+            * type: concept or collection
+            * label: A label to represent the concept or collection. It is \
+                determined by looking at the `**kwargs` parameter, the default \ 
+                language of the provider and finally falls back to `en`.
         '''
 
     def expand_concept(self, id):
@@ -223,10 +236,15 @@ class VocabularyProvider:
         As opposed to the :meth:`get_top_concepts`, this method can possibly
         return both concepts and collections.
 
-        :rtype: Returns a list of concepts and collections. For each an
-            id is present and a label. The label is determined by looking at
-            the `**kwargs` parameter, the default language of the provider
-            and falls back to `en` if nothing is present.
+        :returns: A :class:`lst` of concepts and collections. Each of these 
+            is a dict with the following keys: 
+            
+            * id: id within the conceptscheme
+            * uri: uri of the concept or collection
+            * type: concept or collection
+            * label: A label to represent the concept or collection. It is \
+                determined by looking at the `**kwargs` parameter, the default \ 
+                language of the provider and finally falls back to `en`.
         '''
 
     def get_children_display(self, id, **kwargs):
@@ -234,12 +252,16 @@ class VocabularyProvider:
         Return a list of concepts or collections that should be displayed
         under this concept or collection.
 
-        :param id: A concept or collection id.
-        :rtype: A list of concepts and collections. For each an
-            id is present and a label. The label is determined by looking at
-            the `**kwargs` parameter, the default language of the provider
-            and falls back to `en` if nothing is present. If the id does not
-            exist, return `False`.
+        :param str id: A concept or collection id.
+        :returns: A :class:`lst` of concepts and collections. Each of these 
+            is a dict with the following keys: 
+            
+            * id: id within the conceptscheme
+            * uri: uri of the concept or collection
+            * type: concept or collection
+            * label: A label to represent the concept or collection. It is \
+                determined by looking at the `**kwargs` parameter, the default \ 
+                language of the provider and finally falls back to `en`.
         '''
 
 
@@ -247,7 +269,7 @@ class MemoryProvider(VocabularyProvider):
     '''
     A provider that keeps everything in memory.
 
-    The data is passed in the constructor of this provider as a list of
+    The data is passed in the constructor of this provider as a :class:`lst` of
     :class:`skosprovider.skos.Concept` and :class:`skosprovider.skos.Collection
     instances.
     '''
@@ -332,13 +354,23 @@ class MemoryProvider(VocabularyProvider):
         :rtype: dict
         '''
         language = self._get_language(**kwargs)
-        return {'id': c.id, 'label': c.label(language).label}
+        return {
+            'id': c.id,
+            'uri': c.uri,
+            'type': c.type,
+            'label': c.label(language).label
+        }
 
     def get_all(self, **kwargs):
         language = self._get_language(**kwargs)
         ret = []
         for c in self.list:
-            ret.append({'id': c.id, 'label': c.label(language).label})
+            ret.append({
+                'id': c.id, 
+                'uri': c.uri,
+                'type': c.type,
+                'label': c.label(language).label
+            })
         return ret
 
     def get_top_concepts(self, **kwargs):
@@ -346,7 +378,12 @@ class MemoryProvider(VocabularyProvider):
         ret = []
         for c in self.list:
             if isinstance(c, Concept) and len(c.broader) == 00:
-                ret.append({'id': c.id, 'label': c.label(language).label})
+                ret.append({
+                    'id': c.id,
+                    'uri': c.uri,
+                    'type': c.type,
+                    'label': c.label(language).label
+                })
         return ret
 
     def expand(self, id):
@@ -381,7 +418,12 @@ class MemoryProvider(VocabularyProvider):
             display_children = c.members
         for id in display_children:
             dc = self.get_by_id(id)
-            ret.append({'id': dc.id, 'label': dc.label(language).label})
+            ret.append({
+                'id': dc.id, 
+                'uri': dc.uri,
+                'type': dc.type,
+                'label': dc.label(language).label
+            })
         return ret
 
 

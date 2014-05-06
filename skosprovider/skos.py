@@ -151,6 +151,12 @@ class Concept(collections.Mapping):
     eg. `http://id.example.com/skos/trees/1`
     '''
 
+    type = 'concept'
+    '''The type of this concept or collection.
+
+    eg. 'concept'
+    '''
+
     def __init__(self, id, uri=None,
                  labels=[], notes=[],
                  broader=[], narrower=[], related=[]):
@@ -194,6 +200,12 @@ class Collection:
 
     uri = None
     '''A proper uri for this Collection'''
+
+    type = 'collection'
+    '''The type of this concept or collection.
+
+    eg. 'collection'
+    '''
 
     labels = []
     '''A :class:`list` of :class:`skosprovider.skos.label` instances.'''
