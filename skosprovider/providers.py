@@ -46,14 +46,17 @@ class VocabularyProvider:
 
     def _get_language(self, **kwargs):
         '''Determine what language to render labels in.
+
+        Will first check if there's a language keyword specified in **kwargs. 
+        If not, will check the default language of the provider. If there's no
+        default language, will fall back to 'en'.
+
+        :rtype: str
         '''
-        if 'language' in kwargs:
-            return kwargs.get('language')
-        else:
-            if 'default_language' in self.metadata:
-                return self.metadata.get('default_language')
-            else:
-                return 'en'
+        return kwargs.get(
+            'language',
+            self.metadata.get('default_language', 'en')
+        )
 
     def get_vocabulary_id(self):
         '''Get an identifier for the vocabulary.
