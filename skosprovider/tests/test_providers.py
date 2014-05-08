@@ -32,7 +32,8 @@ larch = {
     ],
     'notes': [
         {'type': 'definition', 'language': 'en', 'note': 'A type of tree.'}
-    ]
+    ],
+    'member_of': ['3']
 }
 
 chestnut = {
@@ -48,7 +49,8 @@ chestnut = {
             'type': 'definition', 'language': 'en',
             'note': 'A different type of tree.'
         }
-    ]
+    ],
+    'member_of': ['3']
 }
 
 species = {
@@ -59,7 +61,7 @@ species = {
         {'type': 'prefLabel', 'language': 'nl', 'label': 'Bomen per soort'}
     ],
     'type': 'collection',
-    'members': ['1', '2']
+    'members': ['1', '2'],
 }
 
 trees = DictionaryProvider(
@@ -99,7 +101,8 @@ geo = DictionaryProvider(
             'labels': [
                 {'type': 'prefLabel', 'language': 'en', 'label': 'Belgium'}
             ],
-            'narrower': [7, 8, 9], 'broader': [2]
+            'narrower': [7, 8, 9], 'broader': [2],
+            'member_of': ['333']
         }, {
             'id': 5,
             'labels': [
@@ -123,13 +126,15 @@ geo = DictionaryProvider(
             'labels': [
                 {'type': 'prefLabel', 'language': 'en', 'label': 'Flanders'}
             ],
-            'broader': [4]
+            'broader': [4],
+            'member_of': ['333']
         }, {
             'id': 8,
             'labels': [
                 {'type': 'prefLabel', 'language': 'en', 'label': 'Brussels'}
             ],
-            'broader': [4]
+            'broader': [4],
+            'member_of': ['333']
         }, {
             'id': 9,
             'labels': [
@@ -184,6 +189,8 @@ class TreesDictionaryProviderTests(unittest.TestCase):
         self.assertEqual(larch['uri'], lariks['uri'])
         self.assertEqual(larch['labels'], lariks['labels'])
         self.assertEqual(larch['notes'], lariks['notes'])
+        self.assertEqual(larch['member_of'], lariks['member_of'])
+        self.assertEqual('concept', lariks['type'])
 
     def test_get_by_id_is_type_agnostic(self):
         self.assertEqual(trees.get_by_id(1), trees.get_by_id('1'))
@@ -497,18 +504,23 @@ class GeoDictionaryProviderTests(unittest.TestCase):
         self.assertEqual(world['labels'], wereld['labels'])
         self.assertEqual(world['narrower'], wereld['narrower'])
 
+    def test_get_belgium_by_id(self):
+        belgium = geo.get_by_id(4)
+        self.assertEqual(4, belgium['id'])
+        self.assertEqual(set(['333']), set(belgium['member_of']))
+
     def test_get_by_uri(self):
         wereld = geo.get_by_uri('urn:x-skosprovider:geography:1')
         self.assertEqual(world['id'], wereld['id'])
         self.assertEqual(world['labels'], wereld['labels'])
         self.assertEqual(world['narrower'], wereld['narrower'])
 
-    def test_get_colletion_by_id(self):
+    def test_get_collection_by_id(self):
         dutch_speaking = geo.get_by_id(333)
         self.assertEqual('333', dutch_speaking.id)
         self.assertEqual(['4', '7', '8'], dutch_speaking.members)
 
-    def test_get_colletion_by_uri(self):
+    def test_get_collection_by_uri(self):
         dutch_speaking = geo.get_by_uri('urn:x-skosprovider:geography:333')
         self.assertEqual('333', dutch_speaking.id)
         self.assertEqual(['4', '7', '8'], dutch_speaking.members)

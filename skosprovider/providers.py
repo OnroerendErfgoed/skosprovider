@@ -447,7 +447,8 @@ class DictionaryProvider(MemoryProvider):
                 id=data['id'],
                 uri=data['uri'] if 'uri' in data else self.uri_generator.generate(type='collection', id=data['id']),
                 labels=data['labels'] if 'labels' in data else [],
-                members=data['members'] if 'members' in data else []
+                members=data['members'] if 'members' in data else [],
+                member_of=data['member_of'] if 'member_of' in data else []
             )
         else:
             return Concept(
@@ -458,6 +459,7 @@ class DictionaryProvider(MemoryProvider):
                 broader=data['broader'] if 'broader' in data else [],
                 narrower=data['narrower'] if 'narrower' in data else [],
                 related=data['related'] if 'related' in data else [],
+                member_of=data['member_of'] if 'member_of' in data else []
             )
 
 

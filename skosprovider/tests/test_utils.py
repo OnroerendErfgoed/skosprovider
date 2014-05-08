@@ -41,9 +41,9 @@ class DictDumperTest(unittest.TestCase):
             ],
             'narrower': [],
             'broader': [],
-            'related': []
+            'related': [],
+            'member_of': ['3']
         }
-
         self.chestnut_dump = {
             'id': '2',
             'uri': 'http://id.trees.org/2',
@@ -67,7 +67,19 @@ class DictDumperTest(unittest.TestCase):
             ],
             'narrower': [],
             'broader': [],
-            'related': []
+            'related': [],
+            'member_of': ['3']
+        }
+        self.species_dump = {
+            'id': 3,
+            'uri': 'http://id.trees.org/3',
+            'labels': [
+                {'type': 'prefLabel', 'language': 'en', 'label': 'Trees by species'},
+                {'type': 'prefLabel', 'language': 'nl', 'label': 'Bomen per soort'}
+            ],
+            'type': 'collection',
+            'members': ['1', '2'],
+            'member_of': []
         }
         self.world_dump = {
             'id': '1',
@@ -80,7 +92,8 @@ class DictDumperTest(unittest.TestCase):
             ],
             'narrower': [2, 3],
             'broader': [],
-            'related': []
+            'related': [],
+            'member_of': []
         }
 
     def tearDown(self):
@@ -104,7 +117,7 @@ class DictDumperTest(unittest.TestCase):
 
     def testFlatProvider(self):
         self.assertEqual(
-            [self.larch_dump, self.chestnut_dump, species],
+            [self.larch_dump, self.chestnut_dump, self.species_dump],
             dict_dumper(trees)
         )
 

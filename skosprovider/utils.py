@@ -31,19 +31,21 @@ def dict_dumper(provider):
             ret.append({
                 'id': c.id,
                 'uri': c.uri,
-                'type': 'concept',
+                'type': c.type,
                 'labels': labels,
                 'notes': notes,
                 'narrower': c.narrower,
                 'broader': c.broader,
-                'related': c.related
+                'related': c.related,
+                'member_of': c.member_of
             })
         elif isinstance(c, Collection):
             ret.append({
                 'id': c.id,
                 'uri': c.uri,
-                'type': 'collection',
+                'type': c.type,
                 'labels': labels,
-                'members': c.members
+                'members': c.members,
+                'member_of': c.member_of
             })
     return ret

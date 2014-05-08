@@ -174,18 +174,22 @@ class ConceptTest(unittest.TestCase):
         self.assertIn('broader', c)
         self.assertIn('narrower', c)
         self.assertIn('related', c)
+        self.assertIn('member_of', c)
 
     def testIter(self):
         c = Concept(1)
         keys = [
-            'id', 'uri', 'labels', 'notes', 'broader', 'narrower', 'related'
+            'id', 'uri', 'type',
+            'labels', 'notes',
+            'broader', 'narrower', 'related', 
+            'member_of'
         ]
         for k in c.keys():
             self.assertIn(k, keys)
 
     def testLen(self):
         c = Concept(1)
-        self.assertEqual(7, len(c))
+        self.assertEqual(9, len(c))
 
     def testLabel(self):
         labels = self._get_labels()
@@ -199,6 +203,13 @@ class ConceptTest(unittest.TestCase):
         c = Concept(1, uri='urn:x-skosprovider:gemeenten:1')
         self.assertEqual(1, c.id)
         self.assertEqual('urn:x-skosprovider:gemeenten:1', c.uri)
+
+    def testMemberOf(self):
+        c = Concept(
+            1, 
+            uri='urn:x-skosprovider:gemeenten:1',
+            member_of=[15])
+        self.assertEqual(set([15]), set(c.member_of))
 
 
 class CollectionTest(unittest.TestCase):
@@ -255,6 +266,13 @@ class CollectionTest(unittest.TestCase):
             members=[1, 2]
         )
         self.assertTrue(set([1, 2]), set(coll.members))
+
+    def testMemberOf(self):
+        coll = Collection(
+            id=1,
+            member_of=[350]
+        )
+        self.assertTrue(set([350]), set(coll.member_of))
 
 
 class DictToNoteFunctionTest(unittest.TestCase):

@@ -159,14 +159,17 @@ class Concept(collections.Mapping):
 
     def __init__(self, id, uri=None,
                  labels=[], notes=[],
-                 broader=[], narrower=[], related=[]):
+                 broader=[], narrower=[], related=[],
+                 member_of=[]):
         self.id = id
         self.uri = uri
+        self.type = 'concept'
         self.labels = [dict_to_label(l) for l in labels]
         self.notes = [dict_to_note(n) for n in notes]
         self.broader = broader
         self.narrower = narrower
         self.related = related
+        self.member_of = member_of
 
     def __getitem__(self, item):
         if item in self.__dict__.keys():
@@ -208,16 +211,21 @@ class Collection:
     '''
 
     labels = []
-    '''A :class:`list` of :class:`skosprovider.skos.label` instances.'''
+    '''A :class:`lst` of :class:`skosprovider.skos.label` instances.'''
 
     members = []
-    '''A :class:`list` of concept ids.'''
+    '''A :class:`lst` of concept ids.'''
 
-    def __init__(self, id, uri=None, labels=[], members=[]):
+    member_of = []
+    '''A :class:`lst` of concept or collection ids.'''
+
+    def __init__(self, id, uri=None, labels=[], members=[], member_of=[]):
         self.id = id
         self.uri = uri
+        self.type = 'collection'
         self.labels = [dict_to_label(l) for l in labels]
         self.members = members
+        self.member_of = member_of
 
     def label(self, language='any'):
         '''
