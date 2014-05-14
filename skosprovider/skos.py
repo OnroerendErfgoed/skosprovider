@@ -31,6 +31,11 @@ class Label:
     The language the label is in (eg. `en`, `en-US`, `nl`, `nl-BE`).
     '''
 
+    valid_types=['prefLabel', 'altLabel', 'hiddenLabel']
+    '''
+    The valid types for a label
+    '''
+
     def __init__(self, label, type="prefLabel", language=None):
         self.label = label
         self.type = type
@@ -53,7 +58,7 @@ class Label:
 
         :param string type: The type to be checked.
         '''
-        return type in ['prefLabel', 'altLabel', 'hiddenLabel']
+        return type in Label.valid_types
 
 
 class Note:
@@ -66,12 +71,25 @@ class Note:
 
     type = "note"
     '''
-    The type of this note ( `note`, `defintion`, `scopeNote`, ...).
+    The type of this note ( `note`, `definition`, `scopeNote`, ...).
     '''
 
     language = None
     '''
     The language the label is in (eg. `en`, `en-US`, `nl`, `nl-BE`).
+    '''
+
+    valid_types=[
+            'note',
+            'changeNote',
+            'definition',
+            'editorialNote',
+            'example',
+            'historyNote',
+            'scopeNote'
+        ]
+    '''
+    The valid types for a note
     '''
 
     def __init__(self, note, type="note", language=None):
@@ -92,15 +110,7 @@ class Note:
 
         :param string type: The type to be checked.
         '''
-        return type in [
-            'note',
-            'changeNote',
-            'definition',
-            'editorialNote',
-            'example',
-            'historyNote',
-            'scopeNote'
-        ]
+        return type in Note.valid_types
 
 
 class ConceptScheme:
