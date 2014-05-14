@@ -1,4 +1,4 @@
-0.3.0 (2013-12-??)
+0.3.0 (2014-05-14)
 ------------------
 
 - Added support for :term:`URI`. A :class:`skosprovider.skos.Concept`, 
@@ -16,6 +16,8 @@
   methods to handle generating a display hierarchy for a certain provider.
 - A method that used to return a list of dicts containing an id and a label, 
   now also returns a uri and a type (concept/collection) for each dict. (#2)
+- Provide list of valid noteTypes and labelTypes as attributes of Note and 
+  Label so they can be used externally. (#4)
 - Reworking tests. Now using pytest in stead of nose.
 - Adding code coverage based on `Coveralls <https://coveralls.io>`_.
 
