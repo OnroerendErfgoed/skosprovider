@@ -43,8 +43,14 @@ Currently the following other providers exist:
   :class:`VocabularyProvider <skosprovider.providers.VocabularyProvider>` 
   interface with a `SQLAlchemy <http://www.sqlalchemy.org>`_ backend. This allows
   using a RDBMS for reading, but also writing, :term:`SKOS` concepts.
+* `Skosprovider_rdf <http://skosprovider-rdf.readthedocs.org/en/latest/>`_:
+  An implementation of the 
+  :class:`VocabularyProvider <skosprovider.providers.VocabularyProvider>` 
+  interface with a `RDFLib <https://rdflib.readthedocs.org/en/latest/>`_ 
+  backend. This allows using a SKOS RDf file as the source for a provider, 
+  but also dumping a skosprovider to a SKOS RDF file.
 
-Currently there also exists a library to integrate Skosprovider with
+There also exists a library to integrate Skosprovider with
 `Pyramid <http://www.pylonsproject.org/>`_ at 
 `pyramid_skosprovider <https://github.com/koenedaele/pyramid_skosprovider>`_.
 
@@ -62,3 +68,8 @@ In a few places we've deviated a bit from the :term:`SKOS` standard:
   to have a broader `concept`. Skosprovider expects that the concepts returned
   by the :meth:`skosprovider.providers.VocabularyProvider.get_top_concepts` do
   not have any broader concepts.
+* The SKOS ontology ony describes a SKOS:member predicate to indicate that a
+  collection has certain members. There's an implicit reverse side to this 
+  relation (eg. a concept is a member of a collection). We've standardised this
+  on the member_of property that's available on a 
+  :class:`skosprovider.skos.Concept` and a :class:`skosprovider.skos.Collection`.
