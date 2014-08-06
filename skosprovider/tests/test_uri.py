@@ -8,6 +8,7 @@ except ImportError:  # pragma NO COVER
 from skosprovider.uri import (
     UriPatternGenerator,
     DefaultUrnGenerator,
+    DefaultConceptSchemeUrnGenerator,
     TypedUrnGenerator
 )
 
@@ -38,6 +39,24 @@ class DefaultUrnGeneratorTest(unittest.TestCase):
 
     def test_missing_argument(self):
         self.assertRaises(KeyError, self.urigen.generate, type='set')
+
+
+class DefaultConceptSchemeUrnGeneratorTest(unittest.TestCase):
+
+    def setUp(self):
+        self.urigen = DefaultConceptSchemeUrnGenerator()
+
+    def tearDown(self):
+        del self.urigen
+
+    def test_simple(self):
+        self.assertEqual(
+            'urn:x-skosprovider:typologie',
+            self.urigen.generate(id='TYPOLOGIE')
+        )
+
+    def test_missing_argument(self):
+        self.assertRaises(KeyError, self.urigen.generate)
 
 
 class TypedUrnGeneratorTest(unittest.TestCase):
