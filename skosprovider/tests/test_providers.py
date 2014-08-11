@@ -20,6 +20,7 @@ from skosprovider.providers import (
 from skosprovider.skos import (
     Concept,
     Collection,
+    ConceptScheme,
     Note
 )
 
@@ -620,7 +621,8 @@ class SimpleCsvProviderTests(unittest.TestCase):
         self.csvprovider = SimpleCsvProvider(
             {'id': 'MENU'},
             reader,
-            uri_generator=UriPatternGenerator('http://id.python.org/menu/%s')
+            uri_generator=UriPatternGenerator('http://id.python.org/menu/%s'),
+            concept_scheme=ConceptScheme('http://id.python.org/menu')
         )
 
     def tearDown(self):
