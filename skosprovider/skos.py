@@ -139,7 +139,7 @@ class ConceptScheme:
         return.
 
         :param string language: The preferred language to receive the label in.
-        :rtype: :class:`skosprovider.skos.Label` or False if no labels was found.
+        :rtype: :class:`skosprovider.skos.Label` or False if no labels were found.
         '''
         return label(self.labels, language)
 
@@ -166,6 +166,9 @@ class Concept(collections.Mapping):
 
     eg. 'concept'
     '''
+
+    member_of = []
+    '''A :class:`lst` of collection ids.'''
 
     def __init__(self, id, uri=None,
                  labels=[], notes=[],
@@ -198,7 +201,7 @@ class Concept(collections.Mapping):
         This uses the :func:`label` function to determine which label to return.
 
         :param string language: The preferred language to receive the label in.
-        :rtype: :class:`skosprovider.skos.Label` or False if no labels was found.
+        :rtype: :class:`skosprovider.skos.Label` or False if no labels were found.
         '''
         return label(self.labels, language)
 
@@ -224,10 +227,10 @@ class Collection:
     '''A :class:`lst` of :class:`skosprovider.skos.label` instances.'''
 
     members = []
-    '''A :class:`lst` of concept ids.'''
+    '''A :class:`lst` of concept or collection ids.'''
 
     member_of = []
-    '''A :class:`lst` of concept or collection ids.'''
+    '''A :class:`lst` of collection ids.'''
 
     def __init__(self, id, uri=None, labels=[], members=[], member_of=[]):
         self.id = id
@@ -244,7 +247,7 @@ class Collection:
         This uses the :func:`label` function to determine which label to return.
 
         :param string language: The preferred language to receive the label in.µ
-        :rtype: :class:`skosprovider.skos.Label` or False if no labels was found.
+        :rtype: :class:`skosprovider.skos.Label` or False if no labels were found.
         '''
         return label(self.labels, language)
 
