@@ -46,6 +46,7 @@ def dict_dumper(provider):
                 'type': c.type,
                 'labels': labels,
                 'members': c.members,
-                'member_of': c.member_of
+                'member_of': c.member_of,
+                'broader': c.broader
             })
     return ret
