@@ -79,7 +79,8 @@ class DictDumperTest(unittest.TestCase):
             ],
             'type': 'collection',
             'members': ['1', '2'],
-            'member_of': []
+            'member_of': [],
+            'notes': []
         }
         self.world_dump = {
             'id': '1',

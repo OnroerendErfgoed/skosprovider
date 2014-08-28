@@ -119,17 +119,22 @@ class ConceptScheme:
 
     :param string uri: A :term:`URI` for this conceptscheme.
     :param list labels: A list of :class:`skosprovider.skos.Label` instances.
+    :param list notes: A list of :class:`skosprovider.skos.Note` instances.
     '''
 
     uri = None
     '''A :term:`URI` for this conceptscheme.'''
 
     labels = []
-    '''A list of labels for this conceptscheme.'''
+    '''A :class:`lst` of :class:`skosprovider.skos.label` instances.'''
 
-    def __init__(self, uri, labels=[]):
+    notes = []
+    '''A :class:`lst` of :class:`skosprovider.skos.Note` instances.'''
+
+    def __init__(self, uri, labels=[], notes=[]):
         self.uri = uri
-        self.labels = labels
+        self.labels = [dict_to_label(l) for l in labels]
+        self.notes = [dict_to_note(n) for n in notes]
 
     def label(self, language='any'):
         '''
@@ -166,6 +171,21 @@ class Concept(collections.Mapping):
 
     eg. 'concept'
     '''
+
+    labels = []
+    '''A :class:`lst` of :class:`skosprovider.skos.Label` instances.'''
+
+    notes = []
+    '''A :class:`lst` of :class:`skosprovider.skos.Note` instances.'''
+
+    broader = []
+    '''A :class:`lst` of concept ids.'''
+
+    narrower = []
+    '''A :class:`lst` of concept ids or collection ids.'''
+
+    related = []
+    '''A :class:`lst` of concept ids.'''
 
     member_of = []
     '''A :class:`lst` of collection ids.'''
@@ -226,17 +246,21 @@ class Collection:
     labels = []
     '''A :class:`lst` of :class:`skosprovider.skos.label` instances.'''
 
+    notes = []
+    '''A :class:`lst` of :class:`skosprovider.skos.Note` instances.'''
+
     members = []
     '''A :class:`lst` of concept or collection ids.'''
 
     member_of = []
     '''A :class:`lst` of collection ids.'''
 
-    def __init__(self, id, uri=None, labels=[], members=[], member_of=[]):
+    def __init__(self, id, uri=None, labels=[], notes=[], members=[], member_of=[]):
         self.id = id
         self.uri = uri
         self.type = 'collection'
         self.labels = [dict_to_label(l) for l in labels]
+        self.notes = [dict_to_note(n) for n in notes]
         self.members = members
         self.member_of = member_of
 
