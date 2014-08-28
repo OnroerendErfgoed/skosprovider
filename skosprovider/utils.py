@@ -26,8 +26,8 @@ def dict_dumper(provider):
     for stuff in provider.get_all():
         c = provider.get_by_id(stuff['id'])
         labels = [l.__dict__ for l in c.labels]
+        notes = [n.__dict__ for n in c.notes]
         if isinstance(c, Concept):
-            notes = [n.__dict__ for n in c.notes]
             ret.append({
                 'id': c.id,
                 'uri': c.uri,
@@ -45,6 +45,7 @@ def dict_dumper(provider):
                 'uri': c.uri,
                 'type': c.type,
                 'labels': labels,
+                'notes': notes,
                 'members': c.members,
                 'member_of': c.member_of,
                 'broader': c.broader
