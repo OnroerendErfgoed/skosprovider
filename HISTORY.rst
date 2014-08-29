@@ -1,3 +1,10 @@
+0.4.0 (2014-??-??)
+------------------
+
+- Added ability to add :class:`~skosprovider.skos.Note` to 
+  :class:`~skosprovider.skos.Collection` and 
+  :class:`~skosprovider.skos.ConceptScheme`.
+
 0.3.0 (2014-05-14)
 ------------------
 
