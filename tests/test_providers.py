@@ -63,6 +63,14 @@ species = {
     ],
     'type': 'collection',
     'members': ['1', '2'],
+    'notes': [
+        {
+            'type': 'editorialNote',
+            'language': 'en',
+            'note': 'As seen in How to Recognise Different Types of Trees from\
+                    Quite a Long Way Away.'
+        }
+    ]
 }
 
 trees = DictionaryProvider(
