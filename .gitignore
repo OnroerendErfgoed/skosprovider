@@ -29,3 +29,6 @@ pip-log.txt
 .tox
 nosetests.xml
 htmlcov
+
+# Pycharm
+.idea/
