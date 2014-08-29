@@ -11,6 +11,6 @@ install:
  # Install unittest2 on 2.6
  - "if [[ $TRAVIS_PYTHON_VERSION == '2.6' ]]; then pip install unittest2; fi"
 script: 
-    py.test --cov skosprovider --cov-report term-missing skosprovider/tests
+    py.test --cov skosprovider --cov-report term-missing tests
 after_success:
     coveralls
