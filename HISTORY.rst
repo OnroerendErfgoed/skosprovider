@@ -4,6 +4,11 @@
 - Added ability to add :class:`~skosprovider.skos.Note` to 
   :class:`~skosprovider.skos.Collection` and 
   :class:`~skosprovider.skos.ConceptScheme`.
+- Added a :class:`~skosprovider.skos.ConceptScheme` to every provider. This
+  ConceptScheme can then be passed on to Concepts and Collections. This allows
+  Concepts and Collections that have left the context of their provider, to
+  still refer back to the :class:`~skosprovider.skos.ConceptScheme` and thus 
+  the :class:`skosprovider.providers.VocabularyProvider` where they originated.
 
 0.3.0 (2014-05-14)
 ------------------
