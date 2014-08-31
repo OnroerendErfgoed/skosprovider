@@ -180,6 +180,7 @@ class ConceptTest(unittest.TestCase):
         c = Concept(1)
         keys = [
             'id', 'uri', 'type',
+            'concept_scheme',
             'labels', 'notes',
             'broader', 'narrower', 'related', 
             'member_of'
@@ -189,7 +190,7 @@ class ConceptTest(unittest.TestCase):
 
     def testLen(self):
         c = Concept(1)
-        self.assertEqual(9, len(c))
+        self.assertEqual(10, len(c))
 
     def testLabel(self):
         labels = self._get_labels()
