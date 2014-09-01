@@ -137,6 +137,15 @@ class Registry:
         :rtype: :class:`skosprovider.skos.Concept` or
             :class:`skosprovider.skos.Collection`
         '''
+        # Check if there's a provider that's more likely to have the URI
+        csuris = [csuri for csuri in self.concept_scheme_uri_map.keys() if uri.startswith(csuri)]
+        if len(csuris):
+            for csuri in csuris:
+                p = self.get_provider(csuri)
+                c = p.get_by_uri(uri)
+                if c:
+                    return c
+        # Check all providers
         for p in self.providers.values():
             c = p.get_by_uri(uri)
             if c:

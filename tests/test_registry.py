@@ -190,8 +190,8 @@ class RegistryTests(unittest.TestCase):
         )
 
     def test_two_providers_findConceptsWithProviderIdAndUri(self):
-        self.reg.register_provider(self.prov)
         self.reg.register_provider(self.prov2)
+        self.reg.register_provider(self.prov)
         self.assertEquals(
             self.reg.find({'label': 'The Larch'}, providers=['TREES']),
             self.reg.find({'label': 'The Larch'}, providers=['http://id.trees.org']),
