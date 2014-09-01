@@ -269,7 +269,8 @@ class Collection:
     def __init__(self, id, uri=None,
                  concept_scheme=None,
                  labels=[], notes=[], 
-                 members=[], member_of=[]):
+                 members=[], member_of=[],
+                 broader=[]):
         self.id = id
         self.uri = uri
         self.type = 'collection'
