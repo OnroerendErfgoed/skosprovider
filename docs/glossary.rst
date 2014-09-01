@@ -7,9 +7,14 @@ Glossary
    :sorted:
 
    SKOS
-    `Simple Knowledge Organization System <http://www.w3.org/2004/02/skos>`__. An
+    `Simple Knowledge Organization System <http://www.w3.org/2004/02/skos>`__. A
     general specification for Knowledge Organisation Systems (thesauri, word 
     lists, authority files, ...) that is commonly serialised as :term:`RDF`.
+
+   SKOS-THES
+    The `ISO 25964 SKOS extension <http://pub.tenforce.com/schemas/iso25964/skos-thes/>`_
+    defines mappings between the ISO 25964 standard and the :term:`SKOS` 
+    specification.
 
    RDF
     `Resource Description Framework <http://www.w3.org/RDF/>`__. A very flexible 
