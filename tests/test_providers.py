@@ -184,10 +184,10 @@ class TreesDictionaryProviderTests(unittest.TestCase):
 
     def test_get_by_id(self):
         lariks = trees.get_by_id(1)
-        self.assertEqual(larch['id'], lariks['id'])
-        self.assertEqual(larch['uri'], lariks['uri'])
-        self.assertEqual(larch['labels'], lariks['labels'])
-        self.assertEqual(larch['notes'], lariks['notes'])
+        self.assertEqual(larch['id'], lariks.id)
+        self.assertEqual(larch['uri'], lariks.uri)
+        self.assertEqual(larch['labels'], lariks.labels)
+        self.assertEqual(larch['notes'], lariks.notes)
 
     def test_concept_has_scheme(self):
         lariks = trees.get_by_id(1)
@@ -205,12 +205,12 @@ class TreesDictionaryProviderTests(unittest.TestCase):
 
     def test_get_by_id_string(self):
         lariks = trees.get_by_id('1')
-        self.assertEqual(larch['id'], lariks['id'])
-        self.assertEqual(larch['uri'], lariks['uri'])
-        self.assertEqual(larch['labels'], lariks['labels'])
-        self.assertEqual(larch['notes'], lariks['notes'])
-        self.assertEqual(larch['member_of'], lariks['member_of'])
-        self.assertEqual('concept', lariks['type'])
+        self.assertEqual(larch['id'], lariks.id)
+        self.assertEqual(larch['uri'], lariks.uri)
+        self.assertEqual(larch['labels'], lariks.labels)
+        self.assertEqual(larch['notes'], lariks.notes)
+        self.assertEqual(larch['member_of'], lariks.member_of)
+        self.assertEqual('concept', lariks.type)
 
     def test_get_by_id_is_type_agnostic(self):
         self.assertEqual(trees.get_by_id(1), trees.get_by_id('1'))
@@ -530,20 +530,20 @@ class GeoDictionaryProviderTests(unittest.TestCase):
 
     def test_get_by_id(self):
         wereld = geo.get_by_id(1)
-        self.assertEqual(world['id'], wereld['id'])
-        self.assertEqual(world['labels'], wereld['labels'])
-        self.assertEqual(world['narrower'], wereld['narrower'])
+        self.assertEqual(world['id'], wereld.id)
+        self.assertEqual(world['labels'], wereld.labels)
+        self.assertEqual(world['narrower'], wereld.narrower)
 
     def test_get_belgium_by_id(self):
         belgium = geo.get_by_id(4)
-        self.assertEqual(4, belgium['id'])
-        self.assertEqual(set(['333']), set(belgium['member_of']))
+        self.assertEqual(4, belgium.id)
+        self.assertEqual(set(['333']), set(belgium.member_of))
 
     def test_get_by_uri(self):
         wereld = geo.get_by_uri('urn:x-skosprovider:geography:1')
-        self.assertEqual(world['id'], wereld['id'])
-        self.assertEqual(world['labels'], wereld['labels'])
-        self.assertEqual(world['narrower'], wereld['narrower'])
+        self.assertEqual(world['id'], wereld.id)
+        self.assertEqual(world['labels'], wereld.labels)
+        self.assertEqual(world['narrower'], wereld.narrower)
 
     def test_get_collection_by_id(self):
         dutch_speaking = geo.get_by_id(333)

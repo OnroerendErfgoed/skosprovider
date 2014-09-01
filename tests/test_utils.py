@@ -81,7 +81,7 @@ class DictDumperTest(unittest.TestCase):
             'members': ['1', '2'],
             'member_of': [],
             'notes': [],
-            'broader': []
+            'super_ordinates': []
         }
         self.world_dump = {
             'id': '1',

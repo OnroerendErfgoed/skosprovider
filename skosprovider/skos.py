@@ -1,14 +1,16 @@
 # -*- coding: utf-8 -*-
 
 '''
-This module contains a read-only model of the :term:`SKOS` specification.
+This module contains a read-only model of the :term:`SKOS` specification. 
+
+To complement the :term:`SKOS` specification, some elements were borrowed
+from the :term:`SKOS-THES` specification (eg. super ordinate and 
+sub ordinate array).
 
 .. versionadded:: 0.2.0
 '''
 
 from __future__ import unicode_literals
-
-import collections
 
 
 class Label:
@@ -149,7 +151,7 @@ class ConceptScheme:
         return label(self.labels, language)
 
 
-class Concept(collections.Mapping):
+class Concept:
     '''
     A :term:`SKOS` Concept.
     '''
@@ -185,7 +187,7 @@ class Concept(collections.Mapping):
     '''A :class:`lst` of concept ids.'''
 
     narrower = []
-    '''A :class:`lst` of concept ids or collection ids.'''
+    '''A :class:`lst` of concept ids.'''
 
     related = []
     '''A :class:`lst` of concept ids.'''
@@ -193,11 +195,14 @@ class Concept(collections.Mapping):
     member_of = []
     '''A :class:`lst` of collection ids.'''
 
+    subordinate_arrays = []
+    '''A :class:`list` of collection ids.'''
+
     def __init__(self, id, uri=None,
                  concept_scheme=None,
                  labels=[], notes=[],
                  broader=[], narrower=[], related=[],
-                 member_of=[]):
+                 member_of=[], subordinate_arrays=[]):
         self.id = id
         self.uri = uri
         self.type = 'concept'
@@ -208,16 +213,7 @@ class Concept(collections.Mapping):
         self.narrower = narrower
         self.related = related
         self.member_of = member_of
-
-    def __getitem__(self, item):
-        if item in self.__dict__.keys():
-            return self.__dict__[item]
-
-    def __iter__(self):
-        return iter(self.__dict__)
-
-    def __len__(self):
-        return len(self.__dict__)
+        self.subordinate_arrays = subordinate_arrays
 
     def label(self, language='any'):
         '''
@@ -263,14 +259,14 @@ class Collection:
     member_of = []
     '''A :class:`lst` of collection ids.'''
 
-    broader = []
+    super_ordinates = []
     '''A :class:`lst` of concept ids.'''
 
     def __init__(self, id, uri=None,
                  concept_scheme=None,
                  labels=[], notes=[], 
                  members=[], member_of=[],
-                 broader=[]):
+                 super_ordinates=[]):
         self.id = id
         self.uri = uri
         self.type = 'collection'
@@ -279,7 +275,7 @@ class Collection:
         self.notes = [dict_to_note(n) for n in notes]
         self.members = members
         self.member_of = member_of
-        self.broader = broader
+        self.super_ordinates = super_ordinates
 
     def label(self, language='any'):
         '''

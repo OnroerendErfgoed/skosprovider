@@ -167,30 +167,14 @@ class ConceptTest(unittest.TestCase):
 
     def testIn(self):
         c = Concept(1)
-        self.assertIn('id', c)
-        self.assertIn('uri', c)
-        self.assertIn('labels', c)
-        self.assertIn('notes', c)
-        self.assertIn('broader', c)
-        self.assertIn('narrower', c)
-        self.assertIn('related', c)
-        self.assertIn('member_of', c)
-
-    def testIter(self):
-        c = Concept(1)
-        keys = [
-            'id', 'uri', 'type',
-            'concept_scheme',
-            'labels', 'notes',
-            'broader', 'narrower', 'related', 
-            'member_of'
-        ]
-        for k in c.keys():
-            self.assertIn(k, keys)
-
-    def testLen(self):
-        c = Concept(1)
-        self.assertEqual(10, len(c))
+        assert hasattr(c, 'id')
+        assert hasattr(c, 'uri')
+        assert hasattr(c, 'labels')
+        assert hasattr(c, 'notes')
+        assert hasattr(c, 'broader')
+        assert hasattr(c, 'narrower')
+        assert hasattr(c, 'related')
+        assert hasattr(c, 'member_of')
 
     def testLabel(self):
         labels = self._get_labels()

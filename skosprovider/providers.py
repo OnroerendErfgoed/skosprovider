@@ -407,9 +407,8 @@ class MemoryProvider(VocabularyProvider):
             if str(c.id) == id:
                 if isinstance(c, Concept):
                     ret = set([c.id])
-                    if 'narrower' in c:
-                        for cid in c['narrower']:
-                            ret |= set(self.expand(cid))
+                    for cid in c.narrower:
+                        ret |= set(self.expand(cid))
                     return list(ret)
                 elif isinstance(c, Collection):
                     ret = set([])
@@ -462,7 +461,7 @@ class DictionaryProvider(MemoryProvider):
                 labels=data['labels'] if 'labels' in data else [],
                 members=data['members'] if 'members' in data else [],
                 member_of=data['member_of'] if 'member_of' in data else [],
-                broader=data['broader'] if 'broader' in data else []
+                super_ordinates=data['super_ordinates'] if 'super_ordinates' in data else []
             )
         else:
             return Concept(
