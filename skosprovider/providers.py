@@ -18,10 +18,14 @@ import warnings
 
 from .skos import (
     Concept,
-    Collection
+    Collection,
+    ConceptScheme
 )
 
-from .uri import DefaultUrnGenerator
+from .uri import (
+    DefaultUrnGenerator,
+    DefaultConceptSchemeUrnGenerator
+)
 
 
 class VocabularyProvider:
@@ -43,6 +47,14 @@ class VocabularyProvider:
             self.uri_generator = kwargs.get('uri_generator')
         else:
             self.uri_generator = DefaultUrnGenerator(self.metadata.get('id'))
+        if 'concept_scheme' in kwargs:
+            self.concept_scheme = kwargs.get('concept_scheme')
+        else:
+            self.concept_scheme = ConceptScheme(
+                uri=DefaultConceptSchemeUrnGenerator().generate(
+                    id=self.metadata.get('id')
+                )
+            )
 
     def _get_language(self, **kwargs):
         '''Determine what language to render labels in.
@@ -446,6 +458,7 @@ class DictionaryProvider(MemoryProvider):
             return Collection(
                 id=data['id'],
                 uri=data['uri'] if 'uri' in data else self.uri_generator.generate(type='collection', id=data['id']),
+                concept_scheme=self.concept_scheme,
                 labels=data['labels'] if 'labels' in data else [],
                 members=data['members'] if 'members' in data else [],
                 member_of=data['member_of'] if 'member_of' in data else [],
@@ -455,6 +468,7 @@ class DictionaryProvider(MemoryProvider):
             return Concept(
                 id=data['id'],
                 uri=data['uri'] if 'uri' in data else self.uri_generator.generate(type='concept', id=data['id']),
+                concept_scheme=self.concept_scheme,
                 labels=data['labels'] if 'labels' in data else [],
                 notes=data['notes'] if 'notes' in data else [],
                 broader=data['broader'] if 'broader' in data else [],

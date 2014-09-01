@@ -67,6 +67,26 @@ class DefaultUrnGenerator(UriGenerator):
         return (self.pattern % (self.vocabulary_id, kwargs['id'])).lower()
 
 
+class DefaultConceptSchemeUrnGenerator(UriGenerator):
+    '''
+    Generate a :term:`URN` for a conceptscheme specific to skosprovider.
+
+    Used for generating default :term:`URI <URIS>` for providers that do 
+    not have an explicit conceptscheme.
+    '''
+
+    pattern = 'urn:x-skosprovider:%s'
+
+    def generate(self, **kwargs):
+        '''
+        Generate a :term:`URI` based on parameters passed.
+
+        :param id: The id of the conceptscheme.
+        :rtype: string
+        '''
+        return (self.pattern % (kwargs['id'])).lower()
+
+
 class TypedUrnGenerator(DefaultUrnGenerator):
     '''
     Generate a :term:`URN` specific to skosprovider that contains a type.

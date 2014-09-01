@@ -20,6 +20,7 @@ from skosprovider.providers import (
 from skosprovider.skos import (
     Concept,
     Collection,
+    ConceptScheme,
     Note
 )
 
@@ -62,11 +63,20 @@ species = {
     ],
     'type': 'collection',
     'members': ['1', '2'],
+    'notes': [
+        {
+            'type': 'editorialNote',
+            'language': 'en',
+            'note': 'As seen in How to Recognise Different Types of Trees from\
+                    Quite a Long Way Away.'
+        }
+    ]
 }
 
 trees = DictionaryProvider(
     {'id': 'TREES', 'default_language': 'nl'},
-    [larch, chestnut, species]
+    [larch, chestnut, species],
+    concept_scheme=ConceptScheme('http://id.trees.org')
 )
 
 world = {
@@ -178,6 +188,16 @@ class TreesDictionaryProviderTests(unittest.TestCase):
         self.assertEqual(larch['uri'], lariks['uri'])
         self.assertEqual(larch['labels'], lariks['labels'])
         self.assertEqual(larch['notes'], lariks['notes'])
+
+    def test_concept_has_scheme(self):
+        lariks = trees.get_by_id(1)
+        self.assertIsInstance(lariks.concept_scheme, ConceptScheme)
+        self.assertEqual('http://id.trees.org', lariks.concept_scheme.uri)
+
+    def test_collection_has_scheme(self):
+        coll = trees.get_by_id(3)
+        self.assertIsInstance(coll.concept_scheme, ConceptScheme)
+        self.assertEqual('http://id.trees.org', coll.concept_scheme.uri)
 
     def test_get_by_uri(self):
         lariks = trees.get_by_uri('http://id.trees.org/1')
@@ -483,6 +503,16 @@ class GeoDictionaryProviderTests(unittest.TestCase):
     def test_get_metadata(self):
         self.assertEqual({'id': 'GEOGRAPHY'}, geo.get_metadata())
 
+    def test_concept_has_scheme(self):
+        con = geo.get_by_id(1)
+        self.assertIsInstance(con.concept_scheme, ConceptScheme)
+        self.assertEqual('urn:x-skosprovider:geography', con.concept_scheme.uri)
+
+    def test_collection_has_scheme(self):
+        coll = geo.get_by_id(333)
+        self.assertIsInstance(coll.concept_scheme, ConceptScheme)
+        self.assertEqual('urn:x-skosprovider:geography', coll.concept_scheme.uri)
+
     def test_get_top_concepts(self):
         top = geo.get_top_concepts()
         self.assertEqual(1, len(top))
@@ -620,7 +650,8 @@ class SimpleCsvProviderTests(unittest.TestCase):
         self.csvprovider = SimpleCsvProvider(
             {'id': 'MENU'},
             reader,
-            uri_generator=UriPatternGenerator('http://id.python.org/menu/%s')
+            uri_generator=UriPatternGenerator('http://id.python.org/menu/%s'),
+            concept_scheme=ConceptScheme('http://id.python.org/menu')
         )
 
     def tearDown(self):

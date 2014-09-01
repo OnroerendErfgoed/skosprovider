@@ -172,11 +172,14 @@ class Concept(collections.Mapping):
     eg. 'concept'
     '''
 
+    concept_scheme = None
+    '''The :class:`ConceptScheme` this Concept is a part of.'''
+
     labels = []
-    '''A :class:`lst` of :class:`skosprovider.skos.Label` instances.'''
+    '''A :class:`lst` of :class:`Label` instances.'''
 
     notes = []
-    '''A :class:`lst` of :class:`skosprovider.skos.Note` instances.'''
+    '''A :class:`lst` of :class:`Note` instances.'''
 
     broader = []
     '''A :class:`lst` of concept ids.'''
@@ -191,12 +194,14 @@ class Concept(collections.Mapping):
     '''A :class:`lst` of collection ids.'''
 
     def __init__(self, id, uri=None,
+                 concept_scheme=None,
                  labels=[], notes=[],
                  broader=[], narrower=[], related=[],
                  member_of=[]):
         self.id = id
         self.uri = uri
         self.type = 'concept'
+        self.concept_scheme = concept_scheme
         self.labels = [dict_to_label(l) for l in labels]
         self.notes = [dict_to_note(n) for n in notes]
         self.broader = broader
@@ -243,6 +248,9 @@ class Collection:
     eg. 'collection'
     '''
 
+    concept_scheme = None
+    '''The :class:`ConceptScheme` this Collection is a part of.'''
+
     labels = []
     '''A :class:`lst` of :class:`skosprovider.skos.label` instances.'''
 
@@ -258,10 +266,14 @@ class Collection:
     broader = []
     '''A :class:`lst` of concept ids.'''
 
-    def __init__(self, id, uri=None, labels=[], notes=[], members=[], member_of=[], broader=[]):
+    def __init__(self, id, uri=None,
+                 concept_scheme=None,
+                 labels=[], notes=[], 
+                 members=[], member_of=[]):
         self.id = id
         self.uri = uri
         self.type = 'collection'
+        self.concept_scheme = concept_scheme
         self.labels = [dict_to_label(l) for l in labels]
         self.notes = [dict_to_note(n) for n in notes]
         self.members = members
