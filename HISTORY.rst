@@ -9,6 +9,8 @@
   Concepts and Collections that have left the context of their provider, to
   still refer back to the :class:`~skosprovider.skos.ConceptScheme` and thus 
   the :class:`skosprovider.providers.VocabularyProvider` where they originated.
+- When querying the :class:`~skosprovider.registry.Registry` for providers,
+  a :term:`URI` of an accompanying ConceptScheme can now also be used.
 
 0.3.0 (2014-05-14)
 ------------------
