@@ -48,6 +48,6 @@ def dict_dumper(provider):
                 'notes': notes,
                 'members': c.members,
                 'member_of': c.member_of,
-                'super_ordinates': c.super_ordinates
+                'superordinates': c.superordinates
             })
     return ret

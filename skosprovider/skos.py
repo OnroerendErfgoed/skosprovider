@@ -4,8 +4,8 @@
 This module contains a read-only model of the :term:`SKOS` specification. 
 
 To complement the :term:`SKOS` specification, some elements were borrowed
-from the :term:`SKOS-THES` specification (eg. super ordinate and 
-sub ordinate array).
+from the :term:`SKOS-THES` specification (eg. superordinate and 
+subordinate array).
 
 .. versionadded:: 0.2.0
 '''
@@ -259,14 +259,14 @@ class Collection:
     member_of = []
     '''A :class:`lst` of collection ids.'''
 
-    super_ordinates = []
+    superordinates = []
     '''A :class:`lst` of concept ids.'''
 
     def __init__(self, id, uri=None,
                  concept_scheme=None,
                  labels=[], notes=[], 
                  members=[], member_of=[],
-                 super_ordinates=[]):
+                 superordinates=[]):
         self.id = id
         self.uri = uri
         self.type = 'collection'
@@ -275,7 +275,7 @@ class Collection:
         self.notes = [dict_to_note(n) for n in notes]
         self.members = members
         self.member_of = member_of
-        self.super_ordinates = super_ordinates
+        self.superordinates = superordinates
 
     def label(self, language='any'):
         '''
