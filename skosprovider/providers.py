@@ -392,7 +392,7 @@ class MemoryProvider(VocabularyProvider):
         language = self._get_language(**kwargs)
         ret = []
         for c in self.list:
-            if isinstance(c, Concept) and len(c.broader) == 00:
+            if isinstance(c, Concept) and len(c.broader) == 0:
                 ret.append({
                     'id': c.id,
                     'uri': c.uri,
@@ -418,7 +418,25 @@ class MemoryProvider(VocabularyProvider):
         return False
 
     def get_top_display(self, **kwargs):
-        return self.get_top_concepts(**kwargs)
+        language = self._get_language(**kwargs)
+        ret = []
+        for c in self.list:
+            if isinstance(c, Concept) and len(c.broader) == 0 and len(c.member_of) == 0:
+                ret.append({
+                    'id': c.id,
+                    'uri': c.uri,
+                    'type': c.type,
+                    'label': c.label(language).label
+                })
+            if isinstance(c, Collection) and len(c.superordinates) == 0 and len(c.member_of) == 0:
+                ret.append({
+                    'id': c.id,
+                    'uri': c.uri,
+                    'type': c.type,
+                    'label': c.label(language).label
+                })
+            
+        return ret
 
     def get_children_display(self, id, **kwargs):
         c = self.get_by_id(id)
@@ -427,7 +445,10 @@ class MemoryProvider(VocabularyProvider):
         language = self._get_language(**kwargs)
         ret = []
         if isinstance(c, Concept):
-            display_children = c.narrower
+            if len(c.subordinate_arrays) == 0:
+                display_children = c.narrower
+            else:
+                display_children = c.subordinate_arrays
         else:
             display_children = c.members
         for id in display_children:
@@ -473,7 +494,8 @@ class DictionaryProvider(MemoryProvider):
                 broader=data['broader'] if 'broader' in data else [],
                 narrower=data['narrower'] if 'narrower' in data else [],
                 related=data['related'] if 'related' in data else [],
-                member_of=data['member_of'] if 'member_of' in data else []
+                member_of=data['member_of'] if 'member_of' in data else [],
+                subordinate_arrays=data['subordinate_arrays'] if 'subordinate_arrays' in data else []
             )
 
 

@@ -109,7 +109,8 @@ geo = DictionaryProvider(
                 {'type': 'prefLabel', 'language': 'en', 'label': 'Belgium'}
             ],
             'narrower': [7, 8, 9], 'broader': [2],
-            'member_of': ['333']
+            'member_of': ['333'],
+            'subordinate_arrays': ['358']
         }, {
             'id': 5,
             'labels': [
@@ -158,6 +159,17 @@ geo = DictionaryProvider(
                 }
             ],
             'members': ['4', '7', '8']
+        }, {
+            'id': '358',
+            'type': 'collection',
+            'labels': [
+                {
+                    'type': 'prefLabel', 'language': 'nl',
+                    'label': 'Gewesten of Belgium'
+                }
+            ],
+            'members': ['7', '8', '9'],
+            'superordinates': ['4']
         }
     ]
 )
@@ -458,7 +470,17 @@ class TreesDictionaryProviderTests(unittest.TestCase):
         self.assertRaises(ValueError, trees.find, {'collection': {'id': 404}})
 
     def test_get_display_top(self):
-        self.assertEqual(trees.get_top_concepts(), trees.get_top_display())
+        top = trees.get_top_display()
+        self.assertEqual(1, len(top))
+        self.assertIn(
+            {
+                'id': 3,
+                'type': 'collection',
+                'label': 'Bomen per soort',
+                'uri': 'http://id.trees.org/3'
+            },
+            top
+        )
 
     def test_get_display_children_unexisting_concept(self):
         self.assertFalse(trees.get_children_display(404))
@@ -588,7 +610,17 @@ class GeoDictionaryProviderTests(unittest.TestCase):
             self.assertIsInstance(geo.get_by_id(cc['id']), Concept)
 
     def test_get_display_top(self):
-        self.assertEqual(geo.get_top_concepts(), geo.get_top_display())
+        top = geo.get_top_display()
+        self.assertEquals(2, len(top))
+        self.assertIn(
+            {
+                'id': '1',
+                'uri': 'urn:x-skosprovider:geography:1',
+                'type': 'concept',
+                'label': 'World'
+            },
+            top
+        )
 
     def test_get_display_children_unexisting_concept(self):
         self.assertFalse(geo.get_children_display(404))
@@ -633,6 +665,10 @@ class GeoDictionaryProviderTests(unittest.TestCase):
             ],
             geo.get_children_display(333)
         )
+
+    def test_get_display_children_concept_with_thesaurus_array(self):
+        children = geo.get_children_display(4)
+        self.assertEqual(1, len(children))
 
 
 class SimpleCsvProviderTests(unittest.TestCase):
