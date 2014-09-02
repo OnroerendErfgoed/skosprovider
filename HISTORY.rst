@@ -11,6 +11,12 @@
   the :class:`skosprovider.providers.VocabularyProvider` where they originated.
 - When querying the :class:`~skosprovider.registry.Registry` for providers,
   a :term:`URI` of an accompanying ConceptScheme can now also be used.
+- Added :attr:`~skosprovider.skos.Concept.subordinateArrays` attribute to
+  :class:`~skosprovider.skos.Concept` and 
+  :attr:`~skosprovider.skos.Collection.superordinates` to 
+  :class:`~skosprovider.skos.Collection`. These attributes are based on the
+  :term:`SKOS-THES` specification. They allow linking Concepts and Collections
+  for the purpose of displaying a hierarchy.
 
 0.3.0 (2014-05-14)
 ------------------

@@ -20,8 +20,7 @@ setup(
     name='skosprovider',
     version='0.4.0',
     description='Abstraction layer for SKOS vocabularies.',
-    long_description=open('README.rst').read() + '\n\n' +
-                     open('HISTORY.rst').read(),
+    long_description=open('README.rst').read(),
     author='Koen Van Daele',
     author_email='koen_van_daele@telenet.be',
     url='http://github.com/koenedaele/skosprovider',
