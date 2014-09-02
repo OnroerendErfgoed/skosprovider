@@ -5,6 +5,9 @@ from __future__ import unicode_literals
 import unittest
 
 from test_providers import (
+    larch,
+    chestnut,
+    species,
     trees,
     geo
 )
@@ -128,6 +131,19 @@ class RegistryTests(unittest.TestCase):
 
     def test_one_provider_getConceptByUri(self):
         self.reg.register_provider(self.prov)
+        c = self.reg.get_by_uri('http://id.trees.org/1')
+        self.assertEqual(c.id, '1')
+        self.assertEqual(c.uri, 'http://id.trees.org/1')
+
+    def test_one_provider_getConceptByUriDifferentFromConceptScheme(self):
+        from skosprovider.skos import ConceptScheme
+        from skosprovider.providers import DictionaryProvider
+        trees = DictionaryProvider(
+            {'id': 'TREES', 'default_language': 'nl'},
+            [larch, chestnut, species],
+            concept_scheme=ConceptScheme('urn:something')
+        )
+        self.reg.register_provider(trees)
         c = self.reg.get_by_uri('http://id.trees.org/1')
         self.assertEqual(c.id, '1')
         self.assertEqual(c.uri, 'http://id.trees.org/1')
