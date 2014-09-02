@@ -1,6 +1,7 @@
 0.4.0 (2014-??-??)
 ------------------
 
+- Dropped support for Python 2.6 and 3.2.
 - Added ability to add :class:`~skosprovider.skos.Note` to 
   :class:`~skosprovider.skos.Collection` and 
   :class:`~skosprovider.skos.ConceptScheme`.

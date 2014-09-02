@@ -2,10 +2,7 @@
 
 from __future__ import unicode_literals
 
-try:
-    import unittest2 as unittest
-except ImportError:  # pragma NO COVER
-    import unittest  # noqa
+import unittest
 
 from skosprovider.skos import (
     Label,
