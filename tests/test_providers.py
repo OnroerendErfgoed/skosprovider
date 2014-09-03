@@ -31,7 +31,10 @@ larch = {
     'notes': [
         {'type': 'definition', 'language': 'en', 'note': 'A type of tree.'}
     ],
-    'member_of': ['3']
+    'member_of': ['3'],
+    'matches': {
+        'close': 'http://id.python.org/different/types/of/trees/nr/1/the/larch'
+    }
 }
 
 chestnut = {
@@ -220,6 +223,7 @@ class TreesDictionaryProviderTests(unittest.TestCase):
         self.assertEqual(larch['notes'], lariks.notes)
         self.assertEqual(larch['member_of'], lariks.member_of)
         self.assertEqual('concept', lariks.type)
+        assert larch['matches']['close'] == lariks.matches['close']
 
     def test_get_by_id_is_type_agnostic(self):
         self.assertEqual(trees.get_by_id(1), trees.get_by_id('1'))

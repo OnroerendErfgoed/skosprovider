@@ -193,6 +193,21 @@ class ConceptTest(unittest.TestCase):
             member_of=[15])
         self.assertEqual(set([15]), set(c.member_of))
 
+    def testMatches(self):
+        c = Concept(
+            1, 
+            uri='urn:x-skosprovider:gemeenten:1',
+            matches={
+                'broader': ['http://id.something.org/provincies/1']
+            }
+        )
+        assert 'close' in c.matches
+        assert 'exact' in c.matches
+        assert 'broader' in c.matches
+        assert 'narrower' in c.matches
+        assert 'related' in c.matches
+        assert ['http://id.something.org/provincies/1'] == c.matches['broader']
+
 
 class CollectionTest(unittest.TestCase):
 

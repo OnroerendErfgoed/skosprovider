@@ -495,7 +495,8 @@ class DictionaryProvider(MemoryProvider):
                 narrower=data['narrower'] if 'narrower' in data else [],
                 related=data['related'] if 'related' in data else [],
                 member_of=data['member_of'] if 'member_of' in data else [],
-                subordinate_arrays=data['subordinate_arrays'] if 'subordinate_arrays' in data else []
+                subordinate_arrays=data['subordinate_arrays'] if 'subordinate_arrays' in data else [],
+                matches=data['matches'] if 'matches' in data else {}
             )
 
 
