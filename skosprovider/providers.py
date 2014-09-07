@@ -38,11 +38,15 @@ class VocabularyProvider:
         '''Create a new provider and register some metadata.
 
         Expected metadata:
-         * id: A unique identifier for the vocabulary. Required.
-         * default_language: Used to determine what language to use when
+         * `id`: A unique identifier for the vocabulary. Required.
+         * `default_language`: Used to determine what language to use when
            returning labels if no language is specified. Will default to `en`
            if not specified.
+         * `subject`: A list of subjects or tags that define what the provider
+           is about or what the provider can handle.
         '''
+        if not 'subject' in metadata:
+            metadata['subject'] = []
         self.metadata = metadata
         if 'uri_generator' in kwargs:
             self.uri_generator = kwargs.get('uri_generator')

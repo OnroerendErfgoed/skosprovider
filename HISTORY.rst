@@ -18,6 +18,11 @@
   :class:`~skosprovider.skos.Collection`. These attributes are based on the
   :term:`SKOS-THES` specification. They allow linking Concepts and Collections
   for the purpose of displaying a hierarchy.
+- Added `subject` to the metadata of a providers. This is a list of subjects
+  or tags that help describe or type the provider. The 
+  :class:`~skosprovider.registry.Registry` can now be searched for
+  providers with a certain subject through the 
+  :meth:`~skosprovider.registry.Registry.get_providers` method.
 
 0.3.0 (2014-05-14)
 ------------------

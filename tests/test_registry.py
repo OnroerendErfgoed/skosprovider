@@ -102,6 +102,11 @@ class RegistryTests(unittest.TestCase):
         self.assertEquals(self.reg.get_providers(), [self.prov])
         self.assertEquals(self.reg.get_providers(ids=['urn:x-skosprovider:geography']), [])
 
+    def test_one_provider_getProvidersWithSubject(self):
+        self.reg.register_provider(self.prov)
+        self.assertEquals(self.reg.get_providers(subject='something'), [])
+        self.assertEquals(self.reg.get_providers(subject='biology'), [self.prov])
+
     def test_one_provider_getPoviderWithId(self):
         self.reg.register_provider(self.prov)
         self.assertEquals(self.reg.get_provider('TREES'), self.prov)

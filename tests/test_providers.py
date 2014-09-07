@@ -74,7 +74,11 @@ species = {
 }
 
 trees = DictionaryProvider(
-    {'id': 'TREES', 'default_language': 'nl'},
+    {
+        'id': 'TREES',
+        'default_language': 'nl',
+        'subject': ['biology']
+    },
     [larch, chestnut, species],
     concept_scheme=ConceptScheme('http://id.trees.org')
 )
@@ -190,7 +194,7 @@ class TreesDictionaryProviderTests(unittest.TestCase):
 
     def test_get_metadata(self):
         self.assertEquals(
-            {'id': 'TREES', 'default_language': 'nl'},
+            {'id': 'TREES', 'default_language': 'nl', 'subject': ['biology']},
             trees.get_metadata()
         )
 
@@ -524,7 +528,7 @@ class GeoDictionaryProviderTests(unittest.TestCase):
         self.assertEqual('GEOGRAPHY', geo.get_vocabulary_id())
 
     def test_get_metadata(self):
-        self.assertEqual({'id': 'GEOGRAPHY'}, geo.get_metadata())
+        self.assertEqual({'id': 'GEOGRAPHY', 'subject': []}, geo.get_metadata())
 
     def test_concept_has_scheme(self):
         con = geo.get_by_id(1)
