@@ -40,7 +40,8 @@ class VocabularyProvider:
         Expected metadata:
          * id: A unique identifier for the vocabulary. Required.
          * default_language: Used to determine what language to use when
-           returning labels if no language is specified.
+           returning labels if no language is specified. Will default to `en`
+           if not specified.
         '''
         self.metadata = metadata
         if 'uri_generator' in kwargs:
