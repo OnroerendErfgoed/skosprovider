@@ -12,7 +12,7 @@
   the :class:`skosprovider.providers.VocabularyProvider` where they originated.
 - When querying the :class:`~skosprovider.registry.Registry` for providers,
   a :term:`URI` of an accompanying ConceptScheme can now also be used.
-- Added :attr:`~skosprovider.skos.Concept.subordinateArrays` attribute to
+- Added :attr:`~skosprovider.skos.Concept.subordinate_arrays` attribute to
   :class:`~skosprovider.skos.Concept` and 
   :attr:`~skosprovider.skos.Collection.superordinates` to 
   :class:`~skosprovider.skos.Collection`. These attributes are based on the

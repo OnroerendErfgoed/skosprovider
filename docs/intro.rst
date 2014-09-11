@@ -49,6 +49,13 @@ Currently the following other providers exist:
   interface with a `RDFLib <https://rdflib.readthedocs.org/en/latest/>`_ 
   backend. This allows using a SKOS RDf file as the source for a provider, 
   but also dumping a skosprovider to a SKOS RDF file.
+* `Skosprovider_getty <http://skosprovider-getty.readthedocs.org/en/latest/>`_:
+  An implemenation of the 
+  :class:`VocabularyProvider <skosprovider.providers.VocabularyProvider>` 
+  against the Linked Open Data vocabularies published by the Getty Research 
+  Institute at `http://vocab.getty.edu <http://vocab.getty.edu>`_ such as the
+  `Art and Architecture Thesaurus (AAT)` and the 
+  `Thesaurus of Geographic Names (TGN)`.  
 
 There also exists a library to integrate Skosprovider with
 `Pyramid <http://www.pylonsproject.org/>`_ at 
@@ -77,7 +84,7 @@ In a few places we've deviated a bit from the :term:`SKOS` standard:
   :class:`skosprovider.skos.Collection` should be placed. Since this is a fairly
   standard requirement for most thesauri, we have implemented this by looking
   at the :term:`SKOS-THES` specification. We have borrowed the 
-  :class:`skosprovider.skos.Concept.subordinate_arrays` and 
-  :class:`skosprovider.skos.Collection.superordinates` properties from this
+  :attr:`skosprovider.skos.Concept.subordinate_arrays` and 
+  :attr:`skosprovider.skos.Collection.superordinates` properties from this
   specification. In effect, it turns a SKOS Collecion that has one or more 
   superordinates into a ThesaurusArray.
