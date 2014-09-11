@@ -217,3 +217,28 @@ class RegistryTests(unittest.TestCase):
             self.reg.find({'label': 'The Larch'}, providers=['TREES']),
             self.reg.find({'label': 'The Larch'}, providers=['http://id.trees.org']),
         )
+
+    def test_two_providers_findConceptsProvidersDictionarySyntax(self):
+        self.reg.register_provider(self.prov2)
+        self.reg.register_provider(self.prov)
+        self.assertEquals(
+            self.reg.find({'label': 'The Larch'}, providers=['TREES']),
+            self.reg.find({'label': 'The Larch'}, providers={'ids': ['http://id.trees.org']}),
+        )
+
+    def test_two_providers_findConceptsProvidersDictionarySyntax(self):
+        self.reg.register_provider(self.prov2)
+        self.reg.register_provider(self.prov)
+        self.assertEquals(
+            self.reg.find({'label': 'The Larch'}, providers=['TREES']),
+            self.reg.find({'label': 'The Larch'}, providers={'ids': ['http://id.trees.org']}),
+        )
+
+    def test_one_provider_findConceptsWithSubject(self):
+        self.reg.register_provider(self.prov)
+        provs = self.reg.get_providers(subject='biology')
+        res = [{'id': p.get_vocabulary_id(), 'concepts': p.find({})} for p in provs]    
+        self.assertEquals(
+            res,
+            self.reg.find({},subject='biology')
+        )

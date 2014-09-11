@@ -114,12 +114,21 @@ class Registry:
             # Find anything that has a label of church in any provider.
             registry.find({'label': 'church'})
 
-            # Find anything that has a label of church the BUILDINGS provider.
+            # Find anything that has a label of church with the BUILDINGS provider.
+            # Attention, this syntax was deprecated in version 0.3.0
             registry.find({'label': 'church'}, providers=['BUILIDINGS'])
 
-        :param list providers: Optional. If present, it should be a list of
-            skosprovider id's or uri's. The query will then only be passed to
-            these providers.
+            # Find anything that has a label of church with the BUILDINGS provider.
+            registry.find({'label': 'church'}, providers={'ids': ['BUILIDINGS']})
+
+            # Find anything that has a label of church with a provider 
+            # marked with the subject 'architecture'.
+            registry.find({'label': 'church'}, providers={'subject': 'architecture'})
+
+        :param dict providers: Optional. If present, it should be a dictionary.
+            This dictionary can contain any of the keyword arguments available
+            to the :meth:`get_providers` method. The query will then only 
+            be passed to the providers confirming to these arguments.
         :param dict query: The query parameters that will be passed on to each
             :meth:`~skosprovider.providers.VocabularyProvider.find` method of
             the selected.
@@ -130,7 +139,11 @@ class Registry:
         if not 'providers' in kwargs:
             providers = self.get_providers()
         else:
-            providers = self.get_providers(ids=kwargs['providers'])
+            pargs = kwargs['providers']
+            if isinstance(pargs, list):
+                providers = self.get_providers(ids=pargs)
+            else:
+                providers = self.get_providers(**pargs)
         return [{'id': p.get_vocabulary_id(), 'concepts': p.find(query)}
                 for p in providers]
 
