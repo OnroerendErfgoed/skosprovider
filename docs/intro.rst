@@ -73,3 +73,11 @@ In a few places we've deviated a bit from the :term:`SKOS` standard:
   relation (eg. a concept is a member of a collection). We've standardised this
   on the member_of property that's available on a 
   :class:`skosprovider.skos.Concept` and a :class:`skosprovider.skos.Collection`.
+* SKOS provides no way for specifying where in a hierarchy a 
+  :class:`skosprovider.skos.Collection` should be placed. Since this is a fairly
+  standard requirement for most thesauri, we have implemented this by looking
+  at the :term:`SKOS-THES` specification. We have borrowed the 
+  :class:`skosprovider.skos.Concept.subordinate_arrays` and 
+  :class:`skosprovider.skos.Collection.superordinates` properties from this
+  specification. In effect, it turns a SKOS Collecion that has one or more 
+  superordinates into a ThesaurusArray.

@@ -205,7 +205,11 @@ class Concept:
         'broader': [],
         'narrower': []
     }
-    '''Matches with Concepts in other ConceptSchemes.'''
+    '''Matches with Concepts in other ConceptSchemes.
+
+    This dictionary contains a key for each type of Match (close, exact, 
+    related, broader, narrower). Attached to each key is a list of URI's.
+    '''
 
     def __init__(self, id, uri=None,
                  concept_scheme=None,
