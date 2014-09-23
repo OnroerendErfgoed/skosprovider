@@ -150,7 +150,8 @@ class ConceptScheme:
         This uses the :func:`label` function to determine which label to
         return.
 
-        :param string language: The preferred language to receive the label in.
+        :param string language: The preferred language to receive the label in. 
+            This should be a valid IANA language tag.
         :rtype: :class:`skosprovider.skos.Label` or False if no labels were found.
         '''
         return label(self.labels, language)
@@ -243,7 +244,8 @@ class Concept:
 
         This uses the :func:`label` function to determine which label to return.
 
-        :param string language: The preferred language to receive the label in.
+        :param string language: The preferred language to receive the label in. 
+            This should be a valid IANA language tag.
         :rtype: :class:`skosprovider.skos.Label` or False if no labels were found.
         '''
         return label(self.labels, language)
@@ -305,7 +307,8 @@ class Collection:
 
         This uses the :func:`label` function to determine which label to return.
 
-        :param string language: The preferred language to receive the label in.µ
+        :param string language: The preferred language to receive the label in. 
+            This should be a valid IANA language tag.
         :rtype: :class:`skosprovider.skos.Label` or False if no labels were found.
         '''
         return label(self.labels, language)
@@ -323,6 +326,14 @@ def label(labels=[], language='any'):
     a pref label for the specified language. If there's no pref label,
     it looks for an alt label. It disregards hidden labels.
 
+    While matching languages, preference will be given to exact matches. But,
+    if no exact match is present, an inexact match will be attempted. This might
+    be because a label in language `nl-BE` is being requested, but only `nl` or
+    even `nl-NL` is present. Similarly, when requesting `nl`, a label with
+    language `nl-NL` or even `nl-Latn-NL` will also be considered, 
+    providing no label is present that has an exact match with the 
+    requested language.
+
     If language 'any' was specified, all labels will be considered,
     regardless of language.
 
@@ -332,6 +343,9 @@ def label(labels=[], language='any'):
     method will automatically try to find a label in some other language.
 
     Finally, if no label could be found, None is returned.
+
+    :param string language: The preferred language to receive the label in. This
+        should be a valid IANA language tag.
     '''
     # Normalise the tag
     broader_language_tag = None
