@@ -313,7 +313,7 @@ class LabelFunctionTest(unittest.TestCase):
         return Label('Cnock-Heyst', type="altLabel", language='nl-BE')
 
     def _get_knokke_heist_en(self):
-        return Label('Knocke-Heyst', type="prefLabel", language='en')
+        return Label('Knocke-Heyst', type="prefLabel", language='en-GB')
 
     def test_label_empty(self):
         self.assertEqual(None, label([]))
@@ -325,7 +325,7 @@ class LabelFunctionTest(unittest.TestCase):
         labels = [kh]
         self.assertEqual(kh, label(labels))
         self.assertEqual(kh, label(labels, 'nl-BE'))
-        self.assertEqual(kh, label(labels, 'en'))
+        self.assertEqual(kh, label(labels, 'en-GB'))
         self.assertEqual(kh, label(labels, None))
 
     def test_label_pref_nl_and_en(self):
@@ -334,15 +334,36 @@ class LabelFunctionTest(unittest.TestCase):
         labels = [kh, khen]
         self.assertIn(label(labels), [kh, khen])
         self.assertEqual(kh, label(labels, 'nl-BE'))
-        self.assertEqual(khen, label(labels, 'en'))
+        self.assertEqual(khen, label(labels, 'en-GB'))
         self.assertIn(label(labels, None), [kh, khen])
+
+    def test_label_inexact_language_match(self):
+        kh = self._get_knokke_heist_nl()
+        ch = self._get_cnocke_heyst_nl()
+        khen = self._get_knokke_heist_en()
+        labels = [kh, ch, khen]
+        assert khen == label(labels, 'en')
+        assert kh == label(labels, 'nl')
+        assert label(labels, None) in [kh, khen]
+
+    def test_exact_precedes_inexact_match(self):
+        khnl = Label('Knokke-Heist', type="prefLabel", language='nl')
+        chnl = Label('Cnock-Heyst', type="altLabel", language='nl')
+        khen = Label('Knocke-Heyst', type="prefLabel", language='en')
+        khnlbe = self._get_knokke_heist_nl()
+        chnlbe = self._get_cnocke_heyst_nl()
+        khengb = self._get_knokke_heist_en()
+        labels = [chnl, khen, khnlbe, khnl, chnlbe, khengb]
+        assert khnlbe == label(labels, 'nl-BE')
+        assert khnl == label(labels, 'nl')
+        assert label(labels, 'en-US') in [khen, khengb]
 
     def test_label_alt(self):
         ch = self._get_cnocke_heyst_nl()
         labels = [ch]
         self.assertEqual(ch, label(labels))
         self.assertEqual(ch, label(labels, 'nl-BE'))
-        self.assertEqual(ch, label(labels, 'en'))
+        self.assertEqual(ch, label(labels, 'en-GB'))
         self.assertEqual(ch, label(labels, None))
 
     def test_pref_precedes_alt(self):
@@ -351,7 +372,7 @@ class LabelFunctionTest(unittest.TestCase):
         labels = [kh, ch]
         self.assertEqual(kh, label(labels))
         self.assertEqual(kh, label(labels, 'nl-BE'))
-        self.assertEqual(kh, label(labels, 'en'))
+        self.assertEqual(kh, label(labels, 'en-GB'))
         self.assertEqual(kh, label(labels, None))
 
     def test_dict_pref(self):
@@ -360,5 +381,5 @@ class LabelFunctionTest(unittest.TestCase):
         labels = [khd]
         self.assertEqual(kh, label(labels))
         self.assertEqual(kh, label(labels, 'nl-BE'))
-        self.assertEqual(kh, label(labels, 'en'))
+        self.assertEqual(kh, label(labels, 'en-GB'))
         self.assertEqual(kh, label(labels, None))

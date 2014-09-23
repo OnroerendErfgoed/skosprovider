@@ -336,28 +336,13 @@ class TreesDictionaryProviderTests(unittest.TestCase):
         )
 
     def test_get_all_french(self):
-        self.assertEquals(
-            trees.get_all(language='fr'),
-            [
-
-                {
-                    'id': '1',
-                    'uri': 'http://id.trees.org/1',
-                    'type': 'concept',
-                    'label': 'The Larch'
-                }, {
-                    'id': '2',
-                    'uri': 'http://id.trees.org/2',
-                    'type': 'concept',
-                    'label': 'la châtaigne'
-                }, {
-                    'id': 3,
-                    'uri': 'http://id.trees.org/3',
-                    'type': 'collection',
-                    'label': 'Trees by species'
-                }
-            ]
-        )
+        la_chataigne = {
+            'id': '2',
+            'uri': 'http://id.trees.org/2',
+            'type': 'concept',
+            'label': 'la châtaigne'
+        }
+        assert la_chataigne in trees.get_all(language='fr') 
 
     def test_find_all(self):
         c = trees.find({'type': 'all'})

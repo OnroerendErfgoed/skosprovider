@@ -14,7 +14,9 @@ packages = [
     'skosprovider',
 ]
 
-requires = []
+requires = [
+    'language-tags',
+]
 
 setup(
     name='skosprovider',

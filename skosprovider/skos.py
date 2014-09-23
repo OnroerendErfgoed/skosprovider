@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+#-*- coding: utf-8 -*-
 
 '''
 This module contains a read-only model of the :term:`SKOS` specification. 
@@ -11,6 +11,11 @@ subordinate array).
 '''
 
 from __future__ import unicode_literals
+
+from language_tags import tags
+
+import logging
+log = logging.getLogger(__name__)
 
 
 class Label:
@@ -328,20 +333,30 @@ def label(labels=[], language='any'):
 
     Finally, if no label could be found, None is returned.
     '''
+    # Normalise the tag
+    broader_language_tag = None
+    if language != 'any':
+        language = tags.tag(language).format
+        broader_language_tag = tags.tag(language).language
+    pref = None
     alt = None
     for l in labels:
         l = dict_to_label(l)
         if language == 'any' or l.language == language:
-            if l.type == 'prefLabel':
-                return l
-            if alt is None and l.type == 'altLabel':
+            if l.type == 'prefLabel' and (pref is None or pref.language != language):
+                pref = l
+            if l.type == 'altLabel' and (alt is None or alt.language != language):
                 alt = l
-    if alt is not None:
+        if broader_language_tag and tags.tag(l.language).language and tags.tag(l.language).language.format == broader_language_tag.format:
+            if l.type == 'prefLabel' and pref is None:
+                pref = l
+            if l.type == 'altLabel' and alt is None:
+                alt = l
+    if pref is not None:
+        return pref
+    elif alt is not None:
         return alt
-    elif language != 'any':
-        return label(labels, 'any')
-    else:
-        return None
+    return label(labels, 'any') if language != 'any' else None
 
 
 def dict_to_label(dict):

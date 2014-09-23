@@ -18,6 +18,12 @@
   :class:`~skosprovider.skos.Collection`. These attributes are based on the
   :term:`SKOS-THES` specification. They allow linking Concepts and Collections
   for the purpose of displaying a hierarchy.
+- Expanded support for languages with 
+  `language-tags <http://pypi.python.org/pypi/language-tags>`_ library. When
+  generating a label, the language specification handles inexact language matches
+  better. Eg. when asking for a label with language `nl` for a concept that only
+  has `nl-BE` labels, these will now be returned while in the past this was not
+  guaranteed. 
 - Added `subject` to the metadata of a providers. This is a list of subjects
   or tags that help describe or type the provider. The 
   :class:`~skosprovider.registry.Registry` can now be searched for
