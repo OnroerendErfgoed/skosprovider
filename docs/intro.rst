@@ -55,7 +55,12 @@ Currently the following other providers exist:
   against the Linked Open Data vocabularies published by the Getty Research 
   Institute at `http://vocab.getty.edu <http://vocab.getty.edu>`_ such as the
   `Art and Architecture Thesaurus (AAT)` and the 
-  `Thesaurus of Geographic Names (TGN)`.  
+  `Thesaurus of Geographic Names (TGN)`.
+* `Skosprovider_heritagedata <http://skosprovider-heritagedata.readthedocs.org>`_:
+  An implementation of the
+  :class:`VocabularyProvider <skosprovider.providers.VocabularyProvider>` against
+  the vocabularies published by EH, RCAHMS and RCAHMW at 
+  `heritagedata.org <http://heritagedata.org>`_.
 
 There also exists a library to integrate Skosprovider with
 `Pyramid <http://www.pylonsproject.org/>`_ at 
