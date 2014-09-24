@@ -61,6 +61,10 @@ There also exists a library to integrate Skosprovider with
 `Pyramid <http://www.pylonsproject.org/>`_ at 
 `pyramid_skosprovider <https://github.com/koenedaele/pyramid_skosprovider>`_.
 
+For those who are looking to build a vocabulary, there's also 
+`Atramhasis <http://atramhasis.readthedocs.org>`_, an online :term:`SKOS` 
+vocabulary editor that builds upon this library and others.
+
 Deviations from SKOS
 --------------------
 
