@@ -14,9 +14,6 @@ from __future__ import unicode_literals
 
 from language_tags import tags
 
-import logging
-log = logging.getLogger(__name__)
-
 
 class Label:
     '''

@@ -11,7 +11,7 @@ Adhering to this interface in you application decouples your application and the
 actual thesaurus. This makes unit testing easy because it allows you to swap
 a remote and a local implementation. It also makes it easy to switch from a 
 simple, static implementation based on a csv file to a more complete implementation
-using you relation database.
+using your relation database of choice.
 
 One of the main goals of this project is to be able to build an application that
 can use thesauri or vocabularies without knowing upfront what these might be

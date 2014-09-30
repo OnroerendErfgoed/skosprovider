@@ -7,7 +7,9 @@ vocabs (be they SOAP, REST, XML-RPC or something else).
 
 The basic idea is that we have skos providers. Each provider is an instance
 of a :class:`VocabularyProvider`. The same class can thus be reused with
-different configurations to handle different vocabs.
+different configurations to handle different vocabs. Generally speaking, every
+instance of a certain :class:`VocabularyProvider` will deal with concepts and
+collections from a single conceptscheme.
 '''
 
 from __future__ import unicode_literals
@@ -44,6 +46,11 @@ class VocabularyProvider:
            if not specified.
          * `subject`: A list of subjects or tags that define what the provider
            is about or what the provider can handle.
+
+        :param uri_generator: An object that implements the 
+            :class:`skosprovider.uri.UriGenerator` interface.
+        :param concept_scheme: A :class:`~skosprovider.skos.ConceptScheme`.
+        :param dict metadata: Metadata essential to this provider.
         '''
         if not 'subject' in metadata:
             metadata['subject'] = []
