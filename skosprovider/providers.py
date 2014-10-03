@@ -492,6 +492,7 @@ class DictionaryProvider(MemoryProvider):
                 uri=data['uri'] if 'uri' in data else self.uri_generator.generate(type='collection', id=data['id']),
                 concept_scheme=self.concept_scheme,
                 labels=data['labels'] if 'labels' in data else [],
+                notes=data['notes'] if 'notes' in data else [],
                 members=data['members'] if 'members' in data else [],
                 member_of=data['member_of'] if 'member_of' in data else [],
                 superordinates=data['superordinates'] if 'superordinates' in data else []

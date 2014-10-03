@@ -75,9 +75,15 @@ class DictDumperTest(unittest.TestCase):
                 {'type': 'prefLabel', 'language': 'nl', 'label': 'Bomen per soort'}
             ],
             'type': 'collection',
+            'notes': [
+                {
+                    'type': 'editorialNote',
+                    'language': 'en',
+                    'note': 'As seen in How to Recognise Different Types of Trees from Quite a Long Way Away.'
+                }
+            ],
             'members': ['1', '2'],
             'member_of': [],
-            'notes': [],
             'superordinates': []
         }
         self.world_dump = {

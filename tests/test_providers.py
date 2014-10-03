@@ -67,8 +67,7 @@ species = {
         {
             'type': 'editorialNote',
             'language': 'en',
-            'note': 'As seen in How to Recognise Different Types of Trees from\
-                    Quite a Long Way Away.'
+            'note': 'As seen in How to Recognise Different Types of Trees from Quite a Long Way Away.'
         }
     ]
 }
