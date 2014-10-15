@@ -1,9 +1,11 @@
-0.4.1 (2014-??-??)
+0.4.1 (2014-10-15)
 ------------------
 
 - Made the :class:`~skosprovider.providers.DictionaryProvider` return 
   :class:`~skosprovider.skos.Collection` objects with 
   :class:`~skosprovider.skos.Note` objects attached if available.
+- Fix a problem in find operaties when a concept or collection had no label
+  attached to it. (#6) [dieuska]
 
 0.4.0 (2014-10-02)
 ------------------
