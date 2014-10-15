@@ -385,7 +385,7 @@ class MemoryProvider(VocabularyProvider):
             'id': c.id,
             'uri': c.uri,
             'type': c.type,
-            'label': c.label(language).label
+            'label': None if c.label() is None else c.label(language).label
         }
 
     def get_all(self, **kwargs):
@@ -396,7 +396,7 @@ class MemoryProvider(VocabularyProvider):
                 'id': c.id, 
                 'uri': c.uri,
                 'type': c.type,
-                'label': c.label(language).label
+                'label': None if c.label() is None else c.label(language).label
             })
         return ret
 
@@ -409,7 +409,7 @@ class MemoryProvider(VocabularyProvider):
                     'id': c.id,
                     'uri': c.uri,
                     'type': c.type,
-                    'label': c.label(language).label
+                    'label': None if c.label() is None else c.label(language).label
                 })
         return ret
 
@@ -438,14 +438,14 @@ class MemoryProvider(VocabularyProvider):
                     'id': c.id,
                     'uri': c.uri,
                     'type': c.type,
-                    'label': c.label(language).label
+                    'label': None if c.label() is None else c.label(language).label
                 })
             if isinstance(c, Collection) and len(c.superordinates) == 0 and len(c.member_of) == 0:
                 ret.append({
                     'id': c.id,
                     'uri': c.uri,
                     'type': c.type,
-                    'label': c.label(language).label
+                    'label': None if c.label() is None else c.label(language).label
                 })
             
         return ret
@@ -469,7 +469,7 @@ class MemoryProvider(VocabularyProvider):
                 'id': dc.id, 
                 'uri': dc.uri,
                 'type': dc.type,
-                'label': dc.label(language).label
+                'label': None if dc.label() is None else dc.label(language).label
             })
         return ret
 
