@@ -1,3 +1,10 @@
+0.4.2 (2014-10-16)
+------------------
+
+- Fix a problem with SKOS matches.
+- BC compatibilty break with 0.4.0 and 0.4.1: renamed the matchtypes broader to
+  broad and narrower to narrow to be more inline with the SKOS standard.
+
 0.4.1 (2014-10-15)
 ------------------
 

@@ -198,15 +198,15 @@ class ConceptTest(unittest.TestCase):
             1, 
             uri='urn:x-skosprovider:gemeenten:1',
             matches={
-                'broader': ['http://id.something.org/provincies/1']
+                'broad': ['http://id.something.org/provincies/1']
             }
         )
         assert 'close' in c.matches
         assert 'exact' in c.matches
-        assert 'broader' in c.matches
-        assert 'narrower' in c.matches
+        assert 'broad' in c.matches
+        assert 'narrow' in c.matches
         assert 'related' in c.matches
-        assert ['http://id.something.org/provincies/1'] == c.matches['broader']
+        assert ['http://id.something.org/provincies/1'] == c.matches['broad']
 
 
 class CollectionTest(unittest.TestCase):

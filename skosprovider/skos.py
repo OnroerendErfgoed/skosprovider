@@ -201,17 +201,19 @@ class Concept:
     subordinate_arrays = []
     '''A :class:`list` of collection ids.'''
 
-    matches = {
-        'close': [],
-        'exact': [],
-        'related': [],
-        'broader': [],
-        'narrower': []
-    }
+    matches = {},
+
+    matchtypes = [
+        'close',
+        'exact',
+        'related',
+        'broad',
+        'narrow'
+    ]
     '''Matches with Concepts in other ConceptSchemes.
 
     This dictionary contains a key for each type of Match (close, exact, 
-    related, broader, narrower). Attached to each key is a list of URI's.
+    related, broad, narrow). Attached to each key is a list of URI's.
     '''
 
     def __init__(self, id, uri=None,
@@ -231,8 +233,12 @@ class Concept:
         self.related = related
         self.member_of = member_of
         self.subordinate_arrays = subordinate_arrays
+        self.matches = {}
+        for match_type in self.matchtypes:
+            if match_type not in matches.keys():
+                matches[match_type] = []
         for match_type in matches.keys():
-            if match_type in self.matches.keys():
+            if match_type in self.matchtypes:
                 self.matches[match_type] = matches.get(match_type, [])
 
     def label(self, language='any'):
