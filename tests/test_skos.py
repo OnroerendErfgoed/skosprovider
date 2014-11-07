@@ -38,7 +38,7 @@ class LabelTest(unittest.TestCase):
 
     def testEquality(self):
         l1 = Label('Knokke-Heist')
-        l2 = Label('Knokke-Heist', 'prefLabel', None)
+        l2 = Label('Knokke-Heist', 'prefLabel', 'und')
         self.assertEqual(l1, l2)
 
     def testInequality(self):
@@ -48,7 +48,7 @@ class LabelTest(unittest.TestCase):
 
     def testDictEquality(self):
         l1 = Label('Knokke-Heist')
-        l2 = {'label': 'Knokke-Heist', 'type': 'prefLabel', 'language': None}
+        l2 = {'label': 'Knokke-Heist', 'type': 'prefLabel', 'language': 'und'}
         self.assertEqual(l1, l2)
 
     def testDictInequality(self):
@@ -77,22 +77,22 @@ class NoteTest(unittest.TestCase):
 
     def testEquality(self):
         n1 = Note('A note.')
-        n2 = Note('A note.', 'note', None)
+        n2 = Note('A note.', 'note', 'und')
         self.assertEqual(n1, n2)
 
     def testInEquality(self):
         n1 = Note('A note.')
-        n2 = Note('A note.', 'definition')
+        n2 = Note('A note.', 'definition', 'und')
         self.assertNotEqual(n1, n2)
 
     def testDictEquality(self):
         n1 = Note('A note.')
-        n2 = {'note': 'A note.', 'type': 'note', 'language': None}
+        n2 = {'note': 'A note.', 'type': 'note', 'language': 'und'}
         self.assertEqual(n1, n2)
 
     def testDictInequality(self):
         n1 = Note('A note.')
-        n2 = {'note': 'A note.', 'type': 'definition', 'language': None}
+        n2 = {'note': 'A note.', 'type': 'definition', 'language': 'und'}
         self.assertNotEqual(n1, n2)
 
     def testIsValidType(self):
@@ -315,10 +315,14 @@ class LabelFunctionTest(unittest.TestCase):
     def _get_knokke_heist_en(self):
         return Label('Knocke-Heyst', type="prefLabel", language='en-GB')
 
+    def _get_und(self):
+        return Label('nokke-eist', type='prefLabel', language='und')
+
     def test_label_empty(self):
         self.assertEqual(None, label([]))
         self.assertEqual(None, label([], 'nl-BE'))
         self.assertEqual(None, label([], None))
+        self.assertEqual(None, label([], 'und'))
 
     def test_label_pref(self):
         kh = self._get_knokke_heist_nl()
@@ -327,6 +331,17 @@ class LabelFunctionTest(unittest.TestCase):
         self.assertEqual(kh, label(labels, 'nl-BE'))
         self.assertEqual(kh, label(labels, 'en-GB'))
         self.assertEqual(kh, label(labels, None))
+
+    def test_label_pref_und(self):
+        und = self._get_und()
+        labels = [und]
+        assert label(labels) is not None
+        self.assertEqual(und, label(labels))
+        self.assertEqual(und, label(labels, 'nl-BE'))
+        self.assertEqual(und, label(labels, 'en-GB'))
+        self.assertEqual(und, label(labels, 'und'))
+        self.assertEqual(und, label(labels, 'any'))
+        self.assertEqual(und, label(labels, None))
 
     def test_label_pref_nl_and_en(self):
         kh = self._get_knokke_heist_nl()

@@ -30,7 +30,7 @@ class Label:
     The type of this label ( `prefLabel`, `altLabel`, `hiddenLabel`).
     '''
 
-    language = None
+    language = "und"
     '''
     The language the label is in (eg. `en`, `en-US`, `nl`, `nl-BE`).
     '''
@@ -40,7 +40,7 @@ class Label:
     The valid types for a label
     '''
 
-    def __init__(self, label, type="prefLabel", language=None):
+    def __init__(self, label, type="prefLabel", language="und"):
         self.label = label
         self.type = type
         self.language = language
@@ -78,7 +78,7 @@ class Note:
     The type of this note ( `note`, `definition`, `scopeNote`, ...).
     '''
 
-    language = None
+    language = "und"
     '''
     The language the label is in (eg. `en`, `en-US`, `nl`, `nl-BE`).
     '''
@@ -96,7 +96,7 @@ class Note:
     The valid types for a note
     '''
 
-    def __init__(self, note, type="note", language=None):
+    def __init__(self, note, type="note", language="und"):
         self.note = note
         self.type = type
         self.language = language

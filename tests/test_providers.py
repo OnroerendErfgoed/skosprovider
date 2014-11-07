@@ -126,6 +126,9 @@ geo = DictionaryProvider(
                 {
                     'type': 'prefLabel', 'language': 'en',
                     'label': 'United Kingdom'
+                }, {
+                    'type': 'prefLabel', 'language': 'und',
+                    'label': 'Brittannia'
                 }
             ],
             'broader': [2]
