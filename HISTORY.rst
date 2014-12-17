@@ -1,3 +1,9 @@
+0.5.0 (2014-??-??)
+------------------
+
+- Added a :class:`~skosprovider.exceptions.ProviderUnavailableException` 
+  to let a provider signal that an underlying backend is not available.
+
 0.4.2 (2014-10-16)
 ------------------
 

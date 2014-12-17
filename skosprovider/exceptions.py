@@ -1,5 +1,10 @@
 # -*- coding: utf-8 -*-
 
+'''This module provides custom exceptions for skos providers.
+
+.. versionadded:: 0.5.0
+'''
+
 
 class ProviderUnavailableException(Exception):
     '''
