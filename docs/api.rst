@@ -26,6 +26,12 @@ Uri module
 .. automodule:: skosprovider.uri
    :members:
 
+Exceptions module
+-----------------
+
+.. automodule:: skosprovider.exceptions
+   :members:
+
 Utils module
 ---------------
 
