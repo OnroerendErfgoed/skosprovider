@@ -116,10 +116,10 @@ class Registry:
 
             # Find anything that has a label of church with the BUILDINGS provider.
             # Attention, this syntax was deprecated in version 0.3.0
-            registry.find({'label': 'church'}, providers=['BUILIDINGS'])
+            registry.find({'label': 'church'}, providers=['BUILDINGS'])
 
             # Find anything that has a label of church with the BUILDINGS provider.
-            registry.find({'label': 'church'}, providers={'ids': ['BUILIDINGS']})
+            registry.find({'label': 'church'}, providers={'ids': ['BUILDINGS']})
 
             # Find anything that has a label of church with a provider 
             # marked with the subject 'architecture'.
