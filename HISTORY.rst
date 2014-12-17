@@ -1,6 +1,9 @@
 0.5.0 (2014-??-??)
 ------------------
 
+- Changed the default language from `None` to the official IANA language code
+  `und` (undetermined). This is a minor BC break for users dealing with labels
+  that have not been assigned a language.
 - Added a :class:`~skosprovider.exceptions.ProviderUnavailableException` 
   to let a provider signal that an underlying backend is not available.
 
