@@ -1,4 +1,4 @@
-0.5.0 (2014-??-??)
+0.5.0 (2014-12-18)
 ------------------
 
 - Changed the default language from `None` to the official IANA language code
