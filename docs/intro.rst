@@ -89,7 +89,9 @@ In a few places we've deviated a bit from the :term:`SKOS` standard:
   relation between `concepts` in different `conceptschemes`, Skosprovider 
   assumes that all hierarchical or associative relations should be between
   `concepts` in the same `conceptscheme`. For relations between concepts in
-  different schemes, the :term:`SKOS` mappings should be considered.
+  different schemes, the :term:`SKOS` mapping properties (skos:mappingRelation,
+  skos:closeMatch, skos:exactmatch, ...) should be used. These are supported
+  by Skosprovider since version 0.4.0.
 * The :term:`SKOS` standard allows a `concept` that is marked as a `topConcept` 
   to have a broader `concept`. Skosprovider expects that the concepts returned
   by the :meth:`skosprovider.providers.VocabularyProvider.get_top_concepts` do
