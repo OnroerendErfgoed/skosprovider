@@ -30,7 +30,7 @@ skosprovider is present.
 .. code-block:: bash
 
     # activate your virtual env
-    $ pip install sphinx
+    $ pip install -r requirements.txt
     $ python setup.py develop
     $ cd docs
     $ make html
