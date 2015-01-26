@@ -51,7 +51,7 @@ class Registry:
 
         :param str id: The identifier for the provider.
         :returns: A :class:`skosprovider.providers.VocabularyProvider` or
-            False if the id is unknown.
+            `False` if the id is unknown.
         '''
         if id in self.providers:
             p = self.providers.get(id, False)
@@ -66,11 +66,13 @@ class Registry:
 
     def get_provider(self, id):
         '''
-        Get a provider by id.
+        Get a provider by id or :term:`uri`.
 
-        :param str id: The identifier for the provider.
+        :param str id: The identifier for the provider. This can either be the
+            id with which it was registered or the :term:`uri` of the conceptscheme
+            that the provider services.
         :returns: A :class:`skosprovider.providers.VocabularyProvider`
-            or False if the id is unknown.
+            or `False` if the id or uri is unknown.
         '''
         if id in self.providers:
             return self.providers.get(id, False)
@@ -95,6 +97,10 @@ class Registry:
 
            # Get all providers with id 1 or 2 and subject 'biology'
            registry.get_providers(ids=[1,2], subject='biology']
+
+        :param list ids: Only return providers with one of the Ids or uris.
+        :param str subject: Only return providers with this subject.
+        :returns: A list of :class:`providers <skosprovider.providers.VocabularyProvider>`
         '''
         if 'ids' in kwargs:        
             ids = [self.concept_scheme_uri_map.get(id, id) for id in kwargs['ids']]
