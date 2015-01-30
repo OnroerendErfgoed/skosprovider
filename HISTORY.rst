@@ -1,3 +1,11 @@
+0.5.1 (2015-??-??)
+------------------
+
+- Make it possible to pass a language tag to 
+  :meth:`~skosprovider.registry.Registry.find` that will be passed on to all
+  relevant registered providers. This determines in what language the
+  labels of the returned concepts will de displayed.
+
 0.5.0 (2014-12-18)
 ------------------
 
