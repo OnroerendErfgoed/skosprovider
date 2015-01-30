@@ -135,6 +135,8 @@ class Registry:
             This dictionary can contain any of the keyword arguments available
             to the :meth:`get_providers` method. The query will then only 
             be passed to the providers confirming to these arguments.
+        :param string language: Optional. If present, it should be a language-tag.
+            This language-tag is used to find the label of the concept in the according language.
         :param dict query: The query parameters that will be passed on to each
             :meth:`~skosprovider.providers.VocabularyProvider.find` method of
             the selected.
@@ -150,7 +152,10 @@ class Registry:
                 providers = self.get_providers(ids=pargs)
             else:
                 providers = self.get_providers(**pargs)
-        return [{'id': p.get_vocabulary_id(), 'concepts': p.find(query)}
+        kwarguments = {}
+        if 'language' in kwargs:
+            kwarguments['language'] = kwargs['language']
+        return [{'id': p.get_vocabulary_id(), 'concepts': p.find(query, **kwarguments)}
                 for p in providers]
 
     def get_all(self):

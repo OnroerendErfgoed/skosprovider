@@ -237,8 +237,26 @@ class RegistryTests(unittest.TestCase):
     def test_one_provider_findConceptsWithSubject(self):
         self.reg.register_provider(self.prov)
         provs = self.reg.get_providers(subject='biology')
-        res = [{'id': p.get_vocabulary_id(), 'concepts': p.find({})} for p in provs]    
+        res = [{'id': p.get_vocabulary_id(), 'concepts': p.find({})} for p in provs]
         self.assertEquals(
             res,
             self.reg.find({},subject='biology')
+        )
+
+    def test_one_provider_findConceptsWithSubject_language_en(self):
+        self.reg.register_provider(self.prov)
+        provs = self.reg.get_providers(subject='biology')
+        res = [{'id': p.get_vocabulary_id(), 'concepts': p.find({}, language='en')} for p in provs]
+        self.assertEquals(
+            res,
+            self.reg.find({},subject='biology', language='en')
+        )
+
+    def test_one_provider_findConceptsWithSubject_language_nl(self):
+        self.reg.register_provider(self.prov)
+        provs = self.reg.get_providers(subject='biology')
+        res = [{'id': p.get_vocabulary_id(), 'concepts': p.find({})} for p in provs]
+        self.assertEquals(
+            res,
+            self.reg.find({},subject='biology', language='nl')
         )
