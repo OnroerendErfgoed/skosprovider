@@ -210,6 +210,35 @@ class RegistryTests(unittest.TestCase):
             ]
         )
 
+    def test_one_provider_getAllConceptsDifferentLanguage(self):
+        self.reg.register_provider(self.prov)
+        self.assertEquals(
+                self.reg.get_all(language="en"),
+            [
+                {
+                    'id': 'TREES',
+                    'concepts': [
+                        {
+                            'id': '1',
+                            'uri': 'http://id.trees.org/1',
+                            'type': 'concept',
+                            'label': 'The Larch'
+                        }, {
+                            'id': '2',
+                            'uri': 'http://id.trees.org/2',
+                            'type': 'concept',
+                            'label': 'The Chestnut'
+                        }, {
+                            'id': 3,
+                            'uri': 'http://id.trees.org/3',
+                            'type': 'collection',
+                            'label': 'Trees by species'
+                        }
+                    ]
+                }
+            ]
+        )
+
     def test_two_providers_findConceptsWithProviderIdAndUri(self):
         self.reg.register_provider(self.prov2)
         self.reg.register_provider(self.prov)
