@@ -131,16 +131,22 @@ class Registry:
             # marked with the subject 'architecture'.
             registry.find({'label': 'church'}, providers={'subject': 'architecture'})
 
-        :param dict providers: Optional. If present, it should be a dictionary.
-            This dictionary can contain any of the keyword arguments available
-            to the :meth:`get_providers` method. The query will then only 
-            be passed to the providers confirming to these arguments.
-        :param string language: Optional. If present, it should be a language-tag.
-            This language-tag is used to find the label of the concept in the according language.
+            # Find anything that has a label of church in any provider.
+            # If possible, display the results with a Dutch label.
+            registry.find({'label': 'church', language='nl')
+
         :param dict query: The query parameters that will be passed on to each
             :meth:`~skosprovider.providers.VocabularyProvider.find` method of
             the selected.
             :class:`providers <skosprovider.providers.VocabularyProvider>`.
+        :param dict providers: Optional. If present, it should be a dictionary.
+            This dictionary can contain any of the keyword arguments available
+            to the :meth:`get_providers` method. The query will then only 
+            be passed to the providers confirming to these arguments.
+        :param string language: Optional. If present, it should be a 
+            language-tag. This language-tag is passed on to the underlying
+            providers and used when selecting the label to display for each
+            concept.
         :returns: a list of :class:`dict`.
             Each dict has two keys: id and concepts.
         '''
