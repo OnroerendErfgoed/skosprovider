@@ -4,7 +4,8 @@ Development
 ===========
 
 While skosprovider is still in development, the basic premise is fairly
-stable and the API changes have been fairly minor from version to version.
+stable and the API changes have been fairly minor from version to version. We do
+continue to refine the project and make the providers more expressive.
 
 We try to cover as much code as we can with unit tests. You can run them using
 tox_ or directly through nose. When providing a pull request, please run the
