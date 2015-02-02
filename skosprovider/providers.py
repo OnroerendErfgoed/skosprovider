@@ -129,6 +129,11 @@ class VocabularyProvider:
     def get_all(self, **kwargs):
         '''Returns all concepts and collections in this provider.
 
+        :param string language: Optional. If present, it should be a 
+            :term:`language-tag`. This language-tag is passed on to the 
+            underlying providers and used when selecting the label to display 
+            for each concept.
+
         :returns: A :class:`lst` of concepts and collections. Each of these is a dict
             with the following keys: 
             
@@ -136,8 +141,9 @@ class VocabularyProvider:
             * uri: :term:`uri` of the concept or collection
             * type: concept or collection
             * label: A label to represent the concept or collection. It is \
-                determined by looking at the `**kwargs` parameter, the default \ 
+                determined by looking at the `language` parameter, the default \
                 language of the provider and finally falls back to `en`.
+
         '''
 
     @abc.abstractmethod
@@ -149,15 +155,21 @@ class VocabularyProvider:
         themselves. They might have narrower concepts, but this is not
         mandatory.
 
-        :returns: A :class:`lst` of concepts, NOTcollections. Each of these 
+        :param string language: Optional. If present, it should be a 
+            :term:`language-tag`. This language-tag is passed on to the 
+            underlying providers and used when selecting the label to display 
+            for each concept.
+
+        :returns: A :class:`lst` of concepts, NOT collections. Each of these 
             is a dict with the following keys: 
             
             * id: id within the conceptscheme
             * uri: :term:`uri` of the concept or collection
             * type: concept or collection
             * label: A label to represent the concept or collection. It is \
-                determined by looking at the `**kwargs` parameter, the default \ 
+                determined by looking at the `language` parameter, the default \ 
                 language of the provider and finally falls back to `en`.
+
         '''
 
     @abc.abstractmethod
@@ -172,7 +184,7 @@ class VocabularyProvider:
         .. code-block:: python
 
             # Find anything that has a label of church.
-            provider.find({'label': 'church'}
+            provider.find({'label': 'church'})
 
             # Find all concepts that are a part of collection 5.
             provider.find({'type': 'concept', 'collection': {'id': 5})
@@ -180,6 +192,10 @@ class VocabularyProvider:
             # Find all concepts, collections or children of these
             # that belong to collection 5.
             provider.find({'collection': {'id': 5, 'depth': 'all'})
+
+            # Find anything that has a label of church.
+            # Preferentially display a label in Dutch.
+            provider.find({'label': 'church'}, language='nl')
 
         :param query: A dict that can be used to express a query. The following
             keys are permitted:
@@ -207,6 +223,11 @@ class VocabularyProvider:
                     of the collection or are a narrower concept of a member \
                     of the collection.
 
+        :param string language: Optional. If present, it should be a 
+            :term:`language-tag`. This language-tag is passed on to the 
+            underlying providers and used when selecting the label to display 
+            for each concept.
+
         :returns: A :class:`lst` of concepts and collections. Each of these 
             is a dict with the following keys: 
 
@@ -214,8 +235,9 @@ class VocabularyProvider:
             * uri: :term:`uri` of the concept or collection
             * type: concept or collection
             * label: A label to represent the concept or collection. It is \
-                determined by looking at the `**kwargs` parameter, the default \ 
+                determined by looking at the `language` parameter, the default \ 
                 language of the provider and finally falls back to `en`.
+
         '''
 
     def expand_concept(self, id):
@@ -263,6 +285,11 @@ class VocabularyProvider:
         As opposed to the :meth:`get_top_concepts`, this method can possibly
         return both concepts and collections.
 
+        :param string language: Optional. If present, it should be a 
+            :term:`language-tag`. This language-tag is passed on to the 
+            underlying providers and used when selecting the label to display 
+            for each concept.
+
         :returns: A :class:`lst` of concepts and collections. Each of these 
             is a dict with the following keys: 
 
@@ -270,14 +297,20 @@ class VocabularyProvider:
             * uri: :term:`uri` of the concept or collection
             * type: concept or collection
             * label: A label to represent the concept or collection. It is\
-                determined by looking at the `**kwargs` parameter, the default\ 
+                determined by looking at the `language` parameter, the default\ 
                 language of the provider and finally falls back to `en`.
+
         '''
 
     def get_children_display(self, id, **kwargs):
         '''
         Return a list of concepts or collections that should be displayed
         under this concept or collection.
+
+        :param string language: Optional. If present, it should be a 
+            :term:`language-tag`. This language-tag is passed on to the 
+            underlying providers and used when selecting the label to display 
+            for each concept.
 
         :param str id: A concept or collection id.
         :returns: A :class:`lst` of concepts and collections. Each of these 
@@ -287,8 +320,9 @@ class VocabularyProvider:
             * uri: :term:`uri` of the concept or collection
             * type: concept or collection
             * label: A label to represent the concept or collection. It is \
-                determined by looking at the `**kwargs` parameter, the default \ 
+                determined by looking at the `language` parameter, the default \ 
                 language of the provider and finally falls back to `en`.
+
         '''
 
 
