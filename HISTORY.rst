@@ -9,6 +9,7 @@
   :meth:`skosprovider.registry.Registry.get_all` that will be passed on to all
   registered providers. This determines in what language the
   labels of the returned concepts will displayed.
+- Wrote some new documentation on what a provider is and how to use it.
 
 0.5.0 (2014-12-18)
 ------------------
