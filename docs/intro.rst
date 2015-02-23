@@ -113,7 +113,7 @@ In a few places we've deviated a bit from the :term:`SKOS` standard:
 Support
 -------
 
-If you have questions regarding SkosPprovider, feel free to contact us. Any bugs
+If you have questions regarding Skosprovider, feel free to contact us. Any bugs
 you find or feature requests you have, you can add to our 
 `issue tracker <https://github.com/koenedaele/skosprovider/issues>`_. If you're
 unsure if something is a bug or intentional, or you just want to have a chat
