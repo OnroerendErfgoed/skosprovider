@@ -109,3 +109,15 @@ In a few places we've deviated a bit from the :term:`SKOS` standard:
   :attr:`skosprovider.skos.Collection.superordinates` properties from this
   specification. In effect, it turns a SKOS Collecion that has one or more 
   superordinates into a ThesaurusArray.
+
+Support
+-------
+
+If you have questions regarding SkosPprovider, feel free to contact us. Any bugs
+you find or feature requests you have, you can add to our 
+`issue tracker <https://github.com/koenedaele/skosprovider/issues>`_. If you're
+unsure if something is a bug or intentional, or you just want to have a chat
+about this library or :term:`SKOS` in general, feel free to join the 
+`Atramhasis discussion forum <https://groups.google.com/forum/#!forum/atramhasis>`_.
+While these are separate software projects, they are being run by the same 
+people and they integrate rather tightly.
