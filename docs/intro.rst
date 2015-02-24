@@ -43,6 +43,9 @@ Currently the following other providers exist:
   interface with a `RDFLib <https://rdflib.readthedocs.org/en/latest/>`_ 
   backend. This allows using a SKOS RDF file as the source for a provider, 
   but also dumping a skosprovider to a SKOS RDF file.
+* `Skosprovider_atramhasis <https://skosprovider-atramhasis.readthedocs.org>`_:
+  The :class:`AtramhasisProvider <skosprovider.providers.AtramhasisProvider>` 
+  lets you interact with an Atramhasis_ instance. 
 * `Skosprovider_oe <https://github.com/koenedaele/skosprovider_oe>`_: This 
   provider implements the :class:`skosprovider.providers.VocabularyProvider` 
   interface for the thesauri attached to the 
@@ -69,16 +72,15 @@ This allows you to embed a set of REST services in a Pyramid application that
 expose SKOSproviders as JSON services that can be consumed by eg. Javascript 
 clients or other clients.
 
-For those who are looking to build a vocabulary, there's also 
-`Atramhasis <http://atramhasis.readthedocs.org>`_, an online :term:`SKOS` 
-vocabulary editor that builds upon this library and others. Atramhasis can 
-function as the central SKOS registry for an organisation looking to manage
-its own thesauri and other controlled vocabularies. It provides a public 
-website that allows people to browse you vocabularies and a private interface
-that allows vocabulary editors to create, edit and delete concepts and 
-collections. By using other Skosproviders Atramhasis can import concepts and 
-collections from other thesauri, saving you the trouble of having to write 
-your own controlled vocabulary from scratch.
+For those who are looking to build a vocabulary, there's also Atramhasis_, 
+an online :term:`SKOS` vocabulary editor that builds upon this library and 
+others. Atramhasis can function as the central SKOS registry for an organisation 
+looking to manage its own thesauri and other controlled vocabularies. It 
+provides a public website that allows people to browse you vocabularies and 
+a private interface that allows vocabulary editors to create, edit and delete 
+concepts and collections. By using other Skosproviders Atramhasis can import 
+concepts and collections from other thesauri, saving you the trouble of having 
+to write your own controlled vocabulary from scratch.
 
 Deviations from SKOS
 --------------------
@@ -121,3 +123,5 @@ about this library or :term:`SKOS` in general, feel free to join the
 `Atramhasis discussion forum <https://groups.google.com/forum/#!forum/atramhasis>`_.
 While these are separate software projects, they are being run by the same 
 people and they integrate rather tightly.
+
+.. _Atramhasis: http://atramhasis.readthedocs.org

@@ -6,7 +6,7 @@
   relevant registered providers. This determines in what language the
   labels of the returned concepts will displayed. (#10) [dieuska]
 - Make it possible to pass a language tag to 
-  :meth:`skosprovider.registry.Registry.get_all` that will be passed on to all
+  :meth:`skosprovider.registry.Registry.get_all` that will be passed to all
   registered providers. This determines in what language the
   labels of the returned concepts will displayed.
 - Wrote some new documentation on what a provider is and how to use it.
