@@ -13,6 +13,7 @@ Providers module
 
 .. automodule:: skosprovider.providers
    :members: VocabularyProvider, MemoryProvider, DictionaryProvider, SimpleCsvProvider
+   :special-members: __init__
 
 Registry module
 ---------------
