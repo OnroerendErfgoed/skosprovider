@@ -39,7 +39,16 @@ class DictDumperTest(unittest.TestCase):
             'narrower': [],
             'broader': [],
             'related': [],
-            'member_of': ['3']
+            'member_of': ['3'],
+            'matches': {
+                'close': [
+                    'http://id.python.org/different/types/of/trees/nr/1/the/larch'
+                ],
+                'exact': [],
+                'related': [],
+                'narrow': [],
+                'broad': []
+            }
         }
         self.chestnut_dump = {
             'id': '2',
@@ -65,7 +74,16 @@ class DictDumperTest(unittest.TestCase):
             'narrower': [],
             'broader': [],
             'related': [],
-            'member_of': ['3']
+            'member_of': ['3'],
+            'matches': {
+                'close': [],
+                'exact': [],
+                'related': [
+                    'http://id.python.org/different/types/of/trees/nr/17/the/other/chestnut'
+                ],
+                'narrow': [],
+                'broad': []
+            }
         }
         self.species_dump = {
             'id': 3,
@@ -98,7 +116,14 @@ class DictDumperTest(unittest.TestCase):
             'narrower': [2, 3],
             'broader': [],
             'related': [],
-            'member_of': []
+            'member_of': [],
+            'matches': {
+                'close': [],
+                'exact': [],
+                'related': [],
+                'narrow': [],
+                'broad': []
+            }
         }
 
     def tearDown(self):

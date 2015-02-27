@@ -37,7 +37,8 @@ def dict_dumper(provider):
                 'narrower': c.narrower,
                 'broader': c.broader,
                 'related': c.related,
-                'member_of': c.member_of
+                'member_of': c.member_of,
+                'matches': c.matches
             })
         elif isinstance(c, Collection):
             ret.append({
