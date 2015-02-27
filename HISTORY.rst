@@ -9,6 +9,8 @@
   :meth:`skosprovider.registry.Registry.get_all` that will be passed to all
   registered providers. This determines in what language the
   labels of the returned concepts will displayed.
+- Fixed some errors with the :func:`skosprovider.utils.dict_dumper`. It didn't
+  dump the `matches` or the `subordinate_arrays` of concepts.
 - Wrote some new documentation on what a provider is and how to use it.
 
 0.5.0 (2014-12-18)
