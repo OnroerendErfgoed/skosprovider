@@ -40,6 +40,7 @@ class DictDumperTest(unittest.TestCase):
             'broader': [],
             'related': [],
             'member_of': ['3'],
+            'subordinate_arrays': [],
             'matches': {
                 'close': [
                     'http://id.python.org/different/types/of/trees/nr/1/the/larch'
@@ -75,6 +76,7 @@ class DictDumperTest(unittest.TestCase):
             'broader': [],
             'related': [],
             'member_of': ['3'],
+            'subordinate_arrays': [],
             'matches': {
                 'close': [],
                 'exact': [],
@@ -123,7 +125,8 @@ class DictDumperTest(unittest.TestCase):
                 'related': [],
                 'narrow': [],
                 'broad': []
-            }
+            },
+            'subordinate_arrays': []
         }
 
     def tearDown(self):
