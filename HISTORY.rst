@@ -1,4 +1,4 @@
-0.5.1 (2015-??-??)
+0.5.1 (2015-03-02)
 ------------------
 
 - Make it possible to pass a language tag to 
@@ -9,7 +9,9 @@
   :meth:`skosprovider.registry.Registry.get_all` that will be passed to all
   registered providers. This determines in what language the
   labels of the returned concepts will displayed.
-- Wrote some new documentation on what a provider is and how to use it.
+- Wrote some new documentation on what a provider is and how to use it. Some
+  other documentation work as well such as documenting the `language` parameter
+  in the API better.
 
 0.5.0 (2014-12-18)
 ------------------
