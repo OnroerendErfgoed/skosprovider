@@ -1,3 +1,8 @@
+0.5.2 (2015-03-02)
+------------------
+
+Release 0.5.1 was a brown-paper-bag release due to some mucking about with pypi.
+
 0.5.1 (2015-03-02)
 ------------------
 
