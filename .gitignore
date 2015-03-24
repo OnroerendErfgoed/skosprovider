@@ -32,3 +32,6 @@ htmlcov
 
 # Pycharm
 .idea/
+
+#Rope
+.ropeproject
