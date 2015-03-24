@@ -87,6 +87,7 @@ trees = DictionaryProvider(
 
 world = {
     'id': '1',
+    'uri': None,
     'labels': [
         {'type': 'prefLabel', 'language': 'en', 'label': 'World'}
     ],
@@ -350,7 +351,7 @@ class TreesDictionaryProviderTests(unittest.TestCase):
             'type': 'concept',
             'label': 'la châtaigne'
         }
-        assert la_chataigne in trees.get_all(language='fr') 
+        assert la_chataigne in trees.get_all(language='fr')
 
     def test_find_all(self):
         c = trees.find({'type': 'all'})
@@ -370,8 +371,8 @@ class TreesDictionaryProviderTests(unittest.TestCase):
             [
                 {
                     'id': '1',
-                    'uri': 'http://id.trees.org/1', 
-                    'type': 'concept', 
+                    'uri': 'http://id.trees.org/1',
+                    'type': 'concept',
                     'label': 'De Lariks'
                 }
             ]
@@ -383,8 +384,8 @@ class TreesDictionaryProviderTests(unittest.TestCase):
             [
                 {
                     'id': '1',
-                    'uri': 'http://id.trees.org/1', 
-                    'type': 'concept', 
+                    'uri': 'http://id.trees.org/1',
+                    'type': 'concept',
                     'label': 'De Lariks'
                 }
             ]
@@ -401,8 +402,8 @@ class TreesDictionaryProviderTests(unittest.TestCase):
             [
                 {
                     'id': '1',
-                    'uri': 'http://id.trees.org/1', 
-                    'type': 'concept', 
+                    'uri': 'http://id.trees.org/1',
+                    'type': 'concept',
                     'label': 'De Lariks'
                 }
             ]
@@ -422,8 +423,8 @@ class TreesDictionaryProviderTests(unittest.TestCase):
             [
                 {
                     'id': '1',
-                    'uri': 'http://id.trees.org/1', 
-                    'type': 'concept', 
+                    'uri': 'http://id.trees.org/1',
+                    'type': 'concept',
                     'label': 'De Lariks'
                 }
             ]
@@ -495,14 +496,14 @@ class TreesDictionaryProviderTests(unittest.TestCase):
             trees.get_children_display(3),
             [
                 {
-                    'id': '1', 
-                    'uri': 'http://id.trees.org/1', 
-                    'type': 'concept', 
+                    'id': '1',
+                    'uri': 'http://id.trees.org/1',
+                    'type': 'concept',
                     'label': 'De Lariks'
                 }, {
-                    'id': '2', 
-                    'uri': 'http://id.trees.org/2', 
-                    'type': 'concept', 
+                    'id': '2',
+                    'uri': 'http://id.trees.org/2',
+                    'type': 'concept',
                     'label': 'De Paardekastanje'
                 }
             ]
@@ -551,6 +552,7 @@ class GeoDictionaryProviderTests(unittest.TestCase):
     def test_get_by_id(self):
         wereld = geo.get_by_id(1)
         self.assertEqual(world['id'], wereld.id)
+        self.assertIsNotNone(wereld.uri)
         self.assertEqual(world['labels'], wereld.labels)
         self.assertEqual(world['narrower'], wereld.narrower)
 
@@ -653,7 +655,7 @@ class GeoDictionaryProviderTests(unittest.TestCase):
                     'type': 'concept',
                     'label': 'Belgium'
                 }, {
-                    'id': 7, 
+                    'id': 7,
                     'uri': 'urn:x-skosprovider:geography:7',
                     'type': 'concept',
                     'label': 'Flanders'
