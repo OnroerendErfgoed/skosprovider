@@ -1,3 +1,9 @@
+0.6.0 (2015-??-??)
+------------------
+
+- When a :class:`skosprovider.providers.DictionaryProvider` reads a dictionary
+  containing a :term:`URI` and that URI's None, generate a URI. (#12)
+
 0.5.2 (2015-03-02)
 ------------------
 
