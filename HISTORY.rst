@@ -1,8 +1,12 @@
-0.6.0 (2015-??-??)
+0.5.3 (2015-06-24)
 ------------------
 
 - When a :class:`skosprovider.providers.DictionaryProvider` reads a dictionary
   containing a :term:`URI` and that URI's None, generate a URI. (#12)
+- Upgrade to the newest version of language-tags, this fixes a showstopping bug
+  on Windows machines. (#16)a
+- Added an examples folder with a script that demonstrates the API using a
+  DictionaryProvider.
 
 0.5.2 (2015-03-02)
 ------------------
