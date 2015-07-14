@@ -4,7 +4,7 @@
 - When a :class:`skosprovider.providers.DictionaryProvider` reads a dictionary
   containing a :term:`URI` and that URI's None, generate a URI. (#12)
 - Upgrade to the newest version of language-tags, this fixes a showstopping bug
-  on Windows machines. (#16)a
+  on Windows machines. (#16)
 - Added an examples folder with a script that demonstrates the API using a
   DictionaryProvider.
 - Added a wheel config file.
