@@ -202,6 +202,9 @@ class Concept:
     '''A :class:`list` of collection ids.'''
 
     matches = {},
+    '''
+    A :class:`dictionary`. Each key is a matchtype and contains a :class:`list` of URI's.
+    '''
 
     matchtypes = [
         'close',
