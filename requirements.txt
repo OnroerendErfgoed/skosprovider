@@ -1,1 +1,1 @@
-language-tags==0.3.2
+language-tags==0.4.1
