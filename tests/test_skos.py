@@ -87,19 +87,25 @@ class NoteTest(unittest.TestCase):
 
     def testDictEquality(self):
         n1 = Note('A note.')
-        n2 = {'note': 'A note.', 'type': 'note', 'language': 'und'}
+        n2 = {'note': 'A note.', 'type': 'note', 'language': 'und', 'markup': None}
         self.assertEqual(n1, n2)
 
     def testDictInequality(self):
         n1 = Note('A note.')
-        n2 = {'note': 'A note.', 'type': 'definition', 'language': 'und'}
+        n2 = {'note': 'A note.', 'type': 'definition', 'language': 'und', 'markup': None}
         self.assertNotEqual(n1, n2)
 
     def testIsValidType(self):
         self.assertTrue(Note.is_valid_type('note'))
-        self.assertFalse(Label.is_valid_type('notitie'))
+        self.assertFalse(Note.is_valid_type('notitie'))
         n = Note('A community in West-Flanders.', 'definition', 'en')
         self.assertTrue(n.is_valid_type('definition'))
+
+    def testIsValidMarkup(self):
+        self.assertTrue(Note.is_valid_markup('HTML'))
+        self.assertFalse(Note.is_valid_markup('markdown'))
+        n = Note('A community in West-Flanders.', 'definition', 'en', None)
+        self.assertTrue(n.is_valid_markup(None))
 
 
 class ConceptSchemeTest(unittest.TestCase):

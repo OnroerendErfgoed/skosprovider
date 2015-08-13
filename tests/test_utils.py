@@ -34,7 +34,8 @@ class DictDumperTest(unittest.TestCase):
             'notes': [
                 {'type': 'definition',
                  'language': 'en',
-                 'note': 'A type of tree.'}
+                 'note': 'A type of tree.',
+                 'markup': None}
             ],
             'narrower': [],
             'broader': [],
@@ -69,7 +70,7 @@ class DictDumperTest(unittest.TestCase):
             'notes': [
                 {
                     'type': 'definition', 'language': 'en',
-                    'note': 'A different type of tree.'
+                    'note': 'A different type of tree.', 'markup': None
                 }
             ],
             'narrower': [],
@@ -99,7 +100,8 @@ class DictDumperTest(unittest.TestCase):
                 {
                     'type': 'editorialNote',
                     'language': 'en',
-                    'note': 'As seen in How to Recognise Different Types of Trees from Quite a Long Way Away.'
+                    'note': 'As seen in <em>How to Recognise Different Types of Trees from Quite a Long Way Away</em>.',
+                    'markup': 'HTML'
                 }
             ],
             'members': ['1', '2'],

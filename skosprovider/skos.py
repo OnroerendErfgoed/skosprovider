@@ -83,6 +83,14 @@ class Note:
     The language the label is in (eg. `en`, `en-US`, `nl`, `nl-BE`).
     '''
 
+    markup = None
+    '''
+    What kind of markup does the note contain?
+
+    If not none, the note should be treated as a certain type of markup. 
+    Currently only HTML is allowed.
+    '''
+
     valid_types=[
             'note',
             'changeNote',
@@ -93,13 +101,22 @@ class Note:
             'scopeNote'
         ]
     '''
-    The valid types for a note
+    The valid types for a note.
     '''
 
-    def __init__(self, note, type="note", language="und"):
+    valid_markup=[
+        None,
+        'HTML'
+    ]
+    '''
+    Valid types of markup for a note.
+    '''
+
+    def __init__(self, note, type="note", language="und", markup=None):
         self.note = note
         self.type = type
         self.language = language
+        self.markup = markup
 
     def __eq__(self, other):
         return self.__dict__ == (other if type(other) == dict else other.__dict__)
@@ -115,6 +132,15 @@ class Note:
         :param string type: The type to be checked.
         '''
         return type in Note.valid_types
+
+    @staticmethod
+    def is_valid_markup(markup):
+        '''
+        Check is the argument is a valid type of markup.
+
+        :param string markup: The type to be checked.
+        '''
+        return markup in Note.valid_markup
 
 
 class ConceptScheme:
@@ -411,5 +437,6 @@ def dict_to_note(dict):
         return Note(
             dict['note'],
             dict['type'] if 'type' in dict else 'note',
-            dict['language'] if 'language' in dict else None
+            dict['language'] if 'language' in dict else None,
+            dict['markup'] if 'markup' in dict else None
         )

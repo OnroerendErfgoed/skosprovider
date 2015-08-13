@@ -29,7 +29,7 @@ larch = {
         {'type': 'prefLabel', 'language': 'nl', 'label': 'De Lariks'}
     ],
     'notes': [
-        {'type': 'definition', 'language': 'en', 'note': 'A type of tree.'}
+        {'type': 'definition', 'language': 'en', 'note': 'A type of tree.', 'markup': None}
     ],
     'member_of': ['3'],
     'matches': {
@@ -70,7 +70,8 @@ species = {
         {
             'type': 'editorialNote',
             'language': 'en',
-            'note': 'As seen in How to Recognise Different Types of Trees from Quite a Long Way Away.'
+            'note': 'As seen in <em>How to Recognise Different Types of Trees from Quite a Long Way Away</em>.',
+            'markup': 'HTML'
         }
     ]
 }
