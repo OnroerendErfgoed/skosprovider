@@ -95,6 +95,18 @@ class NoteTest(unittest.TestCase):
         n2 = {'note': 'A note.', 'type': 'definition', 'language': 'und', 'markup': None}
         self.assertNotEqual(n1, n2)
 
+    def testConstructorWithHTML(self):
+        n = Note(
+            '<p>Een gemeente in <em>West-Vlaanderen</em>.</p>',
+            type="note",
+            language='nl-BE',
+            markup='HTML'
+        )
+        self.assertEqual('<p>Een gemeente in <em>West-Vlaanderen</em>.</p>', n.note)
+        self.assertEqual('note', n.type)
+        self.assertEqual('nl-BE', n.language)
+        self.assertEqual('HTML', n.markup)
+
     def testIsValidType(self):
         self.assertTrue(Note.is_valid_type('note'))
         self.assertFalse(Note.is_valid_type('notitie'))
