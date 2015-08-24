@@ -155,6 +155,15 @@ class ConceptSchemeTest(unittest.TestCase):
         self.assertEqual(label(labels, 'en'), cs.label('en'))
         self.assertEqual(label(labels, None), cs.label(None))
 
+    def testLanguages(self):
+        labels = self._get_labels()
+        cs = ConceptScheme(
+            uri='urn:x-skosprovider:gemeenten',
+            labels=labels,
+            languages=['nl', 'en', 'und']
+        )
+        self.assertEquals(cs.languages, ['nl', 'en', 'und'])
+
 
 class ConceptTest(unittest.TestCase):
 

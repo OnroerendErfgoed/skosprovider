@@ -161,10 +161,18 @@ class ConceptScheme:
     notes = []
     '''A :class:`lst` of :class:`skosprovider.skos.Note` instances.'''
 
-    def __init__(self, uri, labels=[], notes=[]):
+    languages = []
+    '''
+    A :class:`lst` of languages that are being used in the ConceptScheme.
+
+    There's no guarantuee that labels or notes in other languages do not exist.
+    '''
+
+    def __init__(self, uri, labels=[], notes=[], languages=[]):
         self.uri = uri
         self.labels = [dict_to_label(l) for l in labels]
         self.notes = [dict_to_note(n) for n in notes]
+        self.languages = languages
 
     def label(self, language='any'):
         '''
