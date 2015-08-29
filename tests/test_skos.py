@@ -305,11 +305,13 @@ class DictToNoteFunctionTest(unittest.TestCase):
         d = dict_to_note({'note': 'A note.', 'type': 'note'})
         self.assertEqual('A note.', d.note)
         self.assertEqual('note', d.type)
+        self.assertEqual('und', d.language)
 
     def testDictToNodeWithNote(self):
         d = dict_to_note(Note('A note.', 'note'))
         self.assertEqual('A note.', d.note)
         self.assertEqual('note', d.type)
+        self.assertEqual('und', d.language)
 
 
 class DictToLabelFunctionTest(unittest.TestCase):
@@ -318,11 +320,13 @@ class DictToLabelFunctionTest(unittest.TestCase):
         l = dict_to_label({'label': 'A label.', 'type': 'prefLabel'})
         self.assertEqual('A label.', l.label)
         self.assertEqual('prefLabel', l.type)
+        self.assertEqual('und', l.language)
 
     def testDictToLabelWithlabel(self):
         l = dict_to_label(Label('A label.', 'prefLabel'))
         self.assertEqual('A label.', l.label)
         self.assertEqual('prefLabel', l.type)
+        self.assertEqual('und', l.language)
 
 
 class LabelFunctionTest(unittest.TestCase):

@@ -4,6 +4,9 @@
 - Allow marking a note as containing HTML. (#17)
 - Add languages attribute to :class:`skosprovider.skos.ConceptScheme` to make it
   possible to track what languages are being used in a thesaurus. (#19)
+- Fixed a bug with :func:`skosprovider.skos.dict_to_label` and
+  :func:`skosprovider.skos.dict_to_note` that would assign `None` instead of
+  `und` as the language for labels and notes that have no language.
 
 0.5.3 (2015-06-24)
 ------------------

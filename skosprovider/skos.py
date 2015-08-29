@@ -1,10 +1,10 @@
 #-*- coding: utf-8 -*-
 
 '''
-This module contains a read-only model of the :term:`SKOS` specification. 
+This module contains a read-only model of the :term:`SKOS` specification.
 
 To complement the :term:`SKOS` specification, some elements were borrowed
-from the :term:`SKOS-THES` specification (eg. superordinate and 
+from the :term:`SKOS-THES` specification (eg. superordinate and
 subordinate array).
 
 .. versionadded:: 0.2.0
@@ -87,7 +87,7 @@ class Note:
     '''
     What kind of markup does the note contain?
 
-    If not none, the note should be treated as a certain type of markup. 
+    If not none, the note should be treated as a certain type of markup.
     Currently only HTML is allowed.
     '''
 
@@ -181,7 +181,7 @@ class ConceptScheme:
         This uses the :func:`label` function to determine which label to
         return.
 
-        :param string language: The preferred language to receive the label in. 
+        :param string language: The preferred language to receive the label in.
             This should be a valid IANA language tag.
         :rtype: :class:`skosprovider.skos.Label` or False if no labels were found.
         '''
@@ -249,7 +249,7 @@ class Concept:
     ]
     '''Matches with Concepts in other ConceptSchemes.
 
-    This dictionary contains a key for each type of Match (close, exact, 
+    This dictionary contains a key for each type of Match (close, exact,
     related, broad, narrow). Attached to each key is a list of URI's.
     '''
 
@@ -284,7 +284,7 @@ class Concept:
 
         This uses the :func:`label` function to determine which label to return.
 
-        :param string language: The preferred language to receive the label in. 
+        :param string language: The preferred language to receive the label in.
             This should be a valid IANA language tag.
         :rtype: :class:`skosprovider.skos.Label` or False if no labels were found.
         '''
@@ -328,7 +328,7 @@ class Collection:
 
     def __init__(self, id, uri=None,
                  concept_scheme=None,
-                 labels=[], notes=[], 
+                 labels=[], notes=[],
                  members=[], member_of=[],
                  superordinates=[]):
         self.id = id
@@ -347,7 +347,7 @@ class Collection:
 
         This uses the :func:`label` function to determine which label to return.
 
-        :param string language: The preferred language to receive the label in. 
+        :param string language: The preferred language to receive the label in.
             This should be a valid IANA language tag.
         :rtype: :class:`skosprovider.skos.Label` or False if no labels were found.
         '''
@@ -370,8 +370,8 @@ def label(labels=[], language='any'):
     if no exact match is present, an inexact match will be attempted. This might
     be because a label in language `nl-BE` is being requested, but only `nl` or
     even `nl-NL` is present. Similarly, when requesting `nl`, a label with
-    language `nl-NL` or even `nl-Latn-NL` will also be considered, 
-    providing no label is present that has an exact match with the 
+    language `nl-NL` or even `nl-Latn-NL` will also be considered,
+    providing no label is present that has an exact match with the
     requested language.
 
     If language 'any' was specified, all labels will be considered,
@@ -418,6 +418,10 @@ def dict_to_label(dict):
     Transform a dict with keys `label`, `type` and `language` into a
     :class:`Label`.
 
+    Only the `label` key is mandatory. If `type` is not present, it will
+    default to `prefLabel`. If `language` is not present, it will default
+    to `und`.
+
     If the argument passed is already a :class:`Label`, this method just
     returns the argument.
     '''
@@ -427,7 +431,7 @@ def dict_to_label(dict):
         return Label(
             dict['label'],
             dict['type'] if 'type' in dict else 'prefLabel',
-            dict['language'] if 'language' in dict else None
+            dict['language'] if 'language' in dict else 'und'
         )
 
 
@@ -435,6 +439,10 @@ def dict_to_note(dict):
     '''
     Transform a dict with keys `note`, `type` and `language` into a
     :class:`Note`.
+
+    Only the `note` key is mandatory. If `type` is not present, it will
+    default to `note`. If `language` is not present, it will default to `und`.
+    If `markup` is not present it will default to `None`.
 
     If the argument passed is already a :class:`Note`, this method just returns
     the argument.
@@ -445,6 +453,6 @@ def dict_to_note(dict):
         return Note(
             dict['note'],
             dict['type'] if 'type' in dict else 'note',
-            dict['language'] if 'language' in dict else None,
+            dict['language'] if 'language' in dict else 'und',
             dict['markup'] if 'markup' in dict else None
         )
