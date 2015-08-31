@@ -36,6 +36,13 @@ class VocabularyProvider:
 
     __metaclass__ = abc.ABCMeta
 
+    concept_scheme = None
+    '''The :class:`~skosprovider.skos.ConceptScheme` this provider serves.'''
+
+    uri_generator = None
+    '''The :class:`~skosprovider.uri.UriGenerator` responsible for generating
+    uris for this provider.'''
+
     def __init__(self, metadata, **kwargs):
         '''Create a new provider and register some metadata.
 
