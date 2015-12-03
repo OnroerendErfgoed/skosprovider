@@ -143,6 +143,19 @@ class Note:
         return markup in Note.valid_markup
 
 
+class Source:
+    '''
+    A `Source` for a concept, collection or scheme.
+
+    '''
+
+    citation=None
+    '''A bibliographic citation for this source.'''
+
+    def __init__(self, citation):
+        self.citation = citation
+
+
 class ConceptScheme:
     '''
     A :term:`SKOS` ConceptScheme.
@@ -161,6 +174,9 @@ class ConceptScheme:
     notes = []
     '''A :class:`lst` of :class:`skosprovider.skos.Note` instances.'''
 
+    sources = []
+    '''A :class:`lst` of :class:`skosprovider.skos.Source` instances.'''
+
     languages = []
     '''
     A :class:`lst` of languages that are being used in the ConceptScheme.
@@ -168,10 +184,11 @@ class ConceptScheme:
     There's no guarantuee that labels or notes in other languages do not exist.
     '''
 
-    def __init__(self, uri, labels=[], notes=[], languages=[]):
+    def __init__(self, uri, labels=[], notes=[], sources=[], languages=[]):
         self.uri = uri
         self.labels = [dict_to_label(l) for l in labels]
         self.notes = [dict_to_note(n) for n in notes]
+        self.sources = [dict_to_source(s) for s in sources]
         self.languages = languages
 
     def label(self, language='any'):
@@ -220,6 +237,9 @@ class Concept:
     notes = []
     '''A :class:`lst` of :class:`Note` instances.'''
 
+    sources = []
+    '''A :class:`lst` of :class:`skosprovider.skos.Source` instances.'''
+
     broader = []
     '''A :class:`lst` of concept ids.'''
 
@@ -255,7 +275,7 @@ class Concept:
 
     def __init__(self, id, uri=None,
                  concept_scheme=None,
-                 labels=[], notes=[],
+                 labels=[], notes=[], sources=[],
                  broader=[], narrower=[], related=[],
                  member_of=[], subordinate_arrays=[],
                  matches={}):
@@ -265,6 +285,7 @@ class Concept:
         self.concept_scheme = concept_scheme
         self.labels = [dict_to_label(l) for l in labels]
         self.notes = [dict_to_note(n) for n in notes]
+        self.sources = [dict_to_source(s) for s in sources]
         self.broader = broader
         self.narrower = narrower
         self.related = related
@@ -317,6 +338,9 @@ class Collection:
     notes = []
     '''A :class:`lst` of :class:`skosprovider.skos.Note` instances.'''
 
+    sources = []
+    '''A :class:`lst` of :class:`skosprovider.skos.Source` instances.'''
+
     members = []
     '''A :class:`lst` of concept or collection ids.'''
 
@@ -328,7 +352,7 @@ class Collection:
 
     def __init__(self, id, uri=None,
                  concept_scheme=None,
-                 labels=[], notes=[],
+                 labels=[], notes=[], sources=[],
                  members=[], member_of=[],
                  superordinates=[]):
         self.id = id
@@ -337,6 +361,7 @@ class Collection:
         self.concept_scheme = concept_scheme
         self.labels = [dict_to_label(l) for l in labels]
         self.notes = [dict_to_note(n) for n in notes]
+        self.sources = [dict_to_source(s) for s in sources]
         self.members = members
         self.member_of = member_of
         self.superordinates = superordinates
@@ -455,4 +480,20 @@ def dict_to_note(dict):
             dict['type'] if 'type' in dict else 'note',
             dict['language'] if 'language' in dict else 'und',
             dict['markup'] if 'markup' in dict else None
+        )
+
+
+def dict_to_source(dict):
+    '''
+    Transform a dict with key 'citation' into a :class:`Source`.
+
+    If the argument passed is already a :class:`Source`, this method just returns
+    the argument.
+    '''
+
+    if isinstance(dict, Source):
+        return dict
+    else:
+        return Source(
+            citation=dict['citation'],
         )

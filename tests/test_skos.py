@@ -7,12 +7,14 @@ import unittest
 from skosprovider.skos import (
     Label,
     Note,
+    Source,
     ConceptScheme,
     Concept,
     Collection,
     label,
     dict_to_label,
-    dict_to_note
+    dict_to_note,
+    dict_to_source
 )
 
 
@@ -120,6 +122,22 @@ class NoteTest(unittest.TestCase):
         self.assertTrue(n.is_valid_markup(None))
 
 
+class SourceTest(unittest.TestCase):
+
+    def setUp(self):
+        pass
+
+    def tearDown(self):
+        pass
+
+    def testConstructor(self):
+        citation = 'Van Daele, K; Meganck, L. & Mortier, S. 2015. Data-driven systems and system-driven data: the story of the Flanders Heritage Inventory (1995-2015)'
+        s = Source(
+            citation
+        )
+        self.assertEqual(citation, s.citation)
+
+
 class ConceptSchemeTest(unittest.TestCase):
 
     def setUp(self):
@@ -163,6 +181,15 @@ class ConceptSchemeTest(unittest.TestCase):
             languages=['nl', 'en', 'und']
         )
         self.assertEquals(cs.languages, ['nl', 'en', 'und'])
+
+    def testSource(self):
+        cs = ConceptScheme(
+            uri='urn:x-skosprovider:gemeenten',
+            sources=[{'citation': 'My citation'}]
+        )
+        self.assertEqual(1, len(cs.sources))
+        self.assertIsInstance(cs.sources[0], Source)
+        self.assertEqual('My citation', cs.sources[0].citation)
 
 
 class ConceptTest(unittest.TestCase):
@@ -235,6 +262,15 @@ class ConceptTest(unittest.TestCase):
         assert 'related' in c.matches
         assert ['http://id.something.org/provincies/1'] == c.matches['broad']
 
+    def testSource(self):
+        c = Concept(
+            id=1,
+            sources=[{'citation': 'My citation'}]
+        )
+        self.assertEqual(1, len(c.sources))
+        self.assertIsInstance(c.sources[0], Source)
+        self.assertEqual('My citation', c.sources[0].citation)
+
 
 class CollectionTest(unittest.TestCase):
 
@@ -298,6 +334,15 @@ class CollectionTest(unittest.TestCase):
         )
         self.assertTrue(set([350]), set(coll.member_of))
 
+    def testSource(self):
+        coll = Collection(
+            id=1,
+            sources=[{'citation': 'My citation'}]
+        )
+        self.assertEqual(1, len(coll.sources))
+        self.assertIsInstance(coll.sources[0], Source)
+        self.assertEqual('My citation', coll.sources[0].citation)
+
 
 class DictToNoteFunctionTest(unittest.TestCase):
 
@@ -327,6 +372,19 @@ class DictToLabelFunctionTest(unittest.TestCase):
         self.assertEqual('A label.', l.label)
         self.assertEqual('prefLabel', l.type)
         self.assertEqual('und', l.language)
+
+
+class DictToSourceFunctionTest(unittest.TestCase):
+
+    def testDictToSourceWithDict(self):
+        citation = 'Van Daele, K; Meganck, L. & Mortier, S. 2015. Data-driven systems and system-driven data: the story of the Flanders Heritage Inventory (1995-2015)'
+        s = dict_to_source({'citation': citation})
+        self.assertEqual(citation, s.citation)
+
+    def testDictToLabelWithlabel(self):
+        citation = 'Van Daele, K; Meganck, L. & Mortier, S. 2015. Data-driven systems and system-driven data: the story of the Flanders Heritage Inventory (1995-2015)'
+        s = dict_to_source(Source(citation))
+        self.assertEqual(citation, s.citation)
 
 
 class LabelFunctionTest(unittest.TestCase):
