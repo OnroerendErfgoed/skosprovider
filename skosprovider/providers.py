@@ -541,6 +541,7 @@ class DictionaryProvider(MemoryProvider):
                 concept_scheme=self.concept_scheme,
                 labels=data['labels'] if 'labels' in data else [],
                 notes=data['notes'] if 'notes' in data else [],
+                sources=data['sources'] if 'sources' in data else [],
                 members=data['members'] if 'members' in data else [],
                 member_of=data['member_of'] if 'member_of' in data else [],
                 superordinates=data['superordinates'] if 'superordinates' in data else []
@@ -552,6 +553,7 @@ class DictionaryProvider(MemoryProvider):
                 concept_scheme=self.concept_scheme,
                 labels=data['labels'] if 'labels' in data else [],
                 notes=data['notes'] if 'notes' in data else [],
+                sources=data['sources'] if 'sources' in data else [],
                 broader=data['broader'] if 'broader' in data else [],
                 narrower=data['narrower'] if 'narrower' in data else [],
                 related=data['related'] if 'related' in data else [],
@@ -566,7 +568,7 @@ class SimpleCsvProvider(MemoryProvider):
     A provider that reads a simple csv format into memory.
 
     The supported csv format looks like this:
-    <id>,<preflabel>,<note>
+    <id>,<preflabel>,<note>,<source>
 
     This provider essentialy provides a flat list of concepts. This is commonly
     associated with short lookup-lists.
@@ -585,13 +587,18 @@ class SimpleCsvProvider(MemoryProvider):
     def _from_row(self, row):
         id = row[0]
         labels = [{'label': row[1], 'type':'prefLabel'}]
-        if row[2]:
+        if len(row) > 2 and row[2]:
             notes = [{'note': row[2], 'type':'note'}]
         else:
             notes = []
+        if len(row) > 3 and row[3]:
+            sources = [{'citation': 'My citation.'}]
+        else:
+            sources = []
         return Concept(
             id=id,
             uri=self.uri_generator.generate(type='concept', id=id),
             labels=labels,
-            notes=notes
+            notes=notes,
+            sources=sources
         )

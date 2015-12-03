@@ -31,6 +31,9 @@ larch = {
     'notes': [
         {'type': 'definition', 'language': 'en', 'note': 'A type of tree.', 'markup': None}
     ],
+    'sources': [
+        {'citation': 'Monthy Python. Episode Three: How to recognise different types of trees from quite a long way away.'}
+    ],
     'member_of': ['3'],
     'matches': {
         'close': ['http://id.python.org/different/types/of/trees/nr/1/the/larch']
@@ -211,6 +214,8 @@ class TreesDictionaryProviderTests(unittest.TestCase):
         self.assertEqual(larch['uri'], lariks.uri)
         self.assertEqual(larch['labels'], lariks.labels)
         self.assertEqual(larch['notes'], lariks.notes)
+        assert len(larch['sources']) == len(lariks.sources)
+        assert larch['sources'][0]['citation'] == lariks.sources[0].citation
 
     def test_concept_has_scheme(self):
         lariks = trees.get_by_id(1)
@@ -706,6 +711,7 @@ class SimpleCsvProviderTests(unittest.TestCase):
         self.assertEqual('Egg and Bacon', eb.label().label)
         self.assertEqual('prefLabel', eb.label().type)
         self.assertEqual([], eb.notes)
+        assert 1 == len(eb.sources)
 
     def testGetEggAndSpamByUri(self):
         eb = self.csvprovider.get_by_uri('http://id.python.org/menu/3')
