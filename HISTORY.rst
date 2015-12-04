@@ -4,6 +4,11 @@
 - Allow marking a note as containing HTML. (#17)
 - Add languages attribute to :class:`skosprovider.skos.ConceptScheme` to make it
   possible to track what languages are being used in a thesaurus. (#19)
+- Add a sources attribute to :class:`~skosprovider.skos.ConceptScheme`,
+  :class:`~skosprovider.skos.Collection` and
+  :class:`~skosprovider.skos.Concept`. Every source is an object that currently
+  only has one attribute, a citation. This looks like a good universal common
+  denominator. (#20)
 - Fixed a bug with :func:`skosprovider.skos.dict_to_label` and
   :func:`skosprovider.skos.dict_to_note` that would assign `None` instead of
   `und` as the language for labels and notes that have no language.
