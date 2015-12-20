@@ -1,4 +1,4 @@
-0.6.0 (2015-??-??)
+0.6.0 (2016-??-??)
 ------------------
 
 - Allow marking a note as containing HTML. (#17)
