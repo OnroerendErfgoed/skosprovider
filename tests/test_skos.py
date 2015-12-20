@@ -173,6 +173,16 @@ class ConceptSchemeTest(unittest.TestCase):
         self.assertEqual(label(labels, 'en'), cs.label('en'))
         self.assertEqual(label(labels, None), cs.label(None))
 
+    def testSortLabel(self):
+        labels = self._get_labels()
+        sl = Label('allereerste', type='sortLabel', language='nl-BE')
+        labels.append(sl)
+        coll = Collection(350, labels=labels)
+        self.assertEqual(label(labels, sortLabel=True), coll.sortlabel())
+        self.assertEqual(label(labels, 'nl', sortLabel=True), coll.sortlabel('nl'))
+        self.assertEqual(label(labels, 'en', sortLabel=True), coll.sortlabel('en'))
+        self.assertEqual(label(labels, None, sortLabel=True), coll.sortlabel(None))
+
     def testLanguages(self):
         labels = self._get_labels()
         cs = ConceptScheme(
@@ -235,6 +245,16 @@ class ConceptTest(unittest.TestCase):
         self.assertEqual(label(labels, 'en'), c.label('en'))
         self.assertEqual(label(labels, None), c.label(None))
 
+    def testSortLabel(self):
+        labels = self._get_labels()
+        sl = Label('allereerste', type='sortLabel', language='nl-BE')
+        labels.append(sl)
+        coll = Collection(350, labels=labels)
+        self.assertEqual(label(labels, sortLabel=True), coll.sortlabel())
+        self.assertEqual(label(labels, 'nl', sortLabel=True), coll.sortlabel('nl'))
+        self.assertEqual(label(labels, 'en', sortLabel=True), coll.sortlabel('en'))
+        self.assertEqual(label(labels, None, sortLabel=True), coll.sortlabel(None))
+
     def testUri(self):
         c = Concept(1, uri='urn:x-skosprovider:gemeenten:1')
         self.assertEqual(1, c.id)
@@ -242,14 +262,14 @@ class ConceptTest(unittest.TestCase):
 
     def testMemberOf(self):
         c = Concept(
-            1, 
+            1,
             uri='urn:x-skosprovider:gemeenten:1',
             member_of=[15])
         self.assertEqual(set([15]), set(c.member_of))
 
     def testMatches(self):
         c = Concept(
-            1, 
+            1,
             uri='urn:x-skosprovider:gemeenten:1',
             matches={
                 'broad': ['http://id.something.org/provincies/1']
@@ -308,6 +328,16 @@ class CollectionTest(unittest.TestCase):
         self.assertEqual(label(labels, 'nl'), coll.label('nl'))
         self.assertEqual(label(labels, 'en'), coll.label('en'))
         self.assertEqual(label(labels, None), coll.label(None))
+
+    def testSortLabel(self):
+        labels = self._get_labels()
+        sl = Label('allereerste', type='sortLabel', language='nl-BE')
+        labels.append(sl)
+        coll = Collection(350, labels=labels)
+        self.assertEqual(label(labels, sortLabel=True), coll.sortlabel())
+        self.assertEqual(label(labels, 'nl', sortLabel=True), coll.sortlabel('nl'))
+        self.assertEqual(label(labels, 'en', sortLabel=True), coll.sortlabel('en'))
+        self.assertEqual(label(labels, None, sortLabel=True), coll.sortlabel(None))
 
     def testEmptyMembers(self):
         labels = self._get_labels()
@@ -407,6 +437,9 @@ class LabelFunctionTest(unittest.TestCase):
     def _get_und(self):
         return Label('nokke-eist', type='prefLabel', language='und')
 
+    def _get_sortlabel(self):
+        return Label('allereerste', type='sortLabel', language='nl-BE')
+
     def test_label_empty(self):
         self.assertEqual(None, label([]))
         self.assertEqual(None, label([], 'nl-BE'))
@@ -475,6 +508,17 @@ class LabelFunctionTest(unittest.TestCase):
         ch = self._get_cnocke_heyst_nl()
         labels = [kh, ch]
         self.assertEqual(kh, label(labels))
+        self.assertEqual(kh, label(labels, 'nl-BE'))
+        self.assertEqual(kh, label(labels, 'en-GB'))
+        self.assertEqual(kh, label(labels, None))
+
+    def test_sortlabel_unused(self):
+        kh = self._get_knokke_heist_nl()
+        ch = self._get_cnocke_heyst_nl()
+        sl = self._get_sortlabel()
+        labels = [kh, ch, sl]
+        self.assertEqual(kh, label(labels))
+        self.assertEqual(kh, label(labels, sortLabel=False))
         self.assertEqual(kh, label(labels, 'nl-BE'))
         self.assertEqual(kh, label(labels, 'en-GB'))
         self.assertEqual(kh, label(labels, None))

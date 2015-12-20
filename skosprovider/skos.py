@@ -35,7 +35,12 @@ class Label:
     The language the label is in (eg. `en`, `en-US`, `nl`, `nl-BE`).
     '''
 
-    valid_types=['prefLabel', 'altLabel', 'hiddenLabel']
+    valid_types=[
+        'prefLabel',
+        'altLabel',
+        'hiddenLabel',
+        'sortLabel'
+    ]
     '''
     The valid types for a label
     '''
@@ -376,10 +381,19 @@ class Collection:
             This should be a valid IANA language tag.
         :rtype: :class:`skosprovider.skos.Label` or False if no labels were found.
         '''
-        return label(self.labels, language)
+        return label(self.labels, language, False)
+
+    def sortlabel(self, language='any'):
+        '''
+        Provide a single sortlabel for this collection.
+
+        This will return a special sortlabel is defined for the language, or 
+        else will fall back to the :func:`label` function.
+        '''
+        return label(self.labels, language, True)
 
 
-def label(labels=[], language='any'):
+def label(labels=[], language='any', sortLabel=False):
     '''
     Provide a label for a list of labels.
 
@@ -419,6 +433,7 @@ def label(labels=[], language='any'):
         broader_language_tag = tags.tag(language).language
     pref = None
     alt = None
+    sort = None
     for l in labels:
         l = dict_to_label(l)
         if language == 'any' or l.language == language:
@@ -426,11 +441,17 @@ def label(labels=[], language='any'):
                 pref = l
             if l.type == 'altLabel' and (alt is None or alt.language != language):
                 alt = l
+            if l.type == 'sortLabel' and (sort is None or sort.language != language):
+                sort = l
         if broader_language_tag and tags.tag(l.language).language and tags.tag(l.language).language.format == broader_language_tag.format:
             if l.type == 'prefLabel' and pref is None:
                 pref = l
             if l.type == 'altLabel' and alt is None:
                 alt = l
+            if l.type == 'sortLabel' and sort is None:
+                sort = l
+    if sortLabel and sort is not None:
+        return sort
     if pref is not None:
         return pref
     elif alt is not None:
