@@ -177,11 +177,14 @@ class ConceptSchemeTest(unittest.TestCase):
         labels = self._get_labels()
         sl = Label('allereerste', type='sortLabel', language='nl-BE')
         labels.append(sl)
-        coll = Collection(350, labels=labels)
-        self.assertEqual(label(labels, sortLabel=True), coll.sortlabel())
-        self.assertEqual(label(labels, 'nl', sortLabel=True), coll.sortlabel('nl'))
-        self.assertEqual(label(labels, 'en', sortLabel=True), coll.sortlabel('en'))
-        self.assertEqual(label(labels, None, sortLabel=True), coll.sortlabel(None))
+        cs = ConceptScheme(
+            uri='urn:x-skosprovider:gemeenten',
+            labels=labels
+        )
+        self.assertEqual(label(labels, sortLabel=True), cs.sortlabel())
+        self.assertEqual(label(labels, 'nl', sortLabel=True), cs.sortlabel('nl'))
+        self.assertEqual(label(labels, 'en', sortLabel=True), cs.sortlabel('en'))
+        self.assertEqual(label(labels, None, sortLabel=True), cs.sortlabel(None))
 
     def testLanguages(self):
         labels = self._get_labels()
@@ -249,11 +252,11 @@ class ConceptTest(unittest.TestCase):
         labels = self._get_labels()
         sl = Label('allereerste', type='sortLabel', language='nl-BE')
         labels.append(sl)
-        coll = Collection(350, labels=labels)
-        self.assertEqual(label(labels, sortLabel=True), coll.sortlabel())
-        self.assertEqual(label(labels, 'nl', sortLabel=True), coll.sortlabel('nl'))
-        self.assertEqual(label(labels, 'en', sortLabel=True), coll.sortlabel('en'))
-        self.assertEqual(label(labels, None, sortLabel=True), coll.sortlabel(None))
+        c = Concept(1, labels=labels)
+        self.assertEqual(label(labels, sortLabel=True), c.sortlabel())
+        self.assertEqual(label(labels, 'nl', sortLabel=True), c.sortlabel('nl'))
+        self.assertEqual(label(labels, 'en', sortLabel=True), c.sortlabel('en'))
+        self.assertEqual(label(labels, None, sortLabel=True), c.sortlabel(None))
 
     def testUri(self):
         c = Concept(1, uri='urn:x-skosprovider:gemeenten:1')

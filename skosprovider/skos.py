@@ -209,6 +209,15 @@ class ConceptScheme:
         '''
         return label(self.labels, language)
 
+    def sortlabel(self, language='any'):
+        '''
+        Provide a single sortlabel for this concept.
+
+        This will return a special sortlabel is defined for the language, or 
+        else will fall back to the :func:`label` function.
+        '''
+        return label(self.labels, language, True)
+
 
 class Concept:
     '''
@@ -315,6 +324,15 @@ class Concept:
         :rtype: :class:`skosprovider.skos.Label` or False if no labels were found.
         '''
         return label(self.labels, language)
+
+    def sortlabel(self, language='any'):
+        '''
+        Provide a single sortlabel for this concept.
+
+        This will return a special sortlabel is defined for the language, or 
+        else will fall back to the :func:`label` function.
+        '''
+        return label(self.labels, language, True)
 
 
 class Collection:

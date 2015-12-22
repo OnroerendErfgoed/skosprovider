@@ -327,6 +327,24 @@ class TreesDictionaryProviderTests(unittest.TestCase):
             ]
         )
 
+    def test_get_top_concepts_sorted_by_id(self):
+        self.assertEquals(
+            trees.get_top_concepts(sort='id'),
+            [
+                {
+                    'id': '1',
+                    'uri': 'http://id.trees.org/1',
+                    'type': 'concept',
+                    'label': 'De Lariks'
+                }, {
+                    'id': '2',
+                    'uri': 'http://id.trees.org/2',
+                    'type': 'concept',
+                    'label': 'De Paardekastanje'
+                }
+            ]
+        )
+
     def test_get_all_english(self):
         self.assertEquals(
             trees.get_all(language='en'),
@@ -490,6 +508,19 @@ class TreesDictionaryProviderTests(unittest.TestCase):
             top
         )
 
+    def test_get_display_top_sorted_label(self):
+        top = trees.get_top_display(sort='label', language='nl')
+        self.assertEqual(1, len(top))
+        self.assertIn(
+            {
+                'id': 3,
+                'type': 'collection',
+                'label': 'Bomen per soort',
+                'uri': 'http://id.trees.org/3'
+            },
+            top
+        )
+
     def test_get_display_children_unexisting_concept(self):
         self.assertFalse(trees.get_children_display(404))
 
@@ -500,6 +531,24 @@ class TreesDictionaryProviderTests(unittest.TestCase):
     def test_get_display_children_collection(self):
         self.assertEqual(
             trees.get_children_display(3),
+            [
+                {
+                    'id': '1',
+                    'uri': 'http://id.trees.org/1',
+                    'type': 'concept',
+                    'label': 'De Lariks'
+                }, {
+                    'id': '2',
+                    'uri': 'http://id.trees.org/2',
+                    'type': 'concept',
+                    'label': 'De Paardekastanje'
+                }
+            ]
+        )
+
+    def test_get_display_children_collection_sort_custom(self):
+        self.assertEqual(
+            trees.get_children_display(3, sort='custom'),
             [
                 {
                     'id': '1',
