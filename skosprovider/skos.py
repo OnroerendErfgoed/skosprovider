@@ -69,6 +69,9 @@ class Label:
         '''
         return type in Label.valid_types
 
+    def __repr__(self):
+        return "Label('%s', '%s', '%s')" % (self.label, self.type, self.language)
+
 
 class Note:
     '''
@@ -128,6 +131,7 @@ class Note:
 
     def __ne__(self, other):
         return not self == other
+
 
     @staticmethod
     def is_valid_type(type):
@@ -209,14 +213,22 @@ class ConceptScheme:
         '''
         return label(self.labels, language)
 
-    def sortlabel(self, language='any'):
+    def _sortkey(self, key='id', language='any', sortLabel=True):
         '''
-        Provide a single sortlabel for this concept.
+        Provide a single sortkey for this concept.
 
-        This will return a special sortlabel is defined for the language, or 
-        else will fall back to the :func:`label` function.
+        :param string key: Either `id`, `label` or `sortlabel`.
+        :param string language: The preferred language to receive the label in
+            if key is `label` or `sortlabel`. This should be a valid IANA language tag.
+        :param boolean sortLabel: Should special sortLabels be considered? If
+            False, only regular labels will be considered.
+        :rtype: :class:`str`
         '''
-        return label(self.labels, language, True)
+        l = label(self.labels, language, sortLabel)
+        return l.label if l else ''
+
+    def __repr__(self):
+        return "ConceptScheme('%s')" % self.uri
 
 
 class Concept:
@@ -325,14 +337,22 @@ class Concept:
         '''
         return label(self.labels, language)
 
-    def sortlabel(self, language='any'):
+    def _sortkey(self, key='id', language='any', sortLabel=True):
         '''
-        Provide a single sortlabel for this concept.
+        Provide a single sortkey for this concept.
 
-        This will return a special sortlabel is defined for the language, or 
-        else will fall back to the :func:`label` function.
+        :param string key: Either `id`, `label` or `sortlabel`.
+        :param string language: The preferred language to receive the label in
+            if key is `label` or `sortlabel`. This should be a valid IANA language tag.
+        :param boolean sortLabel: Should special sortLabels be considered? If
+            False, only regular labels will be considered.
+        :rtype: :class:`str`
         '''
-        return label(self.labels, language, True)
+        l = label(self.labels, language, sortLabel)
+        return l.label if l else ''
+
+    def __repr__(self):
+        return "Concept('%s')" % self.id
 
 
 class Collection:
@@ -401,14 +421,22 @@ class Collection:
         '''
         return label(self.labels, language, False)
 
-    def sortlabel(self, language='any'):
+    def _sortkey(self, key='id', language='any', sortLabel=True):
         '''
-        Provide a single sortlabel for this collection.
+        Provide a single sortkey for this concept.
 
-        This will return a special sortlabel is defined for the language, or 
-        else will fall back to the :func:`label` function.
+        :param string key: Either `id`, `label` or `sortlabel`.
+        :param string language: The preferred language to receive the label in
+            if key is `label` or `sortlabel`. This should be a valid IANA language tag.
+        :param boolean sortLabel: Should special sortLabels be considered? If
+            False, only regular labels will be considered.
+        :rtype: :class:`str`
         '''
-        return label(self.labels, language, True)
+        l = label(self.labels, language, sortLabel)
+        return l.label if l else ''
+
+    def __repr__(self):
+        return "Collection('%s')" % self.id
 
 
 def label(labels=[], language='any', sortLabel=False):
@@ -474,7 +502,7 @@ def label(labels=[], language='any', sortLabel=False):
         return pref
     elif alt is not None:
         return alt
-    return label(labels, 'any') if language != 'any' else None
+    return label(labels, 'any', sortLabel) if language != 'any' else None
 
 
 def dict_to_label(dict):

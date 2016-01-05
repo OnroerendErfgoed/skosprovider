@@ -368,6 +368,29 @@ class TreesDictionaryProviderTests(unittest.TestCase):
             ]
         )
 
+    def test_get_all_english_sorted_by_label(self):
+        self.assertEquals(
+            trees.get_all(language='en', sort='label'),
+            [
+                {
+                    'id': '2',
+                    'uri': 'http://id.trees.org/2',
+                    'type': 'concept',
+                    'label': 'The Chestnut'
+                }, {
+                    'id': '1',
+                    'uri': 'http://id.trees.org/1',
+                    'type': 'concept',
+                    'label': 'The Larch'
+                }, {
+                    'id': 3,
+                    'uri': 'http://id.trees.org/3',
+                    'type': 'collection',
+                    'label': 'Trees by species'
+                }
+            ]
+        )
+
     def test_get_all_french(self):
         la_chataigne = {
             'id': '2',
@@ -548,7 +571,7 @@ class TreesDictionaryProviderTests(unittest.TestCase):
 
     def test_get_display_children_collection_sort_custom(self):
         self.assertEqual(
-            trees.get_children_display(3, sort='custom'),
+            trees.get_children_display(3, language='nl', sort='custom'),
             [
                 {
                     'id': '1',

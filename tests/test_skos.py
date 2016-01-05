@@ -32,6 +32,10 @@ class LabelTest(unittest.TestCase):
         self.assertEqual('prefLabel', l.type)
         self.assertEqual('nl-BE', l.language)
 
+    def testRepr(self):
+        l = Label('Knokke-Heist', type="prefLabel", language='nl-BE')
+        self.assertEqual("Label('Knokke-Heist', 'prefLabel', 'nl-BE')", l.__repr__())
+
     def testIsValidType(self):
         self.assertTrue(Label.is_valid_type('prefLabel'))
         self.assertFalse(Label.is_valid_type('voorkeursLabel'))
@@ -162,6 +166,12 @@ class ConceptSchemeTest(unittest.TestCase):
             self._get_communities_en()
         ]
 
+    def testRepr(self):
+        cs = ConceptScheme(
+            uri='urn:x-skosprovider:gemeenten'
+        )
+        self.assertEquals("ConceptScheme('urn:x-skosprovider:gemeenten')", cs.__repr__())
+
     def testLabel(self):
         labels = self._get_labels()
         cs = ConceptScheme(
@@ -181,10 +191,9 @@ class ConceptSchemeTest(unittest.TestCase):
             uri='urn:x-skosprovider:gemeenten',
             labels=labels
         )
-        self.assertEqual(label(labels, sortLabel=True), cs.sortlabel())
-        self.assertEqual(label(labels, 'nl', sortLabel=True), cs.sortlabel('nl'))
-        self.assertEqual(label(labels, 'en', sortLabel=True), cs.sortlabel('en'))
-        self.assertEqual(label(labels, None, sortLabel=True), cs.sortlabel(None))
+        self.assertEqual('allereerste', cs._sortkey('sortlabel'))
+        self.assertEqual('allereerste', cs._sortkey('sortlabel', 'nl'))
+        self.assertEqual('Communities', cs._sortkey('sortlabel', 'en'))
 
     def testLanguages(self):
         labels = self._get_labels()
@@ -229,6 +238,10 @@ class ConceptTest(unittest.TestCase):
             self._get_knokke_heist_en()
         ]
 
+    def testRepr(self):
+        c = Concept(1)
+        self.assertEquals("Concept('1')", c.__repr__())
+
     def testIn(self):
         c = Concept(1)
         assert hasattr(c, 'id')
@@ -253,10 +266,9 @@ class ConceptTest(unittest.TestCase):
         sl = Label('allereerste', type='sortLabel', language='nl-BE')
         labels.append(sl)
         c = Concept(1, labels=labels)
-        self.assertEqual(label(labels, sortLabel=True), c.sortlabel())
-        self.assertEqual(label(labels, 'nl', sortLabel=True), c.sortlabel('nl'))
-        self.assertEqual(label(labels, 'en', sortLabel=True), c.sortlabel('en'))
-        self.assertEqual(label(labels, None, sortLabel=True), c.sortlabel(None))
+        self.assertEqual('allereerste', c._sortkey('sortlabel'))
+        self.assertEqual('allereerste', c._sortkey('sortlabel', 'nl'))
+        self.assertEqual('Knocke-Heyst', c._sortkey('sortlabel', 'en'))
 
     def testUri(self):
         c = Concept(1, uri='urn:x-skosprovider:gemeenten:1')
@@ -315,6 +327,10 @@ class CollectionTest(unittest.TestCase):
             self._get_prefusiegemeenten_nl(),
         ]
 
+    def testRepr(self):
+        c = Collection(1)
+        self.assertEquals("Collection('1')", c.__repr__())
+
     def testId(self):
         coll = Collection(350)
         self.assertEqual(350, coll.id)
@@ -332,15 +348,14 @@ class CollectionTest(unittest.TestCase):
         self.assertEqual(label(labels, 'en'), coll.label('en'))
         self.assertEqual(label(labels, None), coll.label(None))
 
-    def testSortLabel(self):
+    def testSortkey(self):
         labels = self._get_labels()
         sl = Label('allereerste', type='sortLabel', language='nl-BE')
         labels.append(sl)
         coll = Collection(350, labels=labels)
-        self.assertEqual(label(labels, sortLabel=True), coll.sortlabel())
-        self.assertEqual(label(labels, 'nl', sortLabel=True), coll.sortlabel('nl'))
-        self.assertEqual(label(labels, 'en', sortLabel=True), coll.sortlabel('en'))
-        self.assertEqual(label(labels, None, sortLabel=True), coll.sortlabel(None))
+        self.assertEqual('allereerste', coll._sortkey('sortlabel'))
+        self.assertEqual('allereerste', coll._sortkey('sortlabel', 'nl'))
+        self.assertEqual('allereerste', coll._sortkey('sortlabel', 'en'))
 
     def testEmptyMembers(self):
         labels = self._get_labels()

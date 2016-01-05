@@ -18,7 +18,16 @@ import abc
 
 import warnings
 
-from operator import methodcaller
+import logging
+log = logging.getLogger(__name__)
+import sys
+logging.basicConfig(level=logging.DEBUG, stream=sys.stdout)
+
+from operator import (
+    attrgetter,
+    methodcaller
+)
+import copy
 
 from .skos import (
     Concept,
@@ -156,6 +165,10 @@ class VocabularyProvider:
             :term:`language-tag`. This language-tag is passed on to the
             underlying providers and used when selecting the label to display
             for each concept.
+        :param string sort: Optional. If present, it should either be `id`,
+            `label` or `custom`. The `custom` option means the providers should
+            take into account any `sortLabel` if present, if not it will
+            fallback to a regular label to sort on.
 
         :returns: A :class:`lst` of concepts and collections. Each of these is a dict
             with the following keys:
@@ -182,7 +195,6 @@ class VocabularyProvider:
             :term:`language-tag`. This language-tag is passed on to the
             underlying providers and used when selecting the label to display
             for each concept.
-
         :param string sort: Optional. If present, it should either be `id`,
             `label` or `custom`. The `custom` option means the providers should
             take into account any `sortLabel` if present, if not it will
@@ -255,6 +267,10 @@ class VocabularyProvider:
             :term:`language-tag`. This language-tag is passed on to the
             underlying providers and used when selecting the label to display
             for each concept.
+        :param string sort: Optional. If present, it should either be `id`,
+            `label` or `custom`. The `custom` option means the providers should
+            take into account any `sortLabel` if present, if not it will
+            fallback to a regular label to sort on.
 
         :returns: A :class:`lst` of concepts and collections. Each of these
             is a dict with the following keys:
@@ -458,40 +474,33 @@ class MemoryProvider(VocabularyProvider):
             'label': None if c.label() is None else c.label(language).label
         }
 
+    def _sort(self, concepts, sort=None, language='any', reverse=False):
+        '''
+        Returns a sorted version of a list of concepts. Will leave the original 
+        list unsorted.
+
+        :param list concepts: A list of concepts and collections.
+        :param string sort: What to sort on: `id`, `label` or `sortlabel`
+        :param string language: Language to use when sorting on `label` or 
+            `sortlabel`.
+        :param boolean reverse: Reverse the sort order?
+        :rtype: list
+        '''
+        sorted = copy.copy(concepts)
+        if sort:
+            sorted.sort(key=methodcaller('_sortkey', sort, language), reverse=reverse)
+        return sorted
+
     def get_all(self, **kwargs):
         language = self._get_language(**kwargs)
-        ret = []
-        for c in self.list:
-            ret.append({
-                'id': c.id,
-                'uri': c.uri,
-                'type': c.type,
-                'label': None if c.label() is None else c.label(language).label
-            })
-        return ret
-
-    def _sort(self, concepts, sort, language):
-        if sort:
-            if sort == 'label':
-                concepts.sort(key=methodcaller('label', language))
-            elif sort == 'custom':
-                concepts.sort(key=methodcaller('sortlabel', language))
-            else:
-                concepts.sort(key=id)
-        return concepts
+        sort = self._get_sort(**kwargs)
+        return [self._get_find_dict(c, **kwargs) for c in self._sort(self.list, sort, language)]
 
     def get_top_concepts(self, **kwargs):
         language = self._get_language(**kwargs)
         sort = self._get_sort(**kwargs)
         tc = [c for c in self.list if isinstance(c, Concept) and len(c.broader) == 0]
-        tc = self._sort(tc, sort, language)
-        return [
-            {
-                'id': c.id,
-                'uri': c.uri,
-                'type': c.type,
-                'label': None if c.label() is None else c.label(language).label
-            } for c in tc]
+        return [self._get_find_dict(c, **kwargs) for c in self._sort(tc, sort, language)]
 
     def expand(self, id):
         id = str(id)
@@ -515,14 +524,13 @@ class MemoryProvider(VocabularyProvider):
         td = [c for c in self.list if
               (isinstance(c, Concept) and len(c.broader) == 0 and len(c.member_of) == 0) or
               (isinstance(c, Collection) and len(c.superordinates) == 0 and len(c.member_of) == 0)]
-        td = self._sort(td, sort, language)
         return [
             {
                 'id': c.id,
                 'uri': c.uri,
                 'type': c.type,
                 'label': None if c.label() is None else c.label(language).label
-            } for c in td]
+            } for c in self._sort(td, sort, language)]
 
     def get_children_display(self, id, **kwargs):
         c = self.get_by_id(id)
@@ -530,7 +538,6 @@ class MemoryProvider(VocabularyProvider):
             return False
         language = self._get_language(**kwargs)
         sort = self._get_sort(**kwargs)
-        ret = []
         if isinstance(c, Concept):
             if len(c.subordinate_arrays) == 0:
                 display_children = c.narrower
@@ -539,14 +546,13 @@ class MemoryProvider(VocabularyProvider):
         else:
             display_children = c.members
         dc = [self.get_by_id(id) for id in display_children]
-        dc = self._sort(dc, sort, language)
         return [
             {
                 'id': c.id,
                 'uri': c.uri,
                 'type': c.type,
                 'label': None if c.label() is None else c.label(language).label
-            } for c in dc]
+            } for c in self._sort(dc, sort, language)]
 
 
 class DictionaryProvider(MemoryProvider):
