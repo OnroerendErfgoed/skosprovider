@@ -309,6 +309,75 @@ class TreesDictionaryProviderTests(unittest.TestCase):
             ]
         )
 
+    def test_get_all_sort_label(self):
+        self.assertEquals(
+            trees.get_all(sort='label'),
+            [
+                {
+                    'id': 3,
+                    'uri': 'http://id.trees.org/3',
+                    'type': 'collection',
+                    'label': 'Bomen per soort'
+                }, {
+                    'id': '1',
+                    'uri': 'http://id.trees.org/1',
+                    'type': 'concept',
+                    'label': 'De Lariks'
+                }, {
+                    'id': '2',
+                    'uri': 'http://id.trees.org/2',
+                    'type': 'concept',
+                    'label': 'De Paardekastanje'
+                }
+            ]
+        )
+
+    def test_get_all_sort_id(self):
+        self.assertEquals(
+            trees.get_all(sort='id', sort_order='asc'),
+            [
+                {
+                    'id': '1',
+                    'uri': 'http://id.trees.org/1',
+                    'type': 'concept',
+                    'label': 'De Lariks'
+                }, {
+                    'id': '2',
+                    'uri': 'http://id.trees.org/2',
+                    'type': 'concept',
+                    'label': 'De Paardekastanje'
+                }, {
+                    'id': 3,
+                    'uri': 'http://id.trees.org/3',
+                    'type': 'collection',
+                    'label': 'Bomen per soort'
+                }
+            ]
+        )
+
+    def test_get_all_sort_id_reverse(self):
+        self.assertEquals(
+            trees.get_all(sort='id', sort_order='desc'),
+            [
+                {
+                    'id': 3,
+                    'uri': 'http://id.trees.org/3',
+                    'type': 'collection',
+                    'label': 'Bomen per soort'
+                }, {
+                    'id': '2',
+                    'uri': 'http://id.trees.org/2',
+                    'type': 'concept',
+                    'label': 'De Paardekastanje'
+                }, {
+                    'id': '1',
+                    'uri': 'http://id.trees.org/1',
+                    'type': 'concept',
+                    'label': 'De Lariks'
+                }
+            ]
+        )
+
     def test_get_top_concepts_default_language(self):
         self.assertEquals(
             trees.get_top_concepts(),

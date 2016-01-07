@@ -20,13 +20,9 @@ import warnings
 
 import logging
 log = logging.getLogger(__name__)
-import sys
-logging.basicConfig(level=logging.DEBUG, stream=sys.stdout)
 
-from operator import (
-    attrgetter,
-    methodcaller
-)
+from operator import methodcaller
+
 import copy
 
 from .skos import (
@@ -108,11 +104,19 @@ class VocabularyProvider:
         )
 
     def _get_sort(self, **kwargs):
-        '''Determine what order to sort in.
+        '''Determine on what attribute to sort.
 
         :rtype: str
         '''
         return kwargs.get('sort', None)
+
+    def _get_sort_order(self, **kwargs):
+        '''Determine the sort order.
+
+        :rtype: str
+        :returns: 'asc' or 'desc'
+        '''
+        return kwargs.get('sort_order', 'asc')
 
     def get_vocabulary_id(self):
         '''Get an identifier for the vocabulary.
@@ -169,6 +173,8 @@ class VocabularyProvider:
             `label` or `custom`. The `custom` option means the providers should
             take into account any `sortLabel` if present, if not it will
             fallback to a regular label to sort on.
+        :param string sort_order: Optional. What order to sort in: `asc` or
+            `desc`. Defaults to `asc`
 
         :returns: A :class:`lst` of concepts and collections. Each of these is a dict
             with the following keys:
@@ -199,6 +205,8 @@ class VocabularyProvider:
             `label` or `custom`. The `custom` option means the providers should
             take into account any `sortLabel` if present, if not it will
             fallback to a regular label to sort on.
+        :param string sort_order: Optional. What order to sort in: `asc` or
+            `desc`. Defaults to `asc`
 
         :returns: A :class:`lst` of concepts, NOT collections. Each of these
             is a dict with the following keys:
@@ -271,6 +279,8 @@ class VocabularyProvider:
             `label` or `custom`. The `custom` option means the providers should
             take into account any `sortLabel` if present, if not it will
             fallback to a regular label to sort on.
+        :param string sort_order: Optional. What order to sort in: `asc` or
+            `desc`. Defaults to `asc`
 
         :returns: A :class:`lst` of concepts and collections. Each of these
             is a dict with the following keys:
@@ -337,6 +347,8 @@ class VocabularyProvider:
             `label` or `custom`. The `custom` option means the providers should
             take into account any `sortLabel` if present, if not it will
             fallback to a regular label to sort on.
+        :param string sort_order: Optional. What order to sort in: `asc` or
+            `desc`. Defaults to `asc`
 
         :returns: A :class:`lst` of concepts and collections. Each of these
             is a dict with the following keys:
@@ -363,6 +375,8 @@ class VocabularyProvider:
             `label` or `custom`. The `custom` option means the providers should
             take into account any `sortLabel` if present, if not it will
             fallback to a regular label to sort on.
+        :param string sort_order: Optional. What order to sort in: `asc` or
+            `desc`. Defaults to `asc`
 
         :param str id: A concept or collection id.
         :returns: A :class:`lst` of concepts and collections. Each of these
@@ -494,7 +508,8 @@ class MemoryProvider(VocabularyProvider):
     def get_all(self, **kwargs):
         language = self._get_language(**kwargs)
         sort = self._get_sort(**kwargs)
-        return [self._get_find_dict(c, **kwargs) for c in self._sort(self.list, sort, language)]
+        sort_order = self._get_sort_order(**kwargs)
+        return [self._get_find_dict(c, **kwargs) for c in self._sort(self.list, sort, language, sort_order == 'desc')]
 
     def get_top_concepts(self, **kwargs):
         language = self._get_language(**kwargs)

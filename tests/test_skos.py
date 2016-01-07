@@ -183,7 +183,7 @@ class ConceptSchemeTest(unittest.TestCase):
         self.assertEqual(label(labels, 'en'), cs.label('en'))
         self.assertEqual(label(labels, None), cs.label(None))
 
-    def testSortLabel(self):
+    def testSortKey(self):
         labels = self._get_labels()
         sl = Label('allereerste', type='sortLabel', language='nl-BE')
         labels.append(sl)
@@ -194,6 +194,7 @@ class ConceptSchemeTest(unittest.TestCase):
         self.assertEqual('allereerste', cs._sortkey('sortlabel'))
         self.assertEqual('allereerste', cs._sortkey('sortlabel', 'nl'))
         self.assertEqual('Communities', cs._sortkey('sortlabel', 'en'))
+        self.assertEqual('urn:x-skosprovider:gemeenten', cs._sortkey('uri'))
 
     def testLanguages(self):
         labels = self._get_labels()
@@ -261,7 +262,7 @@ class ConceptTest(unittest.TestCase):
         self.assertEqual(label(labels, 'en'), c.label('en'))
         self.assertEqual(label(labels, None), c.label(None))
 
-    def testSortLabel(self):
+    def testSortKey(self):
         labels = self._get_labels()
         sl = Label('allereerste', type='sortLabel', language='nl-BE')
         labels.append(sl)
@@ -269,6 +270,7 @@ class ConceptTest(unittest.TestCase):
         self.assertEqual('allereerste', c._sortkey('sortlabel'))
         self.assertEqual('allereerste', c._sortkey('sortlabel', 'nl'))
         self.assertEqual('Knocke-Heyst', c._sortkey('sortlabel', 'en'))
+        self.assertEqual('', c._sortkey('uri'))
 
     def testUri(self):
         c = Concept(1, uri='urn:x-skosprovider:gemeenten:1')
@@ -356,6 +358,8 @@ class CollectionTest(unittest.TestCase):
         self.assertEqual('allereerste', coll._sortkey('sortlabel'))
         self.assertEqual('allereerste', coll._sortkey('sortlabel', 'nl'))
         self.assertEqual('allereerste', coll._sortkey('sortlabel', 'en'))
+        self.assertEqual('Deelgemeenten', coll._sortkey('label', 'nl'))
+        self.assertEqual('', coll._sortkey('uri'))
 
     def testEmptyMembers(self):
         labels = self._get_labels()

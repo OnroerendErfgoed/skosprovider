@@ -213,19 +213,20 @@ class ConceptScheme:
         '''
         return label(self.labels, language)
 
-    def _sortkey(self, key='id', language='any', sortLabel=True):
+    def _sortkey(self, key='uri', language='any'):
         '''
-        Provide a single sortkey for this concept.
+        Provide a single sortkey for this conceptscheme.
 
-        :param string key: Either `id`, `label` or `sortlabel`.
+        :param string key: Either `uri`, `label` or `sortlabel`.
         :param string language: The preferred language to receive the label in
             if key is `label` or `sortlabel`. This should be a valid IANA language tag.
-        :param boolean sortLabel: Should special sortLabels be considered? If
-            False, only regular labels will be considered.
         :rtype: :class:`str`
         '''
-        l = label(self.labels, language, sortLabel)
-        return l.label if l else ''
+        if key == 'uri':
+            return self.uri
+        else:
+            l = label(self.labels, language, key == 'sortlabel')
+            return l.label if l else ''
 
     def __repr__(self):
         return "ConceptScheme('%s')" % self.uri
@@ -337,19 +338,22 @@ class Concept:
         '''
         return label(self.labels, language)
 
-    def _sortkey(self, key='id', language='any', sortLabel=True):
+    def _sortkey(self, key='id', language='any'):
         '''
-        Provide a single sortkey for this concept.
+        Provide a single sortkey for this collection.
 
-        :param string key: Either `id`, `label` or `sortlabel`.
+        :param string key: Either `id`, `uri`, `label` or `sortlabel`.
         :param string language: The preferred language to receive the label in
             if key is `label` or `sortlabel`. This should be a valid IANA language tag.
-        :param boolean sortLabel: Should special sortLabels be considered? If
-            False, only regular labels will be considered.
         :rtype: :class:`str`
         '''
-        l = label(self.labels, language, sortLabel)
-        return l.label if l else ''
+        if key == 'id':
+            return str(self.id)
+        elif key == 'uri':
+            return self.uri if self.uri else ''
+        else:
+            l = label(self.labels, language, key == 'sortlabel')
+            return l.label if l else ''
 
     def __repr__(self):
         return "Concept('%s')" % self.id
@@ -421,19 +425,22 @@ class Collection:
         '''
         return label(self.labels, language, False)
 
-    def _sortkey(self, key='id', language='any', sortLabel=True):
+    def _sortkey(self, key='id', language='any'):
         '''
-        Provide a single sortkey for this concept.
+        Provide a single sortkey for this collection.
 
-        :param string key: Either `id`, `label` or `sortlabel`.
+        :param string key: Either `id`, `uri`, `label` or `sortlabel`.
         :param string language: The preferred language to receive the label in
             if key is `label` or `sortlabel`. This should be a valid IANA language tag.
-        :param boolean sortLabel: Should special sortLabels be considered? If
-            False, only regular labels will be considered.
         :rtype: :class:`str`
         '''
-        l = label(self.labels, language, sortLabel)
-        return l.label if l else ''
+        if key == 'id':
+            return str(self.id)
+        elif key == 'uri':
+            return self.uri if self.uri else ''
+        else:
+            l = label(self.labels, language, key == 'sortlabel')
+            return l.label if l else ''
 
     def __repr__(self):
         return "Collection('%s')" % self.id
