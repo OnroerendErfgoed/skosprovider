@@ -93,7 +93,8 @@ class DictDumperTest(unittest.TestCase):
             'uri': 'http://id.trees.org/3',
             'labels': [
                 {'type': 'prefLabel', 'language': 'en', 'label': 'Trees by species'},
-                {'type': 'prefLabel', 'language': 'nl', 'label': 'Bomen per soort'}
+                {'type': 'prefLabel', 'language': 'nl', 'label': 'Bomen per soort'},
+                {'type': 'sortLabel', 'language': 'nl', 'label': 'aaa'}
             ],
             'type': 'collection',
             'notes': [

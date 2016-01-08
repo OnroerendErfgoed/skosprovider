@@ -226,7 +226,7 @@ class ConceptScheme:
             return self.uri
         else:
             l = label(self.labels, language, key == 'sortlabel')
-            return l.label if l else ''
+            return l.label.lower() if l else ''
 
     def __repr__(self):
         return "ConceptScheme('%s')" % self.uri
@@ -353,7 +353,7 @@ class Concept:
             return self.uri if self.uri else ''
         else:
             l = label(self.labels, language, key == 'sortlabel')
-            return l.label if l else ''
+            return l.label.lower() if l else ''
 
     def __repr__(self):
         return "Concept('%s')" % self.id
@@ -440,7 +440,7 @@ class Collection:
             return self.uri if self.uri else ''
         else:
             l = label(self.labels, language, key == 'sortlabel')
-            return l.label if l else ''
+            return l.label.lower() if l else ''
 
     def __repr__(self):
         return "Collection('%s')" % self.id

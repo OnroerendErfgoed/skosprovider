@@ -193,7 +193,7 @@ class ConceptSchemeTest(unittest.TestCase):
         )
         self.assertEqual('allereerste', cs._sortkey('sortlabel'))
         self.assertEqual('allereerste', cs._sortkey('sortlabel', 'nl'))
-        self.assertEqual('Communities', cs._sortkey('sortlabel', 'en'))
+        self.assertEqual('communities', cs._sortkey('sortlabel', 'en'))
         self.assertEqual('urn:x-skosprovider:gemeenten', cs._sortkey('uri'))
 
     def testLanguages(self):
@@ -269,7 +269,7 @@ class ConceptTest(unittest.TestCase):
         c = Concept(1, labels=labels)
         self.assertEqual('allereerste', c._sortkey('sortlabel'))
         self.assertEqual('allereerste', c._sortkey('sortlabel', 'nl'))
-        self.assertEqual('Knocke-Heyst', c._sortkey('sortlabel', 'en'))
+        self.assertEqual('knocke-heyst', c._sortkey('sortlabel', 'en'))
         self.assertEqual('', c._sortkey('uri'))
 
     def testUri(self):
@@ -358,7 +358,7 @@ class CollectionTest(unittest.TestCase):
         self.assertEqual('allereerste', coll._sortkey('sortlabel'))
         self.assertEqual('allereerste', coll._sortkey('sortlabel', 'nl'))
         self.assertEqual('allereerste', coll._sortkey('sortlabel', 'en'))
-        self.assertEqual('Deelgemeenten', coll._sortkey('label', 'nl'))
+        self.assertEqual('deelgemeenten', coll._sortkey('label', 'nl'))
         self.assertEqual('', coll._sortkey('uri'))
 
     def testEmptyMembers(self):

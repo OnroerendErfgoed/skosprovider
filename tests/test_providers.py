@@ -65,7 +65,8 @@ species = {
     'uri': 'http://id.trees.org/3',
     'labels': [
         {'type': 'prefLabel', 'language': 'en', 'label': 'Trees by species'},
-        {'type': 'prefLabel', 'language': 'nl', 'label': 'Bomen per soort'}
+        {'type': 'prefLabel', 'language': 'nl', 'label': 'Bomen per soort'},
+        {'type': 'sortLabel', 'language': 'nl', 'label': 'aaa'}
     ],
     'type': 'collection',
     'members': ['1', '2'],
@@ -473,6 +474,14 @@ class TreesDictionaryProviderTests(unittest.TestCase):
         c = trees.find({'type': 'all'})
         self.assertEqual(3, len(c))
 
+    def test_find_all_sort(self):
+        c = trees.find({'type': 'all'}, sort='id', sort_order='desc')
+        self.assertEqual([3, '2', '1'], [cc['id'] for cc in c])
+        c = trees.find({'type': 'all'}, sort='sortlabel', sort_order='asc')
+        self.assertEqual([3, '1', '2'], [cc['id'] for cc in c])
+        c = trees.find({'type': 'all'}, sort='sortlabel', sort_order='desc')
+        self.assertEqual(['2', '1', 3], [cc['id'] for cc in c])
+
     def test_find_concepts(self):
         c = trees.find({'type': 'concept'})
         self.assertEqual(2, len(c))
@@ -640,18 +649,18 @@ class TreesDictionaryProviderTests(unittest.TestCase):
 
     def test_get_display_children_collection_sort_custom(self):
         self.assertEqual(
-            trees.get_children_display(3, language='nl', sort='custom'),
+            trees.get_children_display(3, language='nl', sort='sortlabel', sort_order='desc'),
             [
                 {
-                    'id': '1',
-                    'uri': 'http://id.trees.org/1',
-                    'type': 'concept',
-                    'label': 'De Lariks'
-                }, {
                     'id': '2',
                     'uri': 'http://id.trees.org/2',
                     'type': 'concept',
                     'label': 'De Paardekastanje'
+                }, {
+                    'id': '1',
+                    'uri': 'http://id.trees.org/1',
+                    'type': 'concept',
+                    'label': 'De Lariks'
                 }
             ]
         )

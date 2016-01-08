@@ -468,8 +468,11 @@ class MemoryProvider(VocabularyProvider):
                     if not str(c.id) in members:
                         include = False
             if include:
-                ret.append(self._get_find_dict(c, **kwargs))
-        return ret
+                ret.append(c)
+        language = self._get_language(**kwargs)
+        sort = self._get_sort(**kwargs)
+        sort_order = self._get_sort_order(**kwargs)
+        return [self._get_find_dict(c, **kwargs) for c in self._sort(ret, sort, language, sort_order == 'desc')]
 
     def _get_find_dict(self, c, **kwargs):
         '''
@@ -514,8 +517,9 @@ class MemoryProvider(VocabularyProvider):
     def get_top_concepts(self, **kwargs):
         language = self._get_language(**kwargs)
         sort = self._get_sort(**kwargs)
+        sort_order = self._get_sort_order(**kwargs)
         tc = [c for c in self.list if isinstance(c, Concept) and len(c.broader) == 0]
-        return [self._get_find_dict(c, **kwargs) for c in self._sort(tc, sort, language)]
+        return [self._get_find_dict(c, **kwargs) for c in self._sort(tc, sort, language, sort_order == 'desc')]
 
     def expand(self, id):
         id = str(id)
@@ -536,6 +540,7 @@ class MemoryProvider(VocabularyProvider):
     def get_top_display(self, **kwargs):
         language = self._get_language(**kwargs)
         sort = self._get_sort(**kwargs)
+        sort_order = self._get_sort_order(**kwargs)
         td = [c for c in self.list if
               (isinstance(c, Concept) and len(c.broader) == 0 and len(c.member_of) == 0) or
               (isinstance(c, Collection) and len(c.superordinates) == 0 and len(c.member_of) == 0)]
@@ -545,7 +550,7 @@ class MemoryProvider(VocabularyProvider):
                 'uri': c.uri,
                 'type': c.type,
                 'label': None if c.label() is None else c.label(language).label
-            } for c in self._sort(td, sort, language)]
+            } for c in self._sort(td, sort, language, sort_order == 'desc')]
 
     def get_children_display(self, id, **kwargs):
         c = self.get_by_id(id)
@@ -553,6 +558,7 @@ class MemoryProvider(VocabularyProvider):
             return False
         language = self._get_language(**kwargs)
         sort = self._get_sort(**kwargs)
+        sort_order = self._get_sort_order(**kwargs)
         if isinstance(c, Concept):
             if len(c.subordinate_arrays) == 0:
                 display_children = c.narrower
@@ -567,7 +573,7 @@ class MemoryProvider(VocabularyProvider):
                 'uri': c.uri,
                 'type': c.type,
                 'label': None if c.label() is None else c.label(language).label
-            } for c in self._sort(dc, sort, language)]
+            } for c in self._sort(dc, sort, language, sort_order == 'desc')]
 
 
 class DictionaryProvider(MemoryProvider):
