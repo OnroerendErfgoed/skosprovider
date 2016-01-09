@@ -27,7 +27,7 @@ class Label:
 
     type = "prefLabel"
     '''
-    The type of this label ( `prefLabel`, `altLabel`, `hiddenLabel`).
+    The type of this label ( `prefLabel`, `altLabel`, `hiddenLabel`, 'sortLabel').
     '''
 
     language = "und"
@@ -478,6 +478,10 @@ def label(labels=[], language='any', sortLabel=False):
 
     :param string language: The preferred language to receive the label in. This
         should be a valid IANA language tag.
+    :param boolean sortLabel: Should sortLabels be considered or not? If True,
+        sortLabels will be preferred over prefLabels. Bear in mind that these 
+        are still language dependent. So, it's possible to have a different
+        sortLabel per language.
     '''
     # Normalise the tag
     broader_language_tag = None
