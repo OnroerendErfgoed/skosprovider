@@ -9,6 +9,15 @@
   :class:`~skosprovider.skos.Concept`. Every source is an object that currently
   only has one attribute, a citation. This looks like a good universal common
   denominator. (#20)
+- Add sorting to :meth:`skosprovider.providers.VocabularyProvider.get_all`,
+  :meth:`skosprovider.providers.VocabularyProvider.find`,
+  :meth:`skosprovider.providers.VocabularyProvider.get_top_concepts`,
+  :meth:`skosprovider.providers.VocabularyProvider.get_top_display`,
+  :meth:`skosprovider.providers.VocabularyProvider.get_children_display`.
+  Sorting can be done on `id`, `label` or `sortlabel`. The last option makes it
+  possible to introduce arbitrary sorting for concepts, eg. to sort periods
+  chronologically. The sort order can be specified with the `sort_order`
+  parameter. (#21)
 - Fixed a bug with :func:`skosprovider.skos.dict_to_label` and
   :func:`skosprovider.skos.dict_to_note` that would assign `None` instead of
   `und` as the language for labels and notes that have no language.

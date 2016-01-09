@@ -65,7 +65,8 @@ species = {
     'uri': 'http://id.trees.org/3',
     'labels': [
         {'type': 'prefLabel', 'language': 'en', 'label': 'Trees by species'},
-        {'type': 'prefLabel', 'language': 'nl', 'label': 'Bomen per soort'}
+        {'type': 'prefLabel', 'language': 'nl', 'label': 'Bomen per soort'},
+        {'type': 'sortLabel', 'language': 'nl', 'label': 'aaa'}
     ],
     'type': 'collection',
     'members': ['1', '2'],
@@ -309,9 +310,96 @@ class TreesDictionaryProviderTests(unittest.TestCase):
             ]
         )
 
+    def test_get_all_sort_label(self):
+        self.assertEquals(
+            trees.get_all(sort='label'),
+            [
+                {
+                    'id': 3,
+                    'uri': 'http://id.trees.org/3',
+                    'type': 'collection',
+                    'label': 'Bomen per soort'
+                }, {
+                    'id': '1',
+                    'uri': 'http://id.trees.org/1',
+                    'type': 'concept',
+                    'label': 'De Lariks'
+                }, {
+                    'id': '2',
+                    'uri': 'http://id.trees.org/2',
+                    'type': 'concept',
+                    'label': 'De Paardekastanje'
+                }
+            ]
+        )
+
+    def test_get_all_sort_id(self):
+        self.assertEquals(
+            trees.get_all(sort='id', sort_order='asc'),
+            [
+                {
+                    'id': '1',
+                    'uri': 'http://id.trees.org/1',
+                    'type': 'concept',
+                    'label': 'De Lariks'
+                }, {
+                    'id': '2',
+                    'uri': 'http://id.trees.org/2',
+                    'type': 'concept',
+                    'label': 'De Paardekastanje'
+                }, {
+                    'id': 3,
+                    'uri': 'http://id.trees.org/3',
+                    'type': 'collection',
+                    'label': 'Bomen per soort'
+                }
+            ]
+        )
+
+    def test_get_all_sort_id_reverse(self):
+        self.assertEquals(
+            trees.get_all(sort='id', sort_order='desc'),
+            [
+                {
+                    'id': 3,
+                    'uri': 'http://id.trees.org/3',
+                    'type': 'collection',
+                    'label': 'Bomen per soort'
+                }, {
+                    'id': '2',
+                    'uri': 'http://id.trees.org/2',
+                    'type': 'concept',
+                    'label': 'De Paardekastanje'
+                }, {
+                    'id': '1',
+                    'uri': 'http://id.trees.org/1',
+                    'type': 'concept',
+                    'label': 'De Lariks'
+                }
+            ]
+        )
+
     def test_get_top_concepts_default_language(self):
         self.assertEquals(
             trees.get_top_concepts(),
+            [
+                {
+                    'id': '1',
+                    'uri': 'http://id.trees.org/1',
+                    'type': 'concept',
+                    'label': 'De Lariks'
+                }, {
+                    'id': '2',
+                    'uri': 'http://id.trees.org/2',
+                    'type': 'concept',
+                    'label': 'De Paardekastanje'
+                }
+            ]
+        )
+
+    def test_get_top_concepts_sorted_by_id(self):
+        self.assertEquals(
+            trees.get_top_concepts(sort='id'),
             [
                 {
                     'id': '1',
@@ -350,6 +438,29 @@ class TreesDictionaryProviderTests(unittest.TestCase):
             ]
         )
 
+    def test_get_all_english_sorted_by_label(self):
+        self.assertEquals(
+            trees.get_all(language='en', sort='label'),
+            [
+                {
+                    'id': '2',
+                    'uri': 'http://id.trees.org/2',
+                    'type': 'concept',
+                    'label': 'The Chestnut'
+                }, {
+                    'id': '1',
+                    'uri': 'http://id.trees.org/1',
+                    'type': 'concept',
+                    'label': 'The Larch'
+                }, {
+                    'id': 3,
+                    'uri': 'http://id.trees.org/3',
+                    'type': 'collection',
+                    'label': 'Trees by species'
+                }
+            ]
+        )
+
     def test_get_all_french(self):
         la_chataigne = {
             'id': '2',
@@ -362,6 +473,14 @@ class TreesDictionaryProviderTests(unittest.TestCase):
     def test_find_all(self):
         c = trees.find({'type': 'all'})
         self.assertEqual(3, len(c))
+
+    def test_find_all_sort(self):
+        c = trees.find({'type': 'all'}, sort='id', sort_order='desc')
+        self.assertEqual([3, '2', '1'], [cc['id'] for cc in c])
+        c = trees.find({'type': 'all'}, sort='sortlabel', sort_order='asc')
+        self.assertEqual([3, '1', '2'], [cc['id'] for cc in c])
+        c = trees.find({'type': 'all'}, sort='sortlabel', sort_order='desc')
+        self.assertEqual(['2', '1', 3], [cc['id'] for cc in c])
 
     def test_find_concepts(self):
         c = trees.find({'type': 'concept'})
@@ -490,6 +609,19 @@ class TreesDictionaryProviderTests(unittest.TestCase):
             top
         )
 
+    def test_get_display_top_sorted_label(self):
+        top = trees.get_top_display(sort='label', language='nl')
+        self.assertEqual(1, len(top))
+        self.assertIn(
+            {
+                'id': 3,
+                'type': 'collection',
+                'label': 'Bomen per soort',
+                'uri': 'http://id.trees.org/3'
+            },
+            top
+        )
+
     def test_get_display_children_unexisting_concept(self):
         self.assertFalse(trees.get_children_display(404))
 
@@ -511,6 +643,24 @@ class TreesDictionaryProviderTests(unittest.TestCase):
                     'uri': 'http://id.trees.org/2',
                     'type': 'concept',
                     'label': 'De Paardekastanje'
+                }
+            ]
+        )
+
+    def test_get_display_children_collection_sort_custom(self):
+        self.assertEqual(
+            trees.get_children_display(3, language='nl', sort='sortlabel', sort_order='desc'),
+            [
+                {
+                    'id': '2',
+                    'uri': 'http://id.trees.org/2',
+                    'type': 'concept',
+                    'label': 'De Paardekastanje'
+                }, {
+                    'id': '1',
+                    'uri': 'http://id.trees.org/1',
+                    'type': 'concept',
+                    'label': 'De Lariks'
                 }
             ]
         )

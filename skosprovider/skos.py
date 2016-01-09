@@ -27,7 +27,7 @@ class Label:
 
     type = "prefLabel"
     '''
-    The type of this label ( `prefLabel`, `altLabel`, `hiddenLabel`).
+    The type of this label ( `prefLabel`, `altLabel`, `hiddenLabel`, 'sortLabel').
     '''
 
     language = "und"
@@ -35,7 +35,12 @@ class Label:
     The language the label is in (eg. `en`, `en-US`, `nl`, `nl-BE`).
     '''
 
-    valid_types=['prefLabel', 'altLabel', 'hiddenLabel']
+    valid_types=[
+        'prefLabel',
+        'altLabel',
+        'hiddenLabel',
+        'sortLabel'
+    ]
     '''
     The valid types for a label
     '''
@@ -63,6 +68,9 @@ class Label:
         :param string type: The type to be checked.
         '''
         return type in Label.valid_types
+
+    def __repr__(self):
+        return "Label('%s', '%s', '%s')" % (self.label, self.type, self.language)
 
 
 class Note:
@@ -123,6 +131,7 @@ class Note:
 
     def __ne__(self, other):
         return not self == other
+
 
     @staticmethod
     def is_valid_type(type):
@@ -203,6 +212,24 @@ class ConceptScheme:
         :rtype: :class:`skosprovider.skos.Label` or False if no labels were found.
         '''
         return label(self.labels, language)
+
+    def _sortkey(self, key='uri', language='any'):
+        '''
+        Provide a single sortkey for this conceptscheme.
+
+        :param string key: Either `uri`, `label` or `sortlabel`.
+        :param string language: The preferred language to receive the label in
+            if key is `label` or `sortlabel`. This should be a valid IANA language tag.
+        :rtype: :class:`str`
+        '''
+        if key == 'uri':
+            return self.uri
+        else:
+            l = label(self.labels, language, key == 'sortlabel')
+            return l.label.lower() if l else ''
+
+    def __repr__(self):
+        return "ConceptScheme('%s')" % self.uri
 
 
 class Concept:
@@ -311,6 +338,26 @@ class Concept:
         '''
         return label(self.labels, language)
 
+    def _sortkey(self, key='id', language='any'):
+        '''
+        Provide a single sortkey for this collection.
+
+        :param string key: Either `id`, `uri`, `label` or `sortlabel`.
+        :param string language: The preferred language to receive the label in
+            if key is `label` or `sortlabel`. This should be a valid IANA language tag.
+        :rtype: :class:`str`
+        '''
+        if key == 'id':
+            return str(self.id)
+        elif key == 'uri':
+            return self.uri if self.uri else ''
+        else:
+            l = label(self.labels, language, key == 'sortlabel')
+            return l.label.lower() if l else ''
+
+    def __repr__(self):
+        return "Concept('%s')" % self.id
+
 
 class Collection:
     '''
@@ -376,10 +423,30 @@ class Collection:
             This should be a valid IANA language tag.
         :rtype: :class:`skosprovider.skos.Label` or False if no labels were found.
         '''
-        return label(self.labels, language)
+        return label(self.labels, language, False)
+
+    def _sortkey(self, key='id', language='any'):
+        '''
+        Provide a single sortkey for this collection.
+
+        :param string key: Either `id`, `uri`, `label` or `sortlabel`.
+        :param string language: The preferred language to receive the label in
+            if key is `label` or `sortlabel`. This should be a valid IANA language tag.
+        :rtype: :class:`str`
+        '''
+        if key == 'id':
+            return str(self.id)
+        elif key == 'uri':
+            return self.uri if self.uri else ''
+        else:
+            l = label(self.labels, language, key == 'sortlabel')
+            return l.label.lower() if l else ''
+
+    def __repr__(self):
+        return "Collection('%s')" % self.id
 
 
-def label(labels=[], language='any'):
+def label(labels=[], language='any', sortLabel=False):
     '''
     Provide a label for a list of labels.
 
@@ -411,6 +478,10 @@ def label(labels=[], language='any'):
 
     :param string language: The preferred language to receive the label in. This
         should be a valid IANA language tag.
+    :param boolean sortLabel: Should sortLabels be considered or not? If True,
+        sortLabels will be preferred over prefLabels. Bear in mind that these 
+        are still language dependent. So, it's possible to have a different
+        sortLabel per language.
     '''
     # Normalise the tag
     broader_language_tag = None
@@ -419,6 +490,7 @@ def label(labels=[], language='any'):
         broader_language_tag = tags.tag(language).language
     pref = None
     alt = None
+    sort = None
     for l in labels:
         l = dict_to_label(l)
         if language == 'any' or l.language == language:
@@ -426,16 +498,22 @@ def label(labels=[], language='any'):
                 pref = l
             if l.type == 'altLabel' and (alt is None or alt.language != language):
                 alt = l
+            if l.type == 'sortLabel' and (sort is None or sort.language != language):
+                sort = l
         if broader_language_tag and tags.tag(l.language).language and tags.tag(l.language).language.format == broader_language_tag.format:
             if l.type == 'prefLabel' and pref is None:
                 pref = l
             if l.type == 'altLabel' and alt is None:
                 alt = l
+            if l.type == 'sortLabel' and sort is None:
+                sort = l
+    if sortLabel and sort is not None:
+        return sort
     if pref is not None:
         return pref
     elif alt is not None:
         return alt
-    return label(labels, 'any') if language != 'any' else None
+    return label(labels, 'any', sortLabel) if language != 'any' else None
 
 
 def dict_to_label(dict):

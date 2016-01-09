@@ -84,7 +84,8 @@ print(provider.get_by_uri('http://id.trees.org/types/1'))
 
 # Get all concepts and collections in a provider
 # If possible, show a Dutch(as spoken in Belgium) label
-print(provider.get_all(language='nl-BE'))
+# Order them ascending by label
+print(provider.get_all(language='nl-BE', sort='label', sort_order='asc'))
 
 # Get the top concepts in a provider
 print(provider.get_top_concepts())
@@ -97,7 +98,8 @@ print(provider.get_top_display())
 
 # Get the children to display in a hierarchy concept 1
 # If possible, show a French(as spoken in Belgium) label
-print(provider.get_children_display(3, language='fr-BE'))
+# Order them descending by id
+print(provider.get_children_display(3, language='fr-BE', sort='id', sort_order='desc'))
 
 # Get all concepts underneath a concept or collection
 print(provider.expand(3))
