@@ -170,7 +170,7 @@ class VocabularyProvider:
             underlying providers and used when selecting the label to display
             for each concept.
         :param string sort: Optional. If present, it should either be `id`,
-            `label` or `custom`. The `custom` option means the providers should
+            `label` or `sortlabel`. The `sortlabel` option means the providers should
             take into account any `sortLabel` if present, if not it will
             fallback to a regular label to sort on.
         :param string sort_order: Optional. What order to sort in: `asc` or
@@ -202,7 +202,7 @@ class VocabularyProvider:
             underlying providers and used when selecting the label to display
             for each concept.
         :param string sort: Optional. If present, it should either be `id`,
-            `label` or `custom`. The `custom` option means the providers should
+            `label` or `sortlabel`. The `sortlabel` option means the providers should
             take into account any `sortLabel` if present, if not it will
             fallback to a regular label to sort on.
         :param string sort_order: Optional. What order to sort in: `asc` or
@@ -276,7 +276,7 @@ class VocabularyProvider:
             underlying providers and used when selecting the label to display
             for each concept.
         :param string sort: Optional. If present, it should either be `id`,
-            `label` or `custom`. The `custom` option means the providers should
+            `label` or `sortlabel`. The `sortlabel` option means the providers should
             take into account any `sortLabel` if present, if not it will
             fallback to a regular label to sort on.
         :param string sort_order: Optional. What order to sort in: `asc` or
@@ -344,7 +344,7 @@ class VocabularyProvider:
             underlying providers and used when selecting the label to display
             for each concept.
         :param string sort: Optional. If present, it should either be `id`,
-            `label` or `custom`. The `custom` option means the providers should
+            `label` or `sortlabel`. The `sortlabel` option means the providers should
             take into account any `sortLabel` if present, if not it will
             fallback to a regular label to sort on.
         :param string sort_order: Optional. What order to sort in: `asc` or
@@ -372,7 +372,7 @@ class VocabularyProvider:
             underlying providers and used when selecting the label to display
             for each concept.
         :param string sort: Optional. If present, it should either be `id`,
-            `label` or `custom`. The `custom` option means the providers should
+            `label` or `sortlabel`. The `sortlabel` option means the providers should
             take into account any `sortLabel` if present, if not it will
             fallback to a regular label to sort on.
         :param string sort_order: Optional. What order to sort in: `asc` or
