@@ -18,6 +18,13 @@ import abc
 
 import warnings
 
+import logging
+log = logging.getLogger(__name__)
+
+from operator import methodcaller
+
+import copy
+
 from .skos import (
     Concept,
     Collection,
@@ -96,6 +103,21 @@ class VocabularyProvider:
             self.metadata.get('default_language', 'en')
         )
 
+    def _get_sort(self, **kwargs):
+        '''Determine on what attribute to sort.
+
+        :rtype: str
+        '''
+        return kwargs.get('sort', None)
+
+    def _get_sort_order(self, **kwargs):
+        '''Determine the sort order.
+
+        :rtype: str
+        :returns: 'asc' or 'desc'
+        '''
+        return kwargs.get('sort_order', 'asc')
+
     def get_vocabulary_id(self):
         '''Get an identifier for the vocabulary.
 
@@ -147,6 +169,12 @@ class VocabularyProvider:
             :term:`language-tag`. This language-tag is passed on to the
             underlying providers and used when selecting the label to display
             for each concept.
+        :param string sort: Optional. If present, it should either be `id`,
+            `label` or `sortlabel`. The `sortlabel` option means the providers should
+            take into account any `sortLabel` if present, if not it will
+            fallback to a regular label to sort on.
+        :param string sort_order: Optional. What order to sort in: `asc` or
+            `desc`. Defaults to `asc`
 
         :returns: A :class:`lst` of concepts and collections. Each of these is a dict
             with the following keys:
@@ -173,6 +201,12 @@ class VocabularyProvider:
             :term:`language-tag`. This language-tag is passed on to the
             underlying providers and used when selecting the label to display
             for each concept.
+        :param string sort: Optional. If present, it should either be `id`,
+            `label` or `sortlabel`. The `sortlabel` option means the providers should
+            take into account any `sortLabel` if present, if not it will
+            fallback to a regular label to sort on.
+        :param string sort_order: Optional. What order to sort in: `asc` or
+            `desc`. Defaults to `asc`
 
         :returns: A :class:`lst` of concepts, NOT collections. Each of these
             is a dict with the following keys:
@@ -241,6 +275,12 @@ class VocabularyProvider:
             :term:`language-tag`. This language-tag is passed on to the
             underlying providers and used when selecting the label to display
             for each concept.
+        :param string sort: Optional. If present, it should either be `id`,
+            `label` or `sortlabel`. The `sortlabel` option means the providers should
+            take into account any `sortLabel` if present, if not it will
+            fallback to a regular label to sort on.
+        :param string sort_order: Optional. What order to sort in: `asc` or
+            `desc`. Defaults to `asc`
 
         :returns: A :class:`lst` of concepts and collections. Each of these
             is a dict with the following keys:
@@ -287,6 +327,12 @@ class VocabularyProvider:
             :term:`language-tag`. This language-tag is passed on to the
             underlying providers and used when selecting the label to display
             for each concept.
+        :param string sort: Optional. If present, it should either be `id`,
+            `label` or `sortlabel`. The `sortlabel` option means the providers should
+            take into account any `sortLabel` if present, if not it will
+            fallback to a regular label to sort on.
+        :param string sort_order: Optional. What order to sort in: `asc` or
+            `desc`. Defaults to `asc`
 
         :returns: A :class:`lst` of concepts and collections. Each of these
             is a dict with the following keys:
@@ -309,6 +355,12 @@ class VocabularyProvider:
             :term:`language-tag`. This language-tag is passed on to the
             underlying providers and used when selecting the label to display
             for each concept.
+        :param string sort: Optional. If present, it should either be `id`,
+            `label` or `sortlabel`. The `sortlabel` option means the providers should
+            take into account any `sortLabel` if present, if not it will
+            fallback to a regular label to sort on.
+        :param string sort_order: Optional. What order to sort in: `asc` or
+            `desc`. Defaults to `asc`
 
         :param str id: A concept or collection id.
         :returns: A :class:`lst` of concepts and collections. Each of these
@@ -400,8 +452,11 @@ class MemoryProvider(VocabularyProvider):
                     if not str(c.id) in members:
                         include = False
             if include:
-                ret.append(self._get_find_dict(c, **kwargs))
-        return ret
+                ret.append(c)
+        language = self._get_language(**kwargs)
+        sort = self._get_sort(**kwargs)
+        sort_order = self._get_sort_order(**kwargs)
+        return [self._get_find_dict(c, **kwargs) for c in self._sort(ret, sort, language, sort_order == 'desc')]
 
     def _get_find_dict(self, c, **kwargs):
         '''
@@ -420,30 +475,35 @@ class MemoryProvider(VocabularyProvider):
             'label': None if c.label() is None else c.label(language).label
         }
 
+    def _sort(self, concepts, sort=None, language='any', reverse=False):
+        '''
+        Returns a sorted version of a list of concepts. Will leave the original 
+        list unsorted.
+
+        :param list concepts: A list of concepts and collections.
+        :param string sort: What to sort on: `id`, `label` or `sortlabel`
+        :param string language: Language to use when sorting on `label` or 
+            `sortlabel`.
+        :param boolean reverse: Reverse the sort order?
+        :rtype: list
+        '''
+        sorted = copy.copy(concepts)
+        if sort:
+            sorted.sort(key=methodcaller('_sortkey', sort, language), reverse=reverse)
+        return sorted
+
     def get_all(self, **kwargs):
         language = self._get_language(**kwargs)
-        ret = []
-        for c in self.list:
-            ret.append({
-                'id': c.id,
-                'uri': c.uri,
-                'type': c.type,
-                'label': None if c.label() is None else c.label(language).label
-            })
-        return ret
+        sort = self._get_sort(**kwargs)
+        sort_order = self._get_sort_order(**kwargs)
+        return [self._get_find_dict(c, **kwargs) for c in self._sort(self.list, sort, language, sort_order == 'desc')]
 
     def get_top_concepts(self, **kwargs):
         language = self._get_language(**kwargs)
-        ret = []
-        for c in self.list:
-            if isinstance(c, Concept) and len(c.broader) == 0:
-                ret.append({
-                    'id': c.id,
-                    'uri': c.uri,
-                    'type': c.type,
-                    'label': None if c.label() is None else c.label(language).label
-                })
-        return ret
+        sort = self._get_sort(**kwargs)
+        sort_order = self._get_sort_order(**kwargs)
+        tc = [c for c in self.list if isinstance(c, Concept) and len(c.broader) == 0]
+        return [self._get_find_dict(c, **kwargs) for c in self._sort(tc, sort, language, sort_order == 'desc')]
 
     def expand(self, id):
         id = str(id)
@@ -463,31 +523,26 @@ class MemoryProvider(VocabularyProvider):
 
     def get_top_display(self, **kwargs):
         language = self._get_language(**kwargs)
-        ret = []
-        for c in self.list:
-            if isinstance(c, Concept) and len(c.broader) == 0 and len(c.member_of) == 0:
-                ret.append({
-                    'id': c.id,
-                    'uri': c.uri,
-                    'type': c.type,
-                    'label': None if c.label() is None else c.label(language).label
-                })
-            if isinstance(c, Collection) and len(c.superordinates) == 0 and len(c.member_of) == 0:
-                ret.append({
-                    'id': c.id,
-                    'uri': c.uri,
-                    'type': c.type,
-                    'label': None if c.label() is None else c.label(language).label
-                })
-
-        return ret
+        sort = self._get_sort(**kwargs)
+        sort_order = self._get_sort_order(**kwargs)
+        td = [c for c in self.list if
+              (isinstance(c, Concept) and len(c.broader) == 0 and len(c.member_of) == 0) or
+              (isinstance(c, Collection) and len(c.superordinates) == 0 and len(c.member_of) == 0)]
+        return [
+            {
+                'id': c.id,
+                'uri': c.uri,
+                'type': c.type,
+                'label': None if c.label() is None else c.label(language).label
+            } for c in self._sort(td, sort, language, sort_order == 'desc')]
 
     def get_children_display(self, id, **kwargs):
         c = self.get_by_id(id)
         if not c:
             return False
         language = self._get_language(**kwargs)
-        ret = []
+        sort = self._get_sort(**kwargs)
+        sort_order = self._get_sort_order(**kwargs)
         if isinstance(c, Concept):
             if len(c.subordinate_arrays) == 0:
                 display_children = c.narrower
@@ -495,15 +550,14 @@ class MemoryProvider(VocabularyProvider):
                 display_children = c.subordinate_arrays
         else:
             display_children = c.members
-        for id in display_children:
-            dc = self.get_by_id(id)
-            ret.append({
-                'id': dc.id,
-                'uri': dc.uri,
-                'type': dc.type,
-                'label': None if dc.label() is None else dc.label(language).label
-            })
-        return ret
+        dc = [self.get_by_id(id) for id in display_children]
+        return [
+            {
+                'id': c.id,
+                'uri': c.uri,
+                'type': c.type,
+                'label': None if c.label() is None else c.label(language).label
+            } for c in self._sort(dc, sort, language, sort_order == 'desc')]
 
 
 class DictionaryProvider(MemoryProvider):
