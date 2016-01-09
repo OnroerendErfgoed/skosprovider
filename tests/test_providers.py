@@ -253,13 +253,6 @@ class TreesDictionaryProviderTests(unittest.TestCase):
     def test_get_unexisting_by_uri(self):
         self.assertFalse(trees.get_by_uri('urn:x-skosprovider:987654321'))
 
-    def test_expand_concept_deprecated(self):
-        with warnings.catch_warnings(record=True) as w:
-            warnings.simplefilter('always')
-            trees.expand_concept(1)
-            self.assertEqual(1, len(w))
-            self.assertEqual(w[-1].category, DeprecationWarning)
-
     def test_expand_concept(self):
         self.assertEquals(['1'], trees.expand(1))
 

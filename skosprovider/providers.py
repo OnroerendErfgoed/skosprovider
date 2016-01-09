@@ -254,22 +254,6 @@ class VocabularyProvider:
 
         '''
 
-    def expand_concept(self, id):
-        '''Expand a concept to the concept itself and all it's narrower
-        concepts.
-
-        .. deprecated:: 0.2.0
-            This method has been deprecated, please use :meth:`expand`.
-
-        :param id: A concept id.
-        :rtype: A list of id's or `False` if the concept doesn't exist.
-        '''
-        warnings.warn(
-            'expand_concept has been deprecated, please use expand',
-            DeprecationWarning
-        )
-        return self.expand(id)
-
     @abc.abstractmethod
     def expand(self, id):
         '''Expand a concept or collection to all it's narrower

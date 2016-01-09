@@ -9,6 +9,8 @@
   :class:`~skosprovider.skos.Concept`. Every source is an object that currently
   only has one attribute, a citation. This looks like a good universal common
   denominator. (#20)
+- Remove :func:`skosprovider.providers.VocabularyProvider.expand_concept` that
+  was deprecated since `0.2.0`.
 - Fixed a bug with :func:`skosprovider.skos.dict_to_label` and
   :func:`skosprovider.skos.dict_to_note` that would assign `None` instead of
   `und` as the language for labels and notes that have no language.
