@@ -118,6 +118,23 @@ class VocabularyProvider:
         '''
         return kwargs.get('sort_order', 'asc')
 
+    def _sort(self, concepts, sort=None, language='any', reverse=False):
+        '''
+        Returns a sorted version of a list of concepts. Will leave the original 
+        list unsorted.
+
+        :param list concepts: A list of concepts and collections.
+        :param string sort: What to sort on: `id`, `label` or `sortlabel`
+        :param string language: Language to use when sorting on `label` or 
+            `sortlabel`.
+        :param boolean reverse: Reverse the sort order?
+        :rtype: list
+        '''
+        sorted = copy.copy(concepts)
+        if sort:
+            sorted.sort(key=methodcaller('_sortkey', sort, language), reverse=reverse)
+        return sorted
+
     def get_vocabulary_id(self):
         '''Get an identifier for the vocabulary.
 
@@ -474,23 +491,6 @@ class MemoryProvider(VocabularyProvider):
             'type': c.type,
             'label': None if c.label() is None else c.label(language).label
         }
-
-    def _sort(self, concepts, sort=None, language='any', reverse=False):
-        '''
-        Returns a sorted version of a list of concepts. Will leave the original 
-        list unsorted.
-
-        :param list concepts: A list of concepts and collections.
-        :param string sort: What to sort on: `id`, `label` or `sortlabel`
-        :param string language: Language to use when sorting on `label` or 
-            `sortlabel`.
-        :param boolean reverse: Reverse the sort order?
-        :rtype: list
-        '''
-        sorted = copy.copy(concepts)
-        if sort:
-            sorted.sort(key=methodcaller('_sortkey', sort, language), reverse=reverse)
-        return sorted
 
     def get_all(self, **kwargs):
         language = self._get_language(**kwargs)
