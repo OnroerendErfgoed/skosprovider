@@ -37,6 +37,9 @@ class DictDumperTest(unittest.TestCase):
                  'note': 'A type of tree.',
                  'markup': None}
             ],
+            'sources': [
+                {'citation': u'Monthy Python. Episode Three: How to recognise different types of trees from quite a long way away.'}
+            ],
             'narrower': [],
             'broader': [],
             'related': [],
@@ -73,6 +76,7 @@ class DictDumperTest(unittest.TestCase):
                     'note': 'A different type of tree.', 'markup': None
                 }
             ],
+            'sources': [],
             'narrower': [],
             'broader': [],
             'related': [],
@@ -105,6 +109,7 @@ class DictDumperTest(unittest.TestCase):
                     'markup': 'HTML'
                 }
             ],
+            'sources': [],
             'members': ['1', '2'],
             'member_of': [],
             'superordinates': []
@@ -116,8 +121,8 @@ class DictDumperTest(unittest.TestCase):
             'labels': [
                 {'type': 'prefLabel', 'language': 'en', 'label': 'World'}
             ],
-            'notes': [
-            ],
+            'notes': [],
+            'sources': [],
             'narrower': [2, 3],
             'broader': [],
             'related': [],
