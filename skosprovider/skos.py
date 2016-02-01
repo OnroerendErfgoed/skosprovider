@@ -56,10 +56,6 @@ class Label:
     def __ne__(self, other):
         return not self == other
 
-    def __getitem__(self, item):
-        if item in self.__dict__.keys():
-            return self.__dict__[item]
-
     @staticmethod
     def is_valid_type(type):
         '''
