@@ -1,4 +1,4 @@
-#-*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 
 '''
 This module contains a read-only model of the :term:`SKOS` specification.
@@ -27,7 +27,7 @@ class Label:
 
     type = "prefLabel"
     '''
-    The type of this label ( `prefLabel`, `altLabel`, `hiddenLabel`, 'sortLabel').
+    The type of this label (`prefLabel`, `altLabel`, `hiddenLabel`, 'sortLabel').
     '''
 
     language = "und"
@@ -35,7 +35,7 @@ class Label:
     The language the label is in (eg. `en`, `en-US`, `nl`, `nl-BE`).
     '''
 
-    valid_types=[
+    valid_types = [
         'prefLabel',
         'altLabel',
         'hiddenLabel',
@@ -95,7 +95,7 @@ class Note:
     Currently only HTML is allowed.
     '''
 
-    valid_types=[
+    valid_types = [
             'note',
             'changeNote',
             'definition',
@@ -108,7 +108,7 @@ class Note:
     The valid types for a note.
     '''
 
-    valid_markup=[
+    valid_markup = [
         None,
         'HTML'
     ]
@@ -127,7 +127,6 @@ class Note:
 
     def __ne__(self, other):
         return not self == other
-
 
     @staticmethod
     def is_valid_type(type):
@@ -154,7 +153,7 @@ class Source:
 
     '''
 
-    citation=None
+    citation = None
     '''A bibliographic citation for this source.'''
 
     def __init__(self, citation):
@@ -475,7 +474,7 @@ def label(labels=[], language='any', sortLabel=False):
     :param string language: The preferred language to receive the label in. This
         should be a valid IANA language tag.
     :param boolean sortLabel: Should sortLabels be considered or not? If True,
-        sortLabels will be preferred over prefLabels. Bear in mind that these 
+        sortLabels will be preferred over prefLabels. Bear in mind that these
         are still language dependent. So, it's possible to have a different
         sortLabel per language.
     '''
@@ -561,8 +560,8 @@ def dict_to_source(dict):
     '''
     Transform a dict with key 'citation' into a :class:`Source`.
 
-    If the argument passed is already a :class:`Source`, this method just returns
-    the argument.
+    If the argument passed is already a :class:`Source`, this method just
+    returns the argument.
     '''
 
     if isinstance(dict, Source):

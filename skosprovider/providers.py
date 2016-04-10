@@ -15,15 +15,9 @@ collections from a single conceptscheme.
 from __future__ import unicode_literals
 
 import abc
-
-import warnings
-
-import logging
-log = logging.getLogger(__name__)
-
-from operator import methodcaller
-
 import copy
+import logging
+from operator import methodcaller
 
 from .skos import (
     Concept,
@@ -35,6 +29,8 @@ from .uri import (
     DefaultUrnGenerator,
     DefaultConceptSchemeUrnGenerator
 )
+
+log = logging.getLogger(__name__)
 
 
 class VocabularyProvider:
@@ -73,7 +69,7 @@ class VocabularyProvider:
                     information can then be used when querying a \
                     :class:`~skosprovider.registry.Registry` for providers.
         '''
-        if not 'subject' in metadata:
+        if 'subject' not in metadata:
             metadata['subject'] = []
         self.metadata = metadata
         if 'uri_generator' in kwargs:
@@ -120,12 +116,12 @@ class VocabularyProvider:
 
     def _sort(self, concepts, sort=None, language='any', reverse=False):
         '''
-        Returns a sorted version of a list of concepts. Will leave the original 
+        Returns a sorted version of a list of concepts. Will leave the original
         list unsorted.
 
         :param list concepts: A list of concepts and collections.
         :param string sort: What to sort on: `id`, `label` or `sortlabel`
-        :param string language: Language to use when sorting on `label` or 
+        :param string language: Language to use when sorting on `label` or
             `sortlabel`.
         :param boolean reverse: Reverse the sort order?
         :rtype: list
@@ -550,14 +546,14 @@ class MemoryProvider(VocabularyProvider):
                 display_children = c.subordinate_arrays
         else:
             display_children = c.members
-        dc = [self.get_by_id(id) for id in display_children]
+        dc = [self.get_by_id(dcid) for dcid in display_children]
         return [
             {
-                'id': c.id,
-                'uri': c.uri,
-                'type': c.type,
-                'label': None if c.label() is None else c.label(language).label
-            } for c in self._sort(dc, sort, language, sort_order == 'desc')]
+                'id': co.id,
+                'uri': co.uri,
+                'type': co.type,
+                'label': None if co.label() is None else co.label(language).label
+            } for co in self._sort(dc, sort, language, sort_order == 'desc')]
 
 
 class DictionaryProvider(MemoryProvider):

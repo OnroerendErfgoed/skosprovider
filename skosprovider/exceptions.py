@@ -8,14 +8,15 @@
 
 class ProviderUnavailableException(Exception):
     '''
-    This exception can be raised by a provider if it's unable to provide the thesaurus. This can occur
-     when an underlying resource is unavailable (database connection, webservice, ...). The message
-     should contain some more information about the problem.
+    This exception can be raised by a provider if it's unable to provide
+    the thesaurus. This can occur when an underlying resource is unavailable
+    (database connection, webservice, ...). The message should contain some
+    more information about the problem.
     '''
 
     def __init__(self, message):
         '''
-        :param message: message containing some more information about the exception
+        :param message: More information about the exception.
         '''
         self.message = message
 

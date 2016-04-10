@@ -88,7 +88,7 @@ class Registry:
         If keys `subject` is present, get only the providers that have this subject.
 
         .. code-block:: python
-           
+
            # Get all providers with subject 'biology'
            registry.get_providers(subject='biology')
 
@@ -102,10 +102,11 @@ class Registry:
         :param str subject: Only return providers with this subject.
         :returns: A list of :class:`providers <skosprovider.providers.VocabularyProvider>`
         '''
-        if 'ids' in kwargs:        
+        if 'ids' in kwargs:
             ids = [self.concept_scheme_uri_map.get(id, id) for id in kwargs['ids']]
-            providers = [self.providers[k] for k in self.providers.keys()
-                        if k in ids]
+            providers = [
+                self.providers[k] for k in self.providers.keys() if k in ids
+            ]
         else:
             providers = list(self.providers.values())
         if 'subject' in kwargs:
@@ -127,7 +128,7 @@ class Registry:
             # Find anything that has a label of church with the BUILDINGS provider.
             registry.find({'label': 'church'}, providers={'ids': ['BUILDINGS']})
 
-            # Find anything that has a label of church with a provider 
+            # Find anything that has a label of church with a provider
             # marked with the subject 'architecture'.
             registry.find({'label': 'church'}, providers={'subject': 'architecture'})
 
@@ -141,16 +142,16 @@ class Registry:
             :class:`providers <skosprovider.providers.VocabularyProvider>`.
         :param dict providers: Optional. If present, it should be a dictionary.
             This dictionary can contain any of the keyword arguments available
-            to the :meth:`get_providers` method. The query will then only 
+            to the :meth:`get_providers` method. The query will then only
             be passed to the providers confirming to these arguments.
-        :param string language: Optional. If present, it should be a 
-            :term:`language-tag`. This language-tag is passed on to the 
-            underlying providers and used when selecting the label to display 
+        :param string language: Optional. If present, it should be a
+            :term:`language-tag`. This language-tag is passed on to the
+            underlying providers and used when selecting the label to display
             for each concept.
         :returns: a list of :class:`dict`.
             Each dict has two keys: id and concepts.
         '''
-        if not 'providers' in kwargs:
+        if 'providers' not in kwargs:
             providers = self.get_providers()
         else:
             pargs = kwargs['providers']
@@ -176,9 +177,9 @@ class Registry:
             # If possible, display the results with a Dutch label.
             registry.get_all(language='nl')
 
-        :param string language: Optional. If present, it should be a 
-            :term:`language-tag`. This language-tag is passed on to the 
-            underlying providers and used when selecting the label to display 
+        :param string language: Optional. If present, it should be a
+            :term:`language-tag`. This language-tag is passed on to the
+            underlying providers and used when selecting the label to display
             for each concept.
 
         :returns: a list of :class:`dict`.
