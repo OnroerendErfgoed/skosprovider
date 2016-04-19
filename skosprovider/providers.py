@@ -435,41 +435,47 @@ class MemoryProvider(VocabularyProvider):
         return False
 
     def find(self, query, **kwargs):
-        ret = []
-        for c in self.list:
-            include = True
-            if include and 'type' in query and query['type'] != 'all':
-                if query['type'] == 'concept' and not isinstance(c, Concept):
-                    include = False
-                elif query['type'] == 'collection' and not isinstance(c, Collection):
-                    include = False
-            if include and 'label' in query:
-                if not self.case_insensitive:
-                    finder = lambda l, query: l.label.find(query['label'])
-                else:
-                    finder = lambda l, query: l.label.upper().find(query['label'].upper())
-                if not any([finder(l, query) >= 0 for l in c.labels]):
-                    include = False
-            if include and 'collection' in query:
-                coll = self.get_by_id(query['collection']['id'])
-                if not coll or not isinstance(coll, Collection):
-                    raise ValueError(
-                        'You are searching for items in an unexisting collection.'
-                    )
-                else:
-                    if 'depth' in query['collection'] and query['collection']['depth'] == 'all':
-                        members = self.expand(coll.id)
-                    else:
-                        members = coll.members
-                    members = [str(id) for id in members]
-                    if not str(c.id) in members:
-                        include = False
-            if include:
-                ret.append(c)
+        filtered = [c for c in self.list if self._include_in_find(c, query)]
         language = self._get_language(**kwargs)
         sort = self._get_sort(**kwargs)
         sort_order = self._get_sort_order(**kwargs)
-        return [self._get_find_dict(c, **kwargs) for c in self._sort(ret, sort, language, sort_order == 'desc')]
+        return [self._get_find_dict(c, **kwargs) for c in self._sort(filtered, sort, language, sort_order == 'desc')]
+
+    def _include_in_find(self, c, query):
+        '''
+        :param c: A :class:`skosprovider.skos.Concept` or
+            :class:`skosprovider.skos.Collection`.
+        :param query: A dict that can be used to express a query.
+        :rtype: boolean
+        '''
+        include = True
+        if include and 'type' in query and query['type'] != 'all':
+            if query['type'] == 'concept' and not isinstance(c, Concept):
+                include = False
+            elif query['type'] == 'collection' and not isinstance(c, Collection):
+                include = False
+        if include and 'label' in query:
+            if not self.case_insensitive:
+                finder = lambda l, query: l.label.find(query['label'])
+            else:
+                finder = lambda l, query: l.label.upper().find(query['label'].upper())
+            if not any([finder(l, query) >= 0 for l in c.labels]):
+                include = False
+        if include and 'collection' in query:
+            coll = self.get_by_id(query['collection']['id'])
+            if not coll or not isinstance(coll, Collection):
+                raise ValueError(
+                    'You are searching for items in an unexisting collection.'
+                )
+            else:
+                if 'depth' in query['collection'] and query['collection']['depth'] == 'all':
+                    members = self.expand(coll.id)
+                else:
+                    members = coll.members
+                members = [str(id) for id in members]
+                if not str(c.id) in members:
+                    include = False
+        return include
 
     def _get_find_dict(self, c, **kwargs):
         '''
