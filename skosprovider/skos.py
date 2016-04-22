@@ -525,12 +525,11 @@ def dict_to_label(dict):
     '''
     if isinstance(dict, Label):
         return dict
-    else:
-        return Label(
-            dict['label'],
-            dict['type'] if 'type' in dict else 'prefLabel',
-            dict['language'] if 'language' in dict else 'und'
-        )
+    return Label(
+        dict['label'],
+        dict.get('type', 'prefLabel'),
+        dict.get('language', 'und')
+    )
 
 
 def dict_to_note(dict):
@@ -547,13 +546,12 @@ def dict_to_note(dict):
     '''
     if isinstance(dict, Note):
         return dict
-    else:
-        return Note(
-            dict['note'],
-            dict['type'] if 'type' in dict else 'note',
-            dict['language'] if 'language' in dict else 'und',
-            dict['markup'] if 'markup' in dict else None
-        )
+    return Note(
+        dict['note'],
+        dict.get('type', 'note'),
+        dict.get('language', 'und'),
+        dict.get('markup')
+    )
 
 
 def dict_to_source(dict):
@@ -566,7 +564,6 @@ def dict_to_source(dict):
 
     if isinstance(dict, Source):
         return dict
-    else:
-        return Source(
-            citation=dict['citation'],
-        )
+    return Source(
+        citation=dict['citation'],
+    )
