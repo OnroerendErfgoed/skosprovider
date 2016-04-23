@@ -478,38 +478,58 @@ def label(labels=[], language='any', sortLabel=False):
         are still language dependent. So, it's possible to have a different
         sortLabel per language.
     '''
-    # Normalise the tag
-    broader_language_tag = None
-    if language != 'any':
-        language = tags.tag(language).format
-        broader_language_tag = tags.tag(language).language
-    pref = None
-    alt = None
-    sort = None
-    for l in labels:
-        l = dict_to_label(l)
-        if language == 'any' or l.language == language:
-            if l.type == 'prefLabel' and (pref is None or pref.language != language):
-                pref = l
-            if l.type == 'altLabel' and (alt is None or alt.language != language):
-                alt = l
-            if l.type == 'sortLabel' and (sort is None or sort.language != language):
-                sort = l
-        if broader_language_tag and tags.tag(l.language).language and tags.tag(l.language).language.format == broader_language_tag.format:
-            if l.type == 'prefLabel' and pref is None:
-                pref = l
-            if l.type == 'altLabel' and alt is None:
-                alt = l
-            if l.type == 'sortLabel' and sort is None:
-                sort = l
-    if sortLabel and sort is not None:
-        return sort
-    if pref is not None:
-        return pref
-    elif alt is not None:
-        return alt
-    return label(labels, 'any', sortLabel) if language != 'any' else None
+    if not labels:
+        return None
+    labels = [dict_to_label(l) for l in labels]
+    l = False
+    if sortLabel:
+        l = find_best_label_for_type(labels, language, 'sortLabel')
+    if not l:
+        l = find_best_label_for_type(labels, language, 'prefLabel')
+    if not l:
+        l = find_best_label_for_type(labels, language, 'altLabel')
+    if l:
+        return l
+    else:
+        return label(labels, 'any', sortLabel) if language != 'any' else None
 
+def find_best_label_for_type(labels, language, labeltype):
+    '''
+    Find the best label for a certain labeltype.
+
+    :param list labels: A list of :class:`Label`.
+    :param str language: An IANA language string, eg. `nl` or `nl-BE`.
+    :param str labeltype: Type of label to look for, eg. `prefLabel`.
+    '''
+    typelabels = [l for l in labels if l.type==labeltype]
+    if not typelabels:
+        return False
+    if language == 'any':
+        return typelabels[0]
+    exact = filter_labels_by_language(typelabels, language)
+    if exact:
+        return exact[0]
+    inexact = filter_labels_by_language(typelabels, language, True)
+    if inexact:
+        return inexact[0]
+    return False
+
+def filter_labels_by_language(labels, language, broader=False):
+    '''
+    Filter a list of labels, leaving only labels of a certain language.
+
+    :param list labels: A list of :class:`Label`.
+    :param str language: An IANA language string, eg. `nl` or `nl-BE`.
+    :param boolean broader: When true, will also match `nl-BE` when filtering 
+        on `nl`. When false, only exact matches are considered.
+    '''
+    if language == 'any':
+        return labels
+    language = tags.tag(language).format
+    if broader:
+        return [l for l in labels if tags.tag(l.language).language.format == language]
+    else:
+        return [l for l in labels if tags.tag(l.language).format == language]
 
 def dict_to_label(dict):
     '''
