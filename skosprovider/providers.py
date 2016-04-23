@@ -577,29 +577,29 @@ class DictionaryProvider(MemoryProvider):
         if 'type' in data and data['type'] == 'collection':
             return Collection(
                 id=data['id'],
-                uri=data['uri'] if 'uri' in data and data['uri'] is not None else self.uri_generator.generate(type='collection', id=data['id']),
+                uri=data.get('uri') if data.get('uri') is not None else self.uri_generator.generate(type='collection', id=data['id']),
                 concept_scheme=self.concept_scheme,
-                labels=data['labels'] if 'labels' in data else [],
-                notes=data['notes'] if 'notes' in data else [],
-                sources=data['sources'] if 'sources' in data else [],
-                members=data['members'] if 'members' in data else [],
-                member_of=data['member_of'] if 'member_of' in data else [],
-                superordinates=data['superordinates'] if 'superordinates' in data else []
+                labels=data.get('labels', []),
+                notes=data.get('notes', []),
+                sources=data.get('sources', []),
+                members=data.get('members', []),
+                member_of=data.get('member_of', []),
+                superordinates=data.get('superordinates', [])
             )
         else:
             return Concept(
                 id=data['id'],
-                uri=data['uri'] if 'uri' in data and data['uri'] is not None else self.uri_generator.generate(type='concept', id=data['id']),
+                uri=data.get('uri') if data.get('uri') is not None else self.uri_generator.generate(type='collection', id=data['id']),
                 concept_scheme=self.concept_scheme,
-                labels=data['labels'] if 'labels' in data else [],
-                notes=data['notes'] if 'notes' in data else [],
-                sources=data['sources'] if 'sources' in data else [],
-                broader=data['broader'] if 'broader' in data else [],
-                narrower=data['narrower'] if 'narrower' in data else [],
-                related=data['related'] if 'related' in data else [],
-                member_of=data['member_of'] if 'member_of' in data else [],
-                subordinate_arrays=data['subordinate_arrays'] if 'subordinate_arrays' in data else [],
-                matches=data['matches'] if 'matches' in data else {}
+                labels=data.get('labels', []),
+                notes=data.get('notes', []),
+                sources=data.get('sources', []),
+                broader=data.get('broader', []),
+                narrower=data.get('narrower', []),
+                related=data.get('related', []),
+                member_of=data.get('member_of', []),
+                subordinate_arrays=data.get('subordinate_arrays', []),
+                matches=data.get('matches', {})
             )
 
 
