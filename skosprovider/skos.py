@@ -477,6 +477,7 @@ def label(labels=[], language='any', sortLabel=False):
         sortLabels will be preferred over prefLabels. Bear in mind that these
         are still language dependent. So, it's possible to have a different
         sortLabel per language.
+    :rtype: A :class:`Label` or `None` if no label could be found.
     '''
     if not labels:
         return None
@@ -540,17 +541,17 @@ def dict_to_label(dict):
     default to `prefLabel`. If `language` is not present, it will default
     to `und`.
 
-    If the argument passed is already a :class:`Label`, this method just
+    If the argument passed is not a dict, this method just
     returns the argument.
     '''
-    if isinstance(dict, Label):
+    try:
+        return Label(
+            dict['label'],
+            dict.get('type', 'prefLabel'),
+            dict.get('language', 'und')
+        )
+    except (KeyError, AttributeError):
         return dict
-    return Label(
-        dict['label'],
-        dict.get('type', 'prefLabel'),
-        dict.get('language', 'und')
-    )
-
 
 def dict_to_note(dict):
     '''
