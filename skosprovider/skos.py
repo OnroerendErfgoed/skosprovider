@@ -48,6 +48,8 @@ class Label:
     def __init__(self, label, type="prefLabel", language="und"):
         self.label = label
         self.type = type
+        if not language:
+            language = 'und'
         if tags.check(language):
             self.language = language
         else:
