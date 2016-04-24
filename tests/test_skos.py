@@ -34,6 +34,10 @@ class LabelTest(unittest.TestCase):
         self.assertEqual('prefLabel', l.type)
         self.assertEqual('nl-BE', l.language)
 
+    def testConstructorInvalidLanguage(self):
+        with self.assertRaises(ValueError):
+            l = Label('Knokke-Heist', type="prefLabel", language='nederlands')
+
     def testRepr(self):
         l = Label('Knokke-Heist', type="prefLabel", language='nl-BE')
         self.assertEqual("Label('Knokke-Heist', 'prefLabel', 'nl-BE')", l.__repr__())

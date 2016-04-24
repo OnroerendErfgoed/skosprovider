@@ -48,7 +48,10 @@ class Label:
     def __init__(self, label, type="prefLabel", language="und"):
         self.label = label
         self.type = type
-        self.language = language
+        if tags.check(language):
+            self.language = language
+        else:
+            raise ValueError('%s is not a valid IANA language tag.' % language)
 
     def __eq__(self, other):
         return self.__dict__ == (other if type(other) == dict else other.__dict__)
@@ -521,7 +524,7 @@ def filter_labels_by_language(labels, language, broader=False):
 
     :param list labels: A list of :class:`Label`.
     :param str language: An IANA language string, eg. `nl` or `nl-BE`.
-    :param boolean broader: When true, will also match `nl-BE` when filtering 
+    :param boolean broader: When true, will also match `nl-BE` when filtering
         on `nl`. When false, only exact matches are considered.
     '''
     if language == 'any':
