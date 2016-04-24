@@ -550,7 +550,7 @@ def dict_to_label(dict):
             dict.get('type', 'prefLabel'),
             dict.get('language', 'und')
         )
-    except (KeyError, AttributeError):
+    except (KeyError, AttributeError, TypeError):
         return dict
 
 def dict_to_note(dict):
