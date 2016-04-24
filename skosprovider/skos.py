@@ -484,6 +484,8 @@ def label(labels=[], language='any', sortLabel=False):
     '''
     if not labels:
         return None
+    if not language:
+        language = 'und'
     labels = [dict_to_label(l) for l in labels]
     l = False
     if sortLabel:
@@ -529,10 +531,11 @@ def filter_labels_by_language(labels, language, broader=False):
     '''
     if language == 'any':
         return labels
-    language = tags.tag(language).format
     if broader:
+        language = tags.tag(language).language.format
         return [l for l in labels if tags.tag(l.language).language.format == language]
     else:
+        language = tags.tag(language).format
         return [l for l in labels if tags.tag(l.language).format == language]
 
 def dict_to_label(dict):

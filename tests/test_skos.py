@@ -551,6 +551,16 @@ class LabelFunctionTest(unittest.TestCase):
         self.assertEqual(kh, label(labels, 'en-GB'))
         self.assertEqual(kh, label(labels, None))
 
+    def test_sortlabel_broader(self):
+        '''
+        Test that a broader sortlabel gets picked up for a regional sort.
+        '''
+        kh = self._get_knokke_heist_nl()
+        ch = self._get_cnocke_heyst_nl()
+        sl = Label('Eerst', type='sortLabel', language='nl')
+        labels = [kh, ch, sl]
+        assert sl == label(labels, 'nl-BE', True)
+
     def test_dict_pref(self):
         kh = self._get_knokke_heist_nl()
         khd = kh.__dict__
@@ -578,4 +588,3 @@ class LabelFunctionTest(unittest.TestCase):
         assert [] == filter_labels_by_language(labels, 'nl')
         assert [kh, ch] == filter_labels_by_language(labels, 'nl', True)
         assert labels == filter_labels_by_language(labels, 'any')
-
