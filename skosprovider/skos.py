@@ -124,7 +124,12 @@ class Note:
     def __init__(self, note, type="note", language="und", markup=None):
         self.note = note
         self.type = type
-        self.language = language
+        if not language:
+            language = 'und'
+        if tags.check(language):
+            self.language = language
+        else:
+            raise ValueError('%s is not a valid IANA language tag.' % language)
         self.markup = markup
 
     def __eq__(self, other):

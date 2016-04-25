@@ -89,6 +89,20 @@ class NoteTest(unittest.TestCase):
         self.assertEqual('note', n.type)
         self.assertEqual('nl-BE', n.language)
 
+    def testConstructorInvalidLanguage(self):
+        with self.assertRaises(ValueError):
+            n = Note(
+                'Een gemeente in West-Vlaanderen.',
+                type="note",
+                language='nederlands'
+            )
+        n = Note(
+            'Een gemeente in West-Vlaanderen.',
+            type="note",
+            language=None
+        )
+        assert n.language == 'und'
+
     def testEquality(self):
         n1 = Note('A note.')
         n2 = Note('A note.', 'note', 'und')
