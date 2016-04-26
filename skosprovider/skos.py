@@ -506,6 +506,7 @@ def label(labels=[], language='any', sortLabel=False):
     else:
         return label(labels, 'any', sortLabel) if language != 'any' else None
 
+
 def find_best_label_for_type(labels, language, labeltype):
     '''
     Find the best label for a certain labeltype.
@@ -514,7 +515,7 @@ def find_best_label_for_type(labels, language, labeltype):
     :param str language: An IANA language string, eg. `nl` or `nl-BE`.
     :param str labeltype: Type of label to look for, eg. `prefLabel`.
     '''
-    typelabels = [l for l in labels if l.type==labeltype]
+    typelabels = [l for l in labels if l.type == labeltype]
     if not typelabels:
         return False
     if language == 'any':
@@ -526,6 +527,7 @@ def find_best_label_for_type(labels, language, labeltype):
     if inexact:
         return inexact[0]
     return False
+
 
 def filter_labels_by_language(labels, language, broader=False):
     '''
@@ -544,6 +546,7 @@ def filter_labels_by_language(labels, language, broader=False):
     else:
         language = tags.tag(language).format
         return [l for l in labels if tags.tag(l.language).format == language]
+
 
 def dict_to_label(dict):
     '''
@@ -565,6 +568,7 @@ def dict_to_label(dict):
         )
     except (KeyError, AttributeError, TypeError):
         return dict
+
 
 def dict_to_note(dict):
     '''
