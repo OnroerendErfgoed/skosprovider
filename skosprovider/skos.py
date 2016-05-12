@@ -22,6 +22,7 @@ valid_markup = [
 Valid types of markup for a note or a source.
 '''
 
+
 class Label:
     '''
     A :term:`SKOS` Label.
