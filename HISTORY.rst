@@ -8,7 +8,7 @@
   :class:`~skosprovider.skos.Collection` and
   :class:`~skosprovider.skos.Concept`. Every source is an object that currently
   only has one attribute, a citation. This looks like a good universal common
-  denominator. (#20)
+  denominator. Just as with notes, a citation may contain HTML. (#20, #24)
 - Add sorting to :meth:`skosprovider.providers.VocabularyProvider.get_all`,
   :meth:`skosprovider.providers.VocabularyProvider.find`,
   :meth:`skosprovider.providers.VocabularyProvider.get_top_concepts`,
