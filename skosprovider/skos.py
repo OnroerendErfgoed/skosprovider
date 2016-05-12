@@ -96,7 +96,7 @@ class Note:
     '''
     What kind of markup does the note contain?
 
-    If not none, the note should be treated as a certain type of markup.
+    If not `None`, the note should be treated as a certain type of markup.
     Currently only HTML is allowed.
     '''
 
@@ -150,7 +150,7 @@ class Note:
     @staticmethod
     def is_valid_markup(markup):
         '''
-        Check is the argument is a valid type of markup.
+        Check the argument is a valid type of markup.
 
         :param string markup: The type to be checked.
         '''
@@ -166,8 +166,35 @@ class Source:
     citation = None
     '''A bibliographic citation for this source.'''
 
-    def __init__(self, citation):
+    markup = None
+    '''
+    What kind of markup does the source contain?
+
+    If not `None`, the source should be treated as a certain type of markup.
+    Currently only HTML is allowed.
+    '''
+
+    valid_markup = [
+        None,
+        'HTML'
+    ]
+    '''
+    Valid types of markup for a source.
+    '''
+
+    def __init__(self, citation, markup=None):
         self.citation = citation
+        self.markup = markup
+
+
+    @staticmethod
+    def is_valid_markup(markup):
+        '''
+        Check the argument is a valid type of markup.
+
+        :param string markup: The type to be checked.
+        '''
+        return markup in Source.valid_markup
 
 
 class ConceptScheme:

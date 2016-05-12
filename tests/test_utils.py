@@ -38,7 +38,10 @@ class DictDumperTest(unittest.TestCase):
                  'markup': None}
             ],
             'sources': [
-                {'citation': u'Monthy Python. Episode Three: How to recognise different types of trees from quite a long way away.'}
+                {
+                    'citation': u'Monthy Python. Episode Three: How to recognise different types of trees from quite a long way away.', 
+                    'markup': None
+                }
             ],
             'narrower': [],
             'broader': [],

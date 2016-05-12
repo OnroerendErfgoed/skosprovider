@@ -163,6 +163,24 @@ class SourceTest(unittest.TestCase):
         )
         self.assertEqual(citation, s.citation)
 
+    def testConstructorWithHTML(self):
+        citation = 'Van Daele, K; Meganck, L. & Mortier, S. 2015. <em>Data-driven systems and system-driven data: the story of the Flanders Heritage Inventory (1995-2015)</em>'
+        s = Source(
+            citation,
+            markup='HTML'
+        )
+        self.assertEqual(citation, s.citation)
+        self.assertEqual('HTML', s.markup)
+
+    def testIsValidMarkup(self):
+        self.assertTrue(Source.is_valid_markup('HTML'))
+        self.assertFalse(Source.is_valid_markup('markdown'))
+        citation = 'Van Daele, K; Meganck, L. & Mortier, S. 2015. Data-driven systems and system-driven data: the story of the Flanders Heritage Inventory (1995-2015)'
+        s = Source(
+            citation
+        )
+        self.assertTrue(s.is_valid_markup(None))
+
 
 class ConceptSchemeTest(unittest.TestCase):
 
