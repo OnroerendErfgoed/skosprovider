@@ -103,6 +103,15 @@ class NoteTest(unittest.TestCase):
         )
         assert n.language == 'und'
 
+    def testConstructorInvalidMarkup(self):
+        with self.assertRaises(ValueError):
+            n = Note(
+                'Een gemeente in West-Vlaanderen.',
+                type="note",
+                language='nederlands',
+                markup='markdown'
+            )
+
     def testEquality(self):
         n1 = Note('A note.')
         n2 = Note('A note.', 'note', 'und')
@@ -180,6 +189,14 @@ class SourceTest(unittest.TestCase):
             citation
         )
         self.assertTrue(s.is_valid_markup(None))
+
+    def testConstructorInvalidMarkup(self):
+        with self.assertRaises(ValueError):
+            citation = 'Van Daele, K; Meganck, L. & Mortier, S. 2015. <em>Data-driven systems and system-driven data: the story of the Flanders Heritage Inventory (1995-2015)</em>'
+            s = Source(
+                citation,
+                markup='markdown'
+            )
 
 
 class ConceptSchemeTest(unittest.TestCase):

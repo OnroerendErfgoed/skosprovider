@@ -14,6 +14,13 @@ from __future__ import unicode_literals
 
 from language_tags import tags
 
+valid_markup = [
+    None,
+    'HTML'
+]
+'''
+Valid types of markup for a note or a source.
+'''
 
 class Label:
     '''
@@ -113,14 +120,6 @@ class Note:
     The valid types for a note.
     '''
 
-    valid_markup = [
-        None,
-        'HTML'
-    ]
-    '''
-    Valid types of markup for a note.
-    '''
-
     def __init__(self, note, type="note", language="und", markup=None):
         self.note = note
         self.type = type
@@ -130,7 +129,10 @@ class Note:
             self.language = language
         else:
             raise ValueError('%s is not a valid IANA language tag.' % language)
-        self.markup = markup
+        if self.is_valid_markup(markup):
+            self.markup = markup
+        else:
+            raise ValueError('%s is not valid markup.' % markup)
 
     def __eq__(self, other):
         return self.__dict__ == (other if type(other) == dict else other.__dict__)
@@ -154,7 +156,7 @@ class Note:
 
         :param string markup: The type to be checked.
         '''
-        return markup in Note.valid_markup
+        return markup in valid_markup
 
 
 class Source:
@@ -174,18 +176,12 @@ class Source:
     Currently only HTML is allowed.
     '''
 
-    valid_markup = [
-        None,
-        'HTML'
-    ]
-    '''
-    Valid types of markup for a source.
-    '''
-
     def __init__(self, citation, markup=None):
         self.citation = citation
-        self.markup = markup
-
+        if self.is_valid_markup(markup):
+            self.markup = markup
+        else:
+            raise ValueError('%s is not valid markup.' % markup)
 
     @staticmethod
     def is_valid_markup(markup):
@@ -194,7 +190,7 @@ class Source:
 
         :param string markup: The type to be checked.
         '''
-        return markup in Source.valid_markup
+        return markup in valid_markup
 
 
 class ConceptScheme:
