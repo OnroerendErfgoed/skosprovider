@@ -347,13 +347,8 @@ class Concept:
         self.related = related
         self.member_of = member_of
         self.subordinate_arrays = subordinate_arrays
-        self.matches = {}
-        for match_type in self.matchtypes:
-            if match_type not in matches.keys():
-                matches[match_type] = []
-        for match_type in matches.keys():
-            if match_type in self.matchtypes:
-                self.matches[match_type] = matches.get(match_type, [])
+        self.matches = {key: [] for key in self.matchtypes}
+        self.matches.update(matches)
 
     def label(self, language='any'):
         '''
