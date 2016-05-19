@@ -450,10 +450,7 @@ class MemoryProvider(VocabularyProvider):
         '''
         include = True
         if include and 'type' in query and query['type'] != 'all':
-            if query['type'] == 'concept' and not isinstance(c, Concept):
-                include = False
-            elif query['type'] == 'collection' and not isinstance(c, Collection):
-                include = False
+            include = query['type'] == c.type
         if include and 'label' in query:
             if not self.case_insensitive:
                 finder = lambda l, query: l.label.find(query['label'])
@@ -467,14 +464,11 @@ class MemoryProvider(VocabularyProvider):
                 raise ValueError(
                     'You are searching for items in an unexisting collection.'
                 )
+            if 'depth' in query['collection'] and query['collection']['depth'] == 'all':
+                members = self.expand(coll.id)
             else:
-                if 'depth' in query['collection'] and query['collection']['depth'] == 'all':
-                    members = self.expand(coll.id)
-                else:
-                    members = coll.members
-                members = [str(id) for id in members]
-                if not str(c.id) in members:
-                    include = False
+                members = coll.members
+            include = any([True for id in members if str(id) == str(c.id)]) 
         return include
 
     def _get_find_dict(self, c, **kwargs):
