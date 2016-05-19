@@ -452,12 +452,12 @@ class MemoryProvider(VocabularyProvider):
         if include and 'type' in query and query['type'] != 'all':
             include = query['type'] == c.type
         if include and 'label' in query:
-            if not self.case_insensitive:
-                finder = lambda l, query: l.label.find(query['label'])
-            else:
-                finder = lambda l, query: l.label.upper().find(query['label'].upper())
-            if not any([finder(l, query) >= 0 for l in c.labels]):
-                include = False
+            def finder(l, query):
+                if not self.case_insensitive:
+                    return l.label.find(query['label'])
+                else:
+                    return l.label.upper().find(query['label'].upper())
+            include = any([finder(l, query) >= 0 for l in c.labels])
         if include and 'collection' in query:
             coll = self.get_by_id(query['collection']['id'])
             if not coll or not isinstance(coll, Collection):
