@@ -1,6 +1,10 @@
 skosprovider: vocabulary abstraction
 ====================================
 
+.. image:: https://badges.gitter.im/koenedaele/skosprovider.svg
+   :alt: Join the chat at https://gitter.im/koenedaele/skosprovider
+   :target: https://gitter.im/koenedaele/skosprovider?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge
+
 This library helps abstract vocabularies (thesauri, controlled lists, authority
 files). It depends heavily on the 
 `SKOS <http://www.w3.org/2004/02/skos>`_ specification, but adds elements
