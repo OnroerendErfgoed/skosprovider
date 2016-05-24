@@ -490,7 +490,13 @@ class DictToSourceFunctionTest(unittest.TestCase):
         s = dict_to_source({'citation': citation})
         self.assertEqual(citation, s.citation)
 
-    def testDictToLabelWithlabel(self):
+    def testDictToSourceWithDictWithMarkup(self):
+        citation = '<strong>Van Daele, K; Meganck, L. & Mortier, S.</strong> 2015. Data-driven systems and system-driven data: the story of the Flanders Heritage Inventory (1995-2015)'
+        s = dict_to_source({'citation': citation, 'markup': 'HTML'})
+        self.assertEqual(citation, s.citation)
+        self.assertEqual('HTML', s.markup)
+
+    def testDictToSourceWithSource(self):
         citation = 'Van Daele, K; Meganck, L. & Mortier, S. 2015. Data-driven systems and system-driven data: the story of the Flanders Heritage Inventory (1995-2015)'
         s = dict_to_source(Source(citation))
         self.assertEqual(citation, s.citation)

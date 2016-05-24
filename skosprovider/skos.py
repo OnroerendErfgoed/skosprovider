@@ -622,5 +622,6 @@ def dict_to_source(dict):
     if isinstance(dict, Source):
         return dict
     return Source(
-        citation=dict['citation'],
+        dict['citation'],
+        dict.get('markup')
     )
