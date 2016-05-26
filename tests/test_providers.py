@@ -483,6 +483,10 @@ class TreesDictionaryProviderTests(unittest.TestCase):
         c = trees.find({'type': 'collection'})
         self.assertEqual(1, len(c))
 
+    def test_find_type_None(self):
+        c = trees.find({'type': None})
+        assert len(c) == 3
+
     def test_find_larch(self):
         self.assertEqual(
             trees.find({'label': 'The Larch'}),
@@ -530,6 +534,14 @@ class TreesDictionaryProviderTests(unittest.TestCase):
             trees.find({'label': 'lar'}),
             []
         )
+
+    def test_find_kastanje(self):
+        trees = DictionaryProvider(
+            {'id': 'TREES', 'default_language': 'nl'},
+            [larch, chestnut, species]
+        )
+        concepts = trees.find({'label': 'De Paardekastanje'})
+        assert len(concepts) == 1
 
     def test_find_empty_label(self):
         c = trees.find({'label': ''})

@@ -264,7 +264,7 @@ class VocabularyProvider:
             * `label`: Search for something with this label value. An empty \
                 label is equal to searching for all concepts.
             * `type`: Limit the search to certain SKOS elements. If not \
-                present `all` is assumed:
+                present or `None`, `all` is assumed:
 
                 * `concept`: Only return :class:`skosprovider.skos.Concept` \
                     instances.
@@ -435,11 +435,21 @@ class MemoryProvider(VocabularyProvider):
         return False
 
     def find(self, query, **kwargs):
+        query = self._normalise_query(query)
         filtered = [c for c in self.list if self._include_in_find(c, query)]
         language = self._get_language(**kwargs)
         sort = self._get_sort(**kwargs)
         sort_order = self._get_sort_order(**kwargs)
         return [self._get_find_dict(c, **kwargs) for c in self._sort(filtered, sort, language, sort_order == 'desc')]
+
+    def _normalise_query(self, query):
+        '''
+        :param query: A dict that can be used to express a query.
+        :rtype: dict
+        '''
+        if 'type' in query and query['type'] not in ['concept', 'collection']:
+            del query['type']
+        return query
 
     def _include_in_find(self, c, query):
         '''
@@ -449,7 +459,7 @@ class MemoryProvider(VocabularyProvider):
         :rtype: boolean
         '''
         include = True
-        if include and 'type' in query and query['type'] != 'all':
+        if include and 'type' in query:
             include = query['type'] == c.type
         if include and 'label' in query:
             def finder(l, query):
