@@ -3,6 +3,7 @@
 from __future__ import unicode_literals
 
 import unittest
+import pytest
 
 from skosprovider.skos import (
     Label,
@@ -108,7 +109,7 @@ class NoteTest(unittest.TestCase):
             n = Note(
                 'Een gemeente in West-Vlaanderen.',
                 type="note",
-                language='nederlands',
+                language='nl',
                 markup='markdown'
             )
 
@@ -270,6 +271,10 @@ class ConceptSchemeTest(unittest.TestCase):
         self.assertEqual(1, len(cs.sources))
         self.assertIsInstance(cs.sources[0], Source)
         self.assertEqual('My citation', cs.sources[0].citation)
+
+    def testEmptyUri(self):
+        with pytest.raises(ValueError):
+            cs = ConceptScheme(uri=None)
 
 
 class ConceptTest(unittest.TestCase):

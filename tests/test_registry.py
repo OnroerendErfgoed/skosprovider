@@ -72,6 +72,14 @@ class RegistryTests(unittest.TestCase):
             self.reg.register_provider,
             self.prov
         )
+        #Change the id, but keep identical URIs
+        self.prov.metadata['id'] = 'TREESTOO'
+        self.assertRaises(
+            RegistryException,
+            self.reg.register_provider,
+            self.prov
+        )
+        self.prov.metadata['id'] = 'TREES'
 
     def test_one_provider_removeProvider(self):
         self.reg.register_provider(self.prov)
@@ -157,6 +165,13 @@ class RegistryTests(unittest.TestCase):
         self.reg.register_provider(self.prov)
         c = self.reg.get_by_uri('http://id.thingy.com/123456')
         self.assertFalse(c)
+
+    def test_get_by_invalid_uri(self):
+        self.assertRaises(
+            ValueError,
+            self.reg.get_by_uri,
+            None
+        )
 
     def test_one_provider_findConceptsWithProviderid(self):
         self.reg.register_provider(self.prov)
