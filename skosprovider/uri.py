@@ -8,6 +8,18 @@ This module provides utilities for working with :term:`URIS <URI>`.
 from __future__ import unicode_literals
 
 import abc
+import rfc3987
+
+def is_uri(uri):
+    '''
+    Check if a string is a valid URI according to rfc3987
+
+    :param string uri:
+    :rtype: boolean
+    '''
+    if uri is None:
+        return False
+    return rfc3987.match(uri, rule='URI')
 
 
 class UriGenerator(object):
