@@ -23,6 +23,9 @@
 - Fixed a bug with :func:`skosprovider.skos.dict_to_label` and
   :func:`skosprovider.skos.dict_to_note` that would assign `None` instead of
   `und` as the language for labels and notes that have no language.
+- Improved checking for valid URIs with e.g.
+  :class:`skosprovider.skos.ConceptScheme`. This was causing weird issues with
+  registering a provider to the :class:`skosprovider.registry.Registry`. (#27)
 
 0.5.3 (2015-06-24)
 ------------------

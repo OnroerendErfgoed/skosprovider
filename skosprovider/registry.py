@@ -8,6 +8,8 @@ operations to all or several providers at the same time.
 
 from __future__ import unicode_literals
 
+from .uri import is_uri
+
 
 class RegistryException(Exception):
     pass
@@ -38,11 +40,18 @@ class Registry:
 
         :param skosprovider.providers.VocabularyProvider provider: The provider
             to register.
+        :raises RegistryException: A provider with this id or uri has already 
+            been registered.
         '''
         if provider.get_vocabulary_id() in self.providers:
             raise RegistryException(
-                'A provider with this id has already been registered.')
+                'A provider with this id has already been registered.'
+            )
         self.providers[provider.get_vocabulary_id()] = provider
+        if provider.concept_scheme.uri in self.concept_scheme_uri_map:
+            raise RegistryException(
+                'A provider with URI %s has already been registered.' % provider.concept_scheme.uri
+            )
         self.concept_scheme_uri_map[provider.concept_scheme.uri] = provider.get_vocabulary_id()
 
     def remove_provider(self, id):
@@ -76,7 +85,7 @@ class Registry:
         '''
         if id in self.providers:
             return self.providers.get(id, False)
-        elif id in self.concept_scheme_uri_map:
+        elif is_uri(id) and id in self.concept_scheme_uri_map:
             return self.providers.get(self.concept_scheme_uri_map[id], False)
         return False
 
@@ -198,9 +207,12 @@ class Registry:
         Returns False otherwise.
 
         :param string uri: The uri to find a concept or collection for.
+        :raises ValueError: The uri is invalid.
         :rtype: :class:`skosprovider.skos.Concept` or
             :class:`skosprovider.skos.Collection`
         '''
+        if not is_uri(uri):
+            raise ValueError('%s is not a valid URI.' % uri)
         # Check if there's a provider that's more likely to have the URI
         csuris = [csuri for csuri in self.concept_scheme_uri_map.keys() if uri.startswith(csuri)]
         for csuri in csuris:

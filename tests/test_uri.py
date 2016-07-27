@@ -3,11 +3,25 @@
 import unittest
 
 from skosprovider.uri import (
+    is_uri,
     UriPatternGenerator,
     DefaultUrnGenerator,
     DefaultConceptSchemeUrnGenerator,
     TypedUrnGenerator
 )
+
+class IsUriTest(unittest.TestCase):
+
+    def test_None(self):
+        assert not is_uri(None)
+
+    def test_url(self):
+        assert is_uri('https://id.erfgoed.net/thesauri/erfgoedtypes/1')
+        assert is_uri('https://thesaurus.erfgoed.net/conceptschemes/erfgoedtypes/1')
+
+    def test_urn(self):
+        assert is_uri('urn:x-skosprovider:typologie')
+        assert is_uri('urn:x-skosprovider:typologie:1')
 
 
 class UriPatternGeneratorTest(unittest.TestCase):

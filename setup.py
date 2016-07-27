@@ -16,6 +16,7 @@ packages = [
 
 requires = [
     'language-tags',
+    'rfc3987'
 ]
 
 setup(

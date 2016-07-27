@@ -14,6 +14,8 @@ from __future__ import unicode_literals
 
 from language_tags import tags
 
+from .uri import is_uri
+
 valid_markup = [
     None,
     'HTML'
@@ -223,6 +225,8 @@ class ConceptScheme:
     '''
 
     def __init__(self, uri, labels=[], notes=[], sources=[], languages=[]):
+        if not is_uri(uri):
+            raise ValueError('%s is not a valid URI.' % uri)
         self.uri = uri
         self.labels = [dict_to_label(l) for l in labels]
         self.notes = [dict_to_note(n) for n in notes]
