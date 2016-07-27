@@ -14,7 +14,7 @@ from __future__ import unicode_literals
 
 from language_tags import tags
 
-from uri import is_uri
+from .uri import is_uri
 
 valid_markup = [
     None,

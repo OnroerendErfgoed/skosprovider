@@ -8,7 +8,7 @@ operations to all or several providers at the same time.
 
 from __future__ import unicode_literals
 
-from uri import is_uri
+from .uri import is_uri
 
 
 class RegistryException(Exception):
