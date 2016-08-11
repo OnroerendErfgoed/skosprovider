@@ -107,7 +107,7 @@ class Registry:
            # Get all providers with id 1 or 2 and subject 'biology'
            registry.get_providers(ids=[1,2], subject='biology']
 
-        :param list ids: Only return providers with one of the Ids or uris.
+        :param list ids: Only return providers with one of the Ids or :term:`URIs <uri>`.
         :param str subject: Only return providers with this subject.
         :returns: A list of :class:`providers <skosprovider.providers.VocabularyProvider>`
         '''

@@ -97,7 +97,13 @@ A second group of methods return a list of concepts or collections. In this
 case the concepts or collections are only partially output. For each concept or
 collection an ``id``, ``uri``, ``type`` (`concept` or `collection`) 
 and a ``label`` are returned. Each of these methods also takes an optional
-keyword ``language`` that detemines in what language a label is rendered.
+keyword ``language`` that detemines in what language a label is rendered. A
+second optional keyword, `sort` allows the client to specify how the list should
+be sorted. Options here are ``id``, ``label`` and ``sortlabel``. This last
+parameter allows sorting on a special ``sortLabel`` that can be assigned to
+concepts and collections. This way, arbitrary sorting order can be created by
+the editor of a scheme. When sorting, the `sort_order` keyword can be used to
+set the sort order.
 
 One method, :meth:`~skosprovider.providers.VocabularyProvider.get_all`
 returns all concept and collections in a certain provider. It's rarely used
@@ -132,6 +138,11 @@ languages labels should be returned using the ``language`` keyword.
     # If possible, show a Dutch(as spoken in Belgium) label
     provider.get_all(language='nl-BE')
 
+    # Get all concepts and collections in a provider
+    # If possible, show a Dutch(as spoken in Belgium) label 
+    # and order them by this label
+    provider.get_all(language='nl-BE', sort='label', sort_order='asc')
+
     # Get the top concepts in a provider
     provider.get_top_concepts()
 
@@ -139,7 +150,7 @@ languages labels should be returned using the ``language`` keyword.
     provider.find({'label': 'church'})
 
     # Get the top of a display hierarchy
-    provider.get_top_display()
+    provider.get_top_display(sort='id', sort_order='desc')
 
     # Get the children to display in a hierarchy concept 1
     # If possible, show a French(as spoken in Belgium) label

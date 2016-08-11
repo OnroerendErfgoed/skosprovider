@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 '''
-This module provides utilities for working with :term:`URIS <URI>`.
+This module provides utilities for working with :term:`URIs <URI>`.
 
 .. versionadded:: 0.3.0
 '''

@@ -44,7 +44,7 @@ class VocabularyProvider:
 
     uri_generator = None
     '''The :class:`~skosprovider.uri.UriGenerator` responsible for generating
-    uris for this provider.'''
+    :term:`URIs <uri>` for this provider.'''
 
     def __init__(self, metadata, **kwargs):
         '''Create a new provider and register some metadata.
