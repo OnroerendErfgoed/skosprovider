@@ -109,7 +109,7 @@ In a few places we've deviated a bit from the :term:`SKOS` standard:
   at the :term:`SKOS-THES` specification. We have borrowed the 
   :attr:`skosprovider.skos.Concept.subordinate_arrays` and 
   :attr:`skosprovider.skos.Collection.superordinates` properties from this
-  specification. In effect, it turns a SKOS Collecion that has one or more 
+  specification. In effect, it turns a SKOS Collection that has one or more 
   superordinates into a ThesaurusArray.
 
 Support
