@@ -1,3 +1,10 @@
+0.6.1 (2017-07-16)
+------------------
+
+- A provider can now receive a dataset keyword containing a dict. If present,
+  this :class:`dict` needs to have a `uri` attribute.
+- Update some requirements.
+
 0.6.0 (2016-08-09)
 ------------------
 

@@ -21,7 +21,7 @@ requires = [
 
 setup(
     name='skosprovider',
-    version='0.6.0',
+    version='0.6.1',
     description='Abstraction layer for SKOS vocabularies.',
     long_description=open('README.rst').read(),
     author='Koen Van Daele',
