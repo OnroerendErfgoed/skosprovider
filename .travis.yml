@@ -6,7 +6,7 @@ python:
  - 3.5
  - 3.6
 install:
- - pip install pytest coveralls pytest-cov
+ - pip install pytest coveralls pytest-cov mock
  - python setup.py develop
 script: 
     py.test --cov skosprovider --cov-report term-missing tests
