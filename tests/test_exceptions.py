@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 import unittest
-from skosprovider.exceptions import ProviderUnavailableException
+from skosprovider.exceptions import (
+    ProviderUnavailableException,
+    ResourceUnavailableException
+)
 
 
 class ExceptionsTest(unittest.TestCase):
@@ -12,4 +15,8 @@ class ExceptionsTest(unittest.TestCase):
 
     def test_provider_unavailable_exception(self):
         exc = ProviderUnavailableException("test error")
+        self.assertEqual("test error", repr(exc))
+
+    def test_resource_unavailable_exception(self):
+        exc = ResourceUnavailableException("test error")
         self.assertEqual("test error", repr(exc))

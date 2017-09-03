@@ -10,6 +10,8 @@ from __future__ import unicode_literals
 
 from .uri import is_uri
 
+from .resources import IResource
+
 
 class RegistryException(Exception):
     pass
@@ -225,3 +227,48 @@ class Registry:
             if c:
                 return c
         return False
+
+    def clear_resources(self):
+        '''
+        Instruct all providers to clear all resources.
+
+        .. versionadded:: 0.7.0
+        '''
+        self.resources = {}
+        for p in self.providers.values():
+            p.clear_resources()
+
+    def set_resources(self, resources):
+        '''
+        Pass resources to the registry. They will be passed on to the providers.
+
+        All current registered resources will be removed, so make sure to
+        replace all of them.
+
+        :param dict resources: A dictionary containing as a key a subclass of
+        :class:`skosprovider.resoures.IResource` and as a value the actual 
+        resource for that provider.
+        .. versionadded:: 0.7.0
+        '''
+        self.clear_resources()
+        self.resources = resources
+        for p in self.providers.values():
+            p.set_resources(resources)
+
+    def register_resource(self, resource, interface):
+        '''
+        Register a resource with one or more Resource Interfaces.
+
+        :param resource: The actual resource
+        :param interface: A single interface or a list of interfaces. If a list, 
+            the passed resource will be attached to all these interfaces.
+        '''
+        try:
+            if interface.extends(IResource):
+                self.resources[interface] = resource
+        except:
+            for intf in interface:
+                if intf.extends(IResource):
+                    self.resources[intf] = resource
+        for p in self.providers.values():
+            p.register_resource(resource, interface)

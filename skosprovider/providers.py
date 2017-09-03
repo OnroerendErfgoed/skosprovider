@@ -30,6 +30,10 @@ from .uri import (
     DefaultConceptSchemeUrnGenerator
 )
 
+from .exceptions import (
+    ResourceUnavailableException
+)
+
 log = logging.getLogger(__name__)
 
 
@@ -332,6 +336,7 @@ class VocabularyProvider:
             exist.
         '''
 
+    @abc.abstractmethod
     def get_top_display(self, **kwargs):
         '''
         Returns all concepts or collections that form the top-level of a
@@ -363,6 +368,7 @@ class VocabularyProvider:
 
         '''
 
+    @abc.abstractmethod
     def get_children_display(self, id, **kwargs):
         '''
         Return a list of concepts or collections that should be displayed
@@ -391,6 +397,39 @@ class VocabularyProvider:
                 language of the provider and finally falls back to `en`.
 
         '''
+
+    def set_resources(self, resources):
+        '''
+        Pass resources to the providers.
+
+        All current registered resources will be removed, so make sure to
+        replace all of them.
+
+        :param dict resources: A dictionary containing as a key a subclass of
+            :class:`skosprovider.resoures.IResource` and as a value the actual 
+            resource for that interface.
+        .. versionadded:: 0.7.0
+        '''
+        pass
+
+    def register_resource(self, resource, interface):
+        '''
+        Register a resource with a certain interface.
+
+        :param resource: The actual resource
+        :param interface: A single interface or a list of interfaces. If a list, 
+            the passed resource can be attached to any of these interfaces.
+        .. versionadded:: 0.7.0
+        '''
+        pass
+
+    def clear_resources(self):
+        '''
+        Clear any resources the provider is holding.
+
+        .. versionadded:: 0.7.0
+        '''
+        pass
 
 
 class MemoryProvider(VocabularyProvider):
@@ -482,7 +521,7 @@ class MemoryProvider(VocabularyProvider):
                 members = self.expand(coll.id)
             else:
                 members = coll.members
-            include = any([True for id in members if str(id) == str(c.id)]) 
+            include = any([True for id in members if str(id) == str(c.id)])
         return include
 
     def _get_find_dict(self, c, **kwargs):
@@ -650,3 +689,5 @@ class SimpleCsvProvider(MemoryProvider):
             notes=notes,
             sources=sources
         )
+
+

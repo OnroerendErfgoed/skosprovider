@@ -3,6 +3,7 @@
 from __future__ import unicode_literals
 
 import unittest
+import mock
 
 from test_providers import (
     larch,
@@ -304,3 +305,9 @@ class RegistryTests(unittest.TestCase):
             res,
             self.reg.find({},subject='biology', language='nl')
         )
+
+    def test_clear_resources(self):
+        prov = mock.Mock()
+        self.reg.register_provider(prov)
+        self.reg.clear_resources()
+        prov.clear_resources.assert_called_once()

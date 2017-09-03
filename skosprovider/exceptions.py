@@ -22,3 +22,12 @@ class ProviderUnavailableException(Exception):
 
     def __repr__(self):
         return self.message
+
+
+class ResourceUnavailableException(ProviderUnavailableException):
+    '''
+    This exception can be raised by a Provider if it's unable to provide the
+    thesaurus because it's lacking a resource such as the database connection.
+
+    .. versionadded:: 0.7.0
+    '''
