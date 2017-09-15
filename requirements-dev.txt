@@ -2,7 +2,7 @@
 --requirement requirements.txt
 
 # Testing
-pytest==2.8.5
+pytest==3.2.2
 pytest-cov==2.0.0
 
 # Documentation
