@@ -2,8 +2,8 @@
 --requirement requirements.txt
 
 # Testing
-pytest==3.2.2
+pytest==3.2.3
 pytest-cov==2.5.1
 
 # Documentation
-Sphinx==1.6.4
+Sphinx==1.6.5
