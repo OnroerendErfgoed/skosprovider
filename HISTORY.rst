@@ -2,6 +2,7 @@
 ------------------
 
 - A registry can now carry metadata just like a provider.
+- Drop support for Python 3.3.
 
 0.6.1 (2017-07-16)
 ------------------
