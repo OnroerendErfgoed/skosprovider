@@ -30,9 +30,24 @@ class Registry:
     Dictionary mapping concept scheme uri's to vocabulary id's.
     '''
 
-    def __init__(self):
+    metadata = {}
+    '''
+    Dictionary containing metadata about this registry.
+    '''
+
+    def __init__(self, metadata={}):
+        '''
+        :param dict metadata: Metadata essential to this registry. Possible
+            metadata:
+
+                * `catalog`: A :class:`dict` detailing the catalog all \
+                    conceptschemes are part of. \
+                    Currently the contents of the dictionary are undefined \
+                    except for a :term:`uri` attribute that must be present.
+        '''
         self.providers = {}
         self.concept_scheme_uri_map = {}
+        self.metadata = metadata
 
     def register_provider(self, provider):
         '''

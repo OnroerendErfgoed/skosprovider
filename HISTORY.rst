@@ -1,3 +1,8 @@
+0.7.0 (2018-??-??)
+------------------
+
+- A registry can now carry metadata just like a provider.
+
 0.6.1 (2017-07-16)
 ------------------
 
