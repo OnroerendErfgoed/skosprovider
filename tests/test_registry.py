@@ -30,12 +30,12 @@ class RegistryTests(unittest.TestCase):
         self.prov2 = None
 
     def test_default_metadata_is_dict(self):
-        self.assertIsInstance(self.reg.metadata, dict)
+        self.assertIsInstance(self.reg.get_metadata(), dict)
 
     def test_passed_metadata_is_dict(self):
         self.reg = Registry({'catalog': {'uri': 'http://my.data.org'}})
-        self.assertIn('catalog', self.reg.metadata)
-        self.assertIn('uri', self.reg.metadata['catalog'])
+        self.assertIn('catalog', self.reg.get_metadata())
+        self.assertIn('uri', self.reg.get_metadata().get('catalog'))
 
     def test_empty_register_provider(self):
         self.reg.register_provider(self.prov)

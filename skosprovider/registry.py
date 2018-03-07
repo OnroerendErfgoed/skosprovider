@@ -44,10 +44,21 @@ class Registry:
                     conceptschemes are part of. \
                     Currently the contents of the dictionary are undefined \
                     except for a :term:`uri` attribute that must be present.
+                * `dataset`: A :class:`dict` detailing the dataset all \
+                    conceptschemes are part of. \
+                    Currently the contents of the dictionary are undefined \
+                    except for a :term:`uri` attribute that must be present.
         '''
         self.providers = {}
         self.concept_scheme_uri_map = {}
         self.metadata = metadata
+
+    def get_metadata(self):
+        '''Get some metadata on the registry it represents.
+
+        :rtype: Dict.
+        '''
+        return self.metadata
 
     def register_provider(self, provider):
         '''
