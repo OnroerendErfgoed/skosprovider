@@ -640,7 +640,7 @@ class SimpleCsvProvider(MemoryProvider):
         else:
             notes = []
         if len(row) > 3 and row[3]:
-            sources = [{'citation': 'My citation.'}]
+            sources = [{'citation': row[3]}]
         else:
             sources = []
         return Concept(

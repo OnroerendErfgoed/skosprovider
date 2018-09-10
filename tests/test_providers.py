@@ -867,6 +867,7 @@ class SimpleCsvProviderTests(unittest.TestCase):
         self.assertEqual('prefLabel', eb.label().type)
         self.assertEqual([], eb.notes)
         assert 1 == len(eb.sources)
+        assert 'Monthy Python, Episode Twenty-five.' == eb.sources[0].citation
 
     def testGetEggAndSpamByUri(self):
         eb = self.csvprovider.get_by_uri('http://id.python.org/menu/3')
