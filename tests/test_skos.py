@@ -228,7 +228,7 @@ class ConceptSchemeTest(unittest.TestCase):
         cs = ConceptScheme(
             uri='urn:x-skosprovider:gemeenten'
         )
-        self.assertEquals("ConceptScheme('urn:x-skosprovider:gemeenten')", cs.__repr__())
+        self.assertEqual("ConceptScheme('urn:x-skosprovider:gemeenten')", cs.__repr__())
 
     def testLabel(self):
         labels = self._get_labels()
@@ -261,7 +261,7 @@ class ConceptSchemeTest(unittest.TestCase):
             labels=labels,
             languages=['nl', 'en', 'und']
         )
-        self.assertEquals(cs.languages, ['nl', 'en', 'und'])
+        self.assertEqual(cs.languages, ['nl', 'en', 'und'])
 
     def testSource(self):
         cs = ConceptScheme(
@@ -303,7 +303,7 @@ class ConceptTest(unittest.TestCase):
 
     def testRepr(self):
         c = Concept(1)
-        self.assertEquals("Concept('1')", c.__repr__())
+        self.assertEqual("Concept('1')", c.__repr__())
 
     def testIn(self):
         c = Concept(1)
@@ -393,7 +393,7 @@ class CollectionTest(unittest.TestCase):
 
     def testRepr(self):
         c = Collection(1)
-        self.assertEquals("Collection('1')", c.__repr__())
+        self.assertEqual("Collection('1')", c.__repr__())
 
     def testId(self):
         coll = Collection(350)
