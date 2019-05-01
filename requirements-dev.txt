@@ -6,4 +6,4 @@ pytest==4.4.1
 pytest-cov==2.6.1
 
 # Documentation
-Sphinx==2.0.1
+Sphinx==1.8.5
