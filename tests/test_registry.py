@@ -39,42 +39,42 @@ class RegistryTests(unittest.TestCase):
 
     def test_empty_register_provider(self):
         self.reg.register_provider(self.prov)
-        self.assertEquals(self.reg.get_provider('TREES'), self.prov)
+        self.assertEqual(self.reg.get_provider('TREES'), self.prov)
 
     def test_empty_register_removeProvider(self):
         self.assertFalse(self.reg.remove_provider('TREES'))
 
     def test_empty_getProviders(self):
-        self.assertEquals(self.reg.get_providers(), [])
-        self.assertEquals(self.reg.get_providers(ids=[]), [])
+        self.assertEqual(self.reg.get_providers(), [])
+        self.assertEqual(self.reg.get_providers(ids=[]), [])
 
     def test_empty_getProviderById(self):
         self.assertFalse(self.reg.get_provider('TREES'))
         self.assertFalse(self.reg.get_provider('http://id.trees.org'))
 
     def test_empty_findConcepts(self):
-        self.assertEquals(self.reg.find({}), [])
+        self.assertEqual(self.reg.find({}), [])
 
     def test_empty_getAllConcepts(self):
-        self.assertEquals(self.reg.get_all(), [])
+        self.assertEqual(self.reg.get_all(), [])
 
     def test_one_provider_register_provider(self):
         self.reg.register_provider(self.prov)
-        self.assertEquals(self.reg.get_provider('TREES'), self.prov)
-        self.assertEquals(
+        self.assertEqual(self.reg.get_provider('TREES'), self.prov)
+        self.assertEqual(
             self.reg.get_provider('http://id.trees.org'),
             self.prov
         )
         self.reg.register_provider(self.prov2)
-        self.assertEquals(self.reg.get_provider('GEOGRAPHY'), self.prov2)
-        self.assertEquals(
+        self.assertEqual(self.reg.get_provider('GEOGRAPHY'), self.prov2)
+        self.assertEqual(
             self.reg.get_provider('urn:x-skosprovider:geography'),
             self.prov2
         )
 
     def test_one_provider_register_double_provider(self):
         self.reg.register_provider(self.prov)
-        self.assertEquals(self.reg.get_provider('TREES'), self.prov)
+        self.assertEqual(self.reg.get_provider('TREES'), self.prov)
         self.assertRaises(
             RegistryException,
             self.reg.register_provider,
@@ -91,49 +91,49 @@ class RegistryTests(unittest.TestCase):
 
     def test_one_provider_removeProvider(self):
         self.reg.register_provider(self.prov)
-        self.assertEquals(self.reg.get_provider('TREES'), self.prov)
+        self.assertEqual(self.reg.get_provider('TREES'), self.prov)
         self.reg.remove_provider('TREES')
         self.assertFalse(self.reg.get_provider('TREES'))
 
     def test_one_provider_removeProviderWithUri(self):
         self.reg.register_provider(self.prov)
-        self.assertEquals(self.reg.get_provider('TREES'), self.prov)
+        self.assertEqual(self.reg.get_provider('TREES'), self.prov)
         self.reg.remove_provider('http://id.trees.org')
         self.assertFalse(self.reg.get_provider('TREES'))
 
     def test_one_provider_getProviders(self):
         self.reg.register_provider(self.prov)
-        self.assertEquals(self.reg.get_providers(), [self.prov])
-        self.assertEquals(self.reg.get_providers(ids=['TREES']), [self.prov])
+        self.assertEqual(self.reg.get_providers(), [self.prov])
+        self.assertEqual(self.reg.get_providers(ids=['TREES']), [self.prov])
 
     def test_one_provider_getProvidersWithIds(self):
         self.reg.register_provider(self.prov)
-        self.assertEquals(self.reg.get_providers(ids=['TREES']), [self.prov])
-        self.assertEquals(self.reg.get_providers(), [self.prov])
-        self.assertEquals(self.reg.get_providers(ids=['GEOGRAPHY']), [])
+        self.assertEqual(self.reg.get_providers(ids=['TREES']), [self.prov])
+        self.assertEqual(self.reg.get_providers(), [self.prov])
+        self.assertEqual(self.reg.get_providers(ids=['GEOGRAPHY']), [])
 
     def test_one_provider_getProvidersWithUris(self):
         self.reg.register_provider(self.prov)
-        self.assertEquals(self.reg.get_providers(ids=['http://id.trees.org']), [self.prov])
-        self.assertEquals(self.reg.get_providers(), [self.prov])
-        self.assertEquals(self.reg.get_providers(ids=['urn:x-skosprovider:geography']), [])
+        self.assertEqual(self.reg.get_providers(ids=['http://id.trees.org']), [self.prov])
+        self.assertEqual(self.reg.get_providers(), [self.prov])
+        self.assertEqual(self.reg.get_providers(ids=['urn:x-skosprovider:geography']), [])
 
     def test_one_provider_getProvidersWithSubject(self):
         self.reg.register_provider(self.prov)
-        self.assertEquals(self.reg.get_providers(subject='something'), [])
-        self.assertEquals(self.reg.get_providers(subject='biology'), [self.prov])
+        self.assertEqual(self.reg.get_providers(subject='something'), [])
+        self.assertEqual(self.reg.get_providers(subject='biology'), [self.prov])
 
     def test_one_provider_getPoviderWithId(self):
         self.reg.register_provider(self.prov)
-        self.assertEquals(self.reg.get_provider('TREES'), self.prov)
+        self.assertEqual(self.reg.get_provider('TREES'), self.prov)
 
     def test_one_provider_getPoviderWithUri(self):
         self.reg.register_provider(self.prov)
-        self.assertEquals(self.reg.get_provider('http://id.trees.org'), self.prov)
+        self.assertEqual(self.reg.get_provider('http://id.trees.org'), self.prov)
 
     def test_one_provider_findConcepts(self):
         self.reg.register_provider(self.prov)
-        self.assertEquals(
+        self.assertEqual(
             self.reg.find({'label': 'The Larch'}),
             [
                 {
@@ -183,7 +183,7 @@ class RegistryTests(unittest.TestCase):
 
     def test_one_provider_findConceptsWithProviderid(self):
         self.reg.register_provider(self.prov)
-        self.assertEquals(
+        self.assertEqual(
             self.reg.find({'label': 'The Larch'}, providers=['TREES']),
             [
                 {
@@ -199,14 +199,14 @@ class RegistryTests(unittest.TestCase):
                 }
             ]
         )
-        self.assertEquals(
+        self.assertEqual(
             self.reg.find({'label': 'The Larch'}, providers=[]),
             []
         )
 
     def test_one_provider_getAllConcepts(self):
         self.reg.register_provider(self.prov)
-        self.assertEquals(
+        self.assertEqual(
             self.reg.get_all(),
             [
                 {
@@ -235,7 +235,7 @@ class RegistryTests(unittest.TestCase):
 
     def test_one_provider_getAllConceptsDifferentLanguage(self):
         self.reg.register_provider(self.prov)
-        self.assertEquals(
+        self.assertEqual(
                 self.reg.get_all(language="en"),
             [
                 {
@@ -265,7 +265,7 @@ class RegistryTests(unittest.TestCase):
     def test_two_providers_findConceptsWithProviderIdAndUri(self):
         self.reg.register_provider(self.prov2)
         self.reg.register_provider(self.prov)
-        self.assertEquals(
+        self.assertEqual(
             self.reg.find({'label': 'The Larch'}, providers=['TREES']),
             self.reg.find({'label': 'The Larch'}, providers=['http://id.trees.org']),
         )
@@ -273,7 +273,7 @@ class RegistryTests(unittest.TestCase):
     def test_two_providers_findConceptsProvidersDictionarySyntax(self):
         self.reg.register_provider(self.prov2)
         self.reg.register_provider(self.prov)
-        self.assertEquals(
+        self.assertEqual(
             self.reg.find({'label': 'The Larch'}, providers=['TREES']),
             self.reg.find({'label': 'The Larch'}, providers={'ids': ['http://id.trees.org']}),
         )
@@ -281,7 +281,7 @@ class RegistryTests(unittest.TestCase):
     def test_two_providers_findConceptsProvidersDictionarySyntax(self):
         self.reg.register_provider(self.prov2)
         self.reg.register_provider(self.prov)
-        self.assertEquals(
+        self.assertEqual(
             self.reg.find({'label': 'The Larch'}, providers=['TREES']),
             self.reg.find({'label': 'The Larch'}, providers={'ids': ['http://id.trees.org']}),
         )
@@ -290,7 +290,7 @@ class RegistryTests(unittest.TestCase):
         self.reg.register_provider(self.prov)
         provs = self.reg.get_providers(subject='biology')
         res = [{'id': p.get_vocabulary_id(), 'concepts': p.find({})} for p in provs]
-        self.assertEquals(
+        self.assertEqual(
             res,
             self.reg.find({},subject='biology')
         )
@@ -299,7 +299,7 @@ class RegistryTests(unittest.TestCase):
         self.reg.register_provider(self.prov)
         provs = self.reg.get_providers(subject='biology')
         res = [{'id': p.get_vocabulary_id(), 'concepts': p.find({}, language='en')} for p in provs]
-        self.assertEquals(
+        self.assertEqual(
             res,
             self.reg.find({},subject='biology', language='en')
         )
@@ -308,7 +308,7 @@ class RegistryTests(unittest.TestCase):
         self.reg.register_provider(self.prov)
         provs = self.reg.get_providers(subject='biology')
         res = [{'id': p.get_vocabulary_id(), 'concepts': p.find({})} for p in provs]
-        self.assertEquals(
+        self.assertEqual(
             res,
             self.reg.find({},subject='biology', language='nl')
         )

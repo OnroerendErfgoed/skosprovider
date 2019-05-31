@@ -201,10 +201,10 @@ class TreesDictionaryProviderTests(unittest.TestCase):
         pass
 
     def test_get_vocabulary_id(self):
-        self.assertEquals('TREES', trees.get_vocabulary_id())
+        self.assertEqual('TREES', trees.get_vocabulary_id())
 
     def test_get_metadata(self):
-        self.assertEquals(
+        self.assertEqual(
             {'id': 'TREES', 'default_language': 'nl', 'subject': ['biology']},
             trees.get_metadata()
         )
@@ -255,16 +255,16 @@ class TreesDictionaryProviderTests(unittest.TestCase):
         self.assertFalse(trees.get_by_uri('urn:x-skosprovider:987654321'))
 
     def test_expand_concept(self):
-        self.assertEquals(['1'], trees.expand(1))
+        self.assertEqual(['1'], trees.expand(1))
 
     def test_expand_unexisting(self):
-        self.assertEquals(False, trees.expand(987654321))
+        self.assertEqual(False, trees.expand(987654321))
 
     def test_expand_collection(self):
-        self.assertEquals(set(['1', '2']), set(trees.expand(3)))
+        self.assertEqual(set(['1', '2']), set(trees.expand(3)))
 
     def test_get_all(self):
-        self.assertEquals(
+        self.assertEqual(
             trees.get_all(),
             [
                 {
@@ -291,7 +291,7 @@ class TreesDictionaryProviderTests(unittest.TestCase):
             {'id': 'TREES'},
             [larch]
         )
-        self.assertEquals(
+        self.assertEqual(
             trees.get_all(),
             [
                 {
@@ -304,7 +304,7 @@ class TreesDictionaryProviderTests(unittest.TestCase):
         )
 
     def test_get_all_sort_label(self):
-        self.assertEquals(
+        self.assertEqual(
             trees.get_all(sort='label'),
             [
                 {
@@ -327,7 +327,7 @@ class TreesDictionaryProviderTests(unittest.TestCase):
         )
 
     def test_get_all_sort_id(self):
-        self.assertEquals(
+        self.assertEqual(
             trees.get_all(sort='id', sort_order='asc'),
             [
                 {
@@ -350,7 +350,7 @@ class TreesDictionaryProviderTests(unittest.TestCase):
         )
 
     def test_get_all_sort_id_reverse(self):
-        self.assertEquals(
+        self.assertEqual(
             trees.get_all(sort='id', sort_order='desc'),
             [
                 {
@@ -373,7 +373,7 @@ class TreesDictionaryProviderTests(unittest.TestCase):
         )
 
     def test_get_top_concepts_default_language(self):
-        self.assertEquals(
+        self.assertEqual(
             trees.get_top_concepts(),
             [
                 {
@@ -391,7 +391,7 @@ class TreesDictionaryProviderTests(unittest.TestCase):
         )
 
     def test_get_top_concepts_sorted_by_id(self):
-        self.assertEquals(
+        self.assertEqual(
             trees.get_top_concepts(sort='id'),
             [
                 {
@@ -409,7 +409,7 @@ class TreesDictionaryProviderTests(unittest.TestCase):
         )
 
     def test_get_all_english(self):
-        self.assertEquals(
+        self.assertEqual(
             trees.get_all(language='en'),
             [
                 {
@@ -432,7 +432,7 @@ class TreesDictionaryProviderTests(unittest.TestCase):
         )
 
     def test_get_all_english_sorted_by_label(self):
-        self.assertEquals(
+        self.assertEqual(
             trees.get_all(language='en', sort='label'),
             [
                 {
@@ -775,7 +775,7 @@ class GeoDictionaryProviderTests(unittest.TestCase):
 
     def test_get_display_top(self):
         top = geo.get_top_display()
-        self.assertEquals(2, len(top))
+        self.assertEqual(2, len(top))
         self.assertIn(
             {
                 'id': '1',
