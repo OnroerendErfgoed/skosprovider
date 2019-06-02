@@ -457,6 +457,17 @@ class CollectionTest(unittest.TestCase):
         self.assertIsInstance(coll.sources[0], Source)
         self.assertEqual('My citation', coll.sources[0].citation)
 
+    def testnferConceptRelations(self):
+        coll = Collection(
+            id=1,
+        )
+        self.assertTrue(coll.infer_concept_relations)
+        coll = Collection(
+            id=1,
+            infer_concept_relations=False
+        )
+        self.assertFalse(coll.infer_concept_relations)
+
 
 class DictToNoteFunctionTest(unittest.TestCase):
 

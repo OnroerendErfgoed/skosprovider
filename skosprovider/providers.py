@@ -482,7 +482,7 @@ class MemoryProvider(VocabularyProvider):
                 members = self.expand(coll.id)
             else:
                 members = coll.members
-            include = any([True for id in members if str(id) == str(c.id)]) 
+            include = any([True for id in members if str(id) == str(c.id)])
         return include
 
     def _get_find_dict(self, c, **kwargs):
@@ -523,6 +523,10 @@ class MemoryProvider(VocabularyProvider):
                     ret = set([c.id])
                     for cid in c.narrower:
                         ret |= set(self.expand(cid))
+                    for collid in c.subordinate_arrays:
+                        coll = self.get_by_id(collid)
+                        if coll.infer_concept_relations:
+                            ret |= set(self.expand(collid))
                     return list(ret)
                 elif isinstance(c, Collection):
                     ret = set([])
