@@ -596,7 +596,8 @@ class DictionaryProvider(MemoryProvider):
                 sources=data.get('sources', []),
                 members=data.get('members', []),
                 member_of=data.get('member_of', []),
-                superordinates=data.get('superordinates', [])
+                superordinates=data.get('superordinates', []),
+                infer_concept_relations=data.get('infer_concept_relations', True)
             )
         else:
             return Concept(
