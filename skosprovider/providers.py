@@ -508,11 +508,24 @@ class MemoryProvider(VocabularyProvider):
         sort_order = self._get_sort_order(**kwargs)
         return [self._get_find_dict(c, **kwargs) for c in self._sort(self.list, sort, language, sort_order == 'desc')]
 
+    def _is_top_concept(self, c):
+        if not isinstance(c, Concept):
+            return False
+        if len(c.broader):
+            return False
+        def _has_higher_concept(c):
+            for collid in c.member_of:
+                coll = self.get_by_id(collid)
+                if coll.infer_concept_relations and (coll.superordinates or _has_higher_concept(coll)):
+                    return True
+            return False
+        return not _has_higher_concept(c)
+
     def get_top_concepts(self, **kwargs):
         language = self._get_language(**kwargs)
         sort = self._get_sort(**kwargs)
         sort_order = self._get_sort_order(**kwargs)
-        tc = [c for c in self.list if isinstance(c, Concept) and len(c.broader) == 0]
+        tc = [c for c in self.list if self._is_top_concept(c)]
         return [self._get_find_dict(c, **kwargs) for c in self._sort(tc, sort, language, sort_order == 'desc')]
 
     def expand(self, id):

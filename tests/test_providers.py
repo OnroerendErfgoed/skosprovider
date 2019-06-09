@@ -77,7 +77,8 @@ species = {
             'note': 'As seen in <em>How to Recognise Different Types of Trees from Quite a Long Way Away</em>.',
             'markup': 'HTML'
         }
-    ]
+    ],
+    'infer_concept_relations': False
 }
 
 trees = DictionaryProvider(
@@ -123,7 +124,7 @@ geo = DictionaryProvider(
             'labels': [
                 {'type': 'prefLabel', 'language': 'en', 'label': 'Belgium'}
             ],
-            'narrower': [7, 8, 9], 'broader': [2],
+            'broader': [2],
             'member_of': ['333'],
             'subordinate_arrays': ['358']
         }, {
@@ -137,7 +138,7 @@ geo = DictionaryProvider(
                     'label': 'Brittannia'
                 }
             ],
-            'broader': [2]
+            'narrower': [10, 11, 12], 'broader': [2]
         }, {
             'id': 6,
             'labels': [
@@ -152,21 +153,37 @@ geo = DictionaryProvider(
             'labels': [
                 {'type': 'prefLabel', 'language': 'en', 'label': 'Flanders'}
             ],
-            'broader': [4],
-            'member_of': ['333']
+            'member_of': ['333', '358']
         }, {
             'id': 8,
             'labels': [
                 {'type': 'prefLabel', 'language': 'en', 'label': 'Brussels'}
             ],
-            'broader': [4],
-            'member_of': ['333']
+            'member_of': ['333', '358']
         }, {
             'id': 9,
             'labels': [
                 {'type': 'prefLabel', 'language': 'en', 'label': 'Wallonie'}
             ],
-            'broader': [4]
+            'member_of': [358]
+        }, {
+            'id': 10,
+            'labels': [
+                {'type': 'prefLabel', 'language': 'en', 'label': 'Scotland'}
+            ],
+            'broader': [5]
+        }, {
+            'id': 11,
+            'labels': [
+                {'type': 'prefLabel', 'language': 'en', 'label': 'England'}
+            ],
+            'broader': [5]
+        }, {
+            'id': 12,
+            'labels': [
+                {'type': 'prefLabel', 'language': 'en', 'label': 'Wales'}
+            ],
+            'broader': [5]
         }, {
             'id': '333',
             'type': 'collection',
@@ -176,7 +193,8 @@ geo = DictionaryProvider(
                     'label': 'Places where dutch is spoken'
                 }
             ],
-            'members': ['4', '7', '8']
+            'members': ['4', '7', '8'],
+            'infer_concept_relations': False
         }, {
             'id': '358',
             'type': 'collection',
@@ -187,7 +205,8 @@ geo = DictionaryProvider(
                 }
             ],
             'members': ['7', '8', '9'],
-            'superordinates': ['4']
+            'superordinates': ['4'],
+            'infer_concept_relations': True
         }
     ]
 )
@@ -738,17 +757,20 @@ class GeoDictionaryProviderTests(unittest.TestCase):
         self.assertEqual('333', dutch_speaking.id)
         self.assertEqual(['4', '7', '8'], dutch_speaking.members)
 
-    def test_expand(self):
-        self.assertTrue(set([4, 7, 8, 9]), set(geo.expand(4)))
+    def test_expand_Belgium(self):
+        self.assertEqual(set([4, 7, 8, 9]), set(geo.expand(4)))
+
+    def test_expand_UK(self):
+        self.assertEqual(set([5, 10, 11, 12]), set(geo.expand(5)))
 
     def test_expand_string(self):
-        self.assertTrue(set([4, 7, 8, 9]), set(geo.expand('4')))
+        self.assertEqual(set([4, 7, 8, 9]), set(geo.expand('4')))
 
     def test_expand_unexisting(self):
         self.assertEqual(False, geo.expand(987654321))
 
     def test_expand_collection(self):
-        self.assertTrue(set([4, 7, 8, 9]), set(geo.expand(333)))
+        self.assertEqual(set([4, 7, 8, 9]), set(geo.expand(333)))
 
     def test_find_in_collection(self):
         c = geo.find({'collection': {'id': 333}})
