@@ -125,6 +125,7 @@ geo = DictionaryProvider(
                 {'type': 'prefLabel', 'language': 'en', 'label': 'Belgium'}
             ],
             'broader': [2],
+            'narrower': [16],
             'member_of': ['333'],
             'subordinate_arrays': ['358', '359']
         }, {
@@ -203,6 +204,12 @@ geo = DictionaryProvider(
             ],
             'member_of': [359]
         }, {
+            'id': 16,
+            'labels': [
+                {'type': 'prefLabel', 'language': 'en', 'label': 'The coast'}
+            ],
+            'broader': [4]
+        }, {
             'id': '333',
             'type': 'collection',
             'labels': [
@@ -230,7 +237,7 @@ geo = DictionaryProvider(
             'type': 'collection',
             'labels': [
                 {
-                    'type': 'prefLabel', 'language': 'nl',
+                    'type': 'prefLabel', 'language': 'en',
                     'label': 'Languages of Belgium'
                 }
 
@@ -797,19 +804,19 @@ class GeoDictionaryProviderTests(unittest.TestCase):
         self.assertEqual(['4', '7', '8'], dutch_speaking.members)
 
     def test_expand_Belgium(self):
-        self.assertEqual(set([4, 7, 8, 9]), set(geo.expand(4)))
+        self.assertEqual(set([4, 7, 8, 9, 16]), set(geo.expand(4)))
 
     def test_expand_UK(self):
         self.assertEqual(set([5, 10, 11, 12]), set(geo.expand(5)))
 
     def test_expand_string(self):
-        self.assertEqual(set([4, 7, 8, 9]), set(geo.expand('4')))
+        self.assertEqual(set([4, 7, 8, 9, 16]), set(geo.expand('4')))
 
     def test_expand_unexisting(self):
         self.assertEqual(False, geo.expand(987654321))
 
     def test_expand_collection(self):
-        self.assertEqual(set([4, 7, 8, 9]), set(geo.expand(333)))
+        self.assertEqual(set([4, 7, 8, 9, 16]), set(geo.expand(333)))
 
     def test_find_in_collection(self):
         c = geo.find({'collection': {'id': 333}})
@@ -821,7 +828,7 @@ class GeoDictionaryProviderTests(unittest.TestCase):
         c = geo.find({
             'collection': {'id': 333, 'depth': 'all'}
         })
-        self.assertEqual(4, len(c))
+        self.assertEqual(5, len(c))
         for cc in c:
             self.assertIsInstance(geo.get_by_id(cc['id']), Concept)
 
@@ -893,7 +900,7 @@ class GeoDictionaryProviderTests(unittest.TestCase):
 
     def test_get_display_children_concept_with_thesaurus_array(self):
         children = geo.get_children_display(4)
-        self.assertEqual(2, len(children))
+        self.assertEqual(3, len(children))
         self.assertIn(
             {
                 'id': '358',
@@ -909,6 +916,15 @@ class GeoDictionaryProviderTests(unittest.TestCase):
                 'uri': 'urn:x-skosprovider:geography:359',
                 'type': 'collection',
                 'label': 'Languages of Belgium'
+            },
+            children
+        )
+        self.assertIn(
+            {
+                'id': 16,
+                'uri': 'urn:x-skosprovider:geography:16',
+                'type': 'concept',
+                'label': 'The coast'
             },
             children
         )

@@ -581,10 +581,7 @@ class MemoryProvider(VocabularyProvider):
         sort = self._get_sort(**kwargs)
         sort_order = self._get_sort_order(**kwargs)
         if isinstance(c, Concept):
-            if len(c.subordinate_arrays) == 0:
-                display_children = c.narrower
-            else:
-                display_children = c.subordinate_arrays
+            display_children = c.subordinate_arrays + c.narrower
         else:
             display_children = c.members
         dc = [self.get_by_id(dcid) for dcid in display_children]
