@@ -126,7 +126,7 @@ geo = DictionaryProvider(
             ],
             'broader': [2],
             'member_of': ['333'],
-            'subordinate_arrays': ['358']
+            'subordinate_arrays': ['358', '359']
         }, {
             'id': 5,
             'labels': [
@@ -185,6 +185,24 @@ geo = DictionaryProvider(
             ],
             'broader': [5]
         }, {
+            'id': 13,
+            'labels': [
+                {'type': 'prefLabel', 'language': 'en', 'label': 'French'}
+            ],
+            'member_of': [359]
+        }, {
+            'id': 14,
+            'labels': [
+                {'type': 'prefLabel', 'language': 'en', 'label': 'Dutch'}
+            ],
+            'member_of': [359]
+        }, {
+            'id': 15,
+            'labels': [
+                {'type': 'prefLabel', 'language': 'en', 'label': 'German'}
+            ],
+            'member_of': [359]
+        }, {
             'id': '333',
             'type': 'collection',
             'labels': [
@@ -200,13 +218,27 @@ geo = DictionaryProvider(
             'type': 'collection',
             'labels': [
                 {
-                    'type': 'prefLabel', 'language': 'nl',
+                    'type': 'prefLabel', 'language': 'en',
                     'label': 'Gewesten of Belgium'
                 }
             ],
             'members': ['7', '8', '9'],
             'superordinates': ['4'],
             'infer_concept_relations': True
+        }, {
+            'id': 359,
+            'type': 'collection',
+            'labels': [
+                {
+                    'type': 'prefLabel', 'language': 'nl',
+                    'label': 'Languages of Belgium'
+                }
+
+
+            ],
+            'members': [13, 14, 15],
+            'superordinates': [4],
+            'infer_concept_relations': False
         }
     ]
 )
@@ -716,17 +748,24 @@ class GeoDictionaryProviderTests(unittest.TestCase):
 
     def test_get_top_concepts(self):
         top = geo.get_top_concepts()
-        self.assertEqual(1, len(top))
-        self.assertEqual(
-            top,
-            [
-                {
-                    'id': '1',
-                    'uri': 'urn:x-skosprovider:geography:1',
-                    'type': 'concept',
-                    'label': 'World'
-                }
-            ]
+        self.assertEqual(4, len(top))
+        self.assertIn(
+            {
+                'id': '1',
+                'uri': 'urn:x-skosprovider:geography:1',
+                'type': 'concept',
+                'label': 'World'
+            },
+            top
+        )
+        self.assertIn(
+            {
+                'id': 15,
+                'uri': 'urn:x-skosprovider:geography:15',
+                'type': 'concept',
+                'label': 'German'
+            },
+            top
         )
 
     def test_get_by_id(self):
@@ -854,7 +893,26 @@ class GeoDictionaryProviderTests(unittest.TestCase):
 
     def test_get_display_children_concept_with_thesaurus_array(self):
         children = geo.get_children_display(4)
-        self.assertEqual(1, len(children))
+        self.assertEqual(2, len(children))
+        self.assertIn(
+            {
+                'id': '358',
+                'uri': 'urn:x-skosprovider:geography:358',
+                'type': 'collection',
+                'label': 'Gewesten of Belgium'
+            },
+            children
+        )
+        self.assertIn(
+            {
+                'id': 359,
+                'uri': 'urn:x-skosprovider:geography:359',
+                'type': 'collection',
+                'label': 'Languages of Belgium'
+            },
+            children
+        )
+
 
 
 class SimpleCsvProviderTests(unittest.TestCase):
