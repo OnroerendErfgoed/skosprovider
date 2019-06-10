@@ -509,6 +509,16 @@ class MemoryProvider(VocabularyProvider):
         return [self._get_find_dict(c, **kwargs) for c in self._sort(self.list, sort, language, sort_order == 'desc')]
 
     def _is_top_concept(self, c):
+        '''
+        Is this a top concept or not?
+
+        A top concept is a concept that has no broader concepts directly or
+        indirectly (because it might be part of a thesaurus array).
+
+        :param c: A :class:`skosprovider.skos.Concept` or
+            :class:`skosprovider.skos.Collection`.
+        :rtype: boolean
+        '''
         if not isinstance(c, Concept):
             return False
         if len(c.broader):
