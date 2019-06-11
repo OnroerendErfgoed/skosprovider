@@ -39,7 +39,7 @@ class DictDumperTest(unittest.TestCase):
             ],
             'sources': [
                 {
-                    'citation': u'Monthy Python. Episode Three: How to recognise different types of trees from quite a long way away.', 
+                    'citation': u'Monthy Python. Episode Three: How to recognise different types of trees from quite a long way away.',
                     'markup': None
                 }
             ],
@@ -115,7 +115,8 @@ class DictDumperTest(unittest.TestCase):
             'sources': [],
             'members': ['1', '2'],
             'member_of': [],
-            'superordinates': []
+            'superordinates': [],
+            'infer_concept_relations': False
         }
         self.world_dump = {
             'id': '1',
