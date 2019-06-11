@@ -6,7 +6,7 @@
   :attr:`~skosprovider.skos.Collection.infer_concept_relations` that indicates if 
   the members of a collection should be seen as narrower concepts of a superordinate 
   concept. This is generally important when expanding a concept to all it's
-  narrower concepts for searching. (#58)
+  narrower concepts for searching. (#57)
 - A registry can now carry metadata just like a provider.
 - Drop support for Python 3.3.
 
