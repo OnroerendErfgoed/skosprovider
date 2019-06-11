@@ -1,6 +1,12 @@
-0.7.0 (2018-??-??)
+0.7.0 (2019-??-??)
 ------------------
 
+- Make handling of the hierarchy involving collections as thesaurus arrays more
+  logical. A collection now has an attribute 
+  :attr:`~skosprovider.skos.Collection.infer_concept_relations` that indicates if 
+  the members of a collection should be seen as narrower concepts of a superordinate 
+  concept. This is generally important when expanding a concept to all it's
+  narrower concepts for searching. (#58)
 - A registry can now carry metadata just like a provider.
 - Drop support for Python 3.3.
 
