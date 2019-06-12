@@ -482,7 +482,7 @@ class MemoryProvider(VocabularyProvider):
                 members = self.expand(coll.id)
             else:
                 members = coll.members
-            include = any([True for id in members if str(id) == str(c.id)]) 
+            include = any([True for id in members if str(id) == str(c.id)])
         return include
 
     def _get_find_dict(self, c, **kwargs):
@@ -508,11 +508,34 @@ class MemoryProvider(VocabularyProvider):
         sort_order = self._get_sort_order(**kwargs)
         return [self._get_find_dict(c, **kwargs) for c in self._sort(self.list, sort, language, sort_order == 'desc')]
 
+    def _is_top_concept(self, c):
+        '''
+        Is this a top concept or not?
+
+        A top concept is a concept that has no broader concepts directly or
+        indirectly (because it might be part of a thesaurus array).
+
+        :param c: A :class:`skosprovider.skos.Concept` or
+            :class:`skosprovider.skos.Collection`.
+        :rtype: boolean
+        '''
+        if not isinstance(c, Concept):
+            return False
+        if len(c.broader):
+            return False
+        def _has_higher_concept(c):
+            for collid in c.member_of:
+                coll = self.get_by_id(collid)
+                if coll.infer_concept_relations and (coll.superordinates or _has_higher_concept(coll)):
+                    return True
+            return False
+        return not _has_higher_concept(c)
+
     def get_top_concepts(self, **kwargs):
         language = self._get_language(**kwargs)
         sort = self._get_sort(**kwargs)
         sort_order = self._get_sort_order(**kwargs)
-        tc = [c for c in self.list if isinstance(c, Concept) and len(c.broader) == 0]
+        tc = [c for c in self.list if self._is_top_concept(c)]
         return [self._get_find_dict(c, **kwargs) for c in self._sort(tc, sort, language, sort_order == 'desc')]
 
     def expand(self, id):
@@ -523,6 +546,10 @@ class MemoryProvider(VocabularyProvider):
                     ret = set([c.id])
                     for cid in c.narrower:
                         ret |= set(self.expand(cid))
+                    for collid in c.subordinate_arrays:
+                        coll = self.get_by_id(collid)
+                        if coll.infer_concept_relations:
+                            ret |= set(self.expand(collid))
                     return list(ret)
                 elif isinstance(c, Collection):
                     ret = set([])
@@ -554,10 +581,7 @@ class MemoryProvider(VocabularyProvider):
         sort = self._get_sort(**kwargs)
         sort_order = self._get_sort_order(**kwargs)
         if isinstance(c, Concept):
-            if len(c.subordinate_arrays) == 0:
-                display_children = c.narrower
-            else:
-                display_children = c.subordinate_arrays
+            display_children = c.subordinate_arrays + c.narrower
         else:
             display_children = c.members
         dc = [self.get_by_id(dcid) for dcid in display_children]
@@ -592,7 +616,8 @@ class DictionaryProvider(MemoryProvider):
                 sources=data.get('sources', []),
                 members=data.get('members', []),
                 member_of=data.get('member_of', []),
-                superordinates=data.get('superordinates', [])
+                superordinates=data.get('superordinates', []),
+                infer_concept_relations=data.get('infer_concept_relations', True)
             )
         else:
             return Concept(

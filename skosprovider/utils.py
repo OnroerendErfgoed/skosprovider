@@ -53,6 +53,7 @@ def dict_dumper(provider):
                 'sources': sources,
                 'members': c.members,
                 'member_of': c.member_of,
-                'superordinates': c.superordinates
+                'superordinates': c.superordinates,
+                'infer_concept_relations': c.infer_concept_relations
             })
     return ret

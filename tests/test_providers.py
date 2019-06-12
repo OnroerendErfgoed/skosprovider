@@ -77,7 +77,8 @@ species = {
             'note': 'As seen in <em>How to Recognise Different Types of Trees from Quite a Long Way Away</em>.',
             'markup': 'HTML'
         }
-    ]
+    ],
+    'infer_concept_relations': False
 }
 
 trees = DictionaryProvider(
@@ -123,9 +124,10 @@ geo = DictionaryProvider(
             'labels': [
                 {'type': 'prefLabel', 'language': 'en', 'label': 'Belgium'}
             ],
-            'narrower': [7, 8, 9], 'broader': [2],
+            'broader': [2],
+            'narrower': [16],
             'member_of': ['333'],
-            'subordinate_arrays': ['358']
+            'subordinate_arrays': ['358', '359']
         }, {
             'id': 5,
             'labels': [
@@ -137,7 +139,7 @@ geo = DictionaryProvider(
                     'label': 'Brittannia'
                 }
             ],
-            'broader': [2]
+            'narrower': [10, 11, 12], 'broader': [2]
         }, {
             'id': 6,
             'labels': [
@@ -152,19 +154,59 @@ geo = DictionaryProvider(
             'labels': [
                 {'type': 'prefLabel', 'language': 'en', 'label': 'Flanders'}
             ],
-            'broader': [4],
-            'member_of': ['333']
+            'member_of': ['333', '358']
         }, {
             'id': 8,
             'labels': [
                 {'type': 'prefLabel', 'language': 'en', 'label': 'Brussels'}
             ],
-            'broader': [4],
-            'member_of': ['333']
+            'member_of': ['333', '358']
         }, {
             'id': 9,
             'labels': [
                 {'type': 'prefLabel', 'language': 'en', 'label': 'Wallonie'}
+            ],
+            'member_of': [358]
+        }, {
+            'id': 10,
+            'labels': [
+                {'type': 'prefLabel', 'language': 'en', 'label': 'Scotland'}
+            ],
+            'broader': [5]
+        }, {
+            'id': 11,
+            'labels': [
+                {'type': 'prefLabel', 'language': 'en', 'label': 'England'}
+            ],
+            'broader': [5]
+        }, {
+            'id': 12,
+            'labels': [
+                {'type': 'prefLabel', 'language': 'en', 'label': 'Wales'}
+            ],
+            'broader': [5]
+        }, {
+            'id': 13,
+            'labels': [
+                {'type': 'prefLabel', 'language': 'en', 'label': 'French'}
+            ],
+            'member_of': [359]
+        }, {
+            'id': 14,
+            'labels': [
+                {'type': 'prefLabel', 'language': 'en', 'label': 'Dutch'}
+            ],
+            'member_of': [359]
+        }, {
+            'id': 15,
+            'labels': [
+                {'type': 'prefLabel', 'language': 'en', 'label': 'German'}
+            ],
+            'member_of': [359]
+        }, {
+            'id': 16,
+            'labels': [
+                {'type': 'prefLabel', 'language': 'en', 'label': 'The coast'}
             ],
             'broader': [4]
         }, {
@@ -176,18 +218,34 @@ geo = DictionaryProvider(
                     'label': 'Places where dutch is spoken'
                 }
             ],
-            'members': ['4', '7', '8']
+            'members': ['4', '7', '8'],
+            'infer_concept_relations': False
         }, {
             'id': '358',
             'type': 'collection',
             'labels': [
                 {
-                    'type': 'prefLabel', 'language': 'nl',
+                    'type': 'prefLabel', 'language': 'en',
                     'label': 'Gewesten of Belgium'
                 }
             ],
             'members': ['7', '8', '9'],
-            'superordinates': ['4']
+            'superordinates': ['4'],
+            'infer_concept_relations': True
+        }, {
+            'id': 359,
+            'type': 'collection',
+            'labels': [
+                {
+                    'type': 'prefLabel', 'language': 'en',
+                    'label': 'Languages of Belgium'
+                }
+
+
+            ],
+            'members': [13, 14, 15],
+            'superordinates': [4],
+            'infer_concept_relations': False
         }
     ]
 )
@@ -697,17 +755,24 @@ class GeoDictionaryProviderTests(unittest.TestCase):
 
     def test_get_top_concepts(self):
         top = geo.get_top_concepts()
-        self.assertEqual(1, len(top))
-        self.assertEqual(
-            top,
-            [
-                {
-                    'id': '1',
-                    'uri': 'urn:x-skosprovider:geography:1',
-                    'type': 'concept',
-                    'label': 'World'
-                }
-            ]
+        self.assertEqual(4, len(top))
+        self.assertIn(
+            {
+                'id': '1',
+                'uri': 'urn:x-skosprovider:geography:1',
+                'type': 'concept',
+                'label': 'World'
+            },
+            top
+        )
+        self.assertIn(
+            {
+                'id': 15,
+                'uri': 'urn:x-skosprovider:geography:15',
+                'type': 'concept',
+                'label': 'German'
+            },
+            top
         )
 
     def test_get_by_id(self):
@@ -738,17 +803,20 @@ class GeoDictionaryProviderTests(unittest.TestCase):
         self.assertEqual('333', dutch_speaking.id)
         self.assertEqual(['4', '7', '8'], dutch_speaking.members)
 
-    def test_expand(self):
-        self.assertTrue(set([4, 7, 8, 9]), set(geo.expand(4)))
+    def test_expand_Belgium(self):
+        self.assertEqual(set([4, 7, 8, 9, 16]), set(geo.expand(4)))
+
+    def test_expand_UK(self):
+        self.assertEqual(set([5, 10, 11, 12]), set(geo.expand(5)))
 
     def test_expand_string(self):
-        self.assertTrue(set([4, 7, 8, 9]), set(geo.expand('4')))
+        self.assertEqual(set([4, 7, 8, 9, 16]), set(geo.expand('4')))
 
     def test_expand_unexisting(self):
         self.assertEqual(False, geo.expand(987654321))
 
     def test_expand_collection(self):
-        self.assertTrue(set([4, 7, 8, 9]), set(geo.expand(333)))
+        self.assertEqual(set([4, 7, 8, 9, 16]), set(geo.expand(333)))
 
     def test_find_in_collection(self):
         c = geo.find({'collection': {'id': 333}})
@@ -760,7 +828,7 @@ class GeoDictionaryProviderTests(unittest.TestCase):
         c = geo.find({
             'collection': {'id': 333, 'depth': 'all'}
         })
-        self.assertEqual(4, len(c))
+        self.assertEqual(5, len(c))
         for cc in c:
             self.assertIsInstance(geo.get_by_id(cc['id']), Concept)
 
@@ -832,7 +900,35 @@ class GeoDictionaryProviderTests(unittest.TestCase):
 
     def test_get_display_children_concept_with_thesaurus_array(self):
         children = geo.get_children_display(4)
-        self.assertEqual(1, len(children))
+        self.assertEqual(3, len(children))
+        self.assertIn(
+            {
+                'id': '358',
+                'uri': 'urn:x-skosprovider:geography:358',
+                'type': 'collection',
+                'label': 'Gewesten of Belgium'
+            },
+            children
+        )
+        self.assertIn(
+            {
+                'id': 359,
+                'uri': 'urn:x-skosprovider:geography:359',
+                'type': 'collection',
+                'label': 'Languages of Belgium'
+            },
+            children
+        )
+        self.assertIn(
+            {
+                'id': 16,
+                'uri': 'urn:x-skosprovider:geography:16',
+                'type': 'concept',
+                'label': 'The coast'
+            },
+            children
+        )
+
 
 
 class SimpleCsvProviderTests(unittest.TestCase):

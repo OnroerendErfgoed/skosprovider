@@ -425,11 +425,16 @@ class Collection:
     superordinates = []
     '''A :class:`lst` of concept ids.'''
 
+    infer_concept_relations = True
+    '''Should member concepts of this collection be seen as narrower concept of
+    a superordinate of the collection?'''
+
     def __init__(self, id, uri=None,
                  concept_scheme=None,
                  labels=[], notes=[], sources=[],
                  members=[], member_of=[],
-                 superordinates=[]):
+                 superordinates=[],
+                 infer_concept_relations=True):
         self.id = id
         self.uri = uri
         self.type = 'collection'
@@ -440,6 +445,7 @@ class Collection:
         self.members = members
         self.member_of = member_of
         self.superordinates = superordinates
+        self.infer_concept_relations = infer_concept_relations
 
     def label(self, language='any'):
         '''
