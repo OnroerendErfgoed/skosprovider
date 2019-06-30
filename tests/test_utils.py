@@ -49,10 +49,10 @@ class DictDumperTest(unittest.TestCase):
             'member_of': ['3'],
             'subordinate_arrays': [],
             'matches': {
-                'close': [
+                'close': [],
+                'exact': [
                     'http://id.python.org/different/types/of/trees/nr/1/the/larch'
                 ],
-                'exact': [],
                 'related': [],
                 'narrow': [],
                 'broad': []
