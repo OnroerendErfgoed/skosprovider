@@ -3,14 +3,16 @@
 
 - Make handling of the hierarchy involving collections as thesaurus arrays more
   logical. A collection now has an attribute 
-  :attr:`~skosprovider.skos.Collection.infer_concept_relations` that indicates if 
+  :attr:`skosprovider.skos.Collection.infer_concept_relations` that indicates if 
   the members of a collection should be seen as narrower concepts of a superordinate 
   concept. This is generally important when expanding a concept to all it's
   narrower concepts for searching. (#57)
 - Add a new query option for querying matches with concepts from external 
-  conceptschemes to :class:`skosprovider.providers.VocabularyProvider.find`.
+  conceptschemes to :meth:`skosprovider.providers.VocabularyProvider.find`.
   (#58)
 - A registry can now carry metadata just like a provider.
+- Fix a bug that made it impossible for a
+  :class:`~skosprovider.providers.SimpleCsvProvider` to read sources. (#36)
 - Drop support for Python 3.3.
 
 0.6.1 (2017-07-16)
