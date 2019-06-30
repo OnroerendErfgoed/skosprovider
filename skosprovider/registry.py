@@ -66,7 +66,7 @@ class Registry:
 
         :param skosprovider.providers.VocabularyProvider provider: The provider
             to register.
-        :raises RegistryException: A provider with this id or uri has already 
+        :raises RegistryException: A provider with this id or uri has already
             been registered.
         '''
         if provider.get_vocabulary_id() in self.providers:
@@ -170,6 +170,22 @@ class Registry:
             # Find anything that has a label of church in any provider.
             # If possible, display the results with a Dutch label.
             registry.find({'label': 'church'}, language='nl')
+
+            # Find anything that has a match with an external concept
+            # If possible, display the results with a Dutch label.
+            registry.find({
+                'matches': {
+                    'uri': 'http://id.python.org/different/types/of/trees/nr/1/the/larch'
+                }}, language='nl')
+
+            # Find anything that has a label of lariks with a close match to an external concept
+            # If possible, display the results with a Dutch label.
+            provider.find({
+                'matches': {
+                    'label': 'lariks',
+                    'type': 'close',
+                    'uri': 'http://id.python.org/different/types/of/trees/nr/1/the/larch'
+                }}, language='nl')
 
         :param dict query: The query parameters that will be passed on to each
             :meth:`~skosprovider.providers.VocabularyProvider.find` method of

@@ -262,6 +262,22 @@ class VocabularyProvider:
             # Preferentially display a label in Dutch.
             provider.find({'label': 'church'}, language='nl')
 
+            # Find anything that has a match with an external concept
+            # Preferentially display a label in Dutch.
+            provider.find({
+                'matches': {
+                    'uri': 'http://id.python.org/different/types/of/trees/nr/1/the/larch'
+                }}, language='nl')
+
+            # Find anything that has a label of lariks with a close match to an external concept
+            # Preferentially display a label in Dutch.
+            provider.find({
+                'matches': {
+                    'label': 'lariks',
+                    'type': 'close',
+                    'uri': 'http://id.python.org/different/types/of/trees/nr/1/the/larch'
+                }}, language='nl')
+
         :param query: A dict that can be used to express a query. The following
             keys are permitted:
 
@@ -287,6 +303,14 @@ class VocabularyProvider:
                     should return concepts and collections that are a member \
                     of the collection or are a narrower concept of a member \
                     of the collection.
+            * `matches`: Search only for concepts having a match to a certain
+                external concept. Since collections can't have matches, this
+                automatically excludes collections. The argument with two keys:
+
+                * `uri`: The uri of the concept to match. Required.
+                * `type`: The type of match, see \
+                    :attr:`~skosprovider.skos.Concept.matchtypes` for the \
+                    full list of options.
 
         :param string language: Optional. If present, it should be a
             :term:`language-tag`. This language-tag is passed on to the
@@ -453,6 +477,8 @@ class MemoryProvider(VocabularyProvider):
         '''
         if 'type' in query and query['type'] not in ['concept', 'collection']:
             del query['type']
+        if 'matches' in query and 'type' not in query:
+            query['type'] = 'concept'
         return query
 
     def _include_in_find(self, c, query):
@@ -483,6 +509,22 @@ class MemoryProvider(VocabularyProvider):
             else:
                 members = coll.members
             include = any([True for id in members if str(id) == str(c.id)])
+        if include and 'matches' in query and c.type == 'concept':
+            match_uri = query['matches'].get('uri', None)
+            if not match_uri:
+                raise ValueError(
+                    'Please provide a URI to match with.'
+                )
+            match_type = query['matches'].get('type', None)
+            if not match_type:
+                matches = []
+                for mt in c.matchtypes:
+                    matches.extend(c.matches[mt])
+            else:
+                matches = c.matches.get(match_type, [])[:]
+                if match_type == 'close':
+                    matches.extend(c.matches.get('exact', []))
+            include = any([True for uri in matches if uri == match_uri])
         return include
 
     def _get_find_dict(self, c, **kwargs):

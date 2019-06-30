@@ -36,7 +36,7 @@ larch = {
     ],
     'member_of': ['3'],
     'matches': {
-        'close': ['http://id.python.org/different/types/of/trees/nr/1/the/larch']
+        'exact': ['http://id.python.org/different/types/of/trees/nr/1/the/larch']
     }
 }
 
@@ -299,8 +299,8 @@ class TreesDictionaryProviderTests(unittest.TestCase):
         self.assertEqual(larch['member_of'], lariks.member_of)
         self.assertEqual('concept', lariks.type)
         assert 5 == len(lariks.matches)
-        assert 1 == len(lariks.matches['close'])
-        assert larch['matches']['close'] == lariks.matches['close']
+        assert 1 == len(lariks.matches['exact'])
+        assert larch['matches']['exact'] == lariks.matches['exact']
         assert [] == lariks.matches['related']
 
     def test_get_by_id_is_type_agnostic(self):
@@ -658,6 +658,44 @@ class TreesDictionaryProviderTests(unittest.TestCase):
 
     def test_find_in_unexisting_collection(self):
         self.assertRaises(ValueError, trees.find, {'collection': {'id': 404}})
+
+    def test_find_matches_without_uri(self):
+        self.assertRaises(ValueError, trees.find, {'matches': {'type': 'close'}})
+
+    def test_find_matches_uri_not_present(self):
+        c = trees.find({'matches': {'uri': 'https://id.erfgoed.net/thesauri/soorten/1'}})
+        self.assertEqual(0, len(c))
+
+    def test_find_matches_uri_present(self):
+        c = trees.find({'matches': {'uri': 'http://id.python.org/different/types/of/trees/nr/1/the/larch'}})
+        self.assertEqual(1, len(c))
+
+    def test_find_matches_uri_and_type_present(self):
+        c = trees.find({
+            'matches': {
+                'uri': 'http://id.python.org/different/types/of/trees/nr/1/the/larch',
+                'type': 'exact'
+            }
+        })
+        self.assertEqual(1, len(c))
+
+    def test_find_matches_uri_and_type_inheritance_present(self):
+        c = trees.find({
+            'matches': {
+                'uri': 'http://id.python.org/different/types/of/trees/nr/1/the/larch',
+                'type': 'close'
+            }
+        })
+        self.assertEqual(1, len(c))
+
+    def test_find_matches_uri_and_wrong_type(self):
+        c = trees.find({
+            'matches': {
+                'uri': 'http://id.python.org/different/types/of/trees/nr/1/the/larch',
+                'type': 'related'
+            }
+        })
+        self.assertEqual(0, len(c))
 
     def test_get_display_top(self):
         top = trees.get_top_display()

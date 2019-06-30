@@ -7,6 +7,9 @@
   the members of a collection should be seen as narrower concepts of a superordinate 
   concept. This is generally important when expanding a concept to all it's
   narrower concepts for searching. (#57)
+- Add a new query option for querying matches with concepts from external 
+  conceptschemes to :class:`skosprovider.providers.VocabularyProvider.find`.
+  (#58)
 - A registry can now carry metadata just like a provider.
 - Drop support for Python 3.3.
 
