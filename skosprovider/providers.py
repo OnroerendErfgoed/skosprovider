@@ -272,8 +272,8 @@ class VocabularyProvider:
             # Find anything that has a label of lariks with a close match to an external concept
             # Preferentially display a label in Dutch.
             provider.find({
+                'label': 'lariks',
                 'matches': {
-                    'label': 'lariks',
                     'type': 'close',
                     'uri': 'http://id.python.org/different/types/of/trees/nr/1/the/larch'
                 }}, language='nl')
