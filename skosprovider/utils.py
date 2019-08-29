@@ -5,10 +5,22 @@ This module contains utility functions for dealing with skos providers.
 
 from __future__ import unicode_literals
 
+import sys
+
 from skosprovider.skos import (
     Concept,
     Collection
 )
+
+from xml.dom.minidom import Node, Element
+import html5lib
+
+PY3 = sys.version_info[0] == 3
+
+if PY3:  # pragma: no cover
+    binary_type = bytes
+else:  # pragma: no cover
+    binary_type = str
 
 
 def dict_dumper(provider):
@@ -57,3 +69,75 @@ def dict_dumper(provider):
                 'infer_concept_relations': c.infer_concept_relations
             })
     return ret
+
+
+def extract_language(lang):
+    '''
+    Turn a language in our domain model into a IANA tag.
+    '''
+    if lang is None:
+        lang = 'und'  # return undefined code when no language
+    else:
+        lang = text_(lang, encoding="UTF-8")
+    return lang
+
+
+def text_(s, encoding='latin-1', errors='strict'):
+    """ If ``s`` is an instance of ``binary_type``, return
+    ``s.decode(encoding, errors)``, otherwise return ``s``"""
+    if isinstance(s, binary_type):
+        return s.decode(encoding, errors)
+    return s
+
+
+def add_lang_to_html(htmltext, lang):
+    '''
+    Take a piece of HTML and add an xml:lang attribute to it.
+    '''
+    if lang == 'und':
+        return htmltext
+    parser = html5lib.HTMLParser(
+        tree=html5lib.treebuilders.getTreeBuilder("dom")
+    )
+    html = parser.parseFragment(htmltext)
+    html.normalize()
+    if len(html.childNodes) == 0:
+        return '<div xml:lang="%s"></div>' % lang
+    elif len(html.childNodes) == 1:
+        node = html.firstChild
+        if node.nodeType == Node.TEXT_NODE:
+            div = Element('div')
+            div.ownerDocument = html
+            div.setAttribute('xml:lang', lang)
+            div.childNodes = [node]
+            html.childNodes = [div]
+        else:
+            node.setAttribute('xml:lang', lang)
+    else:
+        #add a single encompassing div
+        div = Element('div')
+        div.ownerDocument = html
+        div.setAttribute('xml:lang', lang)
+        div.childNodes = html.childNodes
+        html.childNodes = [div]
+    return html.toxml()
+
+
+def _df_writexml(self, writer, indent="", addindent="", newl=""):
+    '''
+    Monkeypatch method for unexisting `writexml` in
+    :class:`xml.dom.minidom.DocumentFragment`.
+    '''
+    # indent = current indentation
+    # addindent = indentation to add to higher levels
+    # newl = newline string
+    if self.childNodes:
+        if (len(self.childNodes) == 1 and
+            self.childNodes[0].nodeType == Node.TEXT_NODE):
+            self.childNodes[0].writexml(writer, '', '', '')
+        else:
+            for node in self.childNodes:
+                node.writexml(writer, indent+addindent, addindent, newl)
+
+from xml.dom.minidom import DocumentFragment
+DocumentFragment.writexml = _df_writexml
