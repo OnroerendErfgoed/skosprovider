@@ -21,11 +21,11 @@ from test_providers import (
 class TestDumperTrees():
 
     def test_dump_larch(self):
-        doc = jsonld_c_dumper(trees, 1)
+        doc = jsonld_c_dumper(trees, 1, language='nl')
         assert doc['id'] == '1'
         assert doc['uri'] == 'http://id.trees.org/1'
         assert doc['type'] == 'concept'
-        assert type(doc['label']) == str
+        assert doc['label'] == 'De Lariks'
         assert len(doc['labels']['pref_labels']) == 2
         assert {
                 'language': 'en',
@@ -97,7 +97,7 @@ class TestDumperTrees():
         assert doc['id'] == '2'
         assert doc['uri'] == 'http://id.trees.org/2'
         assert doc['type'] == 'concept'
-        assert type(doc['label']) == str
+        assert doc['label'] == 'The Chestnut'
         assert len(doc['labels']['pref_labels']) == 1
         assert {
                 'language': 'en',
@@ -124,7 +124,7 @@ class TestDumperTrees():
         assert doc['id'] == 3
         assert doc['uri'] == 'http://id.trees.org/3'
         assert doc['type'] == 'collection'
-        assert type(doc['label']) == str
+        assert doc['label'] == 'Trees by species'
         assert len(doc['labels']['pref_labels']) == 2
         assert {
                 'language': 'en',
