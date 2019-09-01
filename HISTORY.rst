@@ -1,6 +1,9 @@
 0.7.0 (2019-??-??)
 ------------------
 
+- Add dumpers to transform a provider, a conceptscheme or a concept or
+  collection in to a dictionary compatible with a JSON-LD context that has been
+  added. This makes it possible to transform a provider into Linked Data.
 - Make handling of the hierarchy involving collections as thesaurus arrays more
   logical. A collection now has an attribute 
   :attr:`skosprovider.skos.Collection.infer_concept_relations` that indicates if 

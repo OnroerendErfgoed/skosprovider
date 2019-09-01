@@ -54,6 +54,12 @@ chestnut = {
             'note': 'A different type of tree.'
         }
     ],
+    'sources': [
+        {
+            'citation': '<span class="author">Bicycle repair man</span>',
+            'markup': 'HTML'
+        }
+    ],
     'member_of': ['3'],
     'matches': {
         'related': ['http://id.python.org/different/types/of/trees/nr/17/the/other/chestnut']
@@ -85,10 +91,20 @@ trees = DictionaryProvider(
     {
         'id': 'TREES',
         'default_language': 'nl',
-        'subject': ['biology']
+        'subject': ['biology'],
+        'dataset': {
+            'uri': 'http://id.trees.org/dataset'
+        }
     },
     [larch, chestnut, species],
-    concept_scheme=ConceptScheme('http://id.trees.org')
+    concept_scheme=ConceptScheme(
+        'http://id.trees.org',
+        labels = [{
+            'type': 'prefLabel',
+            'language': 'nl',
+            'label': 'Soorten'
+        }]
+    )
 )
 
 world = {
@@ -262,10 +278,14 @@ class TreesDictionaryProviderTests(unittest.TestCase):
         self.assertEqual('TREES', trees.get_vocabulary_id())
 
     def test_get_metadata(self):
-        self.assertEqual(
-            {'id': 'TREES', 'default_language': 'nl', 'subject': ['biology']},
-            trees.get_metadata()
-        )
+        assert trees.get_metadata() == {
+            'id': 'TREES',
+            'default_language': 'nl',
+            'subject': ['biology'],
+            'dataset': {
+                'uri': 'http://id.trees.org/dataset'
+            }
+        }
 
     def test_get_by_id(self):
         lariks = trees.get_by_id(1)

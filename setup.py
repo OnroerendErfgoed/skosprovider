@@ -16,7 +16,9 @@ packages = [
 
 requires = [
     'language-tags',
-    'rfc3987'
+    'rfc3987',
+    'pyld',
+    'html5lib'
 ]
 
 setup(
