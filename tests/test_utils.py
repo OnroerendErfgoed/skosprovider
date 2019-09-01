@@ -81,7 +81,10 @@ class DictDumperTest(unittest.TestCase):
                     'note': 'A different type of tree.', 'markup': None
                 }
             ],
-            'sources': [],
+            'sources': [{
+                'citation': '<span class="author">Bicycle repair man</span>',
+                'markup': 'HTML'
+            }],
             'narrower': [],
             'broader': [],
             'related': [],
