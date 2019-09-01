@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 '''
 This module contains functions dealing with jsonld reading and writing.
+
+.. versionadded:: 0.7.0
 '''
 
 from __future__ import unicode_literals
@@ -169,6 +171,16 @@ CONTEXT = {
 }
 
 def jsonld_dumper(provider, context = None, language = None):
+    '''
+    Dump a provider to a JSON-LD serialisable dictionary.
+
+    :param skosprovider.providers.VocabularyProvider provider: The provider
+        that wil be turned into a JSON-LD `dict`.
+    :param str or dict context: Context as a dict or link to context file.
+    :param string language: Language to render a single label in.
+
+    :rtype: A `dict`
+    '''
     if not language:
         language = provider.metadata.get('default_language', 'en')
     doc = {
@@ -189,6 +201,19 @@ def jsonld_dumper(provider, context = None, language = None):
 
 def jsonld_c_dumper(provider, id, context = None, relations_profile =
         'partial', language = 'en'):
+    '''
+    Dump a concept or collection to a JSON-LD serialisable dictionary.
+
+    :param skosprovider.providers.VocabularyProvider provider: The provider
+        that contains the concept or collection.
+    :param str or int id: Identifier of the concept to dump.
+    :param str or dict context: Context as a dict or link to context file.
+    :param str relations_profile: Either `partial` or `uri` to render links to
+        other resources with some information or just a :term:`URI`.
+    :param string language: Language to render a single label in.
+
+    :rtype: A `dict`
+    '''
     c = provider.get_by_id(id)
     doc = _jsonld_c_basic_renderer(c, language)
     if context:
@@ -359,6 +384,18 @@ def _jsonld_topconcepts_renderer(provider, profile = 'partial'):
 
 def jsonld_conceptscheme_dumper(provider, context = None,
         relations_profile = 'partial', language = 'en'):
+    '''
+    Dump a conceptscheme to a JSON-LD serialisable dictionary.
+
+    :param skosprovider.providers.VocabularyProvider provider: The provider
+        that contains the conceptscheme.
+    :param str or dict context: Context as a dict or link to context file.
+    :param str relations_profile: Either `partial` or `uri` to render links to
+        other resources with some information or just a :term:`URI`.
+    :param string language: Language to render a single label in.
+
+    :rtype: A `dict`
+    '''
     cs = provider.concept_scheme
     doc = _jsonld_cs_basic_renderer(cs)
     if context:
@@ -372,4 +409,3 @@ def jsonld_conceptscheme_dumper(provider, context = None,
     doc.update(_jsonld_sources_renderer(cs))
     doc.update(_jsonld_topconcepts_renderer(provider, relations_profile))
     return doc
-

@@ -74,6 +74,8 @@ def dict_dumper(provider):
 def extract_language(lang):
     '''
     Turn a language in our domain model into a IANA tag.
+
+    .. versionadded:: 0.7.0
     '''
     if lang is None:
         lang = 'und'  # return undefined code when no language
@@ -93,6 +95,8 @@ def text_(s, encoding='latin-1', errors='strict'):
 def add_lang_to_html(htmltext, lang):
     '''
     Take a piece of HTML and add an xml:lang attribute to it.
+
+    .. versionadded:: 0.7.0
     '''
     if lang == 'und':
         return htmltext
@@ -127,6 +131,8 @@ def _df_writexml(self, writer, indent="", addindent="", newl=""):
     '''
     Monkeypatch method for unexisting `writexml` in
     :class:`xml.dom.minidom.DocumentFragment`.
+
+    .. versionadded:: 0.7.0
     '''
     # indent = current indentation
     # addindent = indentation to add to higher levels
