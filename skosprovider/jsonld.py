@@ -22,6 +22,22 @@ from skosprovider.utils import (
 import logging
 log = logging.getLogger(__name__)
 
+MINI_CONTEXT = {
+    "@version": 1.1,
+    "dct": "http://purl.org/dc/terms/",
+    "skos": "http://www.w3.org/2004/02/skos/core#",
+    "iso-thes": "http://purl.org/iso25964/skos-thes#",
+    "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "void": "http://rdfs.org/ns/void#",
+    "uri": "@id",
+    "type": "@type",
+    "id": "dct:identifier",
+    "label": "rdfs:label",
+    "concept": "skos:Concept",
+    "collection": "skos:Collection",
+}
+
 CONTEXT = {
     "@version": 1.1,
     "dct": "http://purl.org/dc/terms/",
@@ -32,6 +48,7 @@ CONTEXT = {
     "void": "http://rdfs.org/ns/void#",
     "uri": "@id",
     "type": "@type",
+    "id": "dct:identifier",
     "label": "rdfs:label",
     "concept": "skos:Concept",
     "collection": "skos:Collection",
@@ -39,7 +56,6 @@ CONTEXT = {
     "nt": "@value",
     "ct": "@value",
     "HTML": "rdf:HTML",
-    "id": "dct:identifier",
     "concept_scheme": {
         "@id": "skos:inScheme",
         "@type": "@id"
@@ -165,6 +181,11 @@ CONTEXT = {
     },
     "related": {
         "@id": "skos:related",
+        "@type": "@id",
+        "@container": "@set"
+    },
+    "languages": {
+        "@id": "dct:language",
         "@type": "@id",
         "@container": "@set"
     }
@@ -382,6 +403,14 @@ def _jsonld_topconcepts_renderer(provider, profile = 'partial'):
             doc['top_concepts'].append(c['uri'])
     return doc
 
+def _jsonld_cs_languages_renderer(cs):
+    doc = {
+        'languages': []
+    }
+    for l in cs.languages:
+        doc['languages'].append(l)
+    return doc
+
 def jsonld_conceptscheme_dumper(provider, context = None,
         relations_profile = 'partial', language = 'en'):
     '''
@@ -407,5 +436,6 @@ def jsonld_conceptscheme_dumper(provider, context = None,
     doc.update(_jsonld_labels_renderer(cs))
     doc.update(_jsonld_notes_renderer(cs))
     doc.update(_jsonld_sources_renderer(cs))
+    doc.update(_jsonld_cs_languages_renderer(cs))
     doc.update(_jsonld_topconcepts_renderer(provider, relations_profile))
     return doc
