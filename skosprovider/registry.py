@@ -56,7 +56,7 @@ class Registry:
           other session handling code generally require this.
     '''
 
-    def __init__(self, instance_scope = 'single', metadata={}):
+    def __init__(self, instance_scope='single', metadata={}):
         '''
         :param str instance_scope: Indicates how the registry was instantiated.
             Possible values: single, threaded_global, threaded_thread.
