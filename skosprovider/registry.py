@@ -35,8 +35,31 @@ class Registry:
     Dictionary containing metadata about this registry.
     '''
 
-    def __init__(self, metadata={}):
+    instance_scope = 'single'
+    '''
+    Indicates how the registry is being used. Options:
+        - single: The registry is part of a script or a single process. It can
+          be assumed to be operational for the entire duration of the process
+          and there are no threads involved.
+        - threaded_global: The registry is part of a program that uses threads,
+          such as a typical web application. It's attached to the global process
+          and duplicated to threads, making it not thread safe. Proceed carefully
+          with certain providers. Should generally only be used with
+          applications that only use read-only providers that load all data in
+          memory at startup and use no database connections or other kinds of
+          sessions.
+        - threaded_thread: The registry is part of a program that uses threads,
+          such as a typical web application. It's attached to a thread, such as
+          a web request. The registry is instantiated for this thread/request and
+          dies with this thread/request. This is needed for providers such
+          as the SQLAlchemyProvider. Providers that use database connections or
+          other session handling code generally require this.
+    '''
+
+    def __init__(self, instance_scope='single', metadata={}):
         '''
+        :param str instance_scope: Indicates how the registry was instantiated.
+            Possible values: single, threaded_global, threaded_thread.
         :param dict metadata: Metadata essential to this registry. Possible
             metadata:
 
@@ -52,6 +75,9 @@ class Registry:
         self.providers = {}
         self.concept_scheme_uri_map = {}
         self.metadata = metadata
+        if instance_scope not in ['single', 'threaded_global', 'threaded_thread']:
+            raise ValueError('Invalid instance_scope.')
+        self.instance_scope = instance_scope
 
     def get_metadata(self):
         '''Get some metadata on the registry it represents.
