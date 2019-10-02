@@ -21,7 +21,9 @@
   important for SQLAlchemyProvider run in a web application.
 - Fix a bug that made it impossible for a
   :class:`~skosprovider.providers.SimpleCsvProvider` to read sources. (#36)
-- Drop support for Python 3.3.
+- Drop support for Python 3.3 and 3.4. Adds support for 3.7. This is the last
+  version that will support version 2. Version 0.8.0 will drop support for
+  Python 2.7.
 
 0.6.1 (2017-07-16)
 ------------------
