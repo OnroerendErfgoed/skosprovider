@@ -14,6 +14,11 @@
   conceptschemes to :meth:`skosprovider.providers.VocabularyProvider.find`.
   (#58)
 - A registry can now carry metadata just like a provider.
+- A registry now has an attribute
+  :attr:`skosprovider.registry.Registry.instance_scope` that indicates how the
+  registry is being run. This can help providers determine if they're
+  compatible with a registry run this was. Especially important for
+  SQLAlchemyProvider run in a web application.
 - Fix a bug that made it impossible for a
   :class:`~skosprovider.providers.SimpleCsvProvider` to read sources. (#36)
 - Drop support for Python 3.3.
