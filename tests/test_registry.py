@@ -36,8 +36,8 @@ class RegistryTests(unittest.TestCase):
 
     def test_passed_metadata_is_dict(self):
         self.reg = Registry(metadata={'catalog': {'uri': 'http://my.data.org'}})
-        self.assertIn('catalog', self.reg.get_metadata())
-        self.assertIn('uri', self.reg.get_metadata().get('catalog'))
+        assert 'catalog' in self.reg.get_metadata()
+        assert 'uri' in self.reg.get_metadata().get('catalog')
 
     def test_set_instance_scope(self):
         self.reg = Registry(instance_scope='threaded_global')
