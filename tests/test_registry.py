@@ -17,6 +17,8 @@ from skosprovider.registry import (
     RegistryException
 )
 
+import pytest
+
 
 class RegistryTests(unittest.TestCase):
     def setUp(self):
@@ -33,9 +35,17 @@ class RegistryTests(unittest.TestCase):
         self.assertIsInstance(self.reg.get_metadata(), dict)
 
     def test_passed_metadata_is_dict(self):
-        self.reg = Registry({'catalog': {'uri': 'http://my.data.org'}})
+        self.reg = Registry(metadata={'catalog': {'uri': 'http://my.data.org'}})
         self.assertIn('catalog', self.reg.get_metadata())
         self.assertIn('uri', self.reg.get_metadata().get('catalog'))
+
+    def test_set_instance_scope(self):
+        self.reg = Registry(instance_scope='threaded_global')
+        assert self.reg.instance_scope == 'threaded_global'
+
+    def test_set_invalid_instance_scope(self):
+        with pytest.raises(ValueError):
+            Registry(instance_scope='bad_scope')
 
     def test_empty_register_provider(self):
         self.reg.register_provider(self.prov)
