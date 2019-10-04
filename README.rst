@@ -10,8 +10,8 @@ where deemed useful.
 
 .. image:: https://travis-ci.org/koenedaele/skosprovider.png?branch=master
         :target: https://travis-ci.org/koenedaele/skosprovider
-.. image:: https://coveralls.io/repos/koenedaele/skosprovider/badge.png?branch=master
-        :target: https://coveralls.io/r/koenedaele/skosprovider
+.. image:: https://coveralls.io/repos/koenedaele/skosprovider/badge.svg?branch=master
+        :target: https://coveralls.io/github/koenedaele/skosprovider?branch=master
 .. image:: https://scrutinizer-ci.com/g/koenedaele/skosprovider/badges/quality-score.png?b=master
         :target: https://scrutinizer-ci.com/g/koenedaele/skosprovider/?branch=master
 
