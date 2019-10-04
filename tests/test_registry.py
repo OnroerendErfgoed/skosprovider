@@ -99,6 +99,18 @@ class RegistryTests(unittest.TestCase):
         )
         self.prov.metadata['id'] = 'TREES'
 
+    def test_register_provider_wrong_scope(self):
+        from skosprovider.skos import ConceptScheme
+        from skosprovider.providers import DictionaryProvider
+        trees = DictionaryProvider(
+            {'id': 'TREES', 'default_language': 'nl'},
+            [larch, chestnut, species],
+            concept_scheme=ConceptScheme('urn:something'),
+            allowed_instance_scopes = ['threaded_thread']
+        )
+        with pytest.raises(RegistryException):
+            self.reg.register_provider(trees)
+
     def test_one_provider_removeProvider(self):
         self.reg.register_provider(self.prov)
         self.assertEqual(self.reg.get_provider('TREES'), self.prov)
