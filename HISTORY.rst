@@ -16,9 +16,9 @@
 - A registry can now carry metadata just like a provider.
 - A registry now has an attribute
   :attr:`skosprovider.registry.Registry.instance_scope` that indicates how the
-  registry is managed in the application process. This can help providers 
-  determine if they're compatible with a particular registry. Especially 
-  important for SQLAlchemyProvider run in a web application.
+  registry is managed in the application process. All providers need to
+  indicate what kinds of instance_scope they're compatible with. Especially 
+  important for SQLAlchemyProvider run in a web application. (#63, #66)
 - Fix a bug that made it impossible for a
   :class:`~skosprovider.providers.SimpleCsvProvider` to read sources. (#36)
 - Drop support for Python 3.3 and 3.4. Adds support for 3.7. This is the last

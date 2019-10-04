@@ -95,6 +95,10 @@ class Registry:
         :raises RegistryException: A provider with this id or uri has already
             been registered.
         '''
+        if self.instance_scope not in provider.allowed_instance_scopes:
+            raise RegistryException(
+                'This provider does not support instance_scope %s' % self.instance_scope
+            )
         if provider.get_vocabulary_id() in self.providers:
             raise RegistryException(
                 'A provider with this id has already been registered.'

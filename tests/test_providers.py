@@ -288,6 +288,19 @@ class TreesDictionaryProviderTests(unittest.TestCase):
             }
         }
 
+    def test_allowed_instance_scopes(self):
+        assert trees.allowed_instance_scopes == [
+            'single', 'threaded_thread', 'threaded_global'
+        ]
+
+    def test_override_instance_scopes(self):
+        trees = DictionaryProvider(
+            {'id': 'TREES'},
+            [larch],
+            allowed_instance_scopes = ['single']
+        )
+        assert trees.allowed_instance_scopes == ['single']
+
     def test_get_by_id(self):
         lariks = trees.get_by_id(1)
         self.assertEqual(larch['id'], lariks.id)
