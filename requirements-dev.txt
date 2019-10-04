@@ -2,8 +2,9 @@
 --requirement requirements.txt
 
 # Testing
-pytest==4.4.1
-pytest-cov==2.6.1
+pytest==4.6.5
+pytest-cov==2.7.1
+coveralls==1.8.2
 
 # Documentation
 Sphinx==1.8.5
