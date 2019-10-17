@@ -200,12 +200,16 @@ class DictDumperTest(unittest.TestCase):
         dump2 = dict_dumper(self._get_tree_provider(dict_dumper(geo)))
         self.assertEqual(dump, dump2)
 
+class TestExtractLanguage(object):
 
-def test_extract_language_None():
-    assert 'und' == extract_language(None)
+    def test_extract_language_nlBE(self):
+        assert 'nl-BE' == extract_language('nl-BE')
+
+    def test_extract_language_None(self):
+        assert 'und' == extract_language(None)
 
 
-class TestHtml:
+class TestHtml(object):
 
     def test_lang_und(self):
         assert '' == add_lang_to_html('', 'und')
