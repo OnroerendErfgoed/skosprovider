@@ -27,6 +27,12 @@ Uri module
 .. automodule:: skosprovider.uri
    :members:
 
+JsonLd module
+-------------
+
+.. automodule:: skosprovider.jsonld
+   :members:
+
 Exceptions module
 -----------------
 

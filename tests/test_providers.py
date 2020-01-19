@@ -36,7 +36,7 @@ larch = {
     ],
     'member_of': ['3'],
     'matches': {
-        'close': ['http://id.python.org/different/types/of/trees/nr/1/the/larch']
+        'exact': ['http://id.python.org/different/types/of/trees/nr/1/the/larch']
     }
 }
 
@@ -52,6 +52,12 @@ chestnut = {
         {
             'type': 'definition', 'language': 'en',
             'note': 'A different type of tree.'
+        }
+    ],
+    'sources': [
+        {
+            'citation': '<span class="author">Bicycle repair man</span>',
+            'markup': 'HTML'
         }
     ],
     'member_of': ['3'],
@@ -77,17 +83,29 @@ species = {
             'note': 'As seen in <em>How to Recognise Different Types of Trees from Quite a Long Way Away</em>.',
             'markup': 'HTML'
         }
-    ]
+    ],
+    'infer_concept_relations': False
 }
 
 trees = DictionaryProvider(
     {
         'id': 'TREES',
         'default_language': 'nl',
-        'subject': ['biology']
+        'subject': ['biology'],
+        'dataset': {
+            'uri': 'http://id.trees.org/dataset'
+        }
     },
     [larch, chestnut, species],
-    concept_scheme=ConceptScheme('http://id.trees.org')
+    concept_scheme=ConceptScheme(
+        'http://id.trees.org',
+        labels = [{
+            'type': 'prefLabel',
+            'language': 'nl',
+            'label': 'Soorten'
+        }],
+        languages=['nl', 'en']
+    )
 )
 
 world = {
@@ -123,9 +141,10 @@ geo = DictionaryProvider(
             'labels': [
                 {'type': 'prefLabel', 'language': 'en', 'label': 'Belgium'}
             ],
-            'narrower': [7, 8, 9], 'broader': [2],
+            'broader': [2],
+            'narrower': [16],
             'member_of': ['333'],
-            'subordinate_arrays': ['358']
+            'subordinate_arrays': ['358', '359']
         }, {
             'id': 5,
             'labels': [
@@ -137,7 +156,7 @@ geo = DictionaryProvider(
                     'label': 'Brittannia'
                 }
             ],
-            'broader': [2]
+            'narrower': [10, 11, 12], 'broader': [2]
         }, {
             'id': 6,
             'labels': [
@@ -152,19 +171,59 @@ geo = DictionaryProvider(
             'labels': [
                 {'type': 'prefLabel', 'language': 'en', 'label': 'Flanders'}
             ],
-            'broader': [4],
-            'member_of': ['333']
+            'member_of': ['333', '358']
         }, {
             'id': 8,
             'labels': [
                 {'type': 'prefLabel', 'language': 'en', 'label': 'Brussels'}
             ],
-            'broader': [4],
-            'member_of': ['333']
+            'member_of': ['333', '358']
         }, {
             'id': 9,
             'labels': [
                 {'type': 'prefLabel', 'language': 'en', 'label': 'Wallonie'}
+            ],
+            'member_of': [358]
+        }, {
+            'id': 10,
+            'labels': [
+                {'type': 'prefLabel', 'language': 'en', 'label': 'Scotland'}
+            ],
+            'broader': [5]
+        }, {
+            'id': 11,
+            'labels': [
+                {'type': 'prefLabel', 'language': 'en', 'label': 'England'}
+            ],
+            'broader': [5]
+        }, {
+            'id': 12,
+            'labels': [
+                {'type': 'prefLabel', 'language': 'en', 'label': 'Wales'}
+            ],
+            'broader': [5]
+        }, {
+            'id': 13,
+            'labels': [
+                {'type': 'prefLabel', 'language': 'en', 'label': 'French'}
+            ],
+            'member_of': [359]
+        }, {
+            'id': 14,
+            'labels': [
+                {'type': 'prefLabel', 'language': 'en', 'label': 'Dutch'}
+            ],
+            'member_of': [359]
+        }, {
+            'id': 15,
+            'labels': [
+                {'type': 'prefLabel', 'language': 'en', 'label': 'German'}
+            ],
+            'member_of': [359]
+        }, {
+            'id': 16,
+            'labels': [
+                {'type': 'prefLabel', 'language': 'en', 'label': 'The coast'}
             ],
             'broader': [4]
         }, {
@@ -176,18 +235,34 @@ geo = DictionaryProvider(
                     'label': 'Places where dutch is spoken'
                 }
             ],
-            'members': ['4', '7', '8']
+            'members': ['4', '7', '8'],
+            'infer_concept_relations': False
         }, {
             'id': '358',
             'type': 'collection',
             'labels': [
                 {
-                    'type': 'prefLabel', 'language': 'nl',
+                    'type': 'prefLabel', 'language': 'en',
                     'label': 'Gewesten of Belgium'
                 }
             ],
             'members': ['7', '8', '9'],
-            'superordinates': ['4']
+            'superordinates': ['4'],
+            'infer_concept_relations': True
+        }, {
+            'id': 359,
+            'type': 'collection',
+            'labels': [
+                {
+                    'type': 'prefLabel', 'language': 'en',
+                    'label': 'Languages of Belgium'
+                }
+
+
+            ],
+            'members': [13, 14, 15],
+            'superordinates': [4],
+            'infer_concept_relations': False
         }
     ]
 )
@@ -204,10 +279,27 @@ class TreesDictionaryProviderTests(unittest.TestCase):
         self.assertEqual('TREES', trees.get_vocabulary_id())
 
     def test_get_metadata(self):
-        self.assertEqual(
-            {'id': 'TREES', 'default_language': 'nl', 'subject': ['biology']},
-            trees.get_metadata()
+        assert trees.get_metadata() == {
+            'id': 'TREES',
+            'default_language': 'nl',
+            'subject': ['biology'],
+            'dataset': {
+                'uri': 'http://id.trees.org/dataset'
+            }
+        }
+
+    def test_allowed_instance_scopes(self):
+        assert trees.allowed_instance_scopes == [
+            'single', 'threaded_thread', 'threaded_global'
+        ]
+
+    def test_override_instance_scopes(self):
+        trees = DictionaryProvider(
+            {'id': 'TREES'},
+            [larch],
+            allowed_instance_scopes = ['single']
         )
+        assert trees.allowed_instance_scopes == ['single']
 
     def test_get_by_id(self):
         lariks = trees.get_by_id(1)
@@ -241,8 +333,8 @@ class TreesDictionaryProviderTests(unittest.TestCase):
         self.assertEqual(larch['member_of'], lariks.member_of)
         self.assertEqual('concept', lariks.type)
         assert 5 == len(lariks.matches)
-        assert 1 == len(lariks.matches['close'])
-        assert larch['matches']['close'] == lariks.matches['close']
+        assert 1 == len(lariks.matches['exact'])
+        assert larch['matches']['exact'] == lariks.matches['exact']
         assert [] == lariks.matches['related']
 
     def test_get_by_id_is_type_agnostic(self):
@@ -601,6 +693,44 @@ class TreesDictionaryProviderTests(unittest.TestCase):
     def test_find_in_unexisting_collection(self):
         self.assertRaises(ValueError, trees.find, {'collection': {'id': 404}})
 
+    def test_find_matches_without_uri(self):
+        self.assertRaises(ValueError, trees.find, {'matches': {'type': 'close'}})
+
+    def test_find_matches_uri_not_present(self):
+        c = trees.find({'matches': {'uri': 'https://id.erfgoed.net/thesauri/soorten/1'}})
+        self.assertEqual(0, len(c))
+
+    def test_find_matches_uri_present(self):
+        c = trees.find({'matches': {'uri': 'http://id.python.org/different/types/of/trees/nr/1/the/larch'}})
+        self.assertEqual(1, len(c))
+
+    def test_find_matches_uri_and_type_present(self):
+        c = trees.find({
+            'matches': {
+                'uri': 'http://id.python.org/different/types/of/trees/nr/1/the/larch',
+                'type': 'exact'
+            }
+        })
+        self.assertEqual(1, len(c))
+
+    def test_find_matches_uri_and_type_inheritance_present(self):
+        c = trees.find({
+            'matches': {
+                'uri': 'http://id.python.org/different/types/of/trees/nr/1/the/larch',
+                'type': 'close'
+            }
+        })
+        self.assertEqual(1, len(c))
+
+    def test_find_matches_uri_and_wrong_type(self):
+        c = trees.find({
+            'matches': {
+                'uri': 'http://id.python.org/different/types/of/trees/nr/1/the/larch',
+                'type': 'related'
+            }
+        })
+        self.assertEqual(0, len(c))
+
     def test_get_display_top(self):
         top = trees.get_top_display()
         self.assertEqual(1, len(top))
@@ -697,17 +827,24 @@ class GeoDictionaryProviderTests(unittest.TestCase):
 
     def test_get_top_concepts(self):
         top = geo.get_top_concepts()
-        self.assertEqual(1, len(top))
-        self.assertEqual(
-            top,
-            [
-                {
-                    'id': '1',
-                    'uri': 'urn:x-skosprovider:geography:1',
-                    'type': 'concept',
-                    'label': 'World'
-                }
-            ]
+        self.assertEqual(4, len(top))
+        self.assertIn(
+            {
+                'id': '1',
+                'uri': 'urn:x-skosprovider:geography:1',
+                'type': 'concept',
+                'label': 'World'
+            },
+            top
+        )
+        self.assertIn(
+            {
+                'id': 15,
+                'uri': 'urn:x-skosprovider:geography:15',
+                'type': 'concept',
+                'label': 'German'
+            },
+            top
         )
 
     def test_get_by_id(self):
@@ -738,17 +875,20 @@ class GeoDictionaryProviderTests(unittest.TestCase):
         self.assertEqual('333', dutch_speaking.id)
         self.assertEqual(['4', '7', '8'], dutch_speaking.members)
 
-    def test_expand(self):
-        self.assertTrue(set([4, 7, 8, 9]), set(geo.expand(4)))
+    def test_expand_Belgium(self):
+        self.assertEqual(set([4, 7, 8, 9, 16]), set(geo.expand(4)))
+
+    def test_expand_UK(self):
+        self.assertEqual(set([5, 10, 11, 12]), set(geo.expand(5)))
 
     def test_expand_string(self):
-        self.assertTrue(set([4, 7, 8, 9]), set(geo.expand('4')))
+        self.assertEqual(set([4, 7, 8, 9, 16]), set(geo.expand('4')))
 
     def test_expand_unexisting(self):
         self.assertEqual(False, geo.expand(987654321))
 
     def test_expand_collection(self):
-        self.assertTrue(set([4, 7, 8, 9]), set(geo.expand(333)))
+        self.assertEqual(set([4, 7, 8, 9, 16]), set(geo.expand(333)))
 
     def test_find_in_collection(self):
         c = geo.find({'collection': {'id': 333}})
@@ -760,7 +900,7 @@ class GeoDictionaryProviderTests(unittest.TestCase):
         c = geo.find({
             'collection': {'id': 333, 'depth': 'all'}
         })
-        self.assertEqual(4, len(c))
+        self.assertEqual(5, len(c))
         for cc in c:
             self.assertIsInstance(geo.get_by_id(cc['id']), Concept)
 
@@ -832,7 +972,35 @@ class GeoDictionaryProviderTests(unittest.TestCase):
 
     def test_get_display_children_concept_with_thesaurus_array(self):
         children = geo.get_children_display(4)
-        self.assertEqual(1, len(children))
+        self.assertEqual(3, len(children))
+        self.assertIn(
+            {
+                'id': '358',
+                'uri': 'urn:x-skosprovider:geography:358',
+                'type': 'collection',
+                'label': 'Gewesten of Belgium'
+            },
+            children
+        )
+        self.assertIn(
+            {
+                'id': 359,
+                'uri': 'urn:x-skosprovider:geography:359',
+                'type': 'collection',
+                'label': 'Languages of Belgium'
+            },
+            children
+        )
+        self.assertIn(
+            {
+                'id': 16,
+                'uri': 'urn:x-skosprovider:geography:16',
+                'type': 'concept',
+                'label': 'The coast'
+            },
+            children
+        )
+
 
 
 class SimpleCsvProviderTests(unittest.TestCase):
@@ -867,6 +1035,7 @@ class SimpleCsvProviderTests(unittest.TestCase):
         self.assertEqual('prefLabel', eb.label().type)
         self.assertEqual([], eb.notes)
         assert 1 == len(eb.sources)
+        assert 'Monthy Python, Episode Twenty-five.' == eb.sources[0].citation
 
     def testGetEggAndSpamByUri(self):
         eb = self.csvprovider.get_by_uri('http://id.python.org/menu/3')

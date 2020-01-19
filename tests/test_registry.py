@@ -17,6 +17,8 @@ from skosprovider.registry import (
     RegistryException
 )
 
+import pytest
+
 
 class RegistryTests(unittest.TestCase):
     def setUp(self):
@@ -28,6 +30,22 @@ class RegistryTests(unittest.TestCase):
         self.reg = None
         self.prov = None
         self.prov2 = None
+
+    def test_default_metadata_is_dict(self):
+        self.assertIsInstance(self.reg.get_metadata(), dict)
+
+    def test_passed_metadata_is_dict(self):
+        self.reg = Registry(metadata={'catalog': {'uri': 'http://my.data.org'}})
+        assert 'catalog' in self.reg.get_metadata()
+        assert 'uri' in self.reg.get_metadata().get('catalog')
+
+    def test_set_instance_scope(self):
+        self.reg = Registry(instance_scope='threaded_global')
+        assert self.reg.instance_scope == 'threaded_global'
+
+    def test_set_invalid_instance_scope(self):
+        with pytest.raises(ValueError):
+            Registry(instance_scope='bad_scope')
 
     def test_empty_register_provider(self):
         self.reg.register_provider(self.prov)
@@ -80,6 +98,18 @@ class RegistryTests(unittest.TestCase):
             self.prov
         )
         self.prov.metadata['id'] = 'TREES'
+
+    def test_register_provider_wrong_scope(self):
+        from skosprovider.skos import ConceptScheme
+        from skosprovider.providers import DictionaryProvider
+        trees = DictionaryProvider(
+            {'id': 'TREES', 'default_language': 'nl'},
+            [larch, chestnut, species],
+            concept_scheme=ConceptScheme('urn:something'),
+            allowed_instance_scopes = ['threaded_thread']
+        )
+        with pytest.raises(RegistryException):
+            self.reg.register_provider(trees)
 
     def test_one_provider_removeProvider(self):
         self.reg.register_provider(self.prov)

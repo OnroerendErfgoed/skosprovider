@@ -46,12 +46,6 @@ Currently the following other providers exist:
 * `Skosprovider_atramhasis <https://skosprovider-atramhasis.readthedocs.org>`_:
   The :class:`AtramhasisProvider <skosprovider.providers.AtramhasisProvider>` 
   lets you interact with an Atramhasis_ instance. 
-* `Skosprovider_oe <https://github.com/koenedaele/skosprovider_oe>`_: This 
-  provider implements the :class:`skosprovider.providers.VocabularyProvider` 
-  interface for the thesauri attached to the 
-  `Inventaris Onroerend Erfgoed <https://inventaris.onroerenderfgoed.be/thesaurus>`_.
-  It also demonstrates making the switch from a term based thesaurus to a 
-  concept based one.
 * `Skosprovider_getty <http://skosprovider-getty.readthedocs.org/en/latest/>`_:
   An implemenation of the 
   :class:`VocabularyProvider <skosprovider.providers.VocabularyProvider>` 
@@ -110,7 +104,14 @@ In a few places we've deviated a bit from the :term:`SKOS` standard:
   :attr:`skosprovider.skos.Concept.subordinate_arrays` and 
   :attr:`skosprovider.skos.Collection.superordinates` properties from this
   specification. In effect, it turns a SKOS Collection that has one or more 
-  superordinates into a ThesaurusArray.
+  superordinates into a ThesaurusArray. Since `0.7.0` it's possible to
+  explicitly state if the member of a collection that has a superordinate
+  concept should be seen as narrower concepts of that superordinate concept
+  with the :attr:`skosprovider.skos.Collection.infer_concept_relations`. By
+  default this is set to True. If you want to model a collection that does not
+  contain narrower concepts of it's superordinate, set it to False. This will
+  mainly stop search expansion using the
+  :meth:`skosprovider.providers.VocabularyProvider.expand` method.
 
 Support
 -------

@@ -30,9 +30,61 @@ class Registry:
     Dictionary mapping concept scheme uri's to vocabulary id's.
     '''
 
-    def __init__(self):
+    metadata = {}
+    '''
+    Dictionary containing metadata about this registry.
+    '''
+
+    instance_scope = 'single'
+    '''
+    Indicates how the registry is being used. Options:
+        - single: The registry is part of a script or a single process. It can
+          be assumed to be operational for the entire duration of the process
+          and there are no threads involved.
+        - threaded_global: The registry is part of a program that uses threads,
+          such as a typical web application. It's attached to the global process
+          and duplicated to threads, making it not thread safe. Proceed carefully
+          with certain providers. Should generally only be used with
+          applications that only use read-only providers that load all data in
+          memory at startup and use no database connections or other kinds of
+          sessions.
+        - threaded_thread: The registry is part of a program that uses threads,
+          such as a typical web application. It's attached to a thread, such as
+          a web request. The registry is instantiated for this thread/request and
+          dies with this thread/request. This is needed for providers such
+          as the SQLAlchemyProvider. Providers that use database connections or
+          other session handling code generally require this.
+    '''
+
+    def __init__(self, instance_scope='single', metadata={}):
+        '''
+        :param str instance_scope: Indicates how the registry was instantiated.
+            Possible values: single, threaded_global, threaded_thread.
+        :param dict metadata: Metadata essential to this registry. Possible
+            metadata:
+
+                * `catalog`: A :class:`dict` detailing the catalog all \
+                    conceptschemes are part of. \
+                    Currently the contents of the dictionary are undefined \
+                    except for a :term:`uri` attribute that must be present.
+                * `dataset`: A :class:`dict` detailing the dataset all \
+                    conceptschemes are part of. \
+                    Currently the contents of the dictionary are undefined \
+                    except for a :term:`uri` attribute that must be present.
+        '''
         self.providers = {}
         self.concept_scheme_uri_map = {}
+        self.metadata = metadata
+        if instance_scope not in ['single', 'threaded_global', 'threaded_thread']:
+            raise ValueError('Invalid instance_scope.')
+        self.instance_scope = instance_scope
+
+    def get_metadata(self):
+        '''Get some metadata on the registry it represents.
+
+        :rtype: Dict.
+        '''
+        return self.metadata
 
     def register_provider(self, provider):
         '''
@@ -40,9 +92,13 @@ class Registry:
 
         :param skosprovider.providers.VocabularyProvider provider: The provider
             to register.
-        :raises RegistryException: A provider with this id or uri has already 
+        :raises RegistryException: A provider with this id or uri has already
             been registered.
         '''
+        if self.instance_scope not in provider.allowed_instance_scopes:
+            raise RegistryException(
+                'This provider does not support instance_scope %s' % self.instance_scope
+            )
         if provider.get_vocabulary_id() in self.providers:
             raise RegistryException(
                 'A provider with this id has already been registered.'
@@ -144,6 +200,22 @@ class Registry:
             # Find anything that has a label of church in any provider.
             # If possible, display the results with a Dutch label.
             registry.find({'label': 'church'}, language='nl')
+
+            # Find anything that has a match with an external concept
+            # If possible, display the results with a Dutch label.
+            registry.find({
+                'matches': {
+                    'uri': 'http://id.python.org/different/types/of/trees/nr/1/the/larch'
+                }}, language='nl')
+
+            # Find anything that has a label of lariks with a close match to an external concept
+            # If possible, display the results with a Dutch label.
+            provider.find({
+                'matches': {
+                    'label': 'lariks',
+                    'type': 'close',
+                    'uri': 'http://id.python.org/different/types/of/trees/nr/1/the/larch'
+                }}, language='nl')
 
         :param dict query: The query parameters that will be passed on to each
             :meth:`~skosprovider.providers.VocabularyProvider.find` method of

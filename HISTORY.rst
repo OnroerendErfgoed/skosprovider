@@ -1,3 +1,30 @@
+0.7.0 (2020-01-19)
+------------------
+
+- Add dumpers to transform a provider, a conceptscheme, a concept or
+  collection in to a dictionary compatible with a JSON-LD context that has been
+  added. This makes it possible to transform a provider into Linked Data.
+- Make handling of the hierarchy involving collections as thesaurus arrays more
+  logical. A collection now has an attribute 
+  :attr:`skosprovider.skos.Collection.infer_concept_relations` that indicates if 
+  the members of a collection should be seen as narrower concepts of a superordinate 
+  concept. This is generally important when expanding a concept to all it's
+  narrower concepts for searching. (#57)
+- Add a new query option for querying matches with concepts from external 
+  conceptschemes to :meth:`skosprovider.providers.VocabularyProvider.find`.
+  (#58)
+- A registry can now carry metadata just like a provider.
+- A registry now has an attribute
+  :attr:`skosprovider.registry.Registry.instance_scope` that indicates how the
+  registry is managed in the application process. All providers need to
+  indicate what kinds of instance_scope they're compatible with. Especially 
+  important for SQLAlchemyProvider run in a web application. (#63, #66)
+- Fix a bug that made it impossible for a
+  :class:`~skosprovider.providers.SimpleCsvProvider` to read sources. (#36)
+- Drop support for Python 3.3, 3.4 and 3.5. Adds support for 3.8. This is the last
+  version that will support Python 2. Version 0.8.0 will drop support for
+  Python 2.7.
+
 0.6.1 (2017-07-16)
 ------------------
 
