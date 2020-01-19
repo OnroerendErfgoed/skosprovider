@@ -46,12 +46,6 @@ Currently the following other providers exist:
 * `Skosprovider_atramhasis <https://skosprovider-atramhasis.readthedocs.org>`_:
   The :class:`AtramhasisProvider <skosprovider.providers.AtramhasisProvider>` 
   lets you interact with an Atramhasis_ instance. 
-* `Skosprovider_oe <https://github.com/koenedaele/skosprovider_oe>`_: This 
-  provider implements the :class:`skosprovider.providers.VocabularyProvider` 
-  interface for the thesauri attached to the 
-  `Inventaris Onroerend Erfgoed <https://inventaris.onroerenderfgoed.be/thesaurus>`_.
-  It also demonstrates making the switch from a term based thesaurus to a 
-  concept based one.
 * `Skosprovider_getty <http://skosprovider-getty.readthedocs.org/en/latest/>`_:
   An implemenation of the 
   :class:`VocabularyProvider <skosprovider.providers.VocabularyProvider>` 
