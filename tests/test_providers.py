@@ -278,6 +278,50 @@ class TreesDictionaryProviderTests(unittest.TestCase):
     def test_get_vocabulary_id(self):
         self.assertEqual('TREES', trees.get_vocabulary_id())
 
+    def test_get_vocabulary_uri(self):
+        assert trees.get_vocabulary_uri() == trees.concept_scheme.uri
+
+    def test_override_get_vocabulary_uri(self):
+        trees = DictionaryProvider(
+            {
+                'id': 'TREES',
+                'uri': 'http://id.trees.org',
+                'default_language': 'nl',
+                'subject': ['biology'],
+                'dataset': {
+                    'uri': 'http://id.trees.org/dataset'
+                }
+            },
+            [larch, chestnut, species],
+            concept_scheme=ConceptScheme(
+                'http://idtoo.trees.org',
+                labels = [{
+                    'type': 'prefLabel',
+                    'language': 'nl',
+                    'label': 'Soorten'
+                }],
+                languages=['nl', 'en']
+            )
+        )
+        assert 'http://id.trees.org' == trees.get_vocabulary_uri()
+        assert 'http://idtoo.trees.org' == trees.concept_scheme.uri
+
+    def test_override_get_vocabulary_uri_generates_cs(self):
+        trees = DictionaryProvider(
+            {
+                'id': 'TREES',
+                'uri': 'http://id.trees.org',
+                'default_language': 'nl',
+                'subject': ['biology'],
+                'dataset': {
+                    'uri': 'http://id.trees.org/dataset'
+                }
+            },
+            [larch, chestnut, species]
+        )
+        assert 'http://id.trees.org' == trees.get_vocabulary_uri()
+        assert 'http://id.trees.org' == trees.concept_scheme.uri
+
     def test_get_metadata(self):
         assert trees.get_metadata() == {
             'id': 'TREES',
