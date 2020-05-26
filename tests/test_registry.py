@@ -4,6 +4,8 @@ from __future__ import unicode_literals
 
 import unittest
 
+from unittest.mock import Mock, MagicMock
+
 from test_providers import (
     larch,
     chestnut,
@@ -110,6 +112,30 @@ class RegistryTests(unittest.TestCase):
         )
         with pytest.raises(RegistryException):
             self.reg.register_provider(trees)
+
+    def test_register_provider_no_uri(self):
+        p = Mock()
+        p.allowed_instance_scopes = ['single']
+        p.get_vocabulary_id = MagicMock(return_value='MYID')
+        del p.get_vocabulary_uri
+        p.concept_scheme = MagicMock()
+        p.concept_scheme.uri = 'http://my.id.org'
+        self.reg.register_provider(p)
+        assert p == self.reg.get_provider('MYID')
+        assert p == self.reg.get_provider('http://my.id.org')
+
+    def test_remove_provider_no_uri(self):
+        p = Mock()
+        p.allowed_instance_scopes = ['single']
+        p.get_vocabulary_id = MagicMock(return_value='MYID')
+        del p.get_vocabulary_uri
+        p.concept_scheme = MagicMock()
+        p.concept_scheme.uri = 'http://my.id.org'
+        self.reg.register_provider(p)
+        assert p == self.reg.get_provider('MYID')
+        assert p == self.reg.get_provider('http://my.id.org')
+        self.reg.remove_provider('http://my.id.org')
+        assert not self.reg.get_provider('MYID')
 
     def test_one_provider_removeProvider(self):
         self.reg.register_provider(self.prov)
