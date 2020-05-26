@@ -95,7 +95,10 @@ class Registry:
         :raises RegistryException: A provider with this id or uri has already
             been registered.
         '''
-        if self.instance_scope not in provider.allowed_instance_scopes:
+        if (
+            provider.allowed_instance_scopes
+            and self.instance_scope not in provider.allowed_instance_scopes
+        ):
             raise RegistryException(
                 'This provider does not support instance_scope %s' % self.instance_scope
             )
@@ -104,11 +107,16 @@ class Registry:
                 'A provider with this id has already been registered.'
             )
         self.providers[provider.get_vocabulary_id()] = provider
-        if provider.concept_scheme.uri in self.concept_scheme_uri_map:
+        try:
+            cs_uri = provider.get_vocabulary_uri()
+        except AttributeError:
+            # For providers not compatible with skosprovider >= 0.8.0
+            cs_uri = provider.concept_scheme.uri
+        if cs_uri in self.concept_scheme_uri_map:
             raise RegistryException(
-                'A provider with URI %s has already been registered.' % provider.concept_scheme.uri
+                'A provider with URI %s has already been registered.' % cs_uri
             )
-        self.concept_scheme_uri_map[provider.concept_scheme.uri] = provider.get_vocabulary_id()
+        self.concept_scheme_uri_map[cs_uri] = provider.get_vocabulary_id()
 
     def remove_provider(self, id):
         '''
@@ -121,7 +129,12 @@ class Registry:
         if id in self.providers:
             p = self.providers.get(id, False)
             del self.providers[id]
-            del self.concept_scheme_uri_map[p.concept_scheme.uri]
+            try:
+                cs_uri = p.get_vocabulary_uri()
+            except AttributeError:
+                # For providers not compatible with skosprovider >= 0.8.0
+                cs_uri = p.concept_scheme.uri
+            del self.concept_scheme_uri_map[cs_uri]
             return p
         elif id in self.concept_scheme_uri_map:
             id = self.concept_scheme_uri_map[id]

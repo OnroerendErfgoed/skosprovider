@@ -23,9 +23,10 @@ requires = [
 
 setup(
     name='skosprovider',
-    version='0.7.0',
+    version='0.7.1',
     description='Abstraction layer for SKOS vocabularies.',
     long_description=open('README.rst').read(),
+    long_description_content_type='text/x-rst',
     author='Koen Van Daele',
     author_email='koen_van_daele@telenet.be',
     url='http://github.com/koenedaele/skosprovider',
