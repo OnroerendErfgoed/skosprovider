@@ -4,7 +4,10 @@ from __future__ import unicode_literals
 
 import unittest
 
-from unittest.mock import Mock, MagicMock
+try:
+    from unittest.mock import Mock, MagicMock
+except ImportError:
+    from mock import Mock, MagicMock
 
 from test_providers import (
     larch,
