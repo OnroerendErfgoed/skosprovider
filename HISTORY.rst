@@ -2,7 +2,14 @@
 ------------------
 
 - Drop support for Python 2. Only version 3.6 and higher are supported now. (#74)
+
+0.7.1 (2020-05-26)
+------------------
+
 - Add check on allowed_instance_scopes being None. (#69)
+- Allow getting a provider URI without loading a Conceptscheme. (#72)
+- Try not to load the full conceptscheme when registering a provider in the 
+  registry. (#72)
 
 0.7.0 (2020-01-19)
 ------------------
