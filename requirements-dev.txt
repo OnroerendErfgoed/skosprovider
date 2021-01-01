@@ -7,4 +7,4 @@ pytest-cov==2.8.1
 coveralls==1.10.0
 
 # Documentation
-Sphinx==1.8.5
+Sphinx==3.4.1
