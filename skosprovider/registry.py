@@ -6,8 +6,6 @@ This registry helps us find providers during runtime. We can also apply some
 operations to all or several providers at the same time.
 '''
 
-from __future__ import unicode_literals
-
 from .uri import is_uri
 
 

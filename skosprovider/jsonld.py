@@ -5,8 +5,6 @@ This module contains functions dealing with jsonld reading and writing.
 .. versionadded:: 0.7.0
 '''
 
-from __future__ import unicode_literals
-
 from skosprovider.skos import (
     Concept,
     Collection,

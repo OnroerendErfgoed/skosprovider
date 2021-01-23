@@ -10,8 +10,6 @@ subordinate array).
 .. versionadded:: 0.2.0
 '''
 
-from __future__ import unicode_literals
-
 from language_tags import tags
 
 from .uri import is_uri

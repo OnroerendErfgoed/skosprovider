@@ -12,8 +12,6 @@ instance of a certain :class:`VocabularyProvider` will deal with concepts and
 collections from a single conceptscheme.
 '''
 
-from __future__ import unicode_literals
-
 import abc
 import copy
 import logging
