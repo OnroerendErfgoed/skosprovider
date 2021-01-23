@@ -3,7 +3,7 @@
 
 # Testing
 pytest==4.6.9
-pytest-cov==2.8.1
+pytest-cov==2.11.1
 coveralls==1.10.0
 
 # Documentation
