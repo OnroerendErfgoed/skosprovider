@@ -240,7 +240,7 @@ class ConceptScheme:
 
         :param string language: The preferred language to receive the label in.
             This should be a valid IANA language tag.
-        :rtype: :class:`skosprovider.skos.Label` or False if no labels were found.
+        :rtype: :class:`skosprovider.skos.Label` or None if no labels were found.
         '''
         return label(self.labels, language)
 
@@ -360,7 +360,7 @@ class Concept:
 
         :param string language: The preferred language to receive the label in.
             This should be a valid IANA language tag.
-        :rtype: :class:`skosprovider.skos.Label` or False if no labels were found.
+        :rtype: :class:`skosprovider.skos.Label` or None if no labels were found.
         '''
         return label(self.labels, language)
 
@@ -453,7 +453,7 @@ class Collection:
 
         :param string language: The preferred language to receive the label in.
             This should be a valid IANA language tag.
-        :rtype: :class:`skosprovider.skos.Label` or False if no labels were found.
+        :rtype: :class:`skosprovider.skos.Label` or None if no labels were found.
         '''
         return label(self.labels, language, False)
 
