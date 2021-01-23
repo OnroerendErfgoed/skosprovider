@@ -2,7 +2,7 @@
 --requirement requirements.txt
 
 # Testing
-pytest==4.6.9
+pytest==6.2.1
 pytest-cov==2.8.1
 coveralls==1.10.0
 
