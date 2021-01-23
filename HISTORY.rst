@@ -2,6 +2,7 @@
 ------------------
 
 - Drop support for Python 2. Only version 3.6 and higher are supported now. (#74)
+- Remove pyup suspport. (#85)
 
 0.7.1 (2020-05-26)
 ------------------
