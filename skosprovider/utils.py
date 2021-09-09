@@ -3,8 +3,6 @@
 This module contains utility functions for dealing with skos providers.
 '''
 
-from __future__ import unicode_literals
-
 import sys
 
 from skosprovider.skos import (

@@ -2,10 +2,9 @@
 --requirement requirements.txt
 
 # Testing
-pytest==4.6.9
-pytest-cov==2.8.1
-mock==3.0.5 ; python_version < '3.5'
-coveralls==1.10.0
+pytest==6.2.1
+pytest-cov==2.11.1
+coveralls==3.0.0
 
 # Documentation
-Sphinx==1.8.5
+Sphinx==3.4.3

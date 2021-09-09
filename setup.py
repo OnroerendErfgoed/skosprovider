@@ -23,7 +23,7 @@ requires = [
 
 setup(
     name='skosprovider',
-    version='0.7.1',
+    version='1.0.0',
     description='Abstraction layer for SKOS vocabularies.',
     long_description=open('README.rst').read(),
     long_description_content_type='text/x-rst',
@@ -38,15 +38,17 @@ setup(
     license='MIT',
     zip_safe=False,
     classifiers=[
-        'Development Status :: 4 - Beta',
+        'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',
+        'Intended Audience :: Science/Research',
+        'Topic :: Scientific/Engineering',
         'Natural Language :: English',
         'License :: OSI Approved :: MIT License',
         'Programming Language :: Python',
-        'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
     ],
     test_suite='nose.collector'
 )

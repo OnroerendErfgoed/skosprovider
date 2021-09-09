@@ -8,8 +8,8 @@ of other specifications such as the
 `ISO 25964 SKOS extension <http://pub.tenforce.com/schemas/iso25964/skos-thes/>`_ 
 where deemed useful.
 
-.. image:: https://travis-ci.org/koenedaele/skosprovider.png?branch=master
-        :target: https://travis-ci.org/koenedaele/skosprovider
+.. image:: https://app.travis-ci.com/koenedaele/skosprovider.svg?branch=master
+    :target: https://app.travis-ci.com/koenedaele/skosprovider
 .. image:: https://coveralls.io/repos/koenedaele/skosprovider/badge.svg?branch=master
         :target: https://coveralls.io/github/koenedaele/skosprovider?branch=master
 .. image:: https://scrutinizer-ci.com/g/koenedaele/skosprovider/badges/quality-score.png?b=master

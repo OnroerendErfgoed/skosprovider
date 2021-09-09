@@ -1,13 +1,8 @@
 # -*- coding: utf-8 -*-
 
-from __future__ import unicode_literals
-
 import unittest
 
-try:
-    from unittest.mock import Mock, MagicMock
-except ImportError:
-    from mock import Mock, MagicMock
+from unittest.mock import Mock, MagicMock
 
 from test_providers import (
     larch,

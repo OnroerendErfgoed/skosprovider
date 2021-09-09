@@ -10,8 +10,6 @@ subordinate array).
 .. versionadded:: 0.2.0
 '''
 
-from __future__ import unicode_literals
-
 from language_tags import tags
 
 from .uri import is_uri
@@ -242,7 +240,7 @@ class ConceptScheme:
 
         :param string language: The preferred language to receive the label in.
             This should be a valid IANA language tag.
-        :rtype: :class:`skosprovider.skos.Label` or False if no labels were found.
+        :rtype: :class:`skosprovider.skos.Label` or None if no labels were found.
         '''
         return label(self.labels, language)
 
@@ -362,7 +360,7 @@ class Concept:
 
         :param string language: The preferred language to receive the label in.
             This should be a valid IANA language tag.
-        :rtype: :class:`skosprovider.skos.Label` or False if no labels were found.
+        :rtype: :class:`skosprovider.skos.Label` or None if no labels were found.
         '''
         return label(self.labels, language)
 
@@ -455,7 +453,7 @@ class Collection:
 
         :param string language: The preferred language to receive the label in.
             This should be a valid IANA language tag.
-        :rtype: :class:`skosprovider.skos.Label` or False if no labels were found.
+        :rtype: :class:`skosprovider.skos.Label` or None if no labels were found.
         '''
         return label(self.labels, language, False)
 

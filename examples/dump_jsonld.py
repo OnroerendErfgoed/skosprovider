@@ -4,8 +4,6 @@ This example demonstrates the skosprovider API with a simple
 DictionaryProvider containing just three items.
 '''
 
-from __future__ import unicode_literals
-
 from pyld import jsonld
 import json
 
