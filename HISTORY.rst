@@ -1,4 +1,4 @@
-0.8.0 (2020-??-??)
+1.0.0 (2021-09-09)
 ------------------
 
 - Drop support for Python 2. Only version 3.6 and higher are supported now. (#74)
