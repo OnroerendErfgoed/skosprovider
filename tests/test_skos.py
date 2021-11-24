@@ -1,22 +1,21 @@
 # -*- coding: utf-8 -*-
 
 import unittest
+
 import pytest
 
-from skosprovider.skos import (
-    Label,
-    Note,
-    Source,
-    ConceptScheme,
-    Concept,
-    Collection,
-    label,
-    find_best_label_for_type,
-    filter_labels_by_language,
-    dict_to_label,
-    dict_to_note,
-    dict_to_source
-)
+from skosprovider.skos import Collection
+from skosprovider.skos import Concept
+from skosprovider.skos import ConceptScheme
+from skosprovider.skos import Label
+from skosprovider.skos import Note
+from skosprovider.skos import Source
+from skosprovider.skos import dict_to_label
+from skosprovider.skos import dict_to_note
+from skosprovider.skos import dict_to_source
+from skosprovider.skos import filter_labels_by_language
+from skosprovider.skos import find_best_label_for_type
+from skosprovider.skos import label
 
 
 class LabelTest(unittest.TestCase):
@@ -544,13 +543,16 @@ class LabelFunctionTest(unittest.TestCase):
         self.assertEqual(None, label([], 'nl-BE'))
         self.assertEqual(None, label([], None))
         self.assertEqual(None, label([], 'und'))
+        self.assertEqual(None, label([], ['nl-BE']))
 
     def test_label_pref(self):
         kh = self._get_knokke_heist_nl()
         labels = [kh]
         self.assertEqual(kh, label(labels))
         self.assertEqual(kh, label(labels, 'nl-BE'))
+        self.assertEqual(kh, label(labels, ['nl-BE']))
         self.assertEqual(kh, label(labels, 'en-GB'))
+        self.assertEqual(kh, label(labels, ['en-GB']))
         self.assertEqual(kh, label(labels, None))
 
     def test_label_pref_und(self):
@@ -559,9 +561,12 @@ class LabelFunctionTest(unittest.TestCase):
         assert label(labels) is not None
         self.assertEqual(und, label(labels))
         self.assertEqual(und, label(labels, 'nl-BE'))
+        self.assertEqual(und, label(labels, ['nl-BE']))
         self.assertEqual(und, label(labels, 'en-GB'))
         self.assertEqual(und, label(labels, 'und'))
+        self.assertEqual(und, label(labels, ['und']))
         self.assertEqual(und, label(labels, 'any'))
+        self.assertEqual(und, label(labels, ['any']))
         self.assertEqual(und, label(labels, None))
 
     def test_label_pref_nl_and_en(self):
@@ -570,7 +575,9 @@ class LabelFunctionTest(unittest.TestCase):
         labels = [kh, khen]
         self.assertIn(label(labels), [kh, khen])
         self.assertEqual(kh, label(labels, 'nl-BE'))
+        self.assertEqual(kh, label(labels, ['nl-BE', 'en-GB']))
         self.assertEqual(khen, label(labels, 'en-GB'))
+        self.assertEqual(khen, label(labels, ['fr', 'en-GB']))
         self.assertIn(label(labels, None), [kh, khen])
 
     def test_label_inexact_language_match(self):
@@ -578,7 +585,9 @@ class LabelFunctionTest(unittest.TestCase):
         ch = self._get_cnocke_heyst_nl()
         khen = self._get_knokke_heist_en()
         labels = [kh, ch, khen]
+        assert khen == label(labels, ['en', 'nl'])
         assert khen == label(labels, 'en')
+        assert kh == label(labels, ['nl'])
         assert kh == label(labels, 'nl')
         assert label(labels, None) in [kh, khen]
 
@@ -591,6 +600,7 @@ class LabelFunctionTest(unittest.TestCase):
         khengb = self._get_knokke_heist_en()
         labels = [chnl, khen, khnlbe, khnl, chnlbe, khengb]
         assert khnlbe == label(labels, 'nl-BE')
+        assert khnlbe == label(labels, ['nl-BE'])
         assert khnl == label(labels, 'nl')
         assert label(labels, 'en-US') in [khen, khengb]
 
@@ -599,7 +609,9 @@ class LabelFunctionTest(unittest.TestCase):
         labels = [ch]
         self.assertEqual(ch, label(labels))
         self.assertEqual(ch, label(labels, 'nl-BE'))
+        self.assertEqual(ch, label(labels, ['nl-BE']))
         self.assertEqual(ch, label(labels, 'en-GB'))
+        self.assertEqual(ch, label(labels, ['en-GB']))
         self.assertEqual(ch, label(labels, None))
 
     def test_pref_precedes_alt(self):
@@ -608,6 +620,7 @@ class LabelFunctionTest(unittest.TestCase):
         labels = [kh, ch]
         self.assertEqual(kh, label(labels))
         self.assertEqual(kh, label(labels, 'nl-BE'))
+        self.assertEqual(kh, label(labels, ['nl-BE']))
         self.assertEqual(kh, label(labels, 'en-GB'))
         self.assertEqual(kh, label(labels, None))
 
@@ -619,6 +632,7 @@ class LabelFunctionTest(unittest.TestCase):
         self.assertEqual(kh, label(labels))
         self.assertEqual(kh, label(labels, sortLabel=False))
         self.assertEqual(kh, label(labels, 'nl-BE'))
+        self.assertEqual(kh, label(labels, ['nl-BE']))
         self.assertEqual(kh, label(labels, 'en-GB'))
         self.assertEqual(kh, label(labels, None))
 
@@ -631,6 +645,7 @@ class LabelFunctionTest(unittest.TestCase):
         sl = Label('Eerst', type='sortLabel', language='nl')
         labels = [kh, ch, sl]
         assert sl == label(labels, 'nl-BE', True)
+        assert sl == label(labels, ['nl-BE'], True)
 
     def test_dict_pref(self):
         kh = self._get_knokke_heist_nl()
@@ -646,9 +661,9 @@ class LabelFunctionTest(unittest.TestCase):
         ch = self._get_cnocke_heyst_nl()
         khen = self._get_knokke_heist_en()
         labels = [kh, ch, khen]
-        assert khen == find_best_label_for_type(labels, 'en', 'prefLabel')
-        assert not find_best_label_for_type(labels, 'en', 'sortLabel')
-        assert ch == find_best_label_for_type(labels, 'nl', 'altLabel')
+        assert khen == find_best_label_for_type(labels, ['en'], 'prefLabel')
+        assert not find_best_label_for_type(labels, ['en'], 'sortLabel')
+        assert ch == find_best_label_for_type(labels, ['nl'], 'altLabel')
 
     def test_filter_labels_by_language(self):
         kh = self._get_knokke_heist_nl()
