@@ -661,9 +661,9 @@ class LabelFunctionTest(unittest.TestCase):
         ch = self._get_cnocke_heyst_nl()
         khen = self._get_knokke_heist_en()
         labels = [kh, ch, khen]
-        assert khen == find_best_label_for_type(labels, ['en'], 'prefLabel')
-        assert not find_best_label_for_type(labels, ['en'], 'sortLabel')
-        assert ch == find_best_label_for_type(labels, ['nl'], 'altLabel')
+        assert khen == find_best_label_for_type(labels, 'en', 'prefLabel')
+        assert not find_best_label_for_type(labels, 'en', 'sortLabel')
+        assert ch == find_best_label_for_type(labels, 'nl', 'altLabel')
 
     def test_filter_labels_by_language(self):
         kh = self._get_knokke_heist_nl()

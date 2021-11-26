@@ -478,7 +478,7 @@ class Collection:
         return "Collection('%s')" % self.id
 
 
-def label(labels=[], language='any', sortLabel=False):
+def label(labels=[], languages='any', sortLabel=False):
     '''
     Provide a label for a list of labels.
 
@@ -508,7 +508,7 @@ def label(labels=[], language='any', sortLabel=False):
 
     Finally, if no label could be found, None is returned.
 
-    :param any language: The preferred language to receive the label in. This
+    :param any languages: The preferred languages to receive the label in. This
         should be a valid IANA language tag or list of language tags.
     :param boolean sortLabel: Should sortLabels be considered or not? If True,
         sortLabels will be preferred over prefLabels. Bear in mind that these
@@ -518,46 +518,43 @@ def label(labels=[], language='any', sortLabel=False):
     '''
     if not labels:
         return None
-    if isinstance(language, str): language = [language]
-    if not language:
-        language = ['und']
+    if isinstance(languages, str):
+        languages = [languages]
+    if not languages:
+        languages = ['und']
     labels = [dict_to_label(l) for l in labels]
     l = False
-    if sortLabel:
-        l = find_best_label_for_type(labels, language, 'sortLabel')
-    if not l:
-        l = find_best_label_for_type(labels, language, 'prefLabel')
-    if not l:
-        l = find_best_label_for_type(labels, language, 'altLabel')
-    if l:
-        return l
-    else:
-        return label(labels, 'any', sortLabel) if language != 'any' else None
+    for language in languages:
+        if sortLabel:
+            l = find_best_label_for_type(labels, language, 'sortLabel')
+        if not l:
+            l = find_best_label_for_type(labels, language, 'prefLabel')
+        if not l:
+            l = find_best_label_for_type(labels, language, 'altLabel')
+        if l:
+            return l
+    return label(labels, 'any', sortLabel) if 'any' not in languages else None
 
 
-def find_best_label_for_type(labels, languages, labeltype):
+def find_best_label_for_type(labels, language, labeltype):
     '''
     Find the best label for a certain labeltype.
 
     :param list labels: A list of :class:`Label`.
-    :param list languages: A list of IANA language string, eg. `nl` or `nl-BE`.
+    :param str language: An IANA language string, eg. `nl` or `nl-BE`.
     :param str labeltype: Type of label to look for, eg. `prefLabel`.
     '''
     typelabels = [l for l in labels if l.type == labeltype]
     if not typelabels:
         return False
-    language = None
-    language_iter = iter(languages)
-    while language != 'und':
-        language = next(language_iter, 'und')
-        if language == 'any':
-            return typelabels[0]
-        exact = filter_labels_by_language(typelabels, language)
-        if exact:
-            return exact[0]
-        inexact = filter_labels_by_language(typelabels, language, True)
-        if inexact:
-            return inexact[0]
+    if language == 'any':
+        return typelabels[0]
+    exact = filter_labels_by_language(typelabels, language)
+    if exact:
+        return exact[0]
+    inexact = filter_labels_by_language(typelabels, language, True)
+    if inexact:
+        return inexact[0]
     return False
 
 
