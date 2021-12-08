@@ -7,6 +7,8 @@
   `['nl-BE', 'en']` will first try to match with any form of Dutch, then any
   form of English and finally anything else. Bear in mind that `nl-BE` will
   also match with `nl`, so passing `['nl-BE', 'nl', 'en']` is superfluous. (#80)
+- Better error handling when registering a Conceptscheme with the registry (or
+  removing it). (#102)
 
 1.0.0 (2021-09-09)
 ------------------
