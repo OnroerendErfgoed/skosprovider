@@ -42,7 +42,7 @@ class VocabularyProvider:
 
     uri_generator = None
     '''The :class:`~skosprovider.uri.UriGenerator` responsible for generating
-    :term:`URIs <uri>` for this provider.'''
+    :term:`URIs <URI>` for this provider.'''
 
     allowed_instance_scopes = None
     '''Indicates what instance_scopes this provider can safely accomodate. This
@@ -78,7 +78,7 @@ class VocabularyProvider:
                 * `dataset`: A :class:`dict` detailing the dataset the
                     conceptscheme and all concepts and collections are part of.
                     Currently the contents of the dictionary are undefined
-                    except for a :term:`uri` attribute that must be present.
+                    except for a :term:`URI` attribute that must be present.
         '''
         if 'subject' not in metadata:
             metadata['subject'] = []
@@ -222,7 +222,7 @@ class VocabularyProvider:
             with the following keys:
 
             * id: id within the conceptscheme
-            * uri: :term:`uri` of the concept or collection
+            * uri: :term:`URI` of the concept or collection
             * type: concept or collection
             * label: A label to represent the concept or collection. It is \
                 determined by looking at the `language` parameter, the default \
@@ -254,7 +254,7 @@ class VocabularyProvider:
             is a dict with the following keys:
 
             * id: id within the conceptscheme
-            * uri: :term:`uri` of the concept or collection
+            * uri: :term:`URI` of the concept or collection
             * type: concept or collection
             * label: A label to represent the concept or collection. It is \
                 determined by looking at the `language` parameter, the default \
@@ -352,7 +352,7 @@ class VocabularyProvider:
             is a dict with the following keys:
 
             * id: id within the conceptscheme
-            * uri: :term:`uri` of the concept or collection
+            * uri: :term:`URI` of the concept or collection
             * type: concept or collection
             * label: A label to represent the concept or collection. It is \
                 determined by looking at the `language` parameter, the default \
@@ -404,7 +404,7 @@ class VocabularyProvider:
             is a dict with the following keys:
 
             * id: id within the conceptscheme
-            * uri: :term:`uri` of the concept or collection
+            * uri: :term:`URI` of the concept or collection
             * type: concept or collection
             * label: A label to represent the concept or collection. It is\
                 determined by looking at the `language` parameter, the default\
@@ -433,7 +433,7 @@ class VocabularyProvider:
             is a dict with the following keys:
 
             * id: id within the conceptscheme
-            * uri: :term:`uri` of the concept or collection
+            * uri: :term:`URI` of the concept or collection
             * type: concept or collection
             * label: A label to represent the concept or collection. It is \
                 determined by looking at the `language` parameter, the default \

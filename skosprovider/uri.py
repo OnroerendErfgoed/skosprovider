@@ -81,7 +81,7 @@ class DefaultConceptSchemeUrnGenerator(UriGenerator):
     '''
     Generate a :term:`URN` for a conceptscheme specific to skosprovider.
 
-    Used for generating default :term:`URI <URIS>` for providers that do
+    Used for generating default :term:`URIs <URI>` for providers that do
     not have an explicit conceptscheme.
     '''
 
