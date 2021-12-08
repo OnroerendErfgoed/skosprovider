@@ -359,7 +359,7 @@ class Concept:
         This uses the :func:`label` function to determine which label to return.
 
         :param string language: The preferred language to receive the label in.
-            This should be a valid IANA language tag.
+            This should be a valid IANA language tag or a list of language tags.
         :rtype: :class:`skosprovider.skos.Label` or None if no labels were found.
         '''
         return label(self.labels, language)
@@ -498,6 +498,12 @@ def label(labels=[], language='any', sortLabel=False):
     providing no label is present that has an exact match with the
     requested language.
 
+    It's possible to pass multiple languages as a list. In this case, the method
+    will try handling each language in turn. Please be aware that this includes
+    handling variations. When assing `nl-BE, nl, nl-NL`, the second and third
+    languages will never be handled since handling `nl-BE` includes looking for
+    other related languages such as `nl-NL` and `nl`.
+
     If language 'any' was specified, all labels will be considered,
     regardless of language.
 
@@ -508,8 +514,13 @@ def label(labels=[], language='any', sortLabel=False):
 
     Finally, if no label could be found, None is returned.
 
-    :param any language: The preferred languages to receive the label in. This
-        should be a valid IANA language tag or list of language tags.
+     ..versionchanged:: 1.1
+        It is now possible to pass a list of languages.
+
+    :param any language: The preferred language to receive the label in. This
+        should be a valid IANA language tag or list of language tags. If you
+        pass a list, the order of the languages in the list will be taken into
+        account when trying to determine a label.
     :param boolean sortLabel: Should sortLabels be considered or not? If True,
         sortLabels will be preferred over prefLabels. Bear in mind that these
         are still language dependent. So, it's possible to have a different
