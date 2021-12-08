@@ -5,6 +5,9 @@
 This registry helps us find providers during runtime. We can also apply some
 operations to all or several providers at the same time.
 '''
+import logging
+
+log = logging.getLogger(__name__)
 
 from .uri import is_uri
 
@@ -107,8 +110,14 @@ class Registry:
         self.providers[provider.get_vocabulary_id()] = provider
         try:
             cs_uri = provider.get_vocabulary_uri()
-        except AttributeError:
+        except AttributeError as e:
+            log.error(e)
             # For providers not compatible with skosprovider >= 0.8.0
+            log.warning(
+                'New versions of skosprovider (>=0.8.0) require your provider '
+                'to have a get_vocabulary_uri method. This fallback mechanism '
+                'will be removed in version 2.0.0.'
+            )
             cs_uri = provider.concept_scheme.uri
         if cs_uri in self.concept_scheme_uri_map:
             raise RegistryException(
@@ -129,7 +138,14 @@ class Registry:
             del self.providers[id]
             try:
                 cs_uri = p.get_vocabulary_uri()
-            except AttributeError:
+            except AttributeError as e:
+                log.error(e)
+                # For providers not compatible with skosprovider >= 0.8.0
+                log.warning(
+                    'New versions of skosprovider (>=0.8.0) require your provider '
+                    'to have a get_vocabulary_uri method. This fallback mechanism '
+                    'will be removed in version 2.0.0.'
+                )
                 # For providers not compatible with skosprovider >= 0.8.0
                 cs_uri = p.concept_scheme.uri
             del self.concept_scheme_uri_map[cs_uri]
