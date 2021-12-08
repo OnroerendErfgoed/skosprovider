@@ -1,0 +1,43 @@
+cff-version: 1.2.0
+title: Skosprovider
+message: >-
+  If you use this software, please cite it using the
+  metadata from this file.
+type: software
+authors:
+  - given-names: Koen
+    family-names: Van Daele
+    email: koen.vandaele@vlaanderen.be
+    affiliation: Flanders Heritage Agency
+    orcid: 'https://orcid.org/0000-0002-8153-2978'
+abstract: >-
+  Skosprovider provides an interface that can be
+  included in an application to allow it to talk to
+  different SKOS vocabularies. These vocabularies
+  could be defined locally or accessed remotely
+  through webservices.
+
+  Adhering to this interface in you application
+  decouples your application and the actual
+  thesaurus. This makes unit testing easy because it
+  allows you to swap a remote and a local
+  implementation. It also makes it easy to switch
+  from a simple, static implementation based on a csv
+  file to a more complete implementation using your
+  relational database of choice.
+
+  One of the main goals of this project is to be able
+  to build an application that can use thesauri or
+  vocabularies without knowing upfront what these
+  might be or where they might come from. This could
+  be for an application that allows cataloguing
+  things, but where it can be expected that different
+  instances will require different thesauri or would
+  need to be able to talk to existing vocabulary
+  systems.
+keywords:
+  - SKOS
+  - thesaurus
+  - vocabulary
+  - python
+license: MIT
