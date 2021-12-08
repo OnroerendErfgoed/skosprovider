@@ -9,6 +9,7 @@
   also match with `nl`, so passing `['nl-BE', 'nl', 'en']` is superfluous. (#80)
 - Better error handling when registering a Conceptscheme with the registry (or
   removing it). (#102)
+- Add a CITATION.cff file to make it easier to cite Skosprovider. (#104)
 
 1.0.0 (2021-09-09)
 ------------------
