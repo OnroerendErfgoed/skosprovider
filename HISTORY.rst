@@ -1,3 +1,13 @@
+1.1.0 (2021-12-08)
+------------------
+
+- Last release at this location. Development will move to main Onroerend
+  Erfgoed Github account for future versions.
+- Allow passing a list of languages to the label function. Eg. passing 
+  `['nl-BE', 'en']` will first try to match with any form of Dutch, then any
+  form of English and finally anything else. Bear in mind that `nl-BE` will
+  also match with `nl`, so passing `['nl-BE', 'nl', 'en']` is superfluous. (#80)
+
 1.0.0 (2021-09-09)
 ------------------
 

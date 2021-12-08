@@ -94,10 +94,10 @@ print(provider.find({'label': 'The Larch'}))
 # Get the top of a display hierarchy
 print(provider.get_top_display())
 
-# Get the children to display in a hierarchy concept 1
-# If possible, show a French(as spoken in Belgium) label
+# Get the children to display in a hierarchy
+# If possible, show a French, Dutch or German label
 # Order them descending by id
-print(provider.get_children_display(3, language='fr-BE', sort='id', sort_order='desc'))
+print(provider.get_children_display(3, language=['fr-BE', 'nl-BE', 'de-BE'], sort='id', sort_order='desc'))
 
 # Get all concepts underneath a concept or collection
 print(provider.expand(3))
