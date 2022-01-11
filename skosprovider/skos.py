@@ -581,8 +581,9 @@ def filter_labels_by_language(labels, language, broader=False):
     if language == 'any':
         return labels
     if broader:
-        language = tags.tag(language).language.format
-        return [l for l in labels if tags.tag(l.language).language.format == language]
+        if tags.tag(language).language:
+            language = tags.tag(language).language.format
+            return [l for l in labels if tags.tag(l.language).language.format == language]
     else:
         language = tags.tag(language).format
         return [l for l in labels if tags.tag(l.language).format == language]
