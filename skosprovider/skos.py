@@ -531,6 +531,8 @@ def label(labels=[], language='any', sortLabel=False):
         return None
     if isinstance(language, str):
         language = [language]
+    if isinstance(language, list):
+        language = [l for l in language if tags.tag(l).language]
     if not language:
         language = ['und']
     labels = [dict_to_label(l) for l in labels]

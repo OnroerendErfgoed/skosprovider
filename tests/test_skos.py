@@ -674,3 +674,11 @@ class LabelFunctionTest(unittest.TestCase):
         assert [] == filter_labels_by_language(labels, 'nl')
         assert [kh, ch] == filter_labels_by_language(labels, 'nl', True)
         assert labels == filter_labels_by_language(labels, 'any')
+
+    def test_filter_labels_by_language_unexisting(self):
+        kh = self._get_knokke_heist_nl()
+        ch = self._get_cnocke_heyst_nl()
+        khen = self._get_knokke_heist_en()
+        labels = [kh, ch, khen]
+        assert label(labels, 'tomatensoep') is not None
+        assert label(labels, '') is not None
