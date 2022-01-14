@@ -1,3 +1,7 @@
+1.1.1 (2022-01-14)
+------------------
+- An empty or invalid language tag as query parameter is raising 500 Exception (#110)
+
 1.1.0 (2021-12-08)
 ------------------
 
