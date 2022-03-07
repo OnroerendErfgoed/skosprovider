@@ -31,7 +31,7 @@ skosprovider is present.
 
 .. code-block:: bash
 
-    # activate your virtual env
+    # activate your virtual environment
     $ pip install -r requirements.txt
     $ python setup.py develop
     $ cd docs
