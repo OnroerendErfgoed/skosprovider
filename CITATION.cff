@@ -10,6 +10,11 @@ authors:
     email: koen.vandaele@vlaanderen.be
     affiliation: Flanders Heritage Agency
     orcid: 'https://orcid.org/0000-0002-8153-2978'
+  - given-names: Jonas
+    family-names: Geuens
+    email: jonas.geuens@vlaanderen.be
+    affiliation: Flanders Heritage Agency
+    orcid: 'https://orcid.org/0000-0001-8197-5034'
 abstract: >-
   Skosprovider provides an interface that can be
   included in an application to allow it to talk to

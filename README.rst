@@ -8,17 +8,18 @@ of other specifications such as the
 `ISO 25964 SKOS extension <http://pub.tenforce.com/schemas/iso25964/skos-thes/>`_ 
 where deemed useful.
 
+.. image:: https://img.shields.io/pypi/v/skosprovider.svg
+    :target: https://pypi.python.org/pypi/skosprovider
+.. image:: https://readthedocs.org/projects/skosprovider/badge/?version=latest
+    :target: https://readthedocs.org/projects/skosprovider/?badge=latest
+.. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.5824941.svg
+    :target: https://doi.org/10.5281/zenodo.5824941
 .. image:: https://app.travis-ci.com/onroerenderfgoed/skosprovider.svg?branch=master
     :target: https://app.travis-ci.com/onroerenderfgoed/skosprovider
 .. image:: https://coveralls.io/repos/onroerenderfgoed/skosprovider/badge.svg?branch=master
-        :target: https://coveralls.io/github/onroerenderfgoed/skosprovider?branch=master
+    :target: https://coveralls.io/github/onroerenderfgoed/skosprovider?branch=master
 .. image:: https://scrutinizer-ci.com/g/onroerenderfgoed/skosprovider/badges/quality-score.png?b=master
-        :target: https://scrutinizer-ci.com/g/onroerenderfgoed/skosprovider/?branch=master
-
-.. image:: https://readthedocs.org/projects/skosprovider/badge/?version=latest
-        :target: https://readthedocs.org/projects/skosprovider/?badge=latest
-.. image:: https://badge.fury.io/py/skosprovider.png
-        :target: http://badge.fury.io/py/skosprovider
+    :target: https://scrutinizer-ci.com/g/onroerenderfgoed/skosprovider/?branch=master
 
 Building the docs
 -----------------
