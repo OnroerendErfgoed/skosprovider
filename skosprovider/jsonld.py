@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 '''
 This module contains functions dealing with jsonld reading and writing.
 

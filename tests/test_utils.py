@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 import unittest
 
 from skosprovider.utils import (
@@ -39,7 +37,7 @@ class DictDumperTest(unittest.TestCase):
             ],
             'sources': [
                 {
-                    'citation': u'Monthy Python. Episode Three: How to recognise different types of trees from quite a long way away.',
+                    'citation': 'Monthy Python. Episode Three: How to recognise different types of trees from quite a long way away.',
                     'markup': None
                 }
             ],
@@ -198,7 +196,7 @@ class DictDumperTest(unittest.TestCase):
         dump2 = dict_dumper(self._get_tree_provider(dict_dumper(geo)))
         self.assertEqual(dump, dump2)
 
-class TestExtractLanguage(object):
+class TestExtractLanguage:
 
     def test_extract_language_nlBE(self):
         assert 'nl-BE' == extract_language('nl-BE')
@@ -207,7 +205,7 @@ class TestExtractLanguage(object):
         assert 'und' == extract_language(None)
 
 
-class TestHtml(object):
+class TestHtml:
 
     def test_lang_und(self):
         assert '' == add_lang_to_html('', 'und')
