@@ -29,7 +29,7 @@ setup(
     long_description_content_type='text/x-rst',
     author='Koen Van Daele',
     author_email='koen_van_daele@telenet.be',
-    url='http://github.com/koenedaele/skosprovider',
+    url='http://github.com/onroerenderfgoed/skosprovider',
     packages=packages,
     package_data={'': ['LICENSE']},
     package_dir={'skosprovider': 'skosprovider'},
