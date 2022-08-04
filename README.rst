@@ -8,12 +8,12 @@ of other specifications such as the
 `ISO 25964 SKOS extension <http://pub.tenforce.com/schemas/iso25964/skos-thes/>`_ 
 where deemed useful.
 
-.. image:: https://app.travis-ci.com/koenedaele/skosprovider.svg?branch=master
-    :target: https://app.travis-ci.com/koenedaele/skosprovider
-.. image:: https://coveralls.io/repos/koenedaele/skosprovider/badge.svg?branch=master
-        :target: https://coveralls.io/github/koenedaele/skosprovider?branch=master
-.. image:: https://scrutinizer-ci.com/g/koenedaele/skosprovider/badges/quality-score.png?b=master
-        :target: https://scrutinizer-ci.com/g/koenedaele/skosprovider/?branch=master
+.. image:: https://app.travis-ci.com/onroerenderfgoed/skosprovider.svg?branch=master
+    :target: https://app.travis-ci.com/onroerenderfgoed/skosprovider
+.. image:: https://coveralls.io/repos/onroerenderfgoed/skosprovider/badge.svg?branch=master
+        :target: https://coveralls.io/github/onroerenderfgoed/skosprovider?branch=master
+.. image:: https://scrutinizer-ci.com/g/onroerenderfgoed/skosprovider/badges/quality-score.png?b=master
+        :target: https://scrutinizer-ci.com/g/onroerenderfgoed/skosprovider/?branch=master
 
 .. image:: https://readthedocs.org/projects/skosprovider/badge/?version=latest
         :target: https://readthedocs.org/projects/skosprovider/?badge=latest

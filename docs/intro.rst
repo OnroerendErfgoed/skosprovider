@@ -61,7 +61,7 @@ Currently the following other providers exist:
 
 There also exists a library to integrate Skosprovider with
 `Pyramid <http://www.pylonsproject.org/>`_ at 
-`pyramid_skosprovider <https://github.com/koenedaele/pyramid_skosprovider>`_. 
+`pyramid_skosprovider <https://github.com/onroerenderfgoed/pyramid_skosprovider>`_.
 This allows you to embed a set of REST services in a Pyramid application that
 expose SKOSproviders as JSON services that can be consumed by eg. Javascript 
 clients or other clients.
@@ -118,7 +118,7 @@ Support
 
 If you have questions regarding Skosprovider, feel free to contact us. Any bugs
 you find or feature requests you have, you can add to our 
-`issue tracker <https://github.com/koenedaele/skosprovider/issues>`_. If you're
+`issue tracker <https://github.com/onroerenderfgoed/skosprovider/issues>`_. If you're
 unsure if something is a bug or intentional, or you just want to have a chat
 about this library or :term:`SKOS` in general, feel free to join the 
 `Atramhasis discussion forum <https://groups.google.com/forum/#!forum/atramhasis>`_.
