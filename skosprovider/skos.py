@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 '''
 This module contains a read-only model of the :term:`SKOS` specification.
 
@@ -79,7 +77,7 @@ class Label:
         return type in Label.valid_types
 
     def __repr__(self):
-        return "Label('%s', '%s', '%s')" % (self.label, self.type, self.language)
+        return "Label('{}', '{}', '{}')".format(self.label, self.type, self.language)
 
 
 class Note:

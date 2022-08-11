@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 '''
 This module provides utilities for working with :term:`URIs <URI>`.
 
@@ -20,7 +19,7 @@ def is_uri(uri):
     return rfc3987.match(uri, rule='URI')
 
 
-class UriGenerator(object):
+class UriGenerator:
     '''
     An abstract class for generating URIs.
     '''

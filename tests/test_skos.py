@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 import unittest
 
 import pytest
@@ -341,7 +339,7 @@ class ConceptTest(unittest.TestCase):
             1,
             uri='urn:x-skosprovider:gemeenten:1',
             member_of=[15])
-        self.assertEqual(set([15]), set(c.member_of))
+        self.assertEqual({15}, set(c.member_of))
 
     def testMatches(self):
         c = Concept(
@@ -436,14 +434,14 @@ class CollectionTest(unittest.TestCase):
             labels=labels,
             members=[1, 2]
         )
-        self.assertTrue(set([1, 2]), set(coll.members))
+        self.assertTrue({1, 2}, set(coll.members))
 
     def testMemberOf(self):
         coll = Collection(
             id=1,
             member_of=[350]
         )
-        self.assertTrue(set([350]), set(coll.member_of))
+        self.assertTrue({350}, set(coll.member_of))
 
     def testSource(self):
         coll = Collection(
