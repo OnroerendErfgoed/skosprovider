@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 '''
 This module contains utility functions for dealing with skos providers.
 '''

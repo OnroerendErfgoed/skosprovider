@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 #
 # Skosprovider documentation build configuration file, created by
 # sphinx-quickstart on Sun Apr  7 22:37:01 2013.
@@ -40,8 +39,8 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'Skosprovider'
-copyright = u'2012-2022, Koen Van Daele'
+project = 'Skosprovider'
+copyright = '2012-2021, Koen Van Daele'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -183,8 +182,8 @@ latex_elements = {
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-  ('index', 'Skosprovider.tex', u'Skosprovider Documentation',
-   u'Koen Van Daele', 'manual'),
+  ('index', 'Skosprovider.tex', 'Skosprovider Documentation',
+   'Koen Van Daele', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -213,8 +212,8 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'skosprovider', u'Skosprovider Documentation',
-     [u'Koen Van Daele'], 1)
+    ('index', 'skosprovider', 'Skosprovider Documentation',
+     ['Koen Van Daele'], 1)
 ]
 
 # If true, show URL addresses after external links.
@@ -227,8 +226,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-  ('index', 'Skosprovider', u'Skosprovider Documentation',
-   u'Koen Van Daele', 'Skosprovider', 'One line description of project.',
+  ('index', 'Skosprovider', 'Skosprovider Documentation',
+   'Koen Van Daele', 'Skosprovider', 'One line description of project.',
    'Miscellaneous'),
 ]
 
@@ -245,10 +244,10 @@ texinfo_documents = [
 # -- Options for Epub output ---------------------------------------------------
 
 # Bibliographic Dublin Core info.
-epub_title = u'Skosprovider'
-epub_author = u'Koen Van Daele'
-epub_publisher = u'Koen Van Daele'
-epub_copyright = u'2012-2022, Koen Van Daele'
+epub_title = 'Skosprovider'
+epub_author = 'Koen Van Daele'
+epub_publisher = 'Koen Van Daele'
+epub_copyright = '2012-2021, Koen Van Daele'
 
 # The language of the text. It defaults to the language option
 # or en if the language is not set.
