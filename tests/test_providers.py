@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 import unittest
 
 import warnings
@@ -395,7 +393,7 @@ class TreesDictionaryProviderTests(unittest.TestCase):
         self.assertEqual(False, trees.expand(987654321))
 
     def test_expand_collection(self):
-        self.assertEqual(set(['1', '2']), set(trees.expand(3)))
+        self.assertEqual({'1', '2'}, set(trees.expand(3)))
 
     def test_get_all(self):
         self.assertEqual(
@@ -899,7 +897,7 @@ class GeoDictionaryProviderTests(unittest.TestCase):
     def test_get_belgium_by_id(self):
         belgium = geo.get_by_id(4)
         self.assertEqual(4, belgium.id)
-        self.assertEqual(set(['333']), set(belgium.member_of))
+        self.assertEqual({'333'}, set(belgium.member_of))
 
     def test_get_by_uri(self):
         wereld = geo.get_by_uri('urn:x-skosprovider:geography:1')
@@ -918,19 +916,19 @@ class GeoDictionaryProviderTests(unittest.TestCase):
         self.assertEqual(['4', '7', '8'], dutch_speaking.members)
 
     def test_expand_Belgium(self):
-        self.assertEqual(set([4, 7, 8, 9, 16]), set(geo.expand(4)))
+        self.assertEqual({4, 7, 8, 9, 16}, set(geo.expand(4)))
 
     def test_expand_UK(self):
-        self.assertEqual(set([5, 10, 11, 12]), set(geo.expand(5)))
+        self.assertEqual({5, 10, 11, 12}, set(geo.expand(5)))
 
     def test_expand_string(self):
-        self.assertEqual(set([4, 7, 8, 9, 16]), set(geo.expand('4')))
+        self.assertEqual({4, 7, 8, 9, 16}, set(geo.expand('4')))
 
     def test_expand_unexisting(self):
         self.assertEqual(False, geo.expand(987654321))
 
     def test_expand_collection(self):
-        self.assertEqual(set([4, 7, 8, 9, 16]), set(geo.expand(333)))
+        self.assertEqual({4, 7, 8, 9, 16}, set(geo.expand(333)))
 
     def test_find_in_collection(self):
         c = geo.find({'collection': {'id': 333}})
@@ -1050,9 +1048,7 @@ class SimpleCsvProviderTests(unittest.TestCase):
     def setUp(self):
         from skosprovider.uri import UriPatternGenerator
         self.ifile = open(
-            os.path.join(os.path.dirname(__file__), 'data', 'menu.csv'),
-            "r"
-        )
+            os.path.join(os.path.dirname(__file__), 'data', 'menu.csv'))
         reader = csv.reader(self.ifile)
         self.csvprovider = SimpleCsvProvider(
             {'id': 'MENU'},

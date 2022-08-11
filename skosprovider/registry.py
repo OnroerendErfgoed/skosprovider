@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 '''This module provides a registry for skos providers.
 
 This registry helps us find providers during runtime. We can also apply some
