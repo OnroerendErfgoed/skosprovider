@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 '''
 This example demonstrates the skosprovider API with a simple
 DictionaryProvider containing just three items.

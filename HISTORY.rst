@@ -1,3 +1,10 @@
+1.2.0 (2022-08-11)
+------------------
+
+- Update links in README.rst (#107)
+- Update setup.py (#108)
+- Drop support for Python 3.6 (#114)
+
 1.1.1 (2022-01-14)
 ------------------
 - An empty or invalid language tag as query parameter is raising 500 Exception (#110)

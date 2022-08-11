@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 '''This module provides an abstraction of controlled vocabularies.
 
 This abstraction allows our application to work with both local and remote
@@ -468,7 +466,7 @@ class MemoryProvider(VocabularyProvider):
         :param Boolean case_insensitive: Should searching for labels be done
             case-insensitive?
         '''
-        super(MemoryProvider, self).__init__(metadata, **kwargs)
+        super().__init__(metadata, **kwargs)
         if not 'allowed_instance_scopes' in kwargs:
             self.allowed_instance_scopes = [
                 'single', 'threaded_thread', 'threaded_global'
@@ -614,7 +612,7 @@ class MemoryProvider(VocabularyProvider):
         for c in self.list:
             if str(c.id) == id:
                 if isinstance(c, Concept):
-                    ret = set([c.id])
+                    ret = {c.id}
                     for cid in c.narrower:
                         ret |= set(self.expand(cid))
                     for collid in c.subordinate_arrays:
@@ -623,7 +621,7 @@ class MemoryProvider(VocabularyProvider):
                             ret |= set(self.expand(collid))
                     return list(ret)
                 elif isinstance(c, Collection):
-                    ret = set([])
+                    ret = set()
                     for m in c.members:
                         ret |= set(self.expand(m))
                     return list(ret)
@@ -673,7 +671,7 @@ class DictionaryProvider(MemoryProvider):
     '''
 
     def __init__(self, metadata, list, **kwargs):
-        super(DictionaryProvider, self).__init__(metadata, [], **kwargs)
+        super().__init__(metadata, [], **kwargs)
         self.list = [self._from_dict(c) for c in list]
 
     def _from_dict(self, data):
@@ -725,7 +723,7 @@ class SimpleCsvProvider(MemoryProvider):
         :param metadata: A metadata dictionary.
         :param reader: A csv reader.
         '''
-        super(SimpleCsvProvider, self).__init__(metadata, [], **kwargs)
+        super().__init__(metadata, [], **kwargs)
         self.list = [self._from_row(row) for row in reader]
 
     def _from_row(self, row):
