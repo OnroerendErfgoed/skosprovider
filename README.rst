@@ -14,12 +14,12 @@ where deemed useful.
     :target: https://readthedocs.org/projects/skosprovider/?badge=latest
 .. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.5824941.svg
     :target: https://doi.org/10.5281/zenodo.5824941
-.. image:: https://app.travis-ci.com/onroerenderfgoed/skosprovider.svg?branch=master
+.. image:: https://app.travis-ci.com/onroerenderfgoed/skosprovider.svg?branch=develop
     :target: https://app.travis-ci.com/onroerenderfgoed/skosprovider
-.. image:: https://coveralls.io/repos/onroerenderfgoed/skosprovider/badge.svg?branch=master
-    :target: https://coveralls.io/github/onroerenderfgoed/skosprovider?branch=master
-.. image:: https://scrutinizer-ci.com/g/onroerenderfgoed/skosprovider/badges/quality-score.png?b=master
-    :target: https://scrutinizer-ci.com/g/onroerenderfgoed/skosprovider/?branch=master
+.. image:: https://coveralls.io/repos/OnroerendErfgoed/skosprovider/badge.svg?branch=develop
+    :target: https://coveralls.io/github/OnroerendErfgoed/skosprovider?branch=develop
+.. image:: https://scrutinizer-ci.com/g/onroerenderfgoed/skosprovider/badges/quality-score.png?b=develop
+    :target: https://scrutinizer-ci.com/g/onroerenderfgoed/skosprovider/?branch=develop
 
 Building the docs
 -----------------
