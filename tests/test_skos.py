@@ -26,9 +26,10 @@ class LabelTest(unittest.TestCase):
 
     def testConstructor(self):
         l = Label('Knokke-Heist', type="prefLabel", language='nl-BE')
-        self.assertEqual('Knokke-Heist', l.label)
-        self.assertEqual('prefLabel', l.type)
-        self.assertEqual('nl-BE', l.language)
+        assert l.label == 'Knokke-Heist'
+        assert l.type == 'prefLabel'
+        assert l.language == 'nl-BE'
+        assert l.uri is None
 
     def testConstructorInvalidLanguage(self):
         with self.assertRaises(ValueError):
@@ -36,35 +37,56 @@ class LabelTest(unittest.TestCase):
         l = Label('Knokke-Heist', type='prefLabel', language=None)
         assert l.language == 'und'
 
+    def testConstructorOptionalFields(self):
+        l = Label(
+            'Knokke-Heist',
+            type='prefLabel',
+            language='nl-BE',
+            uri='urn:x-skosprovider:gemeenten:knokke-heist:nl-BE'
+        )
+        assert l.uri == 'urn:x-skosprovider:gemeenten:knokke-heist:nl-BE'
+        l = Label(
+            'Knokke-Heist',
+            uri='urn:x-skosprovider:gemeenten:knokke-heist:nl-BE'
+        )
+        assert l.uri == 'urn:x-skosprovider:gemeenten:knokke-heist:nl-BE'
+
     def testRepr(self):
         l = Label('Knokke-Heist', type="prefLabel", language='nl-BE')
-        self.assertEqual("Label('Knokke-Heist', 'prefLabel', 'nl-BE')", l.__repr__())
+        assert l.__repr__() == "Label('Knokke-Heist', 'prefLabel', 'nl-BE')"
 
     def testIsValidType(self):
-        self.assertTrue(Label.is_valid_type('prefLabel'))
-        self.assertFalse(Label.is_valid_type('voorkeursLabel'))
+        assert Label.is_valid_type('prefLabel')
+        assert not Label.is_valid_type('voorkeursLabel')
         l = Label('Knokke-Heist')
-        self.assertTrue(l.is_valid_type('prefLabel'))
+        assert l.is_valid_type('prefLabel')
 
     def testEquality(self):
         l1 = Label('Knokke-Heist')
         l2 = Label('Knokke-Heist', 'prefLabel', 'und')
-        self.assertEqual(l1, l2)
+        assert l1 == l2
 
     def testInequality(self):
         l1 = Label('Knokke-Heist')
         l2 = Label('Knokke', 'altLabel')
-        self.assertNotEqual(l1, l2)
+        assert not l1 == l2
 
     def testDictEquality(self):
         l1 = Label('Knokke-Heist')
         l2 = {'label': 'Knokke-Heist', 'type': 'prefLabel', 'language': 'und'}
-        self.assertEqual(l1, l2)
+        assert l1 == l2
 
     def testDictInequality(self):
         l1 = Label('Knokke-Heist')
         l2 = {'label': 'Knokke', 'type': 'altLabel', 'language': None}
-        self.assertNotEqual(l1, l2)
+        assert not l1 == l2
+
+    def testUriEquality(self):
+        l1 = Label('Knokke-Heist', uri='urn:x-skosprovider:gemeenten:Knokke-Heist:nl-BE')
+        l2 = Label('Knokke-Heist', uri='urn:x-skosprovider:gemeenten:Knokke-Heist:nl')
+        l3 = Label('Cnocke-Heyst', type='altLabel', language='vls', uri='urn:x-skosprovider:gemeenten:Knokke-Heist:nl-BE')
+        assert not l1 == l2
+        assert l1 == l3
 
 
 class NoteTest(unittest.TestCase):

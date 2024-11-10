@@ -1,3 +1,8 @@
+next
+----
+
+- Allow for SKOS-XL labels by adding a URI to a Label. (#125)
+
 1.2.0 (2022-08-11)
 ------------------
 

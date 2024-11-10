@@ -21,7 +21,12 @@ larch = {
     'uri': 'http://id.trees.org/1',
     'labels': [
         {'type': 'prefLabel', 'language': 'en', 'label': 'The Larch'},
-        {'type': 'prefLabel', 'language': 'nl', 'label': 'De Lariks'}
+        {
+            'uri': 'http://id.trees.org/labels/lariks-nl',
+            'type': 'prefLabel',
+            'language': 'nl',
+            'label': 'De Lariks'
+        }
     ],
     'notes': [
         {'type': 'definition', 'language': 'en', 'note': 'A type of tree.'}

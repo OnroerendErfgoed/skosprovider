@@ -39,6 +39,7 @@ CONTEXT = {
     "@version": 1.1,
     "dct": "http://purl.org/dc/terms/",
     "skos": "http://www.w3.org/2004/02/skos/core#",
+    "skosxl": "http://www.w3.org/2008/05/skos-xl#",
     "iso-thes": "http://purl.org/iso25964/skos-thes#",
     "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
     "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
@@ -66,6 +67,7 @@ CONTEXT = {
         "@type": "@id"
     },
     "labels": "@nest",
+    "labels_xl": "@nest",
     "notes": "@nest",
     "matches": "@nest",
     "sources": {
@@ -89,6 +91,21 @@ CONTEXT = {
     "hidden_labels": {
       "@nest": "labels",
       "@id": "skos:hiddenLabel",
+      "@container": "@set"
+    },
+    "pref_labels_xl": {
+      "@nest": "labels_xl",
+      "@id": "skosxl:prefLabel",
+      "@container": "@set"
+    },
+    "alt_labels_xl": {
+      "@nest": "labels_xl",
+      "@id": "skosxl:altLabel",
+      "@container": "@set"
+    },
+    "hidden_labels_xl": {
+      "@nest": "labels_xl",
+      "@id": "skosxl:hiddenLabel",
       "@container": "@set"
     },
     "general_notes": {
@@ -244,6 +261,7 @@ def jsonld_c_dumper(provider, id, context = None, relations_profile =
     if dataset_uri:
         doc['in_dataset'] = dataset_uri
     doc.update(_jsonld_labels_renderer(c))
+    doc.update(_jsonld_labels_xl_renderer(c))
     doc.update(_jsonld_notes_renderer(c))
     doc.update(_jsonld_sources_renderer(c))
     doc.update(_jsonld_member_of_renderer(c, provider, relations_profile, language))
@@ -299,6 +317,31 @@ def _jsonld_labels_renderer(c):
     }
     for l in c.labels:
         doc['labels'].setdefault(ltypemap[l.type], []).append(lbl_renderer(l))
+    return doc
+
+def _jsonld_labels_xl_renderer(c):
+    doc = {
+        'labels_xl': {}
+    }
+    def lbl_xl_renderer(l):
+        language = extract_language(l.language)
+        return {
+            'uri': l.uri, 
+            'type': 'skosxl:Label',
+            'skosxl:literalForm': {
+                '@language': language,
+                'lbl': l.label
+            }
+        }
+    ltypemap = {
+        'prefLabel': 'pref_labels_xl',
+        'altLabel': 'alt_labels_xl',
+        'hiddenLabel': 'hidden_labels_xl',
+        'sortLabel': 'hidden_labels_xl'
+    }
+    for l in c.labels:
+        if l.is_xl():
+            doc['labels_xl'].setdefault(ltypemap[l.type], []).append(lbl_xl_renderer(l))
     return doc
 
 def _jsonld_notes_renderer(c):
@@ -431,6 +474,7 @@ def jsonld_conceptscheme_dumper(provider, context = None,
         doc['in_dataset'] = dataset_uri
     doc['id'] = provider.get_metadata()['id']
     doc.update(_jsonld_labels_renderer(cs))
+    doc.update(_jsonld_labels_xl_renderer(cs))
     doc.update(_jsonld_notes_renderer(cs))
     doc.update(_jsonld_sources_renderer(cs))
     doc.update(_jsonld_cs_languages_renderer(cs))

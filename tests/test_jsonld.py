@@ -189,6 +189,19 @@ class TestDumperTrees():
         assert '@context' in doc
         assert doc['@context'] == context_uri
 
+    def test_dump_trees_cs_label(self):
+        context_uri = 'https://atramhasis.org/context/atramhasis.jsonld'
+        doc = jsonld_conceptscheme_dumper(trees, context_uri)
+        assert 'labels_xl' in doc
+        assert 'pref_labels_xl' in doc['labels_xl']
+        assert len(doc['labels_xl']['pref_labels_xl']) == 1
+        assert doc['labels_xl']['pref_labels_xl'][0]['type'] == 'skosxl:Label'
+        assert doc['labels_xl']['pref_labels_xl'][0]['uri'] == 'http://id.trees.org/labels/soorten-nl'
+        assert doc['labels_xl']['pref_labels_xl'][0]['skosxl:literalForm'] == {
+            '@language': 'nl',
+            'lbl': 'Soorten'
+        }
+
     def test_dump_trees(self):
         doc = jsonld_dumper(trees)
         assert '@graph' in doc
