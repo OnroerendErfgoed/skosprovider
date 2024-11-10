@@ -27,7 +27,12 @@ class DictDumperTest(unittest.TestCase):
             'type': 'concept',
             'labels': [
                 {'type': 'prefLabel', 'language': 'en', 'label': 'The Larch'},
-                {'type': 'prefLabel', 'language': 'nl', 'label': 'De Lariks'}
+                {
+                    'uri': 'http://id.trees.org/labels/lariks-nl',
+                    'type': 'prefLabel', 
+                    'language': 'nl', 
+                    'label': 'De Lariks'
+                }
             ],
             'notes': [
                 {'type': 'definition',
@@ -159,13 +164,10 @@ class DictDumperTest(unittest.TestCase):
 
     def testOneElementProvider(self):
         pv = self._get_flat_provider([larch])
-        self.assertEqual([self.larch_dump], dict_dumper(pv))
+        assert [self.larch_dump] == dict_dumper(pv)
 
     def testFlatProvider(self):
-        self.assertEqual(
-            [self.larch_dump, self.chestnut_dump, self.species_dump],
-            dict_dumper(trees)
-        )
+        assert dict_dumper(trees) == [self.larch_dump, self.chestnut_dump, self.species_dump]
 
     def testEmptyTreeprovider(self):
         pv = self._get_tree_provider([])

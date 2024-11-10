@@ -35,6 +35,12 @@ def dict_dumper(provider):
     for stuff in provider.get_all():
         c = provider.get_by_id(stuff['id'])
         labels = [l.__dict__ for l in c.labels]
+        labels = []
+        for l in c.labels:
+            ldict = l.__dict__
+            if 'uri' in ldict and not ldict['uri']:
+                del ldict['uri']
+            labels.append(ldict)
         notes = [n.__dict__ for n in c.notes]
         sources = [s.__dict__ for s in c.sources]
         if isinstance(c, Concept):
