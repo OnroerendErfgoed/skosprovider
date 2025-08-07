@@ -88,6 +88,16 @@ class LabelTest(unittest.TestCase):
         assert not l1 == l2
         assert l1 == l3
 
+    def testUriDictEquality(self):
+        l1 = Label('Knokke-Heist', uri='urn:x-skosprovider:gemeenten:Knokke-Heist:und')
+        l2 = {'label': 'Knokke-Heist', 'type': 'prefLabel', 'language': 'und', 'uri': 'urn:x-skosprovider:gemeenten:Knokke-Heist:und'}
+        assert l1 == l2
+    
+    def testUriDictEquality(self):
+        l1 = Label('Knokke-Heist', uri='urn:x-skosprovider:gemeenten:Knokke-Heist:nl-BE')
+        l2 = {'label': 'Knokke-Heist', 'type': 'prefLabel', 'language': 'und'}
+        assert not l1 == l2
+
 
 class NoteTest(unittest.TestCase):
 

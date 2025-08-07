@@ -189,9 +189,8 @@ class TestDumperTrees():
         assert '@context' in doc
         assert doc['@context'] == context_uri
 
-    def test_dump_trees_cs_label(self):
-        context_uri = 'https://atramhasis.org/context/atramhasis.jsonld'
-        doc = jsonld_conceptscheme_dumper(trees, context_uri)
+    def test_dump_trees_cs_xllabel(self):
+        doc = jsonld_conceptscheme_dumper(trees)
         assert 'labels_xl' in doc
         assert 'pref_labels_xl' in doc['labels_xl']
         assert len(doc['labels_xl']['pref_labels_xl']) == 1
@@ -201,6 +200,11 @@ class TestDumperTrees():
             '@language': 'nl',
             'lbl': 'Soorten'
         }
+        assert {
+                'language': 'nl',
+                '@language': 'nl',
+                'lbl': 'Soorten'
+        } in doc['labels']['pref_labels']
 
     def test_dump_trees(self):
         doc = jsonld_dumper(trees)

@@ -70,7 +70,7 @@ class Label:
     def __eq__(self, other):
         if type(other) == dict:
             if self.uri:
-                return self.uri == other['uri']
+                return self.uri == other.get('uri', None)
             return self.label == other['label'] and self.type == other['type'] and self.language == other['language'] 
         if self.uri:
             return self.uri == other.uri
