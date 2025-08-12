@@ -1,12 +1,15 @@
 name: skosprovider backend tests
 on:
-  push:
+  pull_request:
     paths:
       - skosprovider/**
       - tests/**
       - skosprovider.yaml
       - pyproject.toml
       - requirements*.txt
+  push:
+    branches:
+      - main
 jobs:
   test:
     runs-on: ubuntu-latest
