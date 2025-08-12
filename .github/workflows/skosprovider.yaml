@@ -35,4 +35,10 @@ jobs:
           pip install -e .
 
       - name: Python tests
-        run: pytest tests --exitfirst --capture=no -vvv --full-trace
+        run: pytest --cov-report xml:${{ runner.temp }}/coverage.xml --cov=skosprovider tests
+
+      - name: Get Cover
+        uses: orgoro/coverage@v3.2
+        with:
+            coverageFile: ${{ runner.temp }}/coverage.xml
+            token: ${{ secrets.GITHUB_TOKEN }
