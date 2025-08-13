@@ -1,12 +1,15 @@
 name: skosprovider backend tests
 on:
-  push:
+  pull_request:
     paths:
       - skosprovider/**
       - tests/**
       - skosprovider.yaml
       - pyproject.toml
       - requirements*.txt
+  push:
+    branches:
+      - main
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -35,4 +38,10 @@ jobs:
           pip install -e .
 
       - name: Python tests
-        run: pytest tests --exitfirst --capture=no -vvv --full-trace
+        run: pytest --cov-report xml:${{ runner.temp }}/coverage.xml --cov=skosprovider tests
+
+      - name: Get Cover
+        uses: orgoro/coverage@v3.2
+        with:
+            coverageFile: ${{ runner.temp }}/coverage.xml
+            token: ${{ secrets.GITHUB_TOKEN }}
