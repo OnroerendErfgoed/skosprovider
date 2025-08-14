@@ -40,7 +40,8 @@ Documentation = "https://skosprovider.readthedocs.io/en/latest/"
 dev = [
     "pytest==8.3.5",
     "pytest-cov==6.2.1",
-    "coveralls==4.0.1"
+    "coveralls==4.0.1",
+    "sphinx==8.1.3"
 ]
 
 ##
