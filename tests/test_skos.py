@@ -16,13 +16,7 @@ from skosprovider.skos import find_best_label_for_type
 from skosprovider.skos import label
 
 
-class LabelTest(unittest.TestCase):
-
-    def setUp(self):
-        pass
-
-    def tearDown(self):
-        pass
+class TestLabel:
 
     def testConstructor(self):
         l = Label('Knokke-Heist', type="prefLabel", language='nl-BE')
@@ -32,7 +26,7 @@ class LabelTest(unittest.TestCase):
         assert l.uri is None
 
     def testConstructorInvalidLanguage(self):
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             l = Label('Knokke-Heist', type="prefLabel", language='nederlands')
         l = Label('Knokke-Heist', type='prefLabel', language=None)
         assert l.language == 'und'
@@ -99,13 +93,7 @@ class LabelTest(unittest.TestCase):
         assert not l1 == l2
 
 
-class NoteTest(unittest.TestCase):
-
-    def setUp(self):
-        pass
-
-    def tearDown(self):
-        pass
+class TestNote:
 
     def testConstructor(self):
         n = Note(
@@ -113,12 +101,12 @@ class NoteTest(unittest.TestCase):
             type="note",
             language='nl-BE'
         )
-        self.assertEqual('Een gemeente in West-Vlaanderen.', n.note)
-        self.assertEqual('note', n.type)
-        self.assertEqual('nl-BE', n.language)
+        assert 'Een gemeente in West-Vlaanderen.' == n.note
+        assert 'note' == n.type
+        assert 'nl-BE' == n.language
 
     def testConstructorInvalidLanguage(self):
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             n = Note(
                 'Een gemeente in West-Vlaanderen.',
                 type="note",
@@ -132,7 +120,7 @@ class NoteTest(unittest.TestCase):
         assert n.language == 'und'
 
     def testConstructorInvalidMarkup(self):
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             n = Note(
                 'Een gemeente in West-Vlaanderen.',
                 type="note",
@@ -143,22 +131,22 @@ class NoteTest(unittest.TestCase):
     def testEquality(self):
         n1 = Note('A note.')
         n2 = Note('A note.', 'note', 'und')
-        self.assertEqual(n1, n2)
+        assert n1 == n2
 
     def testInEquality(self):
         n1 = Note('A note.')
         n2 = Note('A note.', 'definition', 'und')
-        self.assertNotEqual(n1, n2)
+        assert not n1 == n2
 
     def testDictEquality(self):
         n1 = Note('A note.')
         n2 = {'note': 'A note.', 'type': 'note', 'language': 'und', 'markup': None}
-        self.assertEqual(n1, n2)
+        assert n1 == n2
 
     def testDictInequality(self):
         n1 = Note('A note.')
         n2 = {'note': 'A note.', 'type': 'definition', 'language': 'und', 'markup': None}
-        self.assertNotEqual(n1, n2)
+        assert not n1 == n2
 
     def testConstructorWithHTML(self):
         n = Note(
@@ -167,38 +155,32 @@ class NoteTest(unittest.TestCase):
             language='nl-BE',
             markup='HTML'
         )
-        self.assertEqual('<p>Een gemeente in <em>West-Vlaanderen</em>.</p>', n.note)
-        self.assertEqual('note', n.type)
-        self.assertEqual('nl-BE', n.language)
-        self.assertEqual('HTML', n.markup)
+        assert '<p>Een gemeente in <em>West-Vlaanderen</em>.</p>' == n.note
+        assert 'note' == n.type
+        assert 'nl-BE' == n.language
+        assert 'HTML' == n.markup
 
     def testIsValidType(self):
-        self.assertTrue(Note.is_valid_type('note'))
-        self.assertFalse(Note.is_valid_type('notitie'))
+        assert Note.is_valid_type('note')
+        assert not Note.is_valid_type('notitie')
         n = Note('A community in West-Flanders.', 'definition', 'en')
-        self.assertTrue(n.is_valid_type('definition'))
+        assert n.is_valid_type('definition')
 
     def testIsValidMarkup(self):
-        self.assertTrue(Note.is_valid_markup('HTML'))
-        self.assertFalse(Note.is_valid_markup('markdown'))
+        assert Note.is_valid_markup('HTML')
+        assert not Note.is_valid_markup('markdown')
         n = Note('A community in West-Flanders.', 'definition', 'en', None)
-        self.assertTrue(n.is_valid_markup(None))
+        assert n.is_valid_markup(None)
 
 
-class SourceTest(unittest.TestCase):
-
-    def setUp(self):
-        pass
-
-    def tearDown(self):
-        pass
+class TestSource:
 
     def testConstructor(self):
         citation = 'Van Daele, K; Meganck, L. & Mortier, S. 2015. Data-driven systems and system-driven data: the story of the Flanders Heritage Inventory (1995-2015)'
         s = Source(
             citation
         )
-        self.assertEqual(citation, s.citation)
+        assert citation == s.citation
 
     def testConstructorWithHTML(self):
         citation = 'Van Daele, K; Meganck, L. & Mortier, S. 2015. <em>Data-driven systems and system-driven data: the story of the Flanders Heritage Inventory (1995-2015)</em>'
@@ -206,20 +188,20 @@ class SourceTest(unittest.TestCase):
             citation,
             markup='HTML'
         )
-        self.assertEqual(citation, s.citation)
-        self.assertEqual('HTML', s.markup)
+        assert citation == s.citation
+        assert 'HTML' == s.markup
 
     def testIsValidMarkup(self):
-        self.assertTrue(Source.is_valid_markup('HTML'))
-        self.assertFalse(Source.is_valid_markup('markdown'))
+        assert Source.is_valid_markup('HTML')
+        assert not Source.is_valid_markup('markdown')
         citation = 'Van Daele, K; Meganck, L. & Mortier, S. 2015. Data-driven systems and system-driven data: the story of the Flanders Heritage Inventory (1995-2015)'
         s = Source(
             citation
         )
-        self.assertTrue(s.is_valid_markup(None))
+        assert s.is_valid_markup(None)
 
     def testConstructorInvalidMarkup(self):
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             citation = 'Van Daele, K; Meganck, L. & Mortier, S. 2015. <em>Data-driven systems and system-driven data: the story of the Flanders Heritage Inventory (1995-2015)</em>'
             s = Source(
                 citation,
@@ -227,13 +209,7 @@ class SourceTest(unittest.TestCase):
             )
 
 
-class ConceptSchemeTest(unittest.TestCase):
-
-    def setUp(self):
-        pass
-
-    def tearDown(self):
-        pass
+class TestConceptScheme:
 
     def _get_gemeenten_nl(self):
         return Label('Gemeenten', type="prefLabel", language='nl-BE')
@@ -255,7 +231,7 @@ class ConceptSchemeTest(unittest.TestCase):
         cs = ConceptScheme(
             uri='urn:x-skosprovider:gemeenten'
         )
-        self.assertEqual("ConceptScheme('urn:x-skosprovider:gemeenten')", cs.__repr__())
+        assert "ConceptScheme('urn:x-skosprovider:gemeenten')" == cs.__repr__()
 
     def testLabel(self):
         labels = self._get_labels()
@@ -263,10 +239,10 @@ class ConceptSchemeTest(unittest.TestCase):
             uri='urn:x-skosprovider:gemeenten',
             labels=labels
         )
-        self.assertEqual(label(labels), cs.label())
-        self.assertEqual(label(labels, 'nl'), cs.label('nl'))
-        self.assertEqual(label(labels, 'en'), cs.label('en'))
-        self.assertEqual(label(labels, None), cs.label(None))
+        assert label(labels) == cs.label()
+        assert label(labels, 'nl') == cs.label('nl')
+        assert label(labels, 'en') == cs.label('en')
+        assert label(labels, None) == cs.label(None)
 
     def testSortKey(self):
         labels = self._get_labels()
@@ -276,10 +252,10 @@ class ConceptSchemeTest(unittest.TestCase):
             uri='urn:x-skosprovider:gemeenten',
             labels=labels
         )
-        self.assertEqual('allereerste', cs._sortkey('sortlabel'))
-        self.assertEqual('allereerste', cs._sortkey('sortlabel', 'nl'))
-        self.assertEqual('communities', cs._sortkey('sortlabel', 'en'))
-        self.assertEqual('urn:x-skosprovider:gemeenten', cs._sortkey('uri'))
+        assert 'allereerste' == cs._sortkey('sortlabel')
+        assert 'allereerste', cs._sortkey('sortlabel', 'nl')
+        assert 'communities', cs._sortkey('sortlabel', 'en')
+        assert 'urn:x-skosprovider:gemeenten', cs._sortkey('uri')
 
     def testLanguages(self):
         labels = self._get_labels()
@@ -288,16 +264,15 @@ class ConceptSchemeTest(unittest.TestCase):
             labels=labels,
             languages=['nl', 'en', 'und']
         )
-        self.assertEqual(cs.languages, ['nl', 'en', 'und'])
+        assert cs.languages == ['nl', 'en', 'und']
 
     def testSource(self):
         cs = ConceptScheme(
             uri='urn:x-skosprovider:gemeenten',
             sources=[{'citation': 'My citation'}]
         )
-        self.assertEqual(1, len(cs.sources))
-        self.assertIsInstance(cs.sources[0], Source)
-        self.assertEqual('My citation', cs.sources[0].citation)
+        assert 1 == len(cs.sources)
+        assert 'My citation' == cs.sources[0].citation
 
     def testEmptyUri(self):
         with pytest.raises(ValueError):
@@ -496,53 +471,53 @@ class CollectionTest(unittest.TestCase):
         self.assertFalse(coll.infer_concept_relations)
 
 
-class DictToNoteFunctionTest(unittest.TestCase):
+class TestDictToNoteFunction:
 
     def testDictToNodeWithDict(self):
         d = dict_to_note({'note': 'A note.', 'type': 'note'})
-        self.assertEqual('A note.', d.note)
-        self.assertEqual('note', d.type)
-        self.assertEqual('und', d.language)
+        assert 'A note.' == d.note
+        assert 'note' ==d.type
+        assert 'und' == d.language
 
     def testDictToNodeWithNote(self):
         d = dict_to_note(Note('A note.', 'note'))
-        self.assertEqual('A note.', d.note)
-        self.assertEqual('note', d.type)
-        self.assertEqual('und', d.language)
+        assert 'A note.' == d.note
+        assert 'note' == d.type
+        assert 'und' == d.language
 
 
-class DictToLabelFunctionTest(unittest.TestCase):
+class TestDictToLabelFunction:
 
     def testDictToLabelWithDict(self):
         l = dict_to_label({'label': 'A label.', 'type': 'prefLabel'})
-        self.assertEqual('A label.', l.label)
-        self.assertEqual('prefLabel', l.type)
-        self.assertEqual('und', l.language)
+        assert 'A label.' == l.label
+        assert 'prefLabel' == l.type
+        assert 'und' == l.language
 
     def testDictToLabelWithlabel(self):
         l = dict_to_label(Label('A label.', 'prefLabel'))
-        self.assertEqual('A label.', l.label)
-        self.assertEqual('prefLabel', l.type)
-        self.assertEqual('und', l.language)
+        assert 'A label.' == l.label
+        assert 'prefLabel' == l.type
+        assert 'und' == l.language
 
 
-class DictToSourceFunctionTest(unittest.TestCase):
+class TestDictToSourceFunction:
 
     def testDictToSourceWithDict(self):
         citation = 'Van Daele, K; Meganck, L. & Mortier, S. 2015. Data-driven systems and system-driven data: the story of the Flanders Heritage Inventory (1995-2015)'
         s = dict_to_source({'citation': citation})
-        self.assertEqual(citation, s.citation)
+        assert citation == s.citation
 
     def testDictToSourceWithDictWithMarkup(self):
         citation = '<strong>Van Daele, K; Meganck, L. & Mortier, S.</strong> 2015. Data-driven systems and system-driven data: the story of the Flanders Heritage Inventory (1995-2015)'
         s = dict_to_source({'citation': citation, 'markup': 'HTML'})
-        self.assertEqual(citation, s.citation)
-        self.assertEqual('HTML', s.markup)
+        assert citation == s.citation
+        assert 'HTML' == s.markup
 
     def testDictToSourceWithSource(self):
         citation = 'Van Daele, K; Meganck, L. & Mortier, S. 2015. Data-driven systems and system-driven data: the story of the Flanders Heritage Inventory (1995-2015)'
         s = dict_to_source(Source(citation))
-        self.assertEqual(citation, s.citation)
+        assert citation == s.citation
 
 
 class LabelFunctionTest(unittest.TestCase):
