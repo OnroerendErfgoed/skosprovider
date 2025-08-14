@@ -3,7 +3,7 @@ requires = ["hatchling", "hatch-fancy-pypi-readme"]
 build-backend = "hatchling.build"
 
 [project]
-version = "1.2.0"
+version = "1.3.0"
 name = "skosprovider"
 dynamic = ["readme"]
 authors = [
@@ -24,7 +24,7 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
 ]
 dependencies = [
-    "language-tags==1.1.0",
+    "language-tags==1.2.0",
     "rfc3987==1.3.8",
     "pyld==2.0.3",
     "html5lib==1.1",
@@ -40,7 +40,9 @@ Documentation = "https://skosprovider.readthedocs.io/en/latest/"
 dev = [
     "pytest==8.3.5",
     "pytest-cov==6.2.1",
-    "coveralls==4.0.1"
+    "coveralls==4.0.1",
+    "sphinx==8.1.3",
+    "sphinx_rtd_theme==3.0.2"
 ]
 
 ##
