@@ -17,7 +17,9 @@ coveralls==4.0.1
 docopt==0.6.2
     # via coveralls
 docutils==0.21.2
-    # via sphinx
+    # via
+    #   sphinx
+    #   sphinx-rtd-theme
 exceptiongroup==1.3.0
     # via pytest
 frozendict==2.4.4
@@ -32,7 +34,7 @@ iniconfig==2.0.0
     # via pytest
 jinja2==3.1.6
     # via sphinx
-language-tags==1.1.0
+language-tags==1.2.0
     # via skosprovider (pyproject.toml)
 lxml==5.3.0
     # via pyld
@@ -67,6 +69,11 @@ six==1.16.0
 snowballstemmer==3.0.1
     # via sphinx
 sphinx==8.1.3
+    # via
+    #   skosprovider (pyproject.toml)
+    #   sphinx-rtd-theme
+    #   sphinxcontrib-jquery
+sphinx-rtd-theme==3.0.2
     # via skosprovider (pyproject.toml)
 sphinxcontrib-applehelp==2.0.0
     # via sphinx
@@ -74,6 +81,8 @@ sphinxcontrib-devhelp==2.0.0
     # via sphinx
 sphinxcontrib-htmlhelp==2.1.0
     # via sphinx
+sphinxcontrib-jquery==4.1
+    # via sphinx-rtd-theme
 sphinxcontrib-jsmath==1.0.1
     # via sphinx
 sphinxcontrib-qthelp==2.0.0
