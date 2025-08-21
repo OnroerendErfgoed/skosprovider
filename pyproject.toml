@@ -11,7 +11,7 @@ authors = [
 ]
 #license = "GPL-3.0-or-later"
 description = "Abstraction layer for SKOS vocabularies."
-requires-python = ">=3.10,<3.13"
+requires-python = ">=3.10,<3.14"
 keywords = ["rdf", "skos", "skosprovider", "vocabularies", "thesauri"]
 classifiers = [
     "Development Status :: 5 - Production/Stable",
@@ -22,6 +22,7 @@ classifiers = [
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
 ]
 dependencies = [
     "language-tags==1.2.0",
@@ -40,7 +41,6 @@ Documentation = "https://skosprovider.readthedocs.io/en/latest/"
 dev = [
     "pytest==8.3.5",
     "pytest-cov==6.2.1",
-    "coveralls==4.0.1",
     "sphinx==8.1.3",
     "sphinx_rtd_theme==3.0.2"
 ]
