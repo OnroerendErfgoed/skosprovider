@@ -87,7 +87,13 @@ provider = DictionaryProvider(
     },
     [larch, chestnut, species],
     uri_generator=UriPatternGenerator('http://id.trees.org/types/%s'),
-    concept_scheme=ConceptScheme('http://id.trees.org')
+    concept_scheme=ConceptScheme(
+        'http://id.trees.org',
+        labels=[
+            {'type': 'prefLabel', 'language': 'en', 'label': 'Trees', 'uri': 'http://id.trees.org/labels/trees-en'},
+            {'type': 'prefLabel', 'language': 'nl', 'label': 'Bomen', 'uri': 'http://id.trees.org/labels/bomen-nl'}
+        ]
+    )
 )
 
 # Generate a doc for a cs
