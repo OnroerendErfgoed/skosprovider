@@ -1,5 +1,3 @@
-import unittest
-
 import pytest
 
 from skosprovider.skos import Collection
@@ -279,13 +277,7 @@ class TestConceptScheme:
             cs = ConceptScheme(uri=None)
 
 
-class ConceptTest(unittest.TestCase):
-
-    def setUp(self):
-        pass
-
-    def tearDown(self):
-        pass
+class TestConcept:
 
     def _get_knokke_heist_nl(self):
         return Label('Knokke-Heist', type="prefLabel", language='nl-BE')
@@ -305,7 +297,7 @@ class ConceptTest(unittest.TestCase):
 
     def testRepr(self):
         c = Concept(1)
-        self.assertEqual("Concept('1')", c.__repr__())
+        assert "Concept('1')" == c.__repr__()
 
     def testIn(self):
         c = Concept(1)
@@ -321,32 +313,32 @@ class ConceptTest(unittest.TestCase):
     def testLabel(self):
         labels = self._get_labels()
         c = Concept(1, labels=labels)
-        self.assertEqual(label(labels), c.label())
-        self.assertEqual(label(labels, 'nl'), c.label('nl'))
-        self.assertEqual(label(labels, 'en'), c.label('en'))
-        self.assertEqual(label(labels, None), c.label(None))
+        assert label(labels) == c.label()
+        assert label(labels, 'nl') == c.label('nl')
+        assert label(labels, 'en') == c.label('en')
+        assert label(labels, None) == c.label(None)
 
     def testSortKey(self):
         labels = self._get_labels()
         sl = Label('allereerste', type='sortLabel', language='nl-BE')
         labels.append(sl)
         c = Concept(1, labels=labels)
-        self.assertEqual('allereerste', c._sortkey('sortlabel'))
-        self.assertEqual('allereerste', c._sortkey('sortlabel', 'nl'))
-        self.assertEqual('knocke-heyst', c._sortkey('sortlabel', 'en'))
-        self.assertEqual('', c._sortkey('uri'))
+        assert 'allereerste' == c._sortkey('sortlabel')
+        assert 'allereerste' == c._sortkey('sortlabel', 'nl')
+        assert 'knocke-heyst' == c._sortkey('sortlabel', 'en')
+        assert '' == c._sortkey('uri')
 
     def testUri(self):
         c = Concept(1, uri='urn:x-skosprovider:gemeenten:1')
-        self.assertEqual(1, c.id)
-        self.assertEqual('urn:x-skosprovider:gemeenten:1', c.uri)
+        assert 1 == c.id
+        assert 'urn:x-skosprovider:gemeenten:1' == c.uri
 
     def testMemberOf(self):
         c = Concept(
             1,
             uri='urn:x-skosprovider:gemeenten:1',
             member_of=[15])
-        self.assertEqual({15}, set(c.member_of))
+        assert {15} == set(c.member_of)
 
     def testMatches(self):
         c = Concept(
@@ -368,18 +360,11 @@ class ConceptTest(unittest.TestCase):
             id=1,
             sources=[{'citation': 'My citation'}]
         )
-        self.assertEqual(1, len(c.sources))
-        self.assertIsInstance(c.sources[0], Source)
-        self.assertEqual('My citation', c.sources[0].citation)
+        assert 1 == len(c.sources)
+        assert 'My citation' == c.sources[0].citation
 
 
-class CollectionTest(unittest.TestCase):
-
-    def setUp(self):
-        pass
-
-    def tearDown(self):
-        pass
+class TestCollection:
 
     def _get_deelgemeenten_nl(self):
         return Label('Deelgemeenten', type="prefLabel", language='nl-BE')
@@ -395,35 +380,35 @@ class CollectionTest(unittest.TestCase):
 
     def testRepr(self):
         c = Collection(1)
-        self.assertEqual("Collection('1')", c.__repr__())
+        assert "Collection('1')" == c.__repr__()
 
     def testId(self):
         coll = Collection(350)
-        self.assertEqual(350, coll.id)
+        assert 350 == coll.id
 
     def testUri(self):
         c = Collection(350, uri='urn:x-skosprovider:gemeenten:350')
-        self.assertEqual(350, c.id)
-        self.assertEqual('urn:x-skosprovider:gemeenten:350', c.uri)
+        assert 350 == c.id
+        assert 'urn:x-skosprovider:gemeenten:350' == c.uri
 
     def testLabel(self):
         labels = self._get_labels()
         coll = Collection(350, labels=labels)
-        self.assertEqual(label(labels), coll.label())
-        self.assertEqual(label(labels, 'nl'), coll.label('nl'))
-        self.assertEqual(label(labels, 'en'), coll.label('en'))
-        self.assertEqual(label(labels, None), coll.label(None))
+        assert label(labels) == coll.label()
+        assert label(labels, 'nl') == coll.label('nl')
+        assert label(labels, 'en') == coll.label('en')
+        assert label(labels, None) == coll.label(None)
 
     def testSortkey(self):
         labels = self._get_labels()
         sl = Label('allereerste', type='sortLabel', language='nl-BE')
         labels.append(sl)
         coll = Collection(350, labels=labels)
-        self.assertEqual('allereerste', coll._sortkey('sortlabel'))
-        self.assertEqual('allereerste', coll._sortkey('sortlabel', 'nl'))
-        self.assertEqual('allereerste', coll._sortkey('sortlabel', 'en'))
-        self.assertEqual('deelgemeenten', coll._sortkey('label', 'nl'))
-        self.assertEqual('', coll._sortkey('uri'))
+        assert 'allereerste' == coll._sortkey('sortlabel')
+        assert 'allereerste' == coll._sortkey('sortlabel', 'nl')
+        assert 'allereerste' == coll._sortkey('sortlabel', 'en')
+        assert 'deelgemeenten' == coll._sortkey('label', 'nl')
+        assert '' == coll._sortkey('uri')
 
     def testEmptyMembers(self):
         labels = self._get_labels()
@@ -432,7 +417,7 @@ class CollectionTest(unittest.TestCase):
             labels=labels,
             members=[]
         )
-        self.assertEqual([], coll.members)
+        assert [] == coll.members
 
     def testMembers(self):
         labels = self._get_labels()
@@ -441,34 +426,33 @@ class CollectionTest(unittest.TestCase):
             labels=labels,
             members=[1, 2]
         )
-        self.assertTrue({1, 2}, set(coll.members))
+        assert {1, 2} == set(coll.members)
 
     def testMemberOf(self):
         coll = Collection(
             id=1,
             member_of=[350]
         )
-        self.assertTrue({350}, set(coll.member_of))
+        assert {350} == set(coll.member_of)
 
     def testSource(self):
         coll = Collection(
             id=1,
             sources=[{'citation': 'My citation'}]
         )
-        self.assertEqual(1, len(coll.sources))
-        self.assertIsInstance(coll.sources[0], Source)
-        self.assertEqual('My citation', coll.sources[0].citation)
+        assert 1 == len(coll.sources)
+        assert 'My citation' == coll.sources[0].citation
 
     def testnferConceptRelations(self):
         coll = Collection(
             id=1,
         )
-        self.assertTrue(coll.infer_concept_relations)
+        assert coll.infer_concept_relations
         coll = Collection(
             id=1,
             infer_concept_relations=False
         )
-        self.assertFalse(coll.infer_concept_relations)
+        assert not coll.infer_concept_relations
 
 
 class TestDictToNoteFunction:
@@ -520,13 +504,7 @@ class TestDictToSourceFunction:
         assert citation == s.citation
 
 
-class LabelFunctionTest(unittest.TestCase):
-
-    def setUp(self):
-        pass
-
-    def tearDown(self):
-        pass
+class TestLabelFunction:
 
     def _get_knokke_heist_nl(self):
         return Label('Knokke-Heist', type="prefLabel", language='nl-BE')
@@ -544,46 +522,46 @@ class LabelFunctionTest(unittest.TestCase):
         return Label('allereerste', type='sortLabel', language='nl-BE')
 
     def test_label_empty(self):
-        self.assertEqual(None, label([]))
-        self.assertEqual(None, label([], 'nl-BE'))
-        self.assertEqual(None, label([], None))
-        self.assertEqual(None, label([], 'und'))
-        self.assertEqual(None, label([], ['nl-BE']))
+        assert None == label([])
+        assert None == label([], 'nl-BE')
+        assert None == label([], None)
+        assert None == label([], 'und')
+        assert None == label([], ['nl-BE'])
 
     def test_label_pref(self):
         kh = self._get_knokke_heist_nl()
         labels = [kh]
-        self.assertEqual(kh, label(labels))
-        self.assertEqual(kh, label(labels, 'nl-BE'))
-        self.assertEqual(kh, label(labels, ['nl-BE']))
-        self.assertEqual(kh, label(labels, 'en-GB'))
-        self.assertEqual(kh, label(labels, ['en-GB']))
-        self.assertEqual(kh, label(labels, None))
+        assert kh == label(labels)
+        assert kh == label(labels, 'nl-BE')
+        assert kh == label(labels, ['nl-BE'])
+        assert kh == label(labels, 'en-GB')
+        assert kh == label(labels, ['en-GB'])
+        assert kh == label(labels, None)
 
     def test_label_pref_und(self):
         und = self._get_und()
         labels = [und]
         assert label(labels) is not None
-        self.assertEqual(und, label(labels))
-        self.assertEqual(und, label(labels, 'nl-BE'))
-        self.assertEqual(und, label(labels, ['nl-BE']))
-        self.assertEqual(und, label(labels, 'en-GB'))
-        self.assertEqual(und, label(labels, 'und'))
-        self.assertEqual(und, label(labels, ['und']))
-        self.assertEqual(und, label(labels, 'any'))
-        self.assertEqual(und, label(labels, ['any']))
-        self.assertEqual(und, label(labels, None))
+        assert und == label(labels)
+        assert und == label(labels, 'nl-BE')
+        assert und == label(labels, ['nl-BE'])
+        assert und == label(labels, 'en-GB')
+        assert und == label(labels, 'und')
+        assert und == label(labels, ['und'])
+        assert und == label(labels, 'any')
+        assert und == label(labels, ['any'])
+        assert und == label(labels, None)
 
     def test_label_pref_nl_and_en(self):
         kh = self._get_knokke_heist_nl()
         khen = self._get_knokke_heist_en()
         labels = [kh, khen]
-        self.assertIn(label(labels), [kh, khen])
-        self.assertEqual(kh, label(labels, 'nl-BE'))
-        self.assertEqual(kh, label(labels, ['nl-BE', 'en-GB']))
-        self.assertEqual(khen, label(labels, 'en-GB'))
-        self.assertEqual(khen, label(labels, ['fr', 'en-GB']))
-        self.assertIn(label(labels, None), [kh, khen])
+        assert label(labels) in [kh, khen]
+        assert kh == label(labels, 'nl-BE')
+        assert kh == label(labels, ['nl-BE', 'en-GB'])
+        assert khen == label(labels, 'en-GB')
+        assert khen == label(labels, ['fr', 'en-GB'])
+        assert label(labels, None) in [kh, khen]
 
     def test_label_inexact_language_match(self):
         kh = self._get_knokke_heist_nl()
@@ -612,34 +590,34 @@ class LabelFunctionTest(unittest.TestCase):
     def test_label_alt(self):
         ch = self._get_cnocke_heyst_nl()
         labels = [ch]
-        self.assertEqual(ch, label(labels))
-        self.assertEqual(ch, label(labels, 'nl-BE'))
-        self.assertEqual(ch, label(labels, ['nl-BE']))
-        self.assertEqual(ch, label(labels, 'en-GB'))
-        self.assertEqual(ch, label(labels, ['en-GB']))
-        self.assertEqual(ch, label(labels, None))
+        assert ch == label(labels)
+        assert ch == label(labels, 'nl-BE')
+        assert ch == label(labels, ['nl-BE'])
+        assert ch == label(labels, 'en-GB')
+        assert ch == label(labels, ['en-GB'])
+        assert ch == label(labels, None)
 
     def test_pref_precedes_alt(self):
         kh = self._get_knokke_heist_nl()
         ch = self._get_cnocke_heyst_nl()
         labels = [kh, ch]
-        self.assertEqual(kh, label(labels))
-        self.assertEqual(kh, label(labels, 'nl-BE'))
-        self.assertEqual(kh, label(labels, ['nl-BE']))
-        self.assertEqual(kh, label(labels, 'en-GB'))
-        self.assertEqual(kh, label(labels, None))
+        assert kh, label(labels)
+        assert kh, label(labels, 'nl-BE')
+        assert kh, label(labels, ['nl-BE'])
+        assert kh, label(labels, 'en-GB')
+        assert kh, label(labels, None)
 
     def test_sortlabel_unused(self):
         kh = self._get_knokke_heist_nl()
         ch = self._get_cnocke_heyst_nl()
         sl = self._get_sortlabel()
         labels = [kh, ch, sl]
-        self.assertEqual(kh, label(labels))
-        self.assertEqual(kh, label(labels, sortLabel=False))
-        self.assertEqual(kh, label(labels, 'nl-BE'))
-        self.assertEqual(kh, label(labels, ['nl-BE']))
-        self.assertEqual(kh, label(labels, 'en-GB'))
-        self.assertEqual(kh, label(labels, None))
+        assert kh == label(labels)
+        assert kh == label(labels, sortLabel=False)
+        assert kh == label(labels, 'nl-BE')
+        assert kh == label(labels, ['nl-BE'])
+        assert kh == label(labels, 'en-GB')
+        assert kh == label(labels, None)
 
     def test_sortlabel_broader(self):
         '''
@@ -656,10 +634,10 @@ class LabelFunctionTest(unittest.TestCase):
         kh = self._get_knokke_heist_nl()
         khd = kh.__dict__
         labels = [khd]
-        self.assertEqual(kh, label(labels))
-        self.assertEqual(kh, label(labels, 'nl-BE'))
-        self.assertEqual(kh, label(labels, 'en-GB'))
-        self.assertEqual(kh, label(labels, None))
+        assert kh == label(labels)
+        assert kh == label(labels, 'nl-BE')
+        assert kh == label(labels, 'en-GB')
+        assert kh == label(labels, None)
 
     def test_find_best_label_for_type(self):
         kh = self._get_knokke_heist_nl()

@@ -1,5 +1,3 @@
-import unittest
-
 from skosprovider.jsonld import (
     CONTEXT,
     jsonld_dumper,
