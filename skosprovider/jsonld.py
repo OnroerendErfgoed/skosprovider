@@ -404,7 +404,8 @@ def _jsonld_matches_renderer(c):
         'matches': {}
     }
     for k,v in c.matches.items():
-        doc['matches'].setdefault('%s_matches' % k, []).extend(v)
+        if len(v):
+            doc['matches'].setdefault('%s_matches' % k, []).extend(v)
     if not len(doc['matches']):
         del doc['matches']
     return doc

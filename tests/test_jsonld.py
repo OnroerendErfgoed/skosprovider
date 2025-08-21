@@ -249,3 +249,4 @@ class TestDumperGeo():
     def test_dump_Belgium(self):
         doc = jsonld_c_dumper(geo, 4, CONTEXT)
         assert len(doc['subordinate_arrays']) == 2
+        assert not 'matches' in doc
