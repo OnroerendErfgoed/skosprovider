@@ -317,6 +317,8 @@ def _jsonld_labels_renderer(c):
     }
     for l in c.labels:
         doc['labels'].setdefault(ltypemap[l.type], []).append(lbl_renderer(l))
+    if not len(doc['labels']):
+        del doc['labels']
     return doc
 
 def _jsonld_labels_xl_renderer(c):
@@ -342,6 +344,8 @@ def _jsonld_labels_xl_renderer(c):
     for l in c.labels:
         if l.is_xl():
             doc['labels_xl'].setdefault(ltypemap[l.type], []).append(lbl_xl_renderer(l))
+    if not len(doc['labels_xl']):
+        del doc['labels_xl']
     return doc
 
 def _jsonld_notes_renderer(c):
@@ -371,6 +375,8 @@ def _jsonld_notes_renderer(c):
     }
     for n in c.notes:
         doc['notes'].setdefault(ntypemap[n.type], []).append(nt_renderer(n))
+    if not len(doc['notes']):
+        del doc['notes']
     return doc
 
 def _jsonld_sources_renderer(c):
@@ -389,6 +395,8 @@ def _jsonld_sources_renderer(c):
         return source
     for s in c.sources:
         doc['sources'].append(s_renderer(s))
+    if not len(doc['sources']):
+        del doc['sources']
     return doc
 
 def _jsonld_matches_renderer(c):
@@ -397,6 +405,8 @@ def _jsonld_matches_renderer(c):
     }
     for k,v in c.matches.items():
         doc['matches'].setdefault('%s_matches' % k, []).extend(v)
+    if not len(doc['matches']):
+        del doc['matches']
     return doc
 
 def _jsonld_superordinates_renderer(c, provider, profile = 'partial', language = 'en'):
