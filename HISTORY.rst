@@ -2,6 +2,7 @@ next
 ----
 
 - Allow for SKOS-XL labels by adding a URI to a Label. (#125)
+- Add support for Python 3.13 (#135)
 
 1.2.0 (2022-08-11)
 ------------------
