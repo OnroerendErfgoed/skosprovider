@@ -44,8 +44,20 @@ def dict_dumper(provider):
             if label.uri:
                 ldict['uri'] = label.uri
             labels.append(ldict)
-        notes = [n.__dict__ for n in c.notes]
-        sources = [s.__dict__ for s in c.sources]
+        notes = [
+            {
+                'note': note.note,
+                'type': note.type,
+                'language': note.language,
+                'markup': note.markup
+            } for note in c.notes
+        ]
+        sources = [
+            {
+                'citation': source.citation,
+                'markup': source.markup
+            } for source in c.sources
+        ]
         if isinstance(c, Concept):
             ret.append({
                 'id': c.id,
