@@ -325,14 +325,14 @@ def _jsonld_labels_xl_renderer(c):
     doc = {
         'labels_xl': {}
     }
-    def lbl_xl_renderer(l):
-        language = extract_language(l.language)
+    def lbl_xl_renderer(label):
+        language = extract_language(label.language)
         return {
-            'uri': l.uri, 
+            'uri': label.uri, 
             'type': 'skosxl:Label',
             'skosxl:literalForm': {
                 '@language': language,
-                'lbl': l.label
+                'lbl': label.label
             }
         }
     ltypemap = {
@@ -341,9 +341,9 @@ def _jsonld_labels_xl_renderer(c):
         'hiddenLabel': 'hidden_labels_xl',
         'sortLabel': 'hidden_labels_xl'
     }
-    for l in c.labels:
-        if l.is_xl():
-            doc['labels_xl'].setdefault(ltypemap[l.type], []).append(lbl_xl_renderer(l))
+    for label in c.labels:
+        if label.is_xl():
+            doc['labels_xl'].setdefault(ltypemap[label.type], []).append(lbl_xl_renderer(label))
     if not len(doc['labels_xl']):
         del doc['labels_xl']
     return doc
