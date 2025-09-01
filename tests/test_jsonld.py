@@ -100,7 +100,7 @@ class TestDumperTrees():
                 'lbl': 'The Chestnut'
         } in doc['labels']['pref_labels']
         assert len(doc['labels']['alt_labels']) == 2
-        assert not 'labels_xl' in doc
+        assert 'labels_xl' not in doc
         assert len(doc['notes']['definitions']) == 1
         assert {
                 'language': 'en',
@@ -129,14 +129,14 @@ class TestDumperTrees():
                 'lbl': 'Trees by species'
         } in doc['labels']['pref_labels']
         assert len(doc['labels']['hidden_labels']) == 1
-        assert not 'labels_xl' in doc
+        assert 'labels_xl' not in doc
         assert len(doc['notes']['editorial_notes']) == 1
         assert {
                 'language': 'en',
                 'nt': '<div xml:lang="en">As seen in <em>How to Recognise Different Types of Trees from Quite a Long Way Away</em>.</div>',
                 '@type': 'HTML'
         } in doc['notes']['editorial_notes']
-        assert not 'sources' in doc
+        assert 'sources' not in doc
         assert len(doc['members']) == 2
         assert {
             'id': '2',
@@ -144,7 +144,7 @@ class TestDumperTrees():
             'type': 'concept',
             'label': 'The Chestnut'
         } in doc['members']
-        assert not 'matches' in doc
+        assert 'matches' not in doc
         assert doc['concept_scheme'] == {
             'uri': 'http://id.trees.org',
             'type': 'skos:ConceptScheme',
@@ -160,8 +160,8 @@ class TestDumperTrees():
         assert len(doc['top_concepts']) == 2
         assert len(doc['labels']['pref_labels']) == 1
         assert len(doc['labels_xl']['pref_labels_xl']) == 1
-        assert not 'sources' in doc
-        assert not 'notes' in doc
+        assert 'sources' not in doc
+        assert 'notes' not in doc
         assert doc['in_dataset'] == 'http://id.trees.org/dataset'
 
     def test_dump_trees_cs_partial_profile(self):
@@ -247,4 +247,4 @@ class TestDumperGeo():
     def test_dump_Belgium(self):
         doc = jsonld_c_dumper(geo, 4, CONTEXT)
         assert len(doc['subordinate_arrays']) == 2
-        assert not 'matches' in doc
+        assert 'matches' not in doc
