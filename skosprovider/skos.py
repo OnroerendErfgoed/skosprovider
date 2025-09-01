@@ -68,9 +68,9 @@ class Label:
             raise ValueError(f'{language} is not a valid IANA language tag.')
 
     def __eq__(self, other):
-        if type(other) == dict:
+        if isinstance(other, dict):
             if self.uri:
-                return self.uri == other.get('uri', None)
+                return self.uri == other.get('uri')
             return self.label == other['label'] and self.type == other['type'] and self.language == other['language'] 
         if self.uri:
             return self.uri == other.uri
@@ -620,7 +620,7 @@ def dict_to_label(dict):
             dict['label'],
             dict.get('type', 'prefLabel'),
             dict.get('language', 'und'),
-            uri = dict.get('uri', None)
+            uri = dict.get('uri')
         )
     except (KeyError, AttributeError, TypeError):
         return dict
