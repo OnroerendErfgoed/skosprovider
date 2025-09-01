@@ -92,7 +92,10 @@ class Label:
         return self.uri is not None
 
     def __repr__(self):
-        return "Label('{}', '{}', '{}')".format(self.label, self.type, self.language)
+        if not self.is_xl():
+            return f"Label('{self.label}', '{self.type}', '{self.language}')"
+        else:
+            return f"Label('{self.label}', '{self.type}', '{self.language}', '{self.uri}')"
 
 
 class Note:

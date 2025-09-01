@@ -45,7 +45,14 @@ class TestLabel:
 
     def testRepr(self):
         l = Label('Knokke-Heist', type="prefLabel", language='nl-BE')
-        assert l.__repr__() == "Label('Knokke-Heist', 'prefLabel', 'nl-BE')"
+        assert repr(l) == "Label('Knokke-Heist', 'prefLabel', 'nl-BE')"
+        l = Label(
+            'Knokke-Heist',
+            type="prefLabel",
+            language='nl-BE',
+            uri='urn:x-skosprovider:gemeenten:Knokke-Heist:nl-Be'
+        )
+        assert repr(l) == "Label('Knokke-Heist', 'prefLabel', 'nl-BE', 'urn:x-skosprovider:gemeenten:Knokke-Heist:nl-Be')"
 
     def testIsValidType(self):
         assert Label.is_valid_type('prefLabel')
@@ -226,10 +233,10 @@ class TestConceptScheme:
         ]
 
     def testRepr(self):
-        cs = ConceptScheme(
+        conceptscheme = ConceptScheme(
             uri='urn:x-skosprovider:gemeenten'
         )
-        assert "ConceptScheme('urn:x-skosprovider:gemeenten')" == cs.__repr__()
+        assert "ConceptScheme('urn:x-skosprovider:gemeenten')" == repr(conceptscheme)
 
     def testLabel(self):
         labels = self._get_labels()
@@ -296,8 +303,8 @@ class TestConcept:
         ]
 
     def testRepr(self):
-        c = Concept(1)
-        assert "Concept('1')" == c.__repr__()
+        concept = Concept(1)
+        assert "Concept('1')" == repr(concept)
 
     def testIn(self):
         c = Concept(1)
@@ -379,8 +386,8 @@ class TestCollection:
         ]
 
     def testRepr(self):
-        c = Collection(1)
-        assert "Collection('1')" == c.__repr__()
+        collection = Collection(1)
+        assert "Collection('1')" == repr(collection)
 
     def testId(self):
         coll = Collection(350)
