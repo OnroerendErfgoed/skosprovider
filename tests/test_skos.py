@@ -61,7 +61,7 @@ class TestLabel:
     def testInequality(self):
         l1 = Label('Knokke-Heist')
         l2 = Label('Knokke', 'altLabel')
-        assert not l1 == l2
+        assert l1 != l2
 
     def testDictEquality(self):
         l1 = Label('Knokke-Heist')
@@ -71,13 +71,13 @@ class TestLabel:
     def testDictInequality(self):
         l1 = Label('Knokke-Heist')
         l2 = {'label': 'Knokke', 'type': 'altLabel', 'language': None}
-        assert not l1 == l2
+        assert l1 != l2
 
     def testUriEquality(self):
         l1 = Label('Knokke-Heist', uri='urn:x-skosprovider:gemeenten:Knokke-Heist:nl-BE')
         l2 = Label('Knokke-Heist', uri='urn:x-skosprovider:gemeenten:Knokke-Heist:nl')
         l3 = Label('Cnocke-Heyst', type='altLabel', language='vls', uri='urn:x-skosprovider:gemeenten:Knokke-Heist:nl-BE')
-        assert not l1 == l2
+        assert l1 != l2
         assert l1 == l3
 
     def testUriDictEquality(self):
@@ -88,7 +88,7 @@ class TestLabel:
     def testUriDictEquality(self):
         l1 = Label('Knokke-Heist', uri='urn:x-skosprovider:gemeenten:Knokke-Heist:nl-BE')
         l2 = {'label': 'Knokke-Heist', 'type': 'prefLabel', 'language': 'und'}
-        assert not l1 == l2
+        assert l1 != l2
 
 
 class TestNote:
@@ -134,7 +134,7 @@ class TestNote:
     def testInEquality(self):
         n1 = Note('A note.')
         n2 = Note('A note.', 'definition', 'und')
-        assert not n1 == n2
+        assert n1 != n2
 
     def testDictEquality(self):
         n1 = Note('A note.')
@@ -144,7 +144,7 @@ class TestNote:
     def testDictInequality(self):
         n1 = Note('A note.')
         n2 = {'note': 'A note.', 'type': 'definition', 'language': 'und', 'markup': None}
-        assert not n1 == n2
+        assert n1 != n2
 
     def testConstructorWithHTML(self):
         n = Note(
