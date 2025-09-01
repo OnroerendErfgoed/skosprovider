@@ -60,12 +60,12 @@ class Label:
         if not language:
             language = 'und'
         if uri and not is_uri(uri):
-            raise ValueError('%s is not a valid URI.' % uri)
+            raise ValueError(f'{uri} is not a valid URI.')
         self.uri = uri
         if tags.check(language):
             self.language = language
         else:
-            raise ValueError('%s is not a valid IANA language tag.' % language)
+            raise ValueError(f'{language} is not a valid IANA language tag.')
 
     def __eq__(self, other):
         if type(other) == dict:
@@ -142,11 +142,11 @@ class Note:
         if tags.check(language):
             self.language = language
         else:
-            raise ValueError('%s is not a valid IANA language tag.' % language)
+            raise ValueError(f'{language} is not a valid IANA language tag.')
         if self.is_valid_markup(markup):
             self.markup = markup
         else:
-            raise ValueError('%s is not valid markup.' % markup)
+            raise ValueError(f'{language} is not valid markup.')
 
     def __eq__(self, other):
         return self.__dict__ == (other if type(other) == dict else other.__dict__)
@@ -195,7 +195,7 @@ class Source:
         if self.is_valid_markup(markup):
             self.markup = markup
         else:
-            raise ValueError('%s is not valid markup.' % markup)
+            raise ValueError(f'{markup} is not valid markup.')
 
     @staticmethod
     def is_valid_markup(markup):
@@ -237,7 +237,7 @@ class ConceptScheme:
 
     def __init__(self, uri, labels=[], notes=[], sources=[], languages=[]):
         if not is_uri(uri):
-            raise ValueError('%s is not a valid URI.' % uri)
+            raise ValueError(f'{uri} is not a valid URI.')
         self.uri = uri
         self.labels = [dict_to_label(l) for l in labels]
         self.notes = [dict_to_note(n) for n in notes]
@@ -273,7 +273,7 @@ class ConceptScheme:
             return l.label.lower() if l else ''
 
     def __repr__(self):
-        return "ConceptScheme('%s')" % self.uri
+        return f"ConceptScheme('{self.uri}')"
 
 
 class Concept:
@@ -395,7 +395,7 @@ class Concept:
             return l.label.lower() if l else ''
 
     def __repr__(self):
-        return "Concept('%s')" % self.id
+        return f"Concept('{self.id}')"
 
 
 class Collection:
@@ -488,7 +488,7 @@ class Collection:
             return l.label.lower() if l else ''
 
     def __repr__(self):
-        return "Collection('%s')" % self.id
+        return f"Collection('{self.id}')"
 
 
 def label(labels=[], language='any', sortLabel=False):

@@ -124,7 +124,7 @@ def add_lang_to_html(htmltext, lang):
     html = parser.parseFragment(htmltext)
     html.normalize()
     if len(html.childNodes) == 0:
-        return '<div xml:lang="%s"></div>' % lang
+        return f'<div xml:lang="{lang}"></div>'
     elif len(html.childNodes) == 1:
         node = html.firstChild
         if node.nodeType == Node.TEXT_NODE:
