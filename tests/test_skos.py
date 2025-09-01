@@ -522,11 +522,11 @@ class TestLabelFunction:
         return Label('allereerste', type='sortLabel', language='nl-BE')
 
     def test_label_empty(self):
-        assert None == label([])
-        assert None == label([], 'nl-BE')
-        assert None == label([], None)
-        assert None == label([], 'und')
-        assert None == label([], ['nl-BE'])
+        assert label([]) is None
+        assert label([], 'nl-BE') is None
+        assert label([], None) is None
+        assert label([], 'und') is None
+        assert label([], ['nl-BE']) is None
 
     def test_label_pref(self):
         kh = self._get_knokke_heist_nl()
