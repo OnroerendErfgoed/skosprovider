@@ -73,7 +73,7 @@ class TestDumperTrees():
         assert doc['concept_scheme'] == {
             'uri': 'http://id.trees.org',
             'type': 'skos:ConceptScheme',
-            'label': 'Soorten'
+            'label': 'Species'
         }
 
     def test_dump_larch_inline_context(self):
@@ -112,7 +112,7 @@ class TestDumperTrees():
         assert doc['concept_scheme'] == {
             'uri': 'http://id.trees.org',
             'type': 'skos:ConceptScheme',
-            'label': 'Soorten'
+            'label': 'Species'
         }
         assert doc['in_dataset'] == 'http://id.trees.org/dataset'
 
@@ -148,17 +148,18 @@ class TestDumperTrees():
         assert doc['concept_scheme'] == {
             'uri': 'http://id.trees.org',
             'type': 'skos:ConceptScheme',
-            'label': 'Soorten'
+            'label': 'Species'
         }
         assert doc['in_dataset'] == 'http://id.trees.org/dataset'
 
-    def test_dump_trees_cs(self):
-        doc = jsonld_conceptscheme_dumper(trees)
+    def test_dump_trees_cs_nl(self):
+        doc = jsonld_conceptscheme_dumper(trees, language='nl')
         assert doc['uri'] == 'http://id.trees.org'
         assert doc['type'] == 'skos:ConceptScheme'
         assert doc['id'] == 'TREES'
+        assert doc['label'] == 'Soorten'
         assert len(doc['top_concepts']) == 2
-        assert len(doc['labels']['pref_labels']) == 1
+        assert len(doc['labels']['pref_labels']) == 2
         assert len(doc['labels_xl']['pref_labels_xl']) == 1
         assert 'sources' not in doc
         assert 'notes' not in doc
@@ -199,6 +200,7 @@ class TestDumperTrees():
 
     def test_dump_trees_cs_xllabel(self):
         doc = jsonld_conceptscheme_dumper(trees)
+        assert doc['label'] == 'Species'
         assert 'labels_xl' in doc
         assert 'pref_labels_xl' in doc['labels_xl']
         assert len(doc['labels_xl']['pref_labels_xl']) == 1

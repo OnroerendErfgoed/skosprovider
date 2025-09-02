@@ -105,6 +105,10 @@ trees = DictionaryProvider(
             'type': 'prefLabel',
             'language': 'nl',
             'label': 'Soorten'
+        }, {
+            'type': 'prefLabel',
+            'language': 'en',
+            'label': 'Species'
         }],
         languages=['nl', 'en']
     )

@@ -476,18 +476,18 @@ def jsonld_conceptscheme_dumper(provider, context = None,
 
     :rtype: A `dict`
     '''
-    cs = provider.concept_scheme
-    doc = _jsonld_cs_basic_renderer(cs)
+    conceptscheme = provider.concept_scheme
+    doc = _jsonld_cs_basic_renderer(conceptscheme, language)
     if context:
         doc['@context'] = context
     dataset_uri = provider.get_metadata().get('dataset', {}).get('uri', None)
     if dataset_uri:
         doc['in_dataset'] = dataset_uri
     doc['id'] = provider.get_metadata()['id']
-    doc.update(_jsonld_labels_renderer(cs))
-    doc.update(_jsonld_labels_xl_renderer(cs))
-    doc.update(_jsonld_notes_renderer(cs))
-    doc.update(_jsonld_sources_renderer(cs))
-    doc.update(_jsonld_cs_languages_renderer(cs))
+    doc.update(_jsonld_labels_renderer(conceptscheme))
+    doc.update(_jsonld_labels_xl_renderer(conceptscheme))
+    doc.update(_jsonld_notes_renderer(conceptscheme))
+    doc.update(_jsonld_sources_renderer(conceptscheme))
+    doc.update(_jsonld_cs_languages_renderer(conceptscheme))
     doc.update(_jsonld_topconcepts_renderer(provider, relations_profile))
     return doc
