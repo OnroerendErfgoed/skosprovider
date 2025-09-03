@@ -21,4 +21,4 @@ repos:
             'flake8-bugbear',
         ]
         types: [python]
-        args: [--config=backend/.flake8]
+        args: [--config=.flake8]
