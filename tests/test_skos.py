@@ -1,5 +1,3 @@
-import unittest
-
 import pytest
 
 from skosprovider.skos import Collection
@@ -16,64 +14,91 @@ from skosprovider.skos import find_best_label_for_type
 from skosprovider.skos import label
 
 
-class LabelTest(unittest.TestCase):
-
-    def setUp(self):
-        pass
-
-    def tearDown(self):
-        pass
+class TestLabel:
 
     def testConstructor(self):
         l = Label('Knokke-Heist', type="prefLabel", language='nl-BE')
-        self.assertEqual('Knokke-Heist', l.label)
-        self.assertEqual('prefLabel', l.type)
-        self.assertEqual('nl-BE', l.language)
+        assert l.label == 'Knokke-Heist'
+        assert l.type == 'prefLabel'
+        assert l.language == 'nl-BE'
+        assert l.uri is None
 
     def testConstructorInvalidLanguage(self):
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             l = Label('Knokke-Heist', type="prefLabel", language='nederlands')
         l = Label('Knokke-Heist', type='prefLabel', language=None)
         assert l.language == 'und'
 
+    def testConstructorOptionalFields(self):
+        l = Label(
+            'Knokke-Heist',
+            type='prefLabel',
+            language='nl-BE',
+            uri='urn:x-skosprovider:gemeenten:knokke-heist:nl-BE'
+        )
+        assert l.uri == 'urn:x-skosprovider:gemeenten:knokke-heist:nl-BE'
+        l = Label(
+            'Knokke-Heist',
+            uri='urn:x-skosprovider:gemeenten:knokke-heist:nl-BE'
+        )
+        assert l.uri == 'urn:x-skosprovider:gemeenten:knokke-heist:nl-BE'
+
     def testRepr(self):
         l = Label('Knokke-Heist', type="prefLabel", language='nl-BE')
-        self.assertEqual("Label('Knokke-Heist', 'prefLabel', 'nl-BE')", l.__repr__())
+        assert repr(l) == "Label('Knokke-Heist', 'prefLabel', 'nl-BE')"
+        l = Label(
+            'Knokke-Heist',
+            type="prefLabel",
+            language='nl-BE',
+            uri='urn:x-skosprovider:gemeenten:Knokke-Heist:nl-Be'
+        )
+        assert repr(l) == "Label('Knokke-Heist', 'prefLabel', 'nl-BE', 'urn:x-skosprovider:gemeenten:Knokke-Heist:nl-Be')"
 
     def testIsValidType(self):
-        self.assertTrue(Label.is_valid_type('prefLabel'))
-        self.assertFalse(Label.is_valid_type('voorkeursLabel'))
+        assert Label.is_valid_type('prefLabel')
+        assert not Label.is_valid_type('voorkeursLabel')
         l = Label('Knokke-Heist')
-        self.assertTrue(l.is_valid_type('prefLabel'))
+        assert l.is_valid_type('prefLabel')
 
     def testEquality(self):
         l1 = Label('Knokke-Heist')
         l2 = Label('Knokke-Heist', 'prefLabel', 'und')
-        self.assertEqual(l1, l2)
+        assert l1 == l2
 
     def testInequality(self):
         l1 = Label('Knokke-Heist')
         l2 = Label('Knokke', 'altLabel')
-        self.assertNotEqual(l1, l2)
+        assert l1 != l2
 
     def testDictEquality(self):
         l1 = Label('Knokke-Heist')
         l2 = {'label': 'Knokke-Heist', 'type': 'prefLabel', 'language': 'und'}
-        self.assertEqual(l1, l2)
+        assert l1 == l2
 
     def testDictInequality(self):
         l1 = Label('Knokke-Heist')
         l2 = {'label': 'Knokke', 'type': 'altLabel', 'language': None}
-        self.assertNotEqual(l1, l2)
+        assert l1 != l2
+
+    def testUriEquality(self):
+        l1 = Label('Knokke-Heist', uri='urn:x-skosprovider:gemeenten:Knokke-Heist:nl-BE')
+        l2 = Label('Knokke-Heist', uri='urn:x-skosprovider:gemeenten:Knokke-Heist:nl')
+        l3 = Label('Cnocke-Heyst', type='altLabel', language='vls', uri='urn:x-skosprovider:gemeenten:Knokke-Heist:nl-BE')
+        assert l1 != l2
+        assert l1 == l3
+
+    def testUriDictEquality(self):
+        l1 = Label('Knokke-Heist', uri='urn:x-skosprovider:gemeenten:Knokke-Heist:und')
+        l2 = {'label': 'Knokke-Heist', 'type': 'prefLabel', 'language': 'und', 'uri': 'urn:x-skosprovider:gemeenten:Knokke-Heist:und'}
+        assert l1 == l2
+    
+    def testUriDictEquality(self):
+        l1 = Label('Knokke-Heist', uri='urn:x-skosprovider:gemeenten:Knokke-Heist:nl-BE')
+        l2 = {'label': 'Knokke-Heist', 'type': 'prefLabel', 'language': 'und'}
+        assert l1 != l2
 
 
-class NoteTest(unittest.TestCase):
-
-    def setUp(self):
-        pass
-
-    def tearDown(self):
-        pass
+class TestNote:
 
     def testConstructor(self):
         n = Note(
@@ -81,12 +106,12 @@ class NoteTest(unittest.TestCase):
             type="note",
             language='nl-BE'
         )
-        self.assertEqual('Een gemeente in West-Vlaanderen.', n.note)
-        self.assertEqual('note', n.type)
-        self.assertEqual('nl-BE', n.language)
+        assert 'Een gemeente in West-Vlaanderen.' == n.note
+        assert 'note' == n.type
+        assert 'nl-BE' == n.language
 
     def testConstructorInvalidLanguage(self):
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             n = Note(
                 'Een gemeente in West-Vlaanderen.',
                 type="note",
@@ -100,7 +125,7 @@ class NoteTest(unittest.TestCase):
         assert n.language == 'und'
 
     def testConstructorInvalidMarkup(self):
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             n = Note(
                 'Een gemeente in West-Vlaanderen.',
                 type="note",
@@ -111,22 +136,22 @@ class NoteTest(unittest.TestCase):
     def testEquality(self):
         n1 = Note('A note.')
         n2 = Note('A note.', 'note', 'und')
-        self.assertEqual(n1, n2)
+        assert n1 == n2
 
     def testInEquality(self):
         n1 = Note('A note.')
         n2 = Note('A note.', 'definition', 'und')
-        self.assertNotEqual(n1, n2)
+        assert n1 != n2
 
     def testDictEquality(self):
         n1 = Note('A note.')
         n2 = {'note': 'A note.', 'type': 'note', 'language': 'und', 'markup': None}
-        self.assertEqual(n1, n2)
+        assert n1 == n2
 
     def testDictInequality(self):
         n1 = Note('A note.')
         n2 = {'note': 'A note.', 'type': 'definition', 'language': 'und', 'markup': None}
-        self.assertNotEqual(n1, n2)
+        assert n1 != n2
 
     def testConstructorWithHTML(self):
         n = Note(
@@ -135,38 +160,32 @@ class NoteTest(unittest.TestCase):
             language='nl-BE',
             markup='HTML'
         )
-        self.assertEqual('<p>Een gemeente in <em>West-Vlaanderen</em>.</p>', n.note)
-        self.assertEqual('note', n.type)
-        self.assertEqual('nl-BE', n.language)
-        self.assertEqual('HTML', n.markup)
+        assert '<p>Een gemeente in <em>West-Vlaanderen</em>.</p>' == n.note
+        assert 'note' == n.type
+        assert 'nl-BE' == n.language
+        assert 'HTML' == n.markup
 
     def testIsValidType(self):
-        self.assertTrue(Note.is_valid_type('note'))
-        self.assertFalse(Note.is_valid_type('notitie'))
+        assert Note.is_valid_type('note')
+        assert not Note.is_valid_type('notitie')
         n = Note('A community in West-Flanders.', 'definition', 'en')
-        self.assertTrue(n.is_valid_type('definition'))
+        assert n.is_valid_type('definition')
 
     def testIsValidMarkup(self):
-        self.assertTrue(Note.is_valid_markup('HTML'))
-        self.assertFalse(Note.is_valid_markup('markdown'))
+        assert Note.is_valid_markup('HTML')
+        assert not Note.is_valid_markup('markdown')
         n = Note('A community in West-Flanders.', 'definition', 'en', None)
-        self.assertTrue(n.is_valid_markup(None))
+        assert n.is_valid_markup(None)
 
 
-class SourceTest(unittest.TestCase):
-
-    def setUp(self):
-        pass
-
-    def tearDown(self):
-        pass
+class TestSource:
 
     def testConstructor(self):
         citation = 'Van Daele, K; Meganck, L. & Mortier, S. 2015. Data-driven systems and system-driven data: the story of the Flanders Heritage Inventory (1995-2015)'
         s = Source(
             citation
         )
-        self.assertEqual(citation, s.citation)
+        assert citation == s.citation
 
     def testConstructorWithHTML(self):
         citation = 'Van Daele, K; Meganck, L. & Mortier, S. 2015. <em>Data-driven systems and system-driven data: the story of the Flanders Heritage Inventory (1995-2015)</em>'
@@ -174,20 +193,20 @@ class SourceTest(unittest.TestCase):
             citation,
             markup='HTML'
         )
-        self.assertEqual(citation, s.citation)
-        self.assertEqual('HTML', s.markup)
+        assert citation == s.citation
+        assert 'HTML' == s.markup
 
     def testIsValidMarkup(self):
-        self.assertTrue(Source.is_valid_markup('HTML'))
-        self.assertFalse(Source.is_valid_markup('markdown'))
+        assert Source.is_valid_markup('HTML')
+        assert not Source.is_valid_markup('markdown')
         citation = 'Van Daele, K; Meganck, L. & Mortier, S. 2015. Data-driven systems and system-driven data: the story of the Flanders Heritage Inventory (1995-2015)'
         s = Source(
             citation
         )
-        self.assertTrue(s.is_valid_markup(None))
+        assert s.is_valid_markup(None)
 
     def testConstructorInvalidMarkup(self):
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             citation = 'Van Daele, K; Meganck, L. & Mortier, S. 2015. <em>Data-driven systems and system-driven data: the story of the Flanders Heritage Inventory (1995-2015)</em>'
             s = Source(
                 citation,
@@ -195,13 +214,7 @@ class SourceTest(unittest.TestCase):
             )
 
 
-class ConceptSchemeTest(unittest.TestCase):
-
-    def setUp(self):
-        pass
-
-    def tearDown(self):
-        pass
+class TestConceptScheme:
 
     def _get_gemeenten_nl(self):
         return Label('Gemeenten', type="prefLabel", language='nl-BE')
@@ -220,10 +233,10 @@ class ConceptSchemeTest(unittest.TestCase):
         ]
 
     def testRepr(self):
-        cs = ConceptScheme(
+        conceptscheme = ConceptScheme(
             uri='urn:x-skosprovider:gemeenten'
         )
-        self.assertEqual("ConceptScheme('urn:x-skosprovider:gemeenten')", cs.__repr__())
+        assert "ConceptScheme('urn:x-skosprovider:gemeenten')" == repr(conceptscheme)
 
     def testLabel(self):
         labels = self._get_labels()
@@ -231,10 +244,10 @@ class ConceptSchemeTest(unittest.TestCase):
             uri='urn:x-skosprovider:gemeenten',
             labels=labels
         )
-        self.assertEqual(label(labels), cs.label())
-        self.assertEqual(label(labels, 'nl'), cs.label('nl'))
-        self.assertEqual(label(labels, 'en'), cs.label('en'))
-        self.assertEqual(label(labels, None), cs.label(None))
+        assert label(labels) == cs.label()
+        assert label(labels, 'nl') == cs.label('nl')
+        assert label(labels, 'en') == cs.label('en')
+        assert label(labels, None) == cs.label(None)
 
     def testSortKey(self):
         labels = self._get_labels()
@@ -244,10 +257,10 @@ class ConceptSchemeTest(unittest.TestCase):
             uri='urn:x-skosprovider:gemeenten',
             labels=labels
         )
-        self.assertEqual('allereerste', cs._sortkey('sortlabel'))
-        self.assertEqual('allereerste', cs._sortkey('sortlabel', 'nl'))
-        self.assertEqual('communities', cs._sortkey('sortlabel', 'en'))
-        self.assertEqual('urn:x-skosprovider:gemeenten', cs._sortkey('uri'))
+        assert 'allereerste' == cs._sortkey('sortlabel')
+        assert 'allereerste', cs._sortkey('sortlabel', 'nl')
+        assert 'communities', cs._sortkey('sortlabel', 'en')
+        assert 'urn:x-skosprovider:gemeenten', cs._sortkey('uri')
 
     def testLanguages(self):
         labels = self._get_labels()
@@ -256,29 +269,22 @@ class ConceptSchemeTest(unittest.TestCase):
             labels=labels,
             languages=['nl', 'en', 'und']
         )
-        self.assertEqual(cs.languages, ['nl', 'en', 'und'])
+        assert cs.languages == ['nl', 'en', 'und']
 
     def testSource(self):
         cs = ConceptScheme(
             uri='urn:x-skosprovider:gemeenten',
             sources=[{'citation': 'My citation'}]
         )
-        self.assertEqual(1, len(cs.sources))
-        self.assertIsInstance(cs.sources[0], Source)
-        self.assertEqual('My citation', cs.sources[0].citation)
+        assert 1 == len(cs.sources)
+        assert 'My citation' == cs.sources[0].citation
 
     def testEmptyUri(self):
         with pytest.raises(ValueError):
             cs = ConceptScheme(uri=None)
 
 
-class ConceptTest(unittest.TestCase):
-
-    def setUp(self):
-        pass
-
-    def tearDown(self):
-        pass
+class TestConcept:
 
     def _get_knokke_heist_nl(self):
         return Label('Knokke-Heist', type="prefLabel", language='nl-BE')
@@ -297,8 +303,8 @@ class ConceptTest(unittest.TestCase):
         ]
 
     def testRepr(self):
-        c = Concept(1)
-        self.assertEqual("Concept('1')", c.__repr__())
+        concept = Concept(1)
+        assert "Concept('1')" == repr(concept)
 
     def testIn(self):
         c = Concept(1)
@@ -314,32 +320,32 @@ class ConceptTest(unittest.TestCase):
     def testLabel(self):
         labels = self._get_labels()
         c = Concept(1, labels=labels)
-        self.assertEqual(label(labels), c.label())
-        self.assertEqual(label(labels, 'nl'), c.label('nl'))
-        self.assertEqual(label(labels, 'en'), c.label('en'))
-        self.assertEqual(label(labels, None), c.label(None))
+        assert label(labels) == c.label()
+        assert label(labels, 'nl') == c.label('nl')
+        assert label(labels, 'en') == c.label('en')
+        assert label(labels, None) == c.label(None)
 
     def testSortKey(self):
         labels = self._get_labels()
         sl = Label('allereerste', type='sortLabel', language='nl-BE')
         labels.append(sl)
         c = Concept(1, labels=labels)
-        self.assertEqual('allereerste', c._sortkey('sortlabel'))
-        self.assertEqual('allereerste', c._sortkey('sortlabel', 'nl'))
-        self.assertEqual('knocke-heyst', c._sortkey('sortlabel', 'en'))
-        self.assertEqual('', c._sortkey('uri'))
+        assert 'allereerste' == c._sortkey('sortlabel')
+        assert 'allereerste' == c._sortkey('sortlabel', 'nl')
+        assert 'knocke-heyst' == c._sortkey('sortlabel', 'en')
+        assert '' == c._sortkey('uri')
 
     def testUri(self):
         c = Concept(1, uri='urn:x-skosprovider:gemeenten:1')
-        self.assertEqual(1, c.id)
-        self.assertEqual('urn:x-skosprovider:gemeenten:1', c.uri)
+        assert 1 == c.id
+        assert 'urn:x-skosprovider:gemeenten:1' == c.uri
 
     def testMemberOf(self):
         c = Concept(
             1,
             uri='urn:x-skosprovider:gemeenten:1',
             member_of=[15])
-        self.assertEqual({15}, set(c.member_of))
+        assert {15} == set(c.member_of)
 
     def testMatches(self):
         c = Concept(
@@ -361,18 +367,11 @@ class ConceptTest(unittest.TestCase):
             id=1,
             sources=[{'citation': 'My citation'}]
         )
-        self.assertEqual(1, len(c.sources))
-        self.assertIsInstance(c.sources[0], Source)
-        self.assertEqual('My citation', c.sources[0].citation)
+        assert 1 == len(c.sources)
+        assert 'My citation' == c.sources[0].citation
 
 
-class CollectionTest(unittest.TestCase):
-
-    def setUp(self):
-        pass
-
-    def tearDown(self):
-        pass
+class TestCollection:
 
     def _get_deelgemeenten_nl(self):
         return Label('Deelgemeenten', type="prefLabel", language='nl-BE')
@@ -387,36 +386,36 @@ class CollectionTest(unittest.TestCase):
         ]
 
     def testRepr(self):
-        c = Collection(1)
-        self.assertEqual("Collection('1')", c.__repr__())
+        collection = Collection(1)
+        assert "Collection('1')" == repr(collection)
 
     def testId(self):
         coll = Collection(350)
-        self.assertEqual(350, coll.id)
+        assert 350 == coll.id
 
     def testUri(self):
         c = Collection(350, uri='urn:x-skosprovider:gemeenten:350')
-        self.assertEqual(350, c.id)
-        self.assertEqual('urn:x-skosprovider:gemeenten:350', c.uri)
+        assert 350 == c.id
+        assert 'urn:x-skosprovider:gemeenten:350' == c.uri
 
     def testLabel(self):
         labels = self._get_labels()
         coll = Collection(350, labels=labels)
-        self.assertEqual(label(labels), coll.label())
-        self.assertEqual(label(labels, 'nl'), coll.label('nl'))
-        self.assertEqual(label(labels, 'en'), coll.label('en'))
-        self.assertEqual(label(labels, None), coll.label(None))
+        assert label(labels) == coll.label()
+        assert label(labels, 'nl') == coll.label('nl')
+        assert label(labels, 'en') == coll.label('en')
+        assert label(labels, None) == coll.label(None)
 
     def testSortkey(self):
         labels = self._get_labels()
         sl = Label('allereerste', type='sortLabel', language='nl-BE')
         labels.append(sl)
         coll = Collection(350, labels=labels)
-        self.assertEqual('allereerste', coll._sortkey('sortlabel'))
-        self.assertEqual('allereerste', coll._sortkey('sortlabel', 'nl'))
-        self.assertEqual('allereerste', coll._sortkey('sortlabel', 'en'))
-        self.assertEqual('deelgemeenten', coll._sortkey('label', 'nl'))
-        self.assertEqual('', coll._sortkey('uri'))
+        assert 'allereerste' == coll._sortkey('sortlabel')
+        assert 'allereerste' == coll._sortkey('sortlabel', 'nl')
+        assert 'allereerste' == coll._sortkey('sortlabel', 'en')
+        assert 'deelgemeenten' == coll._sortkey('label', 'nl')
+        assert '' == coll._sortkey('uri')
 
     def testEmptyMembers(self):
         labels = self._get_labels()
@@ -425,7 +424,7 @@ class CollectionTest(unittest.TestCase):
             labels=labels,
             members=[]
         )
-        self.assertEqual([], coll.members)
+        assert [] == coll.members
 
     def testMembers(self):
         labels = self._get_labels()
@@ -434,92 +433,85 @@ class CollectionTest(unittest.TestCase):
             labels=labels,
             members=[1, 2]
         )
-        self.assertTrue({1, 2}, set(coll.members))
+        assert {1, 2} == set(coll.members)
 
     def testMemberOf(self):
         coll = Collection(
             id=1,
             member_of=[350]
         )
-        self.assertTrue({350}, set(coll.member_of))
+        assert {350} == set(coll.member_of)
 
     def testSource(self):
         coll = Collection(
             id=1,
             sources=[{'citation': 'My citation'}]
         )
-        self.assertEqual(1, len(coll.sources))
-        self.assertIsInstance(coll.sources[0], Source)
-        self.assertEqual('My citation', coll.sources[0].citation)
+        assert 1 == len(coll.sources)
+        assert 'My citation' == coll.sources[0].citation
 
     def testnferConceptRelations(self):
         coll = Collection(
             id=1,
         )
-        self.assertTrue(coll.infer_concept_relations)
+        assert coll.infer_concept_relations
         coll = Collection(
             id=1,
             infer_concept_relations=False
         )
-        self.assertFalse(coll.infer_concept_relations)
+        assert not coll.infer_concept_relations
 
 
-class DictToNoteFunctionTest(unittest.TestCase):
+class TestDictToNoteFunction:
 
     def testDictToNodeWithDict(self):
         d = dict_to_note({'note': 'A note.', 'type': 'note'})
-        self.assertEqual('A note.', d.note)
-        self.assertEqual('note', d.type)
-        self.assertEqual('und', d.language)
+        assert 'A note.' == d.note
+        assert 'note' ==d.type
+        assert 'und' == d.language
 
     def testDictToNodeWithNote(self):
         d = dict_to_note(Note('A note.', 'note'))
-        self.assertEqual('A note.', d.note)
-        self.assertEqual('note', d.type)
-        self.assertEqual('und', d.language)
+        assert 'A note.' == d.note
+        assert 'note' == d.type
+        assert 'und' == d.language
 
 
-class DictToLabelFunctionTest(unittest.TestCase):
+class TestDictToLabelFunction:
 
     def testDictToLabelWithDict(self):
         l = dict_to_label({'label': 'A label.', 'type': 'prefLabel'})
-        self.assertEqual('A label.', l.label)
-        self.assertEqual('prefLabel', l.type)
-        self.assertEqual('und', l.language)
+        assert 'A label.' == l.label
+        assert 'prefLabel' == l.type
+        assert 'und' == l.language
 
     def testDictToLabelWithlabel(self):
         l = dict_to_label(Label('A label.', 'prefLabel'))
-        self.assertEqual('A label.', l.label)
-        self.assertEqual('prefLabel', l.type)
-        self.assertEqual('und', l.language)
+        assert 'A label.' == l.label
+        assert 'prefLabel' == l.type
+        assert 'und' == l.language
 
 
-class DictToSourceFunctionTest(unittest.TestCase):
+class TestDictToSourceFunction:
 
     def testDictToSourceWithDict(self):
         citation = 'Van Daele, K; Meganck, L. & Mortier, S. 2015. Data-driven systems and system-driven data: the story of the Flanders Heritage Inventory (1995-2015)'
         s = dict_to_source({'citation': citation})
-        self.assertEqual(citation, s.citation)
+        assert citation == s.citation
 
     def testDictToSourceWithDictWithMarkup(self):
         citation = '<strong>Van Daele, K; Meganck, L. & Mortier, S.</strong> 2015. Data-driven systems and system-driven data: the story of the Flanders Heritage Inventory (1995-2015)'
         s = dict_to_source({'citation': citation, 'markup': 'HTML'})
-        self.assertEqual(citation, s.citation)
-        self.assertEqual('HTML', s.markup)
+        assert citation == s.citation
+        assert 'HTML' == s.markup
 
     def testDictToSourceWithSource(self):
         citation = 'Van Daele, K; Meganck, L. & Mortier, S. 2015. Data-driven systems and system-driven data: the story of the Flanders Heritage Inventory (1995-2015)'
         s = dict_to_source(Source(citation))
-        self.assertEqual(citation, s.citation)
+        assert citation == s.citation
 
 
-class LabelFunctionTest(unittest.TestCase):
-
-    def setUp(self):
-        pass
-
-    def tearDown(self):
-        pass
+class TestLabelFunction:
 
     def _get_knokke_heist_nl(self):
         return Label('Knokke-Heist', type="prefLabel", language='nl-BE')
@@ -537,46 +529,46 @@ class LabelFunctionTest(unittest.TestCase):
         return Label('allereerste', type='sortLabel', language='nl-BE')
 
     def test_label_empty(self):
-        self.assertEqual(None, label([]))
-        self.assertEqual(None, label([], 'nl-BE'))
-        self.assertEqual(None, label([], None))
-        self.assertEqual(None, label([], 'und'))
-        self.assertEqual(None, label([], ['nl-BE']))
+        assert label([]) is None
+        assert label([], 'nl-BE') is None
+        assert label([], None) is None
+        assert label([], 'und') is None
+        assert label([], ['nl-BE']) is None
 
     def test_label_pref(self):
         kh = self._get_knokke_heist_nl()
         labels = [kh]
-        self.assertEqual(kh, label(labels))
-        self.assertEqual(kh, label(labels, 'nl-BE'))
-        self.assertEqual(kh, label(labels, ['nl-BE']))
-        self.assertEqual(kh, label(labels, 'en-GB'))
-        self.assertEqual(kh, label(labels, ['en-GB']))
-        self.assertEqual(kh, label(labels, None))
+        assert kh == label(labels)
+        assert kh == label(labels, 'nl-BE')
+        assert kh == label(labels, ['nl-BE'])
+        assert kh == label(labels, 'en-GB')
+        assert kh == label(labels, ['en-GB'])
+        assert kh == label(labels, None)
 
     def test_label_pref_und(self):
         und = self._get_und()
         labels = [und]
         assert label(labels) is not None
-        self.assertEqual(und, label(labels))
-        self.assertEqual(und, label(labels, 'nl-BE'))
-        self.assertEqual(und, label(labels, ['nl-BE']))
-        self.assertEqual(und, label(labels, 'en-GB'))
-        self.assertEqual(und, label(labels, 'und'))
-        self.assertEqual(und, label(labels, ['und']))
-        self.assertEqual(und, label(labels, 'any'))
-        self.assertEqual(und, label(labels, ['any']))
-        self.assertEqual(und, label(labels, None))
+        assert und == label(labels)
+        assert und == label(labels, 'nl-BE')
+        assert und == label(labels, ['nl-BE'])
+        assert und == label(labels, 'en-GB')
+        assert und == label(labels, 'und')
+        assert und == label(labels, ['und'])
+        assert und == label(labels, 'any')
+        assert und == label(labels, ['any'])
+        assert und == label(labels, None)
 
     def test_label_pref_nl_and_en(self):
         kh = self._get_knokke_heist_nl()
         khen = self._get_knokke_heist_en()
         labels = [kh, khen]
-        self.assertIn(label(labels), [kh, khen])
-        self.assertEqual(kh, label(labels, 'nl-BE'))
-        self.assertEqual(kh, label(labels, ['nl-BE', 'en-GB']))
-        self.assertEqual(khen, label(labels, 'en-GB'))
-        self.assertEqual(khen, label(labels, ['fr', 'en-GB']))
-        self.assertIn(label(labels, None), [kh, khen])
+        assert label(labels) in [kh, khen]
+        assert kh == label(labels, 'nl-BE')
+        assert kh == label(labels, ['nl-BE', 'en-GB'])
+        assert khen == label(labels, 'en-GB')
+        assert khen == label(labels, ['fr', 'en-GB'])
+        assert label(labels, None) in [kh, khen]
 
     def test_label_inexact_language_match(self):
         kh = self._get_knokke_heist_nl()
@@ -605,34 +597,34 @@ class LabelFunctionTest(unittest.TestCase):
     def test_label_alt(self):
         ch = self._get_cnocke_heyst_nl()
         labels = [ch]
-        self.assertEqual(ch, label(labels))
-        self.assertEqual(ch, label(labels, 'nl-BE'))
-        self.assertEqual(ch, label(labels, ['nl-BE']))
-        self.assertEqual(ch, label(labels, 'en-GB'))
-        self.assertEqual(ch, label(labels, ['en-GB']))
-        self.assertEqual(ch, label(labels, None))
+        assert ch == label(labels)
+        assert ch == label(labels, 'nl-BE')
+        assert ch == label(labels, ['nl-BE'])
+        assert ch == label(labels, 'en-GB')
+        assert ch == label(labels, ['en-GB'])
+        assert ch == label(labels, None)
 
     def test_pref_precedes_alt(self):
         kh = self._get_knokke_heist_nl()
         ch = self._get_cnocke_heyst_nl()
         labels = [kh, ch]
-        self.assertEqual(kh, label(labels))
-        self.assertEqual(kh, label(labels, 'nl-BE'))
-        self.assertEqual(kh, label(labels, ['nl-BE']))
-        self.assertEqual(kh, label(labels, 'en-GB'))
-        self.assertEqual(kh, label(labels, None))
+        assert kh, label(labels)
+        assert kh, label(labels, 'nl-BE')
+        assert kh, label(labels, ['nl-BE'])
+        assert kh, label(labels, 'en-GB')
+        assert kh, label(labels, None)
 
     def test_sortlabel_unused(self):
         kh = self._get_knokke_heist_nl()
         ch = self._get_cnocke_heyst_nl()
         sl = self._get_sortlabel()
         labels = [kh, ch, sl]
-        self.assertEqual(kh, label(labels))
-        self.assertEqual(kh, label(labels, sortLabel=False))
-        self.assertEqual(kh, label(labels, 'nl-BE'))
-        self.assertEqual(kh, label(labels, ['nl-BE']))
-        self.assertEqual(kh, label(labels, 'en-GB'))
-        self.assertEqual(kh, label(labels, None))
+        assert kh == label(labels)
+        assert kh == label(labels, sortLabel=False)
+        assert kh == label(labels, 'nl-BE')
+        assert kh == label(labels, ['nl-BE'])
+        assert kh == label(labels, 'en-GB')
+        assert kh == label(labels, None)
 
     def test_sortlabel_broader(self):
         '''
@@ -649,10 +641,10 @@ class LabelFunctionTest(unittest.TestCase):
         kh = self._get_knokke_heist_nl()
         khd = kh.__dict__
         labels = [khd]
-        self.assertEqual(kh, label(labels))
-        self.assertEqual(kh, label(labels, 'nl-BE'))
-        self.assertEqual(kh, label(labels, 'en-GB'))
-        self.assertEqual(kh, label(labels, None))
+        assert kh == label(labels)
+        assert kh == label(labels, 'nl-BE')
+        assert kh == label(labels, 'en-GB')
+        assert kh == label(labels, None)
 
     def test_find_best_label_for_type(self):
         kh = self._get_knokke_heist_nl()

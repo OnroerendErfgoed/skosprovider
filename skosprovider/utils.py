@@ -34,9 +34,30 @@ def dict_dumper(provider):
     ret = []
     for stuff in provider.get_all():
         c = provider.get_by_id(stuff['id'])
-        labels = [l.__dict__ for l in c.labels]
-        notes = [n.__dict__ for n in c.notes]
-        sources = [s.__dict__ for s in c.sources]
+        labels = []
+        for label in c.labels:
+            ldict = {
+                'language': label.language,
+                'type': label.type,
+                'label': label.label
+            }
+            if label.uri:
+                ldict['uri'] = label.uri
+            labels.append(ldict)
+        notes = [
+            {
+                'note': note.note,
+                'type': note.type,
+                'language': note.language,
+                'markup': note.markup
+            } for note in c.notes
+        ]
+        sources = [
+            {
+                'citation': source.citation,
+                'markup': source.markup
+            } for source in c.sources
+        ]
         if isinstance(c, Concept):
             ret.append({
                 'id': c.id,
@@ -103,7 +124,7 @@ def add_lang_to_html(htmltext, lang):
     html = parser.parseFragment(htmltext)
     html.normalize()
     if len(html.childNodes) == 0:
-        return '<div xml:lang="%s"></div>' % lang
+        return f'<div xml:lang="{lang}"></div>'
     elif len(html.childNodes) == 1:
         node = html.firstChild
         if node.nodeType == Node.TEXT_NODE:

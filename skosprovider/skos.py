@@ -25,6 +25,9 @@ class Label:
     '''
     A :term:`SKOS` Label.
     '''
+    
+    uri = None
+    '''A :term:`URI` for this label.'''
 
     label = None
     '''
@@ -51,18 +54,27 @@ class Label:
     The valid types for a label
     '''
 
-    def __init__(self, label, type="prefLabel", language="und"):
+    def __init__(self, label, type="prefLabel", language="und", uri=None):
         self.label = label
         self.type = type
         if not language:
             language = 'und'
+        if uri and not is_uri(uri):
+            raise ValueError(f'{uri} is not a valid URI.')
+        self.uri = uri
         if tags.check(language):
             self.language = language
         else:
-            raise ValueError('%s is not a valid IANA language tag.' % language)
+            raise ValueError(f'{language} is not a valid IANA language tag.')
 
     def __eq__(self, other):
-        return self.__dict__ == (other if type(other) == dict else other.__dict__)
+        if isinstance(other, dict):
+            if self.uri:
+                return self.uri == other.get('uri')
+            return self.label == other['label'] and self.type == other['type'] and self.language == other['language'] 
+        if self.uri:
+            return self.uri == other.uri
+        return self.label == other.label and self.type == other.type and self.language == other.language 
 
     def __ne__(self, other):
         return not self == other
@@ -76,8 +88,14 @@ class Label:
         '''
         return type in Label.valid_types
 
+    def is_xl(self):
+        return self.uri is not None
+
     def __repr__(self):
-        return "Label('{}', '{}', '{}')".format(self.label, self.type, self.language)
+        if not self.is_xl():
+            return f"Label('{self.label}', '{self.type}', '{self.language}')"
+        else:
+            return f"Label('{self.label}', '{self.type}', '{self.language}', '{self.uri}')"
 
 
 class Note:
@@ -127,11 +145,11 @@ class Note:
         if tags.check(language):
             self.language = language
         else:
-            raise ValueError('%s is not a valid IANA language tag.' % language)
+            raise ValueError(f'{language} is not a valid IANA language tag.')
         if self.is_valid_markup(markup):
             self.markup = markup
         else:
-            raise ValueError('%s is not valid markup.' % markup)
+            raise ValueError(f'{markup} is not valid markup.')
 
     def __eq__(self, other):
         return self.__dict__ == (other if type(other) == dict else other.__dict__)
@@ -180,7 +198,7 @@ class Source:
         if self.is_valid_markup(markup):
             self.markup = markup
         else:
-            raise ValueError('%s is not valid markup.' % markup)
+            raise ValueError(f'{markup} is not valid markup.')
 
     @staticmethod
     def is_valid_markup(markup):
@@ -222,7 +240,7 @@ class ConceptScheme:
 
     def __init__(self, uri, labels=[], notes=[], sources=[], languages=[]):
         if not is_uri(uri):
-            raise ValueError('%s is not a valid URI.' % uri)
+            raise ValueError(f'{uri} is not a valid URI.')
         self.uri = uri
         self.labels = [dict_to_label(l) for l in labels]
         self.notes = [dict_to_note(n) for n in notes]
@@ -258,7 +276,7 @@ class ConceptScheme:
             return l.label.lower() if l else ''
 
     def __repr__(self):
-        return "ConceptScheme('%s')" % self.uri
+        return f"ConceptScheme('{self.uri}')"
 
 
 class Concept:
@@ -380,7 +398,7 @@ class Concept:
             return l.label.lower() if l else ''
 
     def __repr__(self):
-        return "Concept('%s')" % self.id
+        return f"Concept('{self.id}')"
 
 
 class Collection:
@@ -473,7 +491,7 @@ class Collection:
             return l.label.lower() if l else ''
 
     def __repr__(self):
-        return "Collection('%s')" % self.id
+        return f"Collection('{self.id}')"
 
 
 def label(labels=[], language='any', sortLabel=False):
@@ -590,8 +608,8 @@ def filter_labels_by_language(labels, language, broader=False):
 
 def dict_to_label(dict):
     '''
-    Transform a dict with keys `label`, `type` and `language` into a
-    :class:`Label`.
+    Transform a dict with keys `label`, `type`, `language` and `uri`
+    into a :class:`Label`.
 
     Only the `label` key is mandatory. If `type` is not present, it will
     default to `prefLabel`. If `language` is not present, it will default
@@ -604,7 +622,8 @@ def dict_to_label(dict):
         return Label(
             dict['label'],
             dict.get('type', 'prefLabel'),
-            dict.get('language', 'und')
+            dict.get('language', 'und'),
+            uri=dict.get('uri')
         )
     except (KeyError, AttributeError, TypeError):
         return dict

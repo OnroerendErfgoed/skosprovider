@@ -22,7 +22,12 @@ larch = {
     'uri': 'http://id.trees.org/1',
     'labels': [
         {'type': 'prefLabel', 'language': 'en', 'label': 'The Larch'},
-        {'type': 'prefLabel', 'language': 'nl', 'label': 'De Lariks'}
+        {
+            'uri': 'http://id.trees.org/labels/lariks-nl',
+            'type': 'prefLabel',
+            'language': 'nl',
+            'label': 'De Lariks'
+        }
     ],
     'notes': [
         {'type': 'definition', 'language': 'en', 'note': 'A type of tree.', 'markup': None}
@@ -96,9 +101,14 @@ trees = DictionaryProvider(
     concept_scheme=ConceptScheme(
         'http://id.trees.org',
         labels = [{
+            'uri': 'http://id.trees.org/labels/soorten-nl',
             'type': 'prefLabel',
             'language': 'nl',
             'label': 'Soorten'
+        }, {
+            'type': 'prefLabel',
+            'language': 'en',
+            'label': 'Species'
         }],
         languages=['nl', 'en']
     )
@@ -343,10 +353,10 @@ class TreesDictionaryProviderTests(unittest.TestCase):
 
     def test_get_by_id(self):
         lariks = trees.get_by_id(1)
-        self.assertEqual(larch['id'], lariks.id)
-        self.assertEqual(larch['uri'], lariks.uri)
-        self.assertEqual(larch['labels'], lariks.labels)
-        self.assertEqual(larch['notes'], lariks.notes)
+        assert larch['id'] == lariks.id
+        assert larch['uri'] == lariks.uri
+        assert larch['labels'] == lariks.labels
+        assert larch['notes'] == lariks.notes
         assert len(larch['sources']) == len(lariks.sources)
         assert larch['sources'][0]['citation'] == lariks.sources[0].citation
 
@@ -362,7 +372,7 @@ class TreesDictionaryProviderTests(unittest.TestCase):
 
     def test_get_by_uri(self):
         lariks = trees.get_by_uri('http://id.trees.org/1')
-        self.assertEqual('http://id.trees.org/1', lariks.uri)
+        assert 'http://id.trees.org/1' == lariks.uri
 
     def test_get_by_id_string(self):
         lariks = trees.get_by_id('1')

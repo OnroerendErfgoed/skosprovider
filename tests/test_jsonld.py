@@ -1,5 +1,3 @@
-import unittest
-
 from skosprovider.jsonld import (
     CONTEXT,
     jsonld_dumper,
@@ -42,6 +40,7 @@ class TestDumperTrees():
             }]
         } in doc['sources']
         assert len(doc['member_of']) == 1
+        assert 'http://id.python.org/different/types/of/trees/nr/1/the/larch' in doc['matches']['exact_matches']
         assert doc['concept_scheme'] == {
             'uri': 'http://id.trees.org',
             'type': 'skos:ConceptScheme',
@@ -74,7 +73,7 @@ class TestDumperTrees():
         assert doc['concept_scheme'] == {
             'uri': 'http://id.trees.org',
             'type': 'skos:ConceptScheme',
-            'label': 'Soorten'
+            'label': 'Species'
         }
 
     def test_dump_larch_inline_context(self):
@@ -101,6 +100,7 @@ class TestDumperTrees():
                 'lbl': 'The Chestnut'
         } in doc['labels']['pref_labels']
         assert len(doc['labels']['alt_labels']) == 2
+        assert 'labels_xl' not in doc
         assert len(doc['notes']['definitions']) == 1
         assert {
                 'language': 'en',
@@ -108,10 +108,11 @@ class TestDumperTrees():
                 'nt': 'A different type of tree.',
         } in doc['notes']['definitions']
         assert len(doc['member_of']) == 1
+        assert len(doc['matches']['related_matches']) == 1
         assert doc['concept_scheme'] == {
             'uri': 'http://id.trees.org',
             'type': 'skos:ConceptScheme',
-            'label': 'Soorten'
+            'label': 'Species'
         }
         assert doc['in_dataset'] == 'http://id.trees.org/dataset'
 
@@ -128,12 +129,14 @@ class TestDumperTrees():
                 'lbl': 'Trees by species'
         } in doc['labels']['pref_labels']
         assert len(doc['labels']['hidden_labels']) == 1
+        assert 'labels_xl' not in doc
         assert len(doc['notes']['editorial_notes']) == 1
         assert {
                 'language': 'en',
                 'nt': '<div xml:lang="en">As seen in <em>How to Recognise Different Types of Trees from Quite a Long Way Away</em>.</div>',
                 '@type': 'HTML'
         } in doc['notes']['editorial_notes']
+        assert 'sources' not in doc
         assert len(doc['members']) == 2
         assert {
             'id': '2',
@@ -141,19 +144,25 @@ class TestDumperTrees():
             'type': 'concept',
             'label': 'The Chestnut'
         } in doc['members']
+        assert 'matches' not in doc
         assert doc['concept_scheme'] == {
             'uri': 'http://id.trees.org',
             'type': 'skos:ConceptScheme',
-            'label': 'Soorten'
+            'label': 'Species'
         }
         assert doc['in_dataset'] == 'http://id.trees.org/dataset'
 
-    def test_dump_trees_cs(self):
-        doc = jsonld_conceptscheme_dumper(trees)
+    def test_dump_trees_cs_nl(self):
+        doc = jsonld_conceptscheme_dumper(trees, language='nl')
         assert doc['uri'] == 'http://id.trees.org'
         assert doc['type'] == 'skos:ConceptScheme'
         assert doc['id'] == 'TREES'
+        assert doc['label'] == 'Soorten'
         assert len(doc['top_concepts']) == 2
+        assert len(doc['labels']['pref_labels']) == 2
+        assert len(doc['labels_xl']['pref_labels_xl']) == 1
+        assert 'sources' not in doc
+        assert 'notes' not in doc
         assert doc['in_dataset'] == 'http://id.trees.org/dataset'
 
     def test_dump_trees_cs_partial_profile(self):
@@ -189,6 +198,24 @@ class TestDumperTrees():
         assert '@context' in doc
         assert doc['@context'] == context_uri
 
+    def test_dump_trees_cs_xllabel(self):
+        doc = jsonld_conceptscheme_dumper(trees)
+        assert doc['label'] == 'Species'
+        assert 'labels_xl' in doc
+        assert 'pref_labels_xl' in doc['labels_xl']
+        assert len(doc['labels_xl']['pref_labels_xl']) == 1
+        assert doc['labels_xl']['pref_labels_xl'][0]['type'] == 'skosxl:Label'
+        assert doc['labels_xl']['pref_labels_xl'][0]['uri'] == 'http://id.trees.org/labels/soorten-nl'
+        assert doc['labels_xl']['pref_labels_xl'][0]['skosxl:literalForm'] == {
+            '@language': 'nl',
+            'lbl': 'Soorten'
+        }
+        assert {
+                'language': 'nl',
+                '@language': 'nl',
+                'lbl': 'Soorten'
+        } in doc['labels']['pref_labels']
+
     def test_dump_trees(self):
         doc = jsonld_dumper(trees)
         assert '@graph' in doc
@@ -222,3 +249,4 @@ class TestDumperGeo():
     def test_dump_Belgium(self):
         doc = jsonld_c_dumper(geo, 4, CONTEXT)
         assert len(doc['subordinate_arrays']) == 2
+        assert 'matches' not in doc

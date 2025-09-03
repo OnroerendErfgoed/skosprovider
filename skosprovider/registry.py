@@ -99,7 +99,7 @@ class Registry:
             and self.instance_scope not in provider.allowed_instance_scopes
         ):
             raise RegistryException(
-                'This provider does not support instance_scope %s' % self.instance_scope
+                f'This provider does not support instance_scope {self.instance_scope}'
             )
         if provider.get_vocabulary_id() in self.providers:
             raise RegistryException(
@@ -107,7 +107,7 @@ class Registry:
             )
         self.providers[provider.get_vocabulary_id()] = provider
         try:
-            cs_uri = provider.get_vocabulary_uri()
+            conceptscheme_uri = provider.get_vocabulary_uri()
         except AttributeError as e:
             log.error(e)
             # For providers not compatible with skosprovider >= 0.8.0
@@ -116,12 +116,12 @@ class Registry:
                 'to have a get_vocabulary_uri method. This fallback mechanism '
                 'will be removed in version 2.0.0.'
             )
-            cs_uri = provider.concept_scheme.uri
-        if cs_uri in self.concept_scheme_uri_map:
+            conceptscheme_uri = provider.concept_scheme.uri
+        if conceptscheme_uri in self.concept_scheme_uri_map:
             raise RegistryException(
-                'A provider with URI %s has already been registered.' % cs_uri
+                'A provider with URI {conceptscheme_uri} has already been registered.'
             )
-        self.concept_scheme_uri_map[cs_uri] = provider.get_vocabulary_id()
+        self.concept_scheme_uri_map[conceptscheme_uri] = provider.get_vocabulary_id()
 
     def remove_provider(self, id):
         '''
@@ -309,7 +309,7 @@ class Registry:
             :class:`skosprovider.skos.Collection`
         '''
         if not is_uri(uri):
-            raise ValueError('%s is not a valid URI.' % uri)
+            raise ValueError(f'{uri} is not a valid URI.')
         # Check if there's a provider that's more likely to have the URI
         csuris = [csuri for csuri in self.concept_scheme_uri_map.keys() if uri.startswith(csuri)]
         for csuri in csuris:
