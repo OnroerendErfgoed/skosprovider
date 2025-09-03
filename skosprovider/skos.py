@@ -149,7 +149,7 @@ class Note:
         if self.is_valid_markup(markup):
             self.markup = markup
         else:
-            raise ValueError(f'{language} is not valid markup.')
+            raise ValueError(f'{markup} is not valid markup.')
 
     def __eq__(self, other):
         return self.__dict__ == (other if type(other) == dict else other.__dict__)
@@ -623,7 +623,7 @@ def dict_to_label(dict):
             dict['label'],
             dict.get('type', 'prefLabel'),
             dict.get('language', 'und'),
-            uri = dict.get('uri')
+            uri=dict.get('uri')
         )
     except (KeyError, AttributeError, TypeError):
         return dict
