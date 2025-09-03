@@ -49,10 +49,12 @@ class TestLabel:
             "Knokke-Heist",
             type="prefLabel",
             language="nl-BE",
-            uri="urn:x-skosprovider:gem:KH:nl-Be",
+            uri="urn:x-skosp:gem:KH:nl-Be",
         )
-        assert repr(label) == "Label('Knokke-Heist', "
-        "'prefLabel', 'nl-BE', 'urn:x-skosprovider:gem:KH:nl-Be')"
+        assert (
+            repr(label)
+            == "Label('Knokke-Heist', 'prefLabel', 'nl-BE', 'urn:x-skosp:gem:KH:nl-Be')"
+        )
 
     def testIsValidType(self):
         assert Label.is_valid_type("prefLabel")
