@@ -1,4 +1,4 @@
-'''This module provides an abstraction of controlled vocabularies.
+"""This module provides an abstraction of controlled vocabularies.
 
 This abstraction allows our application to work with both local and remote
 vocabs (be they SOAP, REST, XML-RPC or something else).
@@ -8,46 +8,40 @@ of a :class:`VocabularyProvider`. The same class can thus be reused with
 different configurations to handle different vocabs. Generally speaking, every
 instance of a certain :class:`VocabularyProvider` will deal with concepts and
 collections from a single conceptscheme.
-'''
+"""
 
 import abc
 import copy
 import logging
 from operator import methodcaller
 
-from .skos import (
-    Concept,
-    Collection,
-    ConceptScheme
-)
-
-from .uri import (
-    DefaultUrnGenerator,
-    DefaultConceptSchemeUrnGenerator
-)
+from .skos import Collection
+from .skos import Concept
+from .skos import ConceptScheme
+from .uri import DefaultConceptSchemeUrnGenerator
+from .uri import DefaultUrnGenerator
 
 log = logging.getLogger(__name__)
 
 
 class VocabularyProvider:
-    '''An interface that all vocabulary providers must follow.
-    '''
+    """An interface that all vocabulary providers must follow."""
 
     __metaclass__ = abc.ABCMeta
 
     concept_scheme = None
-    '''The :class:`~skosprovider.skos.ConceptScheme` this provider serves.'''
+    """The :class:`~skosprovider.skos.ConceptScheme` this provider serves."""
 
     uri_generator = None
-    '''The :class:`~skosprovider.uri.UriGenerator` responsible for generating
-    :term:`URIs <URI>` for this provider.'''
+    """The :class:`~skosprovider.uri.UriGenerator` responsible for generating
+    :term:`URIs <URI>` for this provider."""
 
     allowed_instance_scopes = None
-    '''Indicates what instance_scopes this provider can safely accomodate. This
-    will be checked by the registry upon registering a provider.'''
+    """Indicates what instance_scopes this provider can safely accomodate. This
+    will be checked by the registry upon registering a provider."""
 
     def __init__(self, metadata, **kwargs):
-        '''Create a new provider and register some metadata.
+        """Create a new provider and register some metadata.
 
 
         :param uri_generator: An object that implements the
@@ -62,7 +56,8 @@ class VocabularyProvider:
         :param dict metadata: Metadata essential to this provider. Possible
             metadata:
 
-                * `id`: A unique local identifier (a string or integer) for the vocabulary. Required.
+                * `id`: A unique local identifier (a string or integer)
+                    for the vocabulary. Required.
                 * `uri`: A unique identifier (a URI) for the vocabulary.
                     Optional, but if not provided will be fetched from the
                     conceptscheme.
@@ -77,62 +72,56 @@ class VocabularyProvider:
                     conceptscheme and all concepts and collections are part of.
                     Currently the contents of the dictionary are undefined
                     except for a :term:`URI` attribute that must be present.
-        '''
-        if 'subject' not in metadata:
-            metadata['subject'] = []
+        """
+        if "subject" not in metadata:
+            metadata["subject"] = []
         self.metadata = metadata
-        if 'uri_generator' in kwargs:
-            self.uri_generator = kwargs.get('uri_generator')
+        if "uri_generator" in kwargs:
+            self.uri_generator = kwargs.get("uri_generator")
         else:
-            self.uri_generator = DefaultUrnGenerator(self.metadata.get('id'))
-        if 'concept_scheme' in kwargs:
-            self.concept_scheme = kwargs.get('concept_scheme')
-        elif 'uri' in metadata:
-            self.concept_scheme = ConceptScheme(
-                uri=metadata['uri']
-            )
+            self.uri_generator = DefaultUrnGenerator(self.metadata.get("id"))
+        if "concept_scheme" in kwargs:
+            self.concept_scheme = kwargs.get("concept_scheme")
+        elif "uri" in metadata:
+            self.concept_scheme = ConceptScheme(uri=metadata["uri"])
         else:
             self.concept_scheme = ConceptScheme(
                 uri=DefaultConceptSchemeUrnGenerator().generate(
-                    id=self.metadata.get('id')
+                    id=self.metadata.get("id")
                 )
             )
         self.allowed_instance_scopes = kwargs.get(
-            'allowed_instance_scopes',
-            ['single', 'threaded_thread']
+            "allowed_instance_scopes", ["single", "threaded_thread"]
         )
 
     def _get_language(self, **kwargs):
-        '''Determine what language to render labels in.
+        """Determine what language to render labels in.
 
         Will first check if there's a language keyword specified in **kwargs.
         If not, will check the default language of the provider. If there's no
         default language, will fall back to 'en'.
 
         :rtype: str
-        '''
-        return kwargs.get(
-            'language',
-            self.metadata.get('default_language', 'en')
-        )
+        """
+        return kwargs.get("language", self.metadata.get("default_language", "en"))
 
     def _get_sort(self, **kwargs):
-        '''Determine on what attribute to sort.
+        """Determine on what attribute to sort.
 
         :rtype: str
-        '''
-        return kwargs.get('sort', None)
+        """
+        return kwargs.get("sort", None)
 
     def _get_sort_order(self, **kwargs):
-        '''Determine the sort order.
+        """Determine the sort order.
 
         :rtype: str
         :returns: 'asc' or 'desc'
-        '''
-        return kwargs.get('sort_order', 'asc')
+        """
+        return kwargs.get("sort_order", "asc")
 
-    def _sort(self, concepts, sort=None, language='any', reverse=False):
-        '''
+    def _sort(self, concepts, sort=None, language="any", reverse=False):
+        """
         Returns a sorted version of a list of concepts. Will leave the original
         list unsorted.
 
@@ -142,39 +131,39 @@ class VocabularyProvider:
             `sortlabel`.
         :param boolean reverse: Reverse the sort order?
         :rtype: list
-        '''
+        """
         sorted = copy.copy(concepts)
         if sort:
-            sorted.sort(key=methodcaller('_sortkey', sort, language), reverse=reverse)
+            sorted.sort(key=methodcaller("_sortkey", sort, language), reverse=reverse)
         return sorted
 
     def get_vocabulary_id(self):
-        '''Get a local identifier for the vocabulary.
+        """Get a local identifier for the vocabulary.
 
         :rtype: String or number.
-        '''
-        return self.metadata.get('id')
+        """
+        return self.metadata.get("id")
 
     def get_vocabulary_uri(self):
-        '''Get a URI for the vocabulary.
+        """Get a URI for the vocabulary.
 
         :rtype: String
-        '''
+        """
         try:
-            return self.metadata['uri']
+            return self.metadata["uri"]
         except KeyError:
             return self.concept_scheme.uri
 
     def get_metadata(self):
-        '''Get some metadata on the provider or the vocab it represents.
+        """Get some metadata on the provider or the vocab it represents.
 
         :rtype: Dict.
-        '''
+        """
         return self.metadata
 
     @abc.abstractmethod
     def get_by_id(self, id):
-        '''Get all information on a concept or collection, based on id.
+        """Get all information on a concept or collection, based on id.
 
         Providers should assume that all id's passed are strings. If a provider
         knows that internally it uses numeric identifiers, it's up to the
@@ -189,21 +178,21 @@ class VocabularyProvider:
         :rtype: :class:`skosprovider.skos.Concept` or
             :class:`skosprovider.skos.Collection` or `False` if the concept or
             collection is unknown to the provider.
-        '''
+        """
 
     @abc.abstractmethod
     def get_by_uri(self, uri):
-        '''Get all information on a concept or collection, based on a
+        """Get all information on a concept or collection, based on a
         :term:`URI`.
 
         :rtype: :class:`skosprovider.skos.Concept` or
             :class:`skosprovider.skos.Collection` or `False` if the concept or
             collection is unknown to the provider.
-        '''
+        """
 
     @abc.abstractmethod
     def get_all(self, **kwargs):
-        '''Returns all concepts and collections in this provider.
+        """Returns all concepts and collections in this provider.
 
         :param string language: Optional. If present, it should be a
             :term:`language-tag`. This language-tag is passed on to the
@@ -226,11 +215,11 @@ class VocabularyProvider:
                 determined by looking at the `language` parameter, the default \
                 language of the provider and finally falls back to `en`.
 
-        '''
+        """
 
     @abc.abstractmethod
     def get_top_concepts(self, **kwargs):
-        '''
+        """
         Returns all top-level concepts in this provider.
 
         Top-level concepts are concepts that have no broader concepts
@@ -258,11 +247,11 @@ class VocabularyProvider:
                 determined by looking at the `language` parameter, the default \
                 language of the provider and finally falls back to `en`.
 
-        '''
+        """
 
     @abc.abstractmethod
     def find(self, query, **kwargs):
-        '''Find concepts that match a certain query.
+        """Find concepts that match a certain query.
 
         Currently query is expected to be a dict, so that complex queries can
         be passed. You can use this dict to search for concepts or collections
@@ -289,16 +278,17 @@ class VocabularyProvider:
             # Preferentially display a label in Dutch.
             provider.find({
                 'matches': {
-                    'uri': 'http://id.python.org/different/types/of/trees/nr/1/the/larch'
+                    'uri': 'http://id.py.org/diff/types/of/trees/nr/1/the/larch'
                 }}, language='nl')
 
-            # Find anything that has a label of lariks with a close match to an external concept
+            # Find anything that has a label of lariks
+            # with a close match to an external concept
             # Preferentially display a label in Dutch.
             provider.find({
                 'label': 'lariks',
                 'matches': {
                     'type': 'close',
-                    'uri': 'http://id.python.org/different/types/of/trees/nr/1/the/larch'
+                    'uri': 'http://id.py.org/diff/types/of/trees/nr/1/the/larch'
                 }}, language='nl')
 
         :param query: A dict that can be used to express a query. The following
@@ -356,11 +346,11 @@ class VocabularyProvider:
                 determined by looking at the `language` parameter, the default \
                 language of the provider and finally falls back to `en`.
 
-        '''
+        """
 
     @abc.abstractmethod
     def expand(self, id):
-        '''Expand a concept or collection to all it's narrower
+        """Expand a concept or collection to all it's narrower
         concepts.
 
         This method should recurse and also return narrower concepts
@@ -377,10 +367,10 @@ class VocabularyProvider:
         :param id: A concept or collection id.
         :rtype: A list of id's or `False` if the concept or collection doesn't
             exist.
-        '''
+        """
 
     def get_top_display(self, **kwargs):
-        '''
+        """
         Returns all concepts or collections that form the top-level of a
         display hierarchy.
 
@@ -408,10 +398,10 @@ class VocabularyProvider:
                 determined by looking at the `language` parameter, the default\
                 language of the provider and finally falls back to `en`.
 
-        '''
+        """
 
     def get_children_display(self, id, **kwargs):
-        '''
+        """
         Return a list of concepts or collections that should be displayed
         under this concept or collection.
 
@@ -437,43 +427,45 @@ class VocabularyProvider:
                 determined by looking at the `language` parameter, the default \
                 language of the provider and finally falls back to `en`.
 
-        '''
+        """
 
 
 class MemoryProvider(VocabularyProvider):
-    '''
+    """
     A provider that keeps everything in memory.
 
     The data is passed in the constructor of this provider as a :class:`lst` of
     :class:`skosprovider.skos.Concept` and :class:`skosprovider.skos.Collection`
     instances.
-    '''
+    """
 
     case_insensitive = True
-    '''
+    """
     Is searching for labels case insensitive?
 
     By default a search for a label is done case insensitive. Older versions of
     this provider were case sensitive. If this behaviour is desired, this can
     be triggered by providing a `case_insensitive` keyword to the constructor.
-    '''
+    """
 
     def __init__(self, metadata, list, **kwargs):
-        '''
+        """
         :param dict metadata: A dictionary with keywords like language.
         :param list list: A list of :class:`skosprovider.skos.Concept` and
             :class:`skosprovider.skos.Collection` instances.
         :param Boolean case_insensitive: Should searching for labels be done
             case-insensitive?
-        '''
+        """
         super().__init__(metadata, **kwargs)
-        if not 'allowed_instance_scopes' in kwargs:
+        if "allowed_instance_scopes" not in kwargs:
             self.allowed_instance_scopes = [
-                'single', 'threaded_thread', 'threaded_global'
+                "single",
+                "threaded_thread",
+                "threaded_global",
             ]
         self.list = list
-        if 'case_insensitive' in kwargs:
-            self.case_insensitive = kwargs['case_insensitive']
+        if "case_insensitive" in kwargs:
+            self.case_insensitive = kwargs["case_insensitive"]
 
     def get_by_id(self, id):
         id = str(id)
@@ -494,91 +486,97 @@ class MemoryProvider(VocabularyProvider):
         filtered = [c for c in self.list if self._include_in_find(c, query)]
         language = self._get_language(**kwargs)
         sort = self._get_sort(**kwargs)
-        sort_order = self._get_sort_order(**kwargs)
-        return [self._get_find_dict(c, **kwargs) for c in self._sort(filtered, sort, language, sort_order == 'desc')]
+        reverse_sort = self._get_sort_order(**kwargs) == "desc"
+        return [
+            self._get_find_dict(c, **kwargs)
+            for c in self._sort(filtered, sort, language, reverse_sort)
+        ]
 
     def _normalise_query(self, query):
-        '''
+        """
         :param query: A dict that can be used to express a query.
         :rtype: dict
-        '''
-        if 'type' in query and query['type'] not in ['concept', 'collection']:
-            del query['type']
-        if 'matches' in query and 'type' not in query:
-            query['type'] = 'concept'
+        """
+        if "type" in query and query["type"] not in ["concept", "collection"]:
+            del query["type"]
+        if "matches" in query and "type" not in query:
+            query["type"] = "concept"
         return query
 
     def _include_in_find(self, c, query):
-        '''
+        """
         :param c: A :class:`skosprovider.skos.Concept` or
             :class:`skosprovider.skos.Collection`.
         :param query: A dict that can be used to express a query.
         :rtype: boolean
-        '''
+        """
         include = True
-        if include and 'type' in query:
-            include = query['type'] == c.type
-        if include and 'label' in query:
-            def finder(l, query):
+        if include and "type" in query:
+            include = query["type"] == c.type
+        if include and "label" in query:
+
+            def finder(label, query):
                 if not self.case_insensitive:
-                    return l.label.find(query['label'])
+                    return label.label.find(query["label"])
                 else:
-                    return l.label.upper().find(query['label'].upper())
-            include = any([finder(l, query) >= 0 for l in c.labels])
-        if include and 'collection' in query:
-            coll = self.get_by_id(query['collection']['id'])
+                    return label.label.upper().find(query["label"].upper())
+
+            include = any([finder(label, query) >= 0 for label in c.labels])
+        if include and "collection" in query:
+            coll = self.get_by_id(query["collection"]["id"])
             if not coll or not isinstance(coll, Collection):
                 raise ValueError(
-                    'You are searching for items in an unexisting collection.'
+                    "You are searching for items in an unexisting collection."
                 )
-            if 'depth' in query['collection'] and query['collection']['depth'] == 'all':
+            if "depth" in query["collection"] and query["collection"]["depth"] == "all":
                 members = self.expand(coll.id)
             else:
                 members = coll.members
             include = any([True for id in members if str(id) == str(c.id)])
-        if include and 'matches' in query and c.type == 'concept':
-            match_uri = query['matches'].get('uri', None)
+        if include and "matches" in query and c.type == "concept":
+            match_uri = query["matches"].get("uri", None)
             if not match_uri:
-                raise ValueError(
-                    'Please provide a URI to match with.'
-                )
-            match_type = query['matches'].get('type', None)
+                raise ValueError("Please provide a URI to match with.")
+            match_type = query["matches"].get("type", None)
             if not match_type:
                 matches = []
                 for mt in c.matchtypes:
                     matches.extend(c.matches[mt])
             else:
                 matches = c.matches.get(match_type, [])[:]
-                if match_type == 'close':
-                    matches.extend(c.matches.get('exact', []))
+                if match_type == "close":
+                    matches.extend(c.matches.get("exact", []))
             include = any([True for uri in matches if uri == match_uri])
         return include
 
     def _get_find_dict(self, c, **kwargs):
-        '''
+        """
         Return a dict that can be used in the return list of the :meth:`find`
         method.
 
         :param c: A :class:`skosprovider.skos.Concept` or
             :class:`skosprovider.skos.Collection`.
         :rtype: dict
-        '''
+        """
         language = self._get_language(**kwargs)
         return {
-            'id': c.id,
-            'uri': c.uri,
-            'type': c.type,
-            'label': None if c.label() is None else c.label(language).label
+            "id": c.id,
+            "uri": c.uri,
+            "type": c.type,
+            "label": None if c.label() is None else c.label(language).label,
         }
 
     def get_all(self, **kwargs):
         language = self._get_language(**kwargs)
         sort = self._get_sort(**kwargs)
-        sort_order = self._get_sort_order(**kwargs)
-        return [self._get_find_dict(c, **kwargs) for c in self._sort(self.list, sort, language, sort_order == 'desc')]
+        reverse_sort = self._get_sort_order(**kwargs) == "desc"
+        return [
+            self._get_find_dict(c, **kwargs)
+            for c in self._sort(self.list, sort, language, reverse_sort)
+        ]
 
     def _is_top_concept(self, c):
-        '''
+        """
         Is this a top concept or not?
 
         A top concept is a concept that has no broader concepts directly or
@@ -587,25 +585,32 @@ class MemoryProvider(VocabularyProvider):
         :param c: A :class:`skosprovider.skos.Concept` or
             :class:`skosprovider.skos.Collection`.
         :rtype: boolean
-        '''
+        """
         if not isinstance(c, Concept):
             return False
         if len(c.broader):
             return False
+
         def _has_higher_concept(c):
             for collid in c.member_of:
                 coll = self.get_by_id(collid)
-                if coll.infer_concept_relations and (coll.superordinates or _has_higher_concept(coll)):
+                if coll.infer_concept_relations and (
+                    coll.superordinates or _has_higher_concept(coll)
+                ):
                     return True
             return False
+
         return not _has_higher_concept(c)
 
     def get_top_concepts(self, **kwargs):
         language = self._get_language(**kwargs)
         sort = self._get_sort(**kwargs)
-        sort_order = self._get_sort_order(**kwargs)
-        tc = [c for c in self.list if self._is_top_concept(c)]
-        return [self._get_find_dict(c, **kwargs) for c in self._sort(tc, sort, language, sort_order == 'desc')]
+        reverse_sort = self._get_sort_order(**kwargs) == "desc"
+        top = [concept for concept in self.list if self._is_top_concept(concept)]
+        return [
+            self._get_find_dict(concept, **kwargs)
+            for concept in self._sort(top, sort, language, reverse_sort)
+        ]
 
     def expand(self, id):
         id = str(id)
@@ -631,16 +636,27 @@ class MemoryProvider(VocabularyProvider):
         language = self._get_language(**kwargs)
         sort = self._get_sort(**kwargs)
         sort_order = self._get_sort_order(**kwargs)
-        td = [c for c in self.list if
-              (isinstance(c, Concept) and len(c.broader) == 0 and len(c.member_of) == 0) or
-              (isinstance(c, Collection) and len(c.superordinates) == 0 and len(c.member_of) == 0)]
+        td = [
+            c
+            for c in self.list
+            if (
+                isinstance(c, Concept) and len(c.broader) == 0 and len(c.member_of) == 0
+            )
+            or (
+                isinstance(c, Collection)
+                and len(c.superordinates) == 0
+                and len(c.member_of) == 0
+            )
+        ]
         return [
             {
-                'id': c.id,
-                'uri': c.uri,
-                'type': c.type,
-                'label': None if c.label() is None else c.label(language).label
-            } for c in self._sort(td, sort, language, sort_order == 'desc')]
+                "id": c.id,
+                "uri": c.uri,
+                "type": c.type,
+                "label": None if c.label() is None else c.label(language).label,
+            }
+            for c in self._sort(td, sort, language, sort_order == "desc")
+        ]
 
     def get_children_display(self, id, **kwargs):
         c = self.get_by_id(id)
@@ -656,57 +672,69 @@ class MemoryProvider(VocabularyProvider):
         dc = [self.get_by_id(dcid) for dcid in display_children]
         return [
             {
-                'id': co.id,
-                'uri': co.uri,
-                'type': co.type,
-                'label': None if co.label() is None else co.label(language).label
-            } for co in self._sort(dc, sort, language, sort_order == 'desc')]
+                "id": co.id,
+                "uri": co.uri,
+                "type": co.type,
+                "label": None if co.label() is None else co.label(language).label,
+            }
+            for co in self._sort(dc, sort, language, sort_order == "desc")
+        ]
 
 
 class DictionaryProvider(MemoryProvider):
-    '''A simple vocab provider that use a python list of dicts.
+    """A simple vocab provider that use a python list of dicts.
 
     The provider expects a list with elements that are dicts that represent
     the concepts.
-    '''
+    """
 
     def __init__(self, metadata, list, **kwargs):
         super().__init__(metadata, [], **kwargs)
         self.list = [self._from_dict(c) for c in list]
 
     def _from_dict(self, data):
-        if 'type' in data and data['type'] == 'collection':
+        if "type" in data and data["type"] == "collection":
+            uri = (
+                data.get("uri")
+                if data.get("uri") is not None
+                else self.uri_generator.generate(type="collection", id=data["id"])
+            )
             return Collection(
-                id=data['id'],
-                uri=data.get('uri') if data.get('uri') is not None else self.uri_generator.generate(type='collection', id=data['id']),
+                id=data["id"],
+                uri=uri,
                 concept_scheme=self.concept_scheme,
-                labels=data.get('labels', []),
-                notes=data.get('notes', []),
-                sources=data.get('sources', []),
-                members=data.get('members', []),
-                member_of=data.get('member_of', []),
-                superordinates=data.get('superordinates', []),
-                infer_concept_relations=data.get('infer_concept_relations', True)
+                labels=data.get("labels", []),
+                notes=data.get("notes", []),
+                sources=data.get("sources", []),
+                members=data.get("members", []),
+                member_of=data.get("member_of", []),
+                superordinates=data.get("superordinates", []),
+                infer_concept_relations=data.get("infer_concept_relations", True),
             )
         else:
+            uri = (
+                data.get("uri")
+                if data.get("uri") is not None
+                else self.uri_generator.generate(type="collection", id=data["id"])
+            )
             return Concept(
-                id=data['id'],
-                uri=data.get('uri') if data.get('uri') is not None else self.uri_generator.generate(type='collection', id=data['id']),
+                id=data["id"],
+                uri=uri,
                 concept_scheme=self.concept_scheme,
-                labels=data.get('labels', []),
-                notes=data.get('notes', []),
-                sources=data.get('sources', []),
-                broader=data.get('broader', []),
-                narrower=data.get('narrower', []),
-                related=data.get('related', []),
-                member_of=data.get('member_of', []),
-                subordinate_arrays=data.get('subordinate_arrays', []),
-                matches=data.get('matches', {})
+                labels=data.get("labels", []),
+                notes=data.get("notes", []),
+                sources=data.get("sources", []),
+                broader=data.get("broader", []),
+                narrower=data.get("narrower", []),
+                related=data.get("related", []),
+                member_of=data.get("member_of", []),
+                subordinate_arrays=data.get("subordinate_arrays", []),
+                matches=data.get("matches", {}),
             )
 
 
 class SimpleCsvProvider(MemoryProvider):
-    '''
+    """
     A provider that reads a simple csv format into memory.
 
     The supported csv format looks like this:
@@ -716,31 +744,31 @@ class SimpleCsvProvider(MemoryProvider):
     associated with short lookup-lists.
 
     .. versionadded:: 0.2.0
-    '''
+    """
 
     def __init__(self, metadata, reader, **kwargs):
-        '''
+        """
         :param metadata: A metadata dictionary.
         :param reader: A csv reader.
-        '''
+        """
         super().__init__(metadata, [], **kwargs)
         self.list = [self._from_row(row) for row in reader]
 
     def _from_row(self, row):
         id = row[0]
-        labels = [{'label': row[1], 'type':'prefLabel'}]
+        labels = [{"label": row[1], "type": "prefLabel"}]
         if len(row) > 2 and row[2]:
-            notes = [{'note': row[2], 'type':'note'}]
+            notes = [{"note": row[2], "type": "note"}]
         else:
             notes = []
         if len(row) > 3 and row[3]:
-            sources = [{'citation': row[3]}]
+            sources = [{"citation": row[3]}]
         else:
             sources = []
         return Concept(
             id=id,
-            uri=self.uri_generator.generate(type='concept', id=id),
+            uri=self.uri_generator.generate(type="concept", id=id),
             labels=labels,
             notes=notes,
-            sources=sources
+            sources=sources,
         )
