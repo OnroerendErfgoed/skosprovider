@@ -694,10 +694,8 @@ class DictionaryProvider(MemoryProvider):
 
     def _from_dict(self, data):
         if "type" in data and data["type"] == "collection":
-            uri = (
-                data.get("uri")
-                if data.get("uri") is not None
-                else self.uri_generator.generate(type="collection", id=data["id"])
+            uri = data.get("uri") or self.uri_generator.generate(
+                type="collection", id=data["id"]
             )
             return Collection(
                 id=data["id"],
@@ -712,10 +710,8 @@ class DictionaryProvider(MemoryProvider):
                 infer_concept_relations=data.get("infer_concept_relations", True),
             )
         else:
-            uri = (
-                data.get("uri")
-                if data.get("uri") is not None
-                else self.uri_generator.generate(type="collection", id=data["id"])
+            uri = data.get("uri") or self.uri_generator.generate(
+                type="concept", id=data["id"]
             )
             return Concept(
                 id=data["id"],
