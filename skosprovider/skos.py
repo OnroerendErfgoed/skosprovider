@@ -251,14 +251,10 @@ class ConceptScheme:
         if not is_uri(uri):
             raise ValueError(f"{uri} is not a valid URI.")
         self.uri = uri
-        if labels:
-            self.labels = [dict_to_label(label) for label in labels]
-        if notes:
-            self.notes = [dict_to_note(note) for note in notes]
-        if sources:
-            self.sources = [dict_to_source(source) for source in sources]
-        if languages:
-            self.languages = languages
+        self.labels = [dict_to_label(label) for label in labels] if labels else []
+        self.notes = [dict_to_note(note) for note in notes] if notes else []
+        self.sources = [dict_to_source(source) for source in sources] if sources else []
+        self.languages = languages or []
 
     def label(self, language="any"):
         """
@@ -374,22 +370,14 @@ class Concept:
         self.uri = uri
         self.type = "concept"
         self.concept_scheme = concept_scheme
-        if labels:
-            self.labels = [dict_to_label(label) for label in labels]
-        if notes:
-            self.notes = [dict_to_note(note) for note in notes]
-        if sources:
-            self.sources = [dict_to_source(source) for source in sources]
-        if broader:
-            self.broader = broader
-        if narrower:
-            self.narrower = narrower
-        if related:
-            self.related = related
-        if member_of:
-            self.member_of = member_of
-        if subordinate_arrays:
-            self.subordinate_arrays = subordinate_arrays
+        self.labels = [dict_to_label(label) for label in labels] if labels else []
+        self.notes = [dict_to_note(note) for note in notes] if notes else []
+        self.sources = [dict_to_source(source) for source in sources] if sources else []
+        self.broader = broader or []
+        self.narrower = narrower or []
+        self.related = related or []
+        self.member_of = member_of or []
+        self.subordinate_arrays = subordinate_arrays or []
         self.matches = {key: [] for key in self.matchtypes}
         if matches:
             self.matches.update(matches)
@@ -486,18 +474,12 @@ class Collection:
         self.uri = uri
         self.type = "collection"
         self.concept_scheme = concept_scheme
-        if labels:
-            self.labels = [dict_to_label(label) for label in labels]
-        if notes:
-            self.notes = [dict_to_note(note) for note in notes]
-        if sources:
-            self.sources = [dict_to_source(source) for source in sources]
-        if members:
-            self.members = members
-        if member_of:
-            self.member_of = member_of
-        if superordinates:
-            self.superordinates = superordinates
+        self.labels = [dict_to_label(label) for label in labels] if labels else []
+        self.notes = [dict_to_note(note) for note in notes] if notes else []
+        self.sources = [dict_to_source(source) for source in sources] if sources else []
+        self.members = members or []
+        self.member_of = member_of or []
+        self.superordinates = superordinates or []
         self.infer_concept_relations = infer_concept_relations
 
     def label(self, language="any"):
