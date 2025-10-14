@@ -1,0 +1,14 @@
+[flake8]
+application_import_names = skosprovider,tests
+import-order-style = pycharm
+
+extend-exclude =
+    .pytest_cache
+    docs
+filename =
+    ./tests/**.py
+    ./skosprovider/**.py
+
+max-line-length = 80
+extend-select = B950
+extend-ignore = E203,E501,E701
