@@ -1,13 +1,15 @@
-'''This module provides a registry for skos providers.
+"""This module provides a registry for skos providers.
 
 This registry helps us find providers during runtime. We can also apply some
 operations to all or several providers at the same time.
-'''
+"""
+
 import logging
 
-log = logging.getLogger(__name__)
-
 from .uri import is_uri
+
+
+log = logging.getLogger(__name__)
 
 
 class RegistryException(Exception):
@@ -15,27 +17,27 @@ class RegistryException(Exception):
 
 
 class Registry:
-    '''
+    """
     This registry collects all skos providers.
-    '''
+    """
 
     providers = {}
-    '''
+    """
     Dictionary containing all providers, keyed by id.
-    '''
+    """
 
     concept_scheme_uri_map = {}
-    '''
+    """
     Dictionary mapping concept scheme uri's to vocabulary id's.
-    '''
+    """
 
     metadata = {}
-    '''
+    """
     Dictionary containing metadata about this registry.
-    '''
+    """
 
-    instance_scope = 'single'
-    '''
+    instance_scope = "single"
+    """
     Indicates how the registry is being used. Options:
         - single: The registry is part of a script or a single process. It can
           be assumed to be operational for the entire duration of the process
@@ -53,10 +55,10 @@ class Registry:
           dies with this thread/request. This is needed for providers such
           as the SQLAlchemyProvider. Providers that use database connections or
           other session handling code generally require this.
-    '''
+    """
 
-    def __init__(self, instance_scope='single', metadata={}):
-        '''
+    def __init__(self, instance_scope="single", metadata=None):
+        """
         :param str instance_scope: Indicates how the registry was instantiated.
             Possible values: single, threaded_global, threaded_thread.
         :param dict metadata: Metadata essential to this registry. Possible
@@ -70,67 +72,67 @@ class Registry:
                     conceptschemes are part of. \
                     Currently the contents of the dictionary are undefined \
                     except for a :term:`uri` attribute that must be present.
-        '''
+        """
         self.providers = {}
         self.concept_scheme_uri_map = {}
-        self.metadata = metadata
-        if instance_scope not in ['single', 'threaded_global', 'threaded_thread']:
-            raise ValueError('Invalid instance_scope.')
+        self.metadata = metadata or {}
+        if instance_scope not in ["single", "threaded_global", "threaded_thread"]:
+            raise ValueError("Invalid instance_scope.")
         self.instance_scope = instance_scope
 
     def get_metadata(self):
-        '''Get some metadata on the registry it represents.
+        """Get some metadata on the registry it represents.
 
         :rtype: Dict.
-        '''
+        """
         return self.metadata
 
     def register_provider(self, provider):
-        '''
+        """
         Register a :class:`skosprovider.providers.VocabularyProvider`.
 
         :param skosprovider.providers.VocabularyProvider provider: The provider
             to register.
         :raises RegistryException: A provider with this id or uri has already
             been registered.
-        '''
+        """
         if (
             provider.allowed_instance_scopes
             and self.instance_scope not in provider.allowed_instance_scopes
         ):
             raise RegistryException(
-                'This provider does not support instance_scope %s' % self.instance_scope
+                f"This provider does not support instance_scope {self.instance_scope}"
             )
         if provider.get_vocabulary_id() in self.providers:
             raise RegistryException(
-                'A provider with this id has already been registered.'
+                "A provider with this id has already been registered."
             )
         self.providers[provider.get_vocabulary_id()] = provider
         try:
-            cs_uri = provider.get_vocabulary_uri()
+            conceptscheme_uri = provider.get_vocabulary_uri()
         except AttributeError as e:
             log.error(e)
             # For providers not compatible with skosprovider >= 0.8.0
             log.warning(
-                'New versions of skosprovider (>=0.8.0) require your provider '
-                'to have a get_vocabulary_uri method. This fallback mechanism '
-                'will be removed in version 2.0.0.'
+                "New versions of skosprovider (>=0.8.0) require your provider "
+                "to have a get_vocabulary_uri method. This fallback mechanism "
+                "will be removed in version 2.0.0."
             )
-            cs_uri = provider.concept_scheme.uri
-        if cs_uri in self.concept_scheme_uri_map:
+            conceptscheme_uri = provider.concept_scheme.uri
+        if conceptscheme_uri in self.concept_scheme_uri_map:
             raise RegistryException(
-                'A provider with URI %s has already been registered.' % cs_uri
+                "A provider with URI {conceptscheme_uri} has already been registered."
             )
-        self.concept_scheme_uri_map[cs_uri] = provider.get_vocabulary_id()
+        self.concept_scheme_uri_map[conceptscheme_uri] = provider.get_vocabulary_id()
 
     def remove_provider(self, id):
-        '''
+        """
         Remove the provider with the given id or :term:`URI`.
 
         :param str id: The identifier for the provider.
         :returns: A :class:`skosprovider.providers.VocabularyProvider` or
             `False` if the id is unknown.
-        '''
+        """
         if id in self.providers:
             p = self.providers.get(id, False)
             del self.providers[id]
@@ -140,9 +142,9 @@ class Registry:
                 log.error(e)
                 # For providers not compatible with skosprovider >= 0.8.0
                 log.warning(
-                    'New versions of skosprovider (>=0.8.0) require your provider '
-                    'to have a get_vocabulary_uri method. This fallback mechanism '
-                    'will be removed in version 2.0.0.'
+                    "New versions of skosprovider (>=0.8.0) require your provider "
+                    "to have a get_vocabulary_uri method. This fallback mechanism "
+                    "will be removed in version 2.0.0."
                 )
                 # For providers not compatible with skosprovider >= 0.8.0
                 cs_uri = p.concept_scheme.uri
@@ -155,7 +157,7 @@ class Registry:
             return False
 
     def get_provider(self, id):
-        '''
+        """
         Get a provider by id or :term:`URI`.
 
         :param str id: The identifier for the provider. This can either be the
@@ -163,7 +165,7 @@ class Registry:
             that the provider services.
         :returns: A :class:`skosprovider.providers.VocabularyProvider`
             or `False` if the id or uri is unknown.
-        '''
+        """
         if id in self.providers:
             return self.providers.get(id, False)
         elif is_uri(id) and id in self.concept_scheme_uri_map:
@@ -171,7 +173,7 @@ class Registry:
         return False
 
     def get_providers(self, **kwargs):
-        '''Get all providers registered.
+        """Get all providers registered.
 
         If keyword `ids` is present, get only the providers with these ids.
 
@@ -188,23 +190,25 @@ class Registry:
            # Get all providers with id 1 or 2 and subject 'biology'
            registry.get_providers(ids=[1,2], subject='biology']
 
-        :param list ids: Only return providers with one of the Ids or :term:`URIs <URI>`.
+        :param list ids: Only return providers with one of the Ids
+            or :term:`URIs <URI>`.
         :param str subject: Only return providers with this subject.
-        :returns: A list of :class:`providers <skosprovider.providers.VocabularyProvider>`
-        '''
-        if 'ids' in kwargs:
-            ids = [self.concept_scheme_uri_map.get(id, id) for id in kwargs['ids']]
-            providers = [
-                self.providers[k] for k in self.providers.keys() if k in ids
-            ]
+        :returns: A list of
+            :class:`providers <skosprovider.providers.VocabularyProvider>`
+        """
+        if "ids" in kwargs:
+            ids = [self.concept_scheme_uri_map.get(id, id) for id in kwargs["ids"]]
+            providers = [self.providers[k] for k in self.providers.keys() if k in ids]
         else:
             providers = list(self.providers.values())
-        if 'subject' in kwargs:
-            providers = [p for p in providers if kwargs['subject'] in p.metadata['subject']]
+        if "subject" in kwargs:
+            providers = [
+                p for p in providers if kwargs["subject"] in p.metadata["subject"]
+            ]
         return providers
 
     def find(self, query, **kwargs):
-        '''Launch a query across all or a selection of providers.
+        """Launch a query across all or a selection of providers.
 
         .. code-block:: python
 
@@ -230,16 +234,17 @@ class Registry:
             # If possible, display the results with a Dutch label.
             registry.find({
                 'matches': {
-                    'uri': 'http://id.python.org/different/types/of/trees/nr/1/the/larch'
+                    'uri': 'http://id.py.org/diff/types/of/trees/nr/1/the/larch'
                 }}, language='nl')
 
-            # Find anything that has a label of lariks with a close match to an external concept
+            # Find anything that has a label of lariks
+            # with a close match to an external concept
             # If possible, display the results with a Dutch label.
             provider.find({
                 'matches': {
                     'label': 'lariks',
                     'type': 'close',
-                    'uri': 'http://id.python.org/different/types/of/trees/nr/1/the/larch'
+                    'uri': 'http://id.py.org/diff/types/of/trees/nr/1/the/larch'
                 }}, language='nl')
 
         :param dict query: The query parameters that will be passed on to each
@@ -256,23 +261,25 @@ class Registry:
             for each concept.
         :returns: a list of :class:`dict`.
             Each dict has two keys: id and concepts.
-        '''
-        if 'providers' not in kwargs:
+        """
+        if "providers" not in kwargs:
             providers = self.get_providers()
         else:
-            pargs = kwargs['providers']
+            pargs = kwargs["providers"]
             if isinstance(pargs, list):
                 providers = self.get_providers(ids=pargs)
             else:
                 providers = self.get_providers(**pargs)
         kwarguments = {}
-        if 'language' in kwargs:
-            kwarguments['language'] = kwargs['language']
-        return [{'id': p.get_vocabulary_id(), 'concepts': p.find(query, **kwarguments)}
-                for p in providers]
+        if "language" in kwargs:
+            kwarguments["language"] = kwargs["language"]
+        return [
+            {"id": p.get_vocabulary_id(), "concepts": p.find(query, **kwarguments)}
+            for p in providers
+        ]
 
     def get_all(self, **kwargs):
-        '''Get all concepts from all providers.
+        """Get all concepts from all providers.
 
         .. code-block:: python
 
@@ -290,15 +297,17 @@ class Registry:
 
         :returns: a list of :class:`dict`.
             Each dict has two keys: id and concepts.
-        '''
+        """
         kwarguments = {}
-        if 'language' in kwargs:
-            kwarguments['language'] = kwargs['language']
-        return [{'id': p.get_vocabulary_id(), 'concepts': p.get_all(**kwarguments)}
-                for p in self.providers.values()]
+        if "language" in kwargs:
+            kwarguments["language"] = kwargs["language"]
+        return [
+            {"id": p.get_vocabulary_id(), "concepts": p.get_all(**kwarguments)}
+            for p in self.providers.values()
+        ]
 
     def get_by_uri(self, uri):
-        '''Get a concept or collection by its uri.
+        """Get a concept or collection by its uri.
 
         Returns a single concept or collection if one exists with this uri.
         Returns False otherwise.
@@ -307,11 +316,15 @@ class Registry:
         :raises ValueError: The uri is invalid.
         :rtype: :class:`skosprovider.skos.Concept` or
             :class:`skosprovider.skos.Collection`
-        '''
+        """
         if not is_uri(uri):
-            raise ValueError('%s is not a valid URI.' % uri)
+            raise ValueError(f"{uri} is not a valid URI.")
         # Check if there's a provider that's more likely to have the URI
-        csuris = [csuri for csuri in self.concept_scheme_uri_map.keys() if uri.startswith(csuri)]
+        csuris = [
+            csuri
+            for csuri in self.concept_scheme_uri_map.keys()
+            if uri.startswith(csuri)
+        ]
         for csuri in csuris:
             c = self.get_provider(csuri).get_by_uri(uri)
             if c:

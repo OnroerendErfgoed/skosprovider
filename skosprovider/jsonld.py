@@ -1,22 +1,14 @@
-'''
+"""
 This module contains functions dealing with jsonld reading and writing.
 
 .. versionadded:: 0.7.0
-'''
-
-from skosprovider.skos import (
-    Concept,
-    Collection,
-    ConceptScheme,
-    label
-)
-
-from skosprovider.utils import (
-    extract_language,
-    add_lang_to_html
-)
+"""
 
 import logging
+
+from skosprovider.utils import add_lang_to_html
+from skosprovider.utils import extract_language
+
 log = logging.getLogger(__name__)
 
 MINI_CONTEXT = {
@@ -39,6 +31,7 @@ CONTEXT = {
     "@version": 1.1,
     "dct": "http://purl.org/dc/terms/",
     "skos": "http://www.w3.org/2004/02/skos/core#",
+    "skosxl": "http://www.w3.org/2008/05/skos-xl#",
     "iso-thes": "http://purl.org/iso25964/skos-thes#",
     "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
     "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
@@ -53,143 +46,77 @@ CONTEXT = {
     "nt": "@value",
     "ct": "@value",
     "HTML": "rdf:HTML",
-    "concept_scheme": {
-        "@id": "skos:inScheme",
-        "@type": "@id"
-    },
-    "in_dataset": {
-        "@id": "void:inDataset",
-        "@type": "@id"
-    },
-    "top_concepts": {
-        "@id": "skos:hasTopConcept",
-        "@type": "@id"
-    },
+    "concept_scheme": {"@id": "skos:inScheme", "@type": "@id"},
+    "in_dataset": {"@id": "void:inDataset", "@type": "@id"},
+    "top_concepts": {"@id": "skos:hasTopConcept", "@type": "@id"},
     "labels": "@nest",
+    "labels_xl": "@nest",
     "notes": "@nest",
     "matches": "@nest",
-    "sources": {
-        "@id": "dct:source",
-        "@container": "@set"
-    },
-    "citations": {
-      "@id": "dct:bibliographicCitation",
-      "@container": "@set"
-    },
-    "pref_labels": {
-      "@nest": "labels",
-      "@id": "skos:prefLabel",
-      "@container": "@set"
-    },
-    "alt_labels": {
-      "@nest": "labels",
-      "@id": "skos:altLabel",
-      "@container": "@set"
-    },
+    "sources": {"@id": "dct:source", "@container": "@set"},
+    "citations": {"@id": "dct:bibliographicCitation", "@container": "@set"},
+    "pref_labels": {"@nest": "labels", "@id": "skos:prefLabel", "@container": "@set"},
+    "alt_labels": {"@nest": "labels", "@id": "skos:altLabel", "@container": "@set"},
     "hidden_labels": {
-      "@nest": "labels",
-      "@id": "skos:hiddenLabel",
-      "@container": "@set"
+        "@nest": "labels",
+        "@id": "skos:hiddenLabel",
+        "@container": "@set",
     },
-    "general_notes": {
-        "@nest": "notes",
-        "@id": "skos:note",
-        "@container": "@set"
+    "pref_labels_xl": {
+        "@nest": "labels_xl",
+        "@id": "skosxl:prefLabel",
+        "@container": "@set",
     },
-    "scope_notes": {
-        "@nest": "notes",
-        "@id": "skos:scopeNote",
-        "@container": "@set"
+    "alt_labels_xl": {
+        "@nest": "labels_xl",
+        "@id": "skosxl:altLabel",
+        "@container": "@set",
     },
-    "definitions": {
-        "@nest": "notes",
-        "@id": "skos:definition",
-        "@container": "@set"
+    "hidden_labels_xl": {
+        "@nest": "labels_xl",
+        "@id": "skosxl:hiddenLabel",
+        "@container": "@set",
     },
+    "general_notes": {"@nest": "notes", "@id": "skos:note", "@container": "@set"},
+    "scope_notes": {"@nest": "notes", "@id": "skos:scopeNote", "@container": "@set"},
+    "definitions": {"@nest": "notes", "@id": "skos:definition", "@container": "@set"},
     "history_notes": {
         "@nest": "notes",
         "@id": "skos:historyNote",
-        "@container": "@set"
+        "@container": "@set",
     },
     "editorial_notes": {
         "@nest": "notes",
         "@id": "skos:editorialNote",
-        "@container": "@set"
+        "@container": "@set",
     },
-    "change_notes": {
-        "@nest": "notes",
-        "@id": "skos:changeNote",
-        "@container": "@set"
-    },
-    "examples": {
-        "@nest": "notes",
-        "@id": "skos:example",
-        "@container": "@set"
-    },
-    "exact_matches": {
-      "@id": "skos:exactMatch",
-      "@type": "@id",
-      "@container": "@set"
-    },
-    "close_matches": {
-      "@id": "skos:closeMatch",
-      "@type": "@id",
-      "@container": "@set"
-    },
-    "broad_matches": {
-      "@id": "skos:broadMatch",
-      "@type": "@id",
-      "@container": "@set"
-    },
-    "narrow_matches": {
-      "@id": "skos:narrowMatch",
-      "@type": "@id",
-      "@container": "@set"
-    },
+    "change_notes": {"@nest": "notes", "@id": "skos:changeNote", "@container": "@set"},
+    "examples": {"@nest": "notes", "@id": "skos:example", "@container": "@set"},
+    "exact_matches": {"@id": "skos:exactMatch", "@type": "@id", "@container": "@set"},
+    "close_matches": {"@id": "skos:closeMatch", "@type": "@id", "@container": "@set"},
+    "broad_matches": {"@id": "skos:broadMatch", "@type": "@id", "@container": "@set"},
+    "narrow_matches": {"@id": "skos:narrowMatch", "@type": "@id", "@container": "@set"},
     "related_matches": {
-      "@id": "skos:relatedMatch",
-      "@type": "@id",
-      "@container": "@set"
-    },
-    "member_of": {
-        "@reverse": "skos:member",
+        "@id": "skos:relatedMatch",
         "@type": "@id",
-        "@container": "@set"
+        "@container": "@set",
     },
-    "members": {
-        "@id": "skos:member",
-        "@type": "@id",
-        "@container": "@set"
-    },
+    "member_of": {"@reverse": "skos:member", "@type": "@id", "@container": "@set"},
+    "members": {"@id": "skos:member", "@type": "@id", "@container": "@set"},
     "subordinate_arrays": {
         "@id": "iso-thes:subordinateArray",
         "@type": "@id",
-        "@container": "@set"
+        "@container": "@set",
     },
-    "broader": {
-        "@id": "skos:broader",
-        "@type": "@id",
-        "@container": "@set"
-    },
-    "narrower": {
-        "@id": "skos:narrower",
-        "@type": "@id",
-        "@container": "@set"
-    },
-    "related": {
-        "@id": "skos:related",
-        "@type": "@id",
-        "@container": "@set"
-    },
-    "languages": {
-        "@id": "dct:language",
-        "@type": "@id",
-        "@container": "@set"
-    }
+    "broader": {"@id": "skos:broader", "@type": "@id", "@container": "@set"},
+    "narrower": {"@id": "skos:narrower", "@type": "@id", "@container": "@set"},
+    "related": {"@id": "skos:related", "@type": "@id", "@container": "@set"},
+    "languages": {"@id": "dct:language", "@type": "@id", "@container": "@set"},
 }
 
-def jsonld_dumper(provider, context = None, language = None):
-    '''
+
+def jsonld_dumper(provider, context=None, language=None):
+    """
     Dump a provider to a JSON-LD serialisable dictionary.
 
     :param skosprovider.providers.VocabularyProvider provider: The provider
@@ -198,28 +125,30 @@ def jsonld_dumper(provider, context = None, language = None):
     :param string language: Language to render a single label in.
 
     :rtype: A `dict`
-    '''
+    """
     if not language:
-        language = provider.metadata.get('default_language', 'en')
-    doc = {
-        '@graph': []
-    }
+        language = provider.metadata.get("default_language", "en")
+    doc = {"@graph": []}
     if context:
-        doc['@context'] = context
-    doc['@graph'].append(jsonld_conceptscheme_dumper(
-        provider, None,
-        relations_profile = 'uri', language = language
-        ))
+        doc["@context"] = context
+    doc["@graph"].append(
+        jsonld_conceptscheme_dumper(
+            provider, None, relations_profile="uri", language=language
+        )
+    )
     for c in provider.get_all():
-        doc['@graph'].append(jsonld_c_dumper(
-            provider, c['id'], None,
-            relations_profile = 'uri', language = language
-        ))
+        doc["@graph"].append(
+            jsonld_c_dumper(
+                provider, c["id"], None, relations_profile="uri", language=language
+            )
+        )
     return doc
 
-def jsonld_c_dumper(provider, id, context = None, relations_profile =
-        'partial', language = 'en'):
-    '''
+
+def jsonld_c_dumper(
+    provider, id, context=None, relations_profile="partial", language="en"
+):
+    """
     Dump a concept or collection to a JSON-LD serialisable dictionary.
 
     :param skosprovider.providers.VocabularyProvider provider: The provider
@@ -231,186 +160,224 @@ def jsonld_c_dumper(provider, id, context = None, relations_profile =
     :param string language: Language to render a single label in.
 
     :rtype: A `dict`
-    '''
+    """
     c = provider.get_by_id(id)
     doc = _jsonld_c_basic_renderer(c, language)
     if context:
-        doc['@context'] = context
-    if relations_profile == 'partial':
-        doc['concept_scheme'] = _jsonld_cs_basic_renderer(c.concept_scheme, language)
+        doc["@context"] = context
+    if relations_profile == "partial":
+        doc["concept_scheme"] = _jsonld_cs_basic_renderer(c.concept_scheme, language)
     else:
-        doc['concept_scheme'] = c.concept_scheme.uri
-    dataset_uri = provider.get_metadata().get('dataset', {}).get('uri', None)
+        doc["concept_scheme"] = c.concept_scheme.uri
+    dataset_uri = provider.get_metadata().get("dataset", {}).get("uri", None)
     if dataset_uri:
-        doc['in_dataset'] = dataset_uri
+        doc["in_dataset"] = dataset_uri
     doc.update(_jsonld_labels_renderer(c))
+    doc.update(_jsonld_labels_xl_renderer(c))
     doc.update(_jsonld_notes_renderer(c))
     doc.update(_jsonld_sources_renderer(c))
     doc.update(_jsonld_member_of_renderer(c, provider, relations_profile, language))
-    if c.type == 'concept':
+    if c.type == "concept":
         doc.update(_jsonld_matches_renderer(c))
         doc.update(_jsonld_broader_renderer(c, provider, relations_profile, language))
         doc.update(_jsonld_narrower_renderer(c, provider, relations_profile, language))
         doc.update(_jsonld_related_renderer(c, provider, relations_profile, language))
-        doc.update(_jsonld_subordinate_arrays_renderer(c, provider, relations_profile, language))
-    elif c.type == 'collection':
-        doc['infer_concept_relations'] = True
+        doc.update(
+            _jsonld_subordinate_arrays_renderer(
+                c, provider, relations_profile, language
+            )
+        )
+    elif c.type == "collection":
+        doc["infer_concept_relations"] = True
         doc.update(_jsonld_members_renderer(c, provider, relations_profile, language))
-        doc.update(_jsonld_superordinates_renderer(c, provider, relations_profile, language))
+        doc.update(
+            _jsonld_superordinates_renderer(c, provider, relations_profile, language)
+        )
     return doc
 
-def _jsonld_c_basic_renderer(c, language = 'en'):
-    doc = {
-        'id': c.id,
-        'uri': c.uri,
-        'type': c.type
-    }
+
+def _jsonld_c_basic_renderer(c, language="en"):
+    doc = {"id": c.id, "uri": c.uri, "type": c.type}
     label = c.label(language)
     if label:
-        doc['label'] = label.label
+        doc["label"] = label.label
     return doc
 
-def _jsonld_cs_basic_renderer(cs, language = 'en'):
-    doc = {
-        'uri': cs.uri,
-        'type': 'skos:ConceptScheme'
-    }
+
+def _jsonld_cs_basic_renderer(cs, language="en"):
+    doc = {"uri": cs.uri, "type": "skos:ConceptScheme"}
     label = cs.label(language)
     if label:
-        doc['label'] = label.label
+        doc["label"] = label.label
     return doc
+
 
 def _jsonld_labels_renderer(c):
-    doc = {
-        'labels': {}
-    }
-    def lbl_renderer(l):
-        language = extract_language(l.language)
-        return {
-            'language': language,
-            '@language': language,
-            'lbl': l.label
-        }
+    if not len(c.labels):
+        return {}
+    doc = {"labels": {}}
+
+    def lbl_renderer(label):
+        language = extract_language(label.language)
+        return {"language": language, "@language": language, "lbl": label.label}
+
     ltypemap = {
-        'prefLabel': 'pref_labels',
-        'altLabel': 'alt_labels',
-        'hiddenLabel': 'hidden_labels',
-        'sortLabel': 'hidden_labels'
+        "prefLabel": "pref_labels",
+        "altLabel": "alt_labels",
+        "hiddenLabel": "hidden_labels",
+        "sortLabel": "hidden_labels",
     }
-    for l in c.labels:
-        doc['labels'].setdefault(ltypemap[l.type], []).append(lbl_renderer(l))
+    for label in c.labels:
+        doc["labels"].setdefault(ltypemap[label.type], []).append(lbl_renderer(label))
     return doc
+
+
+def _jsonld_labels_xl_renderer(c):
+    if not len([label for label in c.labels if label.is_xl()]):
+        return {}
+    doc = {"labels_xl": {}}
+
+    def lbl_xl_renderer(label):
+        language = extract_language(label.language)
+        return {
+            "uri": label.uri,
+            "type": "skosxl:Label",
+            "skosxl:literalForm": {"@language": language, "lbl": label.label},
+        }
+
+    ltypemap = {
+        "prefLabel": "pref_labels_xl",
+        "altLabel": "alt_labels_xl",
+        "hiddenLabel": "hidden_labels_xl",
+        "sortLabel": "hidden_labels_xl",
+    }
+    for label in c.labels:
+        if label.is_xl():
+            doc["labels_xl"].setdefault(ltypemap[label.type], []).append(
+                lbl_xl_renderer(label)
+            )
+    return doc
+
 
 def _jsonld_notes_renderer(c):
-    doc = {
-        'notes': {}
-    }
+    if not len(c.notes):
+        return {}
+    doc = {"notes": {}}
+
     def nt_renderer(n):
         language = extract_language(n.language)
-        note = {
-            'language': language,
-            '@language': language,
-            'nt': n.note
-        }
+        note = {"language": language, "@language": language, "nt": n.note}
         if n.markup is not None:
-            del note['@language']
-            note['nt'] = add_lang_to_html(note['nt'], language)
-            note['@type'] = n.markup
+            del note["@language"]
+            note["nt"] = add_lang_to_html(note["nt"], language)
+            note["@type"] = n.markup
         return note
+
     ntypemap = {
-        'note': 'general_notes',
-        'scopeNote': 'scope_notes',
-        'definition': 'definitions',
-        'historyNote': 'history_notes',
-        'editorialNote': 'editorial_notes',
-        'changeNote': 'change_notes',
-        'example': 'examples'
+        "note": "general_notes",
+        "scopeNote": "scope_notes",
+        "definition": "definitions",
+        "historyNote": "history_notes",
+        "editorialNote": "editorial_notes",
+        "changeNote": "change_notes",
+        "example": "examples",
     }
     for n in c.notes:
-        doc['notes'].setdefault(ntypemap[n.type], []).append(nt_renderer(n))
+        doc["notes"].setdefault(ntypemap[n.type], []).append(nt_renderer(n))
     return doc
+
 
 def _jsonld_sources_renderer(c):
-    doc = {
-        'sources': []
-    }
+    if not len(c.sources):
+        return {}
+    doc = {"sources": []}
+
     def s_renderer(s):
         source = {
-            'type': 'dct:BibliographicResource',
-            'citations': [{
-                'ct': s.citation
-            }]
+            "type": "dct:BibliographicResource",
+            "citations": [{"ct": s.citation}],
         }
         if s.markup is not None:
-            source['citations'][0]['@type'] = s.markup
+            source["citations"][0]["@type"] = s.markup
         return source
+
     for s in c.sources:
-        doc['sources'].append(s_renderer(s))
+        doc["sources"].append(s_renderer(s))
     return doc
+
 
 def _jsonld_matches_renderer(c):
-    doc = {
-        'matches': {}
-    }
-    for k,v in c.matches.items():
-        doc['matches'].setdefault('%s_matches' % k, []).extend(v)
+    if not any([len(matches) for matches in c.matches.values()]):
+        return {}
+    doc = {"matches": {}}
+    for matchtype, matches in c.matches.items():
+        if len(matches):
+            doc["matches"].setdefault(f"{matchtype}_matches", []).extend(matches)
     return doc
 
-def _jsonld_superordinates_renderer(c, provider, profile = 'partial', language = 'en'):
-    return _jsonld_relation_renderer(c, provider, 'superordinates', profile, language)
 
-def _jsonld_members_renderer(c, provider, profile = 'partial', language = 'en'):
-    return _jsonld_relation_renderer(c, provider, 'members', profile, language)
+def _jsonld_superordinates_renderer(c, provider, profile="partial", language="en"):
+    return _jsonld_relation_renderer(c, provider, "superordinates", profile, language)
 
-def _jsonld_member_of_renderer(c, provider, profile = 'partial', language = 'en'):
-    return _jsonld_relation_renderer(c, provider, 'member_of', profile, language)
 
-def _jsonld_broader_renderer(c, provider, profile = 'partial', language = 'en'):
-    return _jsonld_relation_renderer(c, provider, 'broader', profile, language)
+def _jsonld_members_renderer(c, provider, profile="partial", language="en"):
+    return _jsonld_relation_renderer(c, provider, "members", profile, language)
 
-def _jsonld_narrower_renderer(c, provider, profile = 'partial', language = 'en'):
-    return _jsonld_relation_renderer(c, provider, 'narrower', profile, language)
 
-def _jsonld_related_renderer(c, provider, profile = 'partial', language = 'en'):
-    return _jsonld_relation_renderer(c, provider, 'related', profile, language)
+def _jsonld_member_of_renderer(c, provider, profile="partial", language="en"):
+    return _jsonld_relation_renderer(c, provider, "member_of", profile, language)
 
-def _jsonld_subordinate_arrays_renderer(c, provider, profile = 'partial', language = 'en'):
-    return _jsonld_relation_renderer(c, provider, 'subordinate_arrays', profile, language)
 
-def _jsonld_relation_renderer(c, provider, relation, profile = 'partial', language = 'en'):
-    doc = {
-        relation: []
-    }
+def _jsonld_broader_renderer(c, provider, profile="partial", language="en"):
+    return _jsonld_relation_renderer(c, provider, "broader", profile, language)
+
+
+def _jsonld_narrower_renderer(c, provider, profile="partial", language="en"):
+    return _jsonld_relation_renderer(c, provider, "narrower", profile, language)
+
+
+def _jsonld_related_renderer(c, provider, profile="partial", language="en"):
+    return _jsonld_relation_renderer(c, provider, "related", profile, language)
+
+
+def _jsonld_subordinate_arrays_renderer(c, provider, profile="partial", language="en"):
+    return _jsonld_relation_renderer(
+        c, provider, "subordinate_arrays", profile, language
+    )
+
+
+def _jsonld_relation_renderer(c, provider, relation, profile="partial", language="en"):
+    doc = {relation: []}
     for m in getattr(c, relation):
         relc = provider.get_by_id(m)
-        if profile == 'partial':
+        if profile == "partial":
             doc[relation].append(_jsonld_c_basic_renderer(relc, language))
         else:
             doc[relation].append(relc.uri)
     return doc
 
-def _jsonld_topconcepts_renderer(provider, profile = 'partial'):
-    doc = {
-        'top_concepts': []
-    }
+
+def _jsonld_topconcepts_renderer(provider, profile="partial"):
+    doc = {"top_concepts": []}
     for c in provider.get_top_concepts():
-        if profile == 'partial':
-            doc['top_concepts'].append(c)
+        if profile == "partial":
+            doc["top_concepts"].append(c)
         else:
-            doc['top_concepts'].append(c['uri'])
+            doc["top_concepts"].append(c["uri"])
     return doc
+
 
 def _jsonld_cs_languages_renderer(cs):
-    doc = {
-        'languages': []
-    }
-    for l in cs.languages:
-        doc['languages'].append(l)
+    doc = {"languages": []}
+    for language in cs.languages:
+        doc["languages"].append(language)
     return doc
 
-def jsonld_conceptscheme_dumper(provider, context = None,
-        relations_profile = 'partial', language = 'en'):
-    '''
+
+def jsonld_conceptscheme_dumper(
+    provider, context=None, relations_profile="partial", language="en"
+):
+    """
     Dump a conceptscheme to a JSON-LD serialisable dictionary.
 
     :param skosprovider.providers.VocabularyProvider provider: The provider
@@ -421,18 +388,19 @@ def jsonld_conceptscheme_dumper(provider, context = None,
     :param string language: Language to render a single label in.
 
     :rtype: A `dict`
-    '''
-    cs = provider.concept_scheme
-    doc = _jsonld_cs_basic_renderer(cs)
+    """
+    conceptscheme = provider.concept_scheme
+    doc = _jsonld_cs_basic_renderer(conceptscheme, language)
     if context:
-        doc['@context'] = context
-    dataset_uri = provider.get_metadata().get('dataset', {}).get('uri', None)
+        doc["@context"] = context
+    dataset_uri = provider.get_metadata().get("dataset", {}).get("uri", None)
     if dataset_uri:
-        doc['in_dataset'] = dataset_uri
-    doc['id'] = provider.get_metadata()['id']
-    doc.update(_jsonld_labels_renderer(cs))
-    doc.update(_jsonld_notes_renderer(cs))
-    doc.update(_jsonld_sources_renderer(cs))
-    doc.update(_jsonld_cs_languages_renderer(cs))
+        doc["in_dataset"] = dataset_uri
+    doc["id"] = provider.get_metadata()["id"]
+    doc.update(_jsonld_labels_renderer(conceptscheme))
+    doc.update(_jsonld_labels_xl_renderer(conceptscheme))
+    doc.update(_jsonld_notes_renderer(conceptscheme))
+    doc.update(_jsonld_sources_renderer(conceptscheme))
+    doc.update(_jsonld_cs_languages_renderer(conceptscheme))
     doc.update(_jsonld_topconcepts_renderer(provider, relations_profile))
     return doc
