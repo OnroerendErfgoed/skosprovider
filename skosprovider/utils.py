@@ -2,7 +2,6 @@
 This module contains utility functions for dealing with skos providers.
 """
 
-import sys
 from xml.dom.minidom import DocumentFragment
 from xml.dom.minidom import Element
 from xml.dom.minidom import Node
@@ -11,14 +10,6 @@ import html5lib
 
 from skosprovider.skos import Collection
 from skosprovider.skos import Concept
-
-
-PY3 = sys.version_info[0] == 3
-
-if PY3:  # pragma: no cover
-    binary_type = bytes
-else:  # pragma: no cover
-    binary_type = str
 
 
 def dict_dumper(provider):
@@ -99,19 +90,7 @@ def extract_language(lang):
 
     .. versionadded:: 0.7.0
     """
-    if lang is None:
-        lang = "und"  # return undefined code when no language
-    else:
-        lang = text_(lang, encoding="UTF-8")
-    return lang
-
-
-def text_(s, encoding="latin-1", errors="strict"):
-    """If ``s`` is an instance of ``binary_type``, return
-    ``s.decode(encoding, errors)``, otherwise return ``s``"""
-    if isinstance(s, binary_type):
-        return s.decode(encoding, errors)
-    return s
+    return "und" if lang is None else lang
 
 
 def add_lang_to_html(htmltext, lang):
