@@ -37,3 +37,4 @@ skosprovider is present.
     $ python setup.py develop
     $ cd docs
     $ make html
+
