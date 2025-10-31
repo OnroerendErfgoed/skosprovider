@@ -1,8 +1,12 @@
-next
-----
+1.3.0 (2025-10-31)
+------------------
 
 - Allow for SKOS-XL labels by adding a URI to a Label. (#125)
 - Add support for Python 3.13 (#135)
+- API docs are missing content (#127)
+- Add test coverage (#126)
+- Python code formatting and linting (#138)
+- Drop PY2 compatibility (#141)
 
 1.2.0 (2022-08-11)
 ------------------
