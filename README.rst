@@ -12,8 +12,8 @@ where deemed useful.
     :target: https://pypi.python.org/pypi/skosprovider
 .. image:: https://readthedocs.org/projects/skosprovider/badge/?version=latest
     :target: https://readthedocs.org/projects/skosprovider/?badge=latest
-.. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.5824941.svg
-    :target: https://doi.org/10.5281/zenodo.5824941
+.. image:: https://zenodo.org/badge/DOI/10.5281/zenodo.5767151.svg
+    :target: https://doi.org/10.5281/zenodo.5767151
 .. image:: https://app.travis-ci.com/onroerenderfgoed/skosprovider.svg?branch=develop
     :target: https://app.travis-ci.com/onroerenderfgoed/skosprovider
 .. image:: https://coveralls.io/repos/OnroerendErfgoed/skosprovider/badge.svg?branch=develop
