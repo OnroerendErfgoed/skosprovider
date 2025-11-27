@@ -8,7 +8,6 @@ from skosprovider.uri import is_uri
 
 
 class IsUriTest(unittest.TestCase):
-
     def test_None(self):
         assert not is_uri(None)
 
@@ -22,14 +21,28 @@ class IsUriTest(unittest.TestCase):
 
 
 class UriPatternGeneratorTest(unittest.TestCase):
-
     def test_simple(self):
         urigen = UriPatternGenerator("http://id.example.com/%s")
         self.assertEqual("http://id.example.com/1", urigen.generate(id=1))
 
+    def test_pattern_none(self):
+        with self.assertRaises(ValueError):
+            UriPatternGenerator(None)
+
+    def test_pattern_no_placeholder(self):
+        with self.assertRaises(ValueError):
+            UriPatternGenerator("http://id.example.com/")
+
+    def test_pattern_multiple_placeholders(self):
+        with self.assertRaises(ValueError):
+            UriPatternGenerator("http://id.example.com/%s/%s")
+
+    def test_pattern_escaped_placeholder(self):
+        UriPatternGenerator("http://id.example.com/%%s/%s")
+        # No exception should be raised
+
 
 class DefaultUrnGeneratorTest(unittest.TestCase):
-
     def setUp(self):
         self.urigen = DefaultUrnGenerator("typologie")
 
@@ -44,7 +57,6 @@ class DefaultUrnGeneratorTest(unittest.TestCase):
 
 
 class DefaultConceptSchemeUrnGeneratorTest(unittest.TestCase):
-
     def setUp(self):
         self.urigen = DefaultConceptSchemeUrnGenerator()
 
@@ -61,7 +73,6 @@ class DefaultConceptSchemeUrnGeneratorTest(unittest.TestCase):
 
 
 class TypedUrnGeneratorTest(unittest.TestCase):
-
     def setUp(self):
         self.urigen = TypedUrnGenerator("typologie")
 
