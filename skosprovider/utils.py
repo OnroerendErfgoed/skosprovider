@@ -35,6 +35,8 @@ def dict_dumper(provider):
             }
             if label.uri:
                 ldict["uri"] = label.uri
+                if len(label.label_types):
+                    ldict["label_types"] = label.label_types
             labels.append(ldict)
         notes = [
             {

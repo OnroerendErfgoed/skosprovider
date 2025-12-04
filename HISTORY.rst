@@ -1,3 +1,9 @@
+1.4.0 (2025-11-??)
+------------------
+
+- Allow for labels having extra labeltypes that are SKOS Concepts. (#146)
+
+
 1.3.0 (2025-10-31)
 ------------------
 

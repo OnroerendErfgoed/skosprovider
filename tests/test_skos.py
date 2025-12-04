@@ -42,6 +42,31 @@ class TestLabel:
         )
         assert label.uri == "urn:x-skosprovider:gemeenten:knokke-heist:nl-BE"
 
+    def testConstructorInvalidUri(self):
+        with pytest.raises(ValueError):
+            Label(
+                "Knokke-Heist",
+                type="prefLabel",
+                language="nl-BE",
+                uri="12345",
+            )
+
+    def testLabelTypes(self):
+        label = Label(
+            "Knokke-Heist",
+            type="prefLabel",
+            language="nl-BE",
+            uri="urn:x-skosprovider:gemeenten:knokke-heist:nl-BE",
+            label_types=[
+                "http://publications.europa.eu/resource/authority/label-type/STANDARDLABEL"
+            ],
+        )
+        assert label.is_xl()
+        assert (
+            "http://publications.europa.eu/resource/authority/label-type/STANDARDLABEL"
+            in label.label_types
+        )
+
     def testRepr(self):
         label = Label("Knokke-Heist", type="prefLabel", language="nl-BE")
         assert repr(label) == "Label('Knokke-Heist', 'prefLabel', 'nl-BE')"

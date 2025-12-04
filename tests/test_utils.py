@@ -25,6 +25,9 @@ class DictDumperTest(unittest.TestCase):
                     "type": "prefLabel",
                     "language": "nl",
                     "label": "De Lariks",
+                    "label_types": [
+                        "http://publications.europa.eu/resource/authority/label-type/STANDARDLABEL"
+                    ],
                 },
             ],
             "notes": [
