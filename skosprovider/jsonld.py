@@ -112,6 +112,7 @@ CONTEXT = {
     "narrower": {"@id": "skos:narrower", "@type": "@id", "@container": "@set"},
     "related": {"@id": "skos:related", "@type": "@id", "@container": "@set"},
     "languages": {"@id": "dct:language", "@type": "@id", "@container": "@set"},
+    "label_types": {"@id": "dct:type", "@type": "@id", "@container": "@set"},
 }
 
 
@@ -239,11 +240,14 @@ def _jsonld_labels_xl_renderer(c):
 
     def lbl_xl_renderer(label):
         language = extract_language(label.language)
-        return {
+        lbl = {
             "uri": label.uri,
             "type": "skosxl:Label",
             "skosxl:literalForm": {"@language": language, "lbl": label.label},
         }
+        if len(label.label_types):
+            lbl["label_types"] = label.label_types
+        return lbl
 
     ltypemap = {
         "prefLabel": "pref_labels_xl",

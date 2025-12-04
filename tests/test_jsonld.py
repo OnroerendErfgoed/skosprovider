@@ -49,6 +49,20 @@ class TestDumperTrees:
             "label": "Soorten",
         }
         assert doc["in_dataset"] == "http://id.trees.org/dataset"
+        assert "pref_labels_xl" in doc["labels_xl"]
+        assert len(doc["labels_xl"]["pref_labels_xl"]) == 1
+        assert doc["labels_xl"]["pref_labels_xl"][0]["type"] == "skosxl:Label"
+        assert (
+            doc["labels_xl"]["pref_labels_xl"][0]["uri"]
+            == "http://id.trees.org/labels/lariks-nl"
+        )
+        assert doc["labels_xl"]["pref_labels_xl"][0]["skosxl:literalForm"] == {
+            "@language": "nl",
+            "lbl": "De Lariks",
+        }
+        assert doc["labels_xl"]["pref_labels_xl"][0]["label_types"] == [
+            "http://publications.europa.eu/resource/authority/label-type/STANDARDLABEL"
+        ]
 
     def test_dump_larch_uri_profile(self):
         doc = jsonld_c_dumper(trees, 1, relations_profile="uri")
