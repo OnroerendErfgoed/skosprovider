@@ -139,7 +139,7 @@ typing-extensions==4.14.1
     #   black
     #   exceptiongroup
     #   virtualenv
-urllib3==2.5.0
+urllib3==2.6.0
     # via requests
 virtualenv==20.34.0
     # via pre-commit
