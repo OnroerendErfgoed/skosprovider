@@ -40,7 +40,9 @@ class UriPatternGenerator(UriGenerator):
     Generate a :term:`URI` based on a simple pattern.
     """
 
-    def __init__(self, pattern):
+    def __init__(self, pattern: str):
+        if pattern is None or (pattern.count("%s") - pattern.count("%%s")) != 1:
+            raise ValueError("A URI pattern must contain exactly one '%s' placeholder")
         self.pattern = pattern
 
     def generate(self, **kwargs):
