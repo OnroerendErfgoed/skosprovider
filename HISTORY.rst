@@ -1,3 +1,8 @@
+1.5.1 (2025-12-12)
+------------------
+
+- Remove unnecessary libraries from pyproject.toml.
+
 1.5.0 (2025-12-12)
 ------------------
 
