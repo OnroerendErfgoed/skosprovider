@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [ "3.10", "3.11", "3.12", "3.13" ]
+        python-version: ["3.10", "3.11", "3.12", "3.13.10"]
 
     steps:
       - uses: actions/checkout@v4
@@ -43,5 +43,5 @@ jobs:
       - name: Get Cover
         uses: orgoro/coverage@v3.2
         with:
-            coverageFile: ${{ runner.temp }}/coverage.xml
-            token: ${{ secrets.GITHUB_TOKEN }}
+          coverageFile: ${{ runner.temp }}/coverage.xml
+          token: ${{ secrets.GITHUB_TOKEN }}
