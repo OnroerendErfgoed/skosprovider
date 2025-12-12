@@ -36,6 +36,13 @@ class Label:
     The type of this label (`prefLabel`, `altLabel`, `hiddenLabel`, 'sortLabel').
     """
 
+    label_types = []
+    """
+    Zero or more extra types for this label.
+    These types should be URI's that map to SKOS Concepts,
+    adding some typing but nor formal semantics.
+    """
+
     language = "und"
     """
     The language the label is in (eg. `en`, `en-US`, `nl`, `nl-BE`).
@@ -46,18 +53,24 @@ class Label:
     The valid types for a label
     """
 
-    def __init__(self, label, type="prefLabel", language="und", uri=None):
+    def __init__(
+        self, label, type="prefLabel", language="und", uri=None, label_types=None
+    ):
         self.label = label
         self.type = type
         if not language:
             language = "und"
-        if uri and not is_uri(uri):
-            raise ValueError(f"{uri} is not a valid URI.")
-        self.uri = uri
         if tags.check(language):
             self.language = language
         else:
             raise ValueError(f"{language} is not a valid IANA language tag.")
+        if uri and not is_uri(uri):
+            raise ValueError(f"{uri} is not a valid URI.")
+        self.uri = uri
+        if self.is_xl() and label_types:
+            self.label_types = label_types
+        else:
+            self.label_types = []
 
     def __eq__(self, other):
         if isinstance(other, dict):
@@ -651,6 +664,7 @@ def dict_to_label(dict):
             dict.get("type", "prefLabel"),
             dict.get("language", "und"),
             uri=dict.get("uri"),
+            label_types=dict.get("label_types", []),
         )
     except (KeyError, AttributeError, TypeError):
         return dict
