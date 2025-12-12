@@ -1,3 +1,9 @@
+1.4.0 (2025-12-12)
+------------------
+
+- Better validation of UriPatternGenerator patterns. #147
+- Add workflow: Verify that the package can be built and is ready for upload to PyPI. #145
+
 1.3.0 (2025-10-31)
 ------------------
 
