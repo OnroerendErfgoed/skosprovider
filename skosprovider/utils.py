@@ -112,7 +112,7 @@ def add_lang_to_html(htmltext, lang):
         node = html.firstChild
         if node.nodeType == Node.TEXT_NODE:
             div = Element("div")
-            div.ownerDocument = html
+            div.ownerDocument = html.ownerDocument
             div.setAttribute("xml:lang", lang)
             div.childNodes = [node]
             html.childNodes = [div]
@@ -121,7 +121,7 @@ def add_lang_to_html(htmltext, lang):
     else:
         # add a single encompassing div
         div = Element("div")
-        div.ownerDocument = html
+        div.ownerDocument = html.ownerDocument
         div.setAttribute("xml:lang", lang)
         div.childNodes = html.childNodes
         html.childNodes = [div]
