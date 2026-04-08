@@ -1,6 +1,7 @@
 import csv
 import os
-import unittest
+
+import pytest
 
 from skosprovider.providers import DictionaryProvider
 from skosprovider.providers import SimpleCsvProvider
@@ -251,21 +252,16 @@ geo = DictionaryProvider(
 )
 
 
-class TreesDictionaryProviderTests(unittest.TestCase):
-    def setUp(self):
-        pass
-
-    def tearDown(self):
-        pass
+class TestTreesDictionaryProvider:
 
     def test_get_vocabulary_id(self):
-        self.assertEqual("TREES", trees.get_vocabulary_id())
+        assert "TREES" == trees.get_vocabulary_id()
 
     def test_get_vocabulary_uri(self):
         assert trees.get_vocabulary_uri() == trees.concept_scheme.uri
 
     def test_override_get_vocabulary_uri(self):
-        trees = DictionaryProvider(
+        t = DictionaryProvider(
             {
                 "id": "TREES",
                 "uri": "http://id.trees.org",
@@ -280,11 +276,11 @@ class TreesDictionaryProviderTests(unittest.TestCase):
                 languages=["nl", "en"],
             ),
         )
-        assert "http://id.trees.org" == trees.get_vocabulary_uri()
-        assert "http://idtoo.trees.org" == trees.concept_scheme.uri
+        assert "http://id.trees.org" == t.get_vocabulary_uri()
+        assert "http://idtoo.trees.org" == t.concept_scheme.uri
 
     def test_override_get_vocabulary_uri_generates_cs(self):
-        trees = DictionaryProvider(
+        t = DictionaryProvider(
             {
                 "id": "TREES",
                 "uri": "http://id.trees.org",
@@ -294,8 +290,8 @@ class TreesDictionaryProviderTests(unittest.TestCase):
             },
             [larch, chestnut, species],
         )
-        assert "http://id.trees.org" == trees.get_vocabulary_uri()
-        assert "http://id.trees.org" == trees.concept_scheme.uri
+        assert "http://id.trees.org" == t.get_vocabulary_uri()
+        assert "http://id.trees.org" == t.concept_scheme.uri
 
     def test_get_metadata(self):
         assert trees.get_metadata() == {
@@ -313,10 +309,10 @@ class TreesDictionaryProviderTests(unittest.TestCase):
         ]
 
     def test_override_instance_scopes(self):
-        trees = DictionaryProvider(
+        t = DictionaryProvider(
             {"id": "TREES"}, [larch], allowed_instance_scopes=["single"]
         )
-        assert trees.allowed_instance_scopes == ["single"]
+        assert t.allowed_instance_scopes == ["single"]
 
     def test_get_by_id(self):
         lariks = trees.get_by_id(1)
@@ -329,13 +325,13 @@ class TreesDictionaryProviderTests(unittest.TestCase):
 
     def test_concept_has_scheme(self):
         lariks = trees.get_by_id(1)
-        self.assertIsInstance(lariks.concept_scheme, ConceptScheme)
-        self.assertEqual("http://id.trees.org", lariks.concept_scheme.uri)
+        assert isinstance(lariks.concept_scheme, ConceptScheme)
+        assert "http://id.trees.org" == lariks.concept_scheme.uri
 
     def test_collection_has_scheme(self):
         coll = trees.get_by_id(3)
-        self.assertIsInstance(coll.concept_scheme, ConceptScheme)
-        self.assertEqual("http://id.trees.org", coll.concept_scheme.uri)
+        assert isinstance(coll.concept_scheme, ConceptScheme)
+        assert "http://id.trees.org" == coll.concept_scheme.uri
 
     def test_get_by_uri(self):
         lariks = trees.get_by_uri("http://id.trees.org/1")
@@ -343,236 +339,209 @@ class TreesDictionaryProviderTests(unittest.TestCase):
 
     def test_get_by_id_string(self):
         lariks = trees.get_by_id("1")
-        self.assertEqual(larch["id"], lariks.id)
-        self.assertEqual(larch["uri"], lariks.uri)
-        self.assertEqual(larch["labels"], lariks.labels)
-        self.assertEqual(larch["notes"], lariks.notes)
-        self.assertEqual(larch["member_of"], lariks.member_of)
-        self.assertEqual("concept", lariks.type)
+        assert larch["id"] == lariks.id
+        assert larch["uri"] == lariks.uri
+        assert larch["labels"] == lariks.labels
+        assert larch["notes"] == lariks.notes
+        assert larch["member_of"] == lariks.member_of
+        assert "concept" == lariks.type
         assert 5 == len(lariks.matches)
         assert 1 == len(lariks.matches["exact"])
         assert larch["matches"]["exact"] == lariks.matches["exact"]
         assert [] == lariks.matches["related"]
 
     def test_get_by_id_is_type_agnostic(self):
-        self.assertEqual(trees.get_by_id(1), trees.get_by_id("1"))
+        assert trees.get_by_id(1) == trees.get_by_id("1")
 
     def test_get_unexisting_by_id(self):
-        self.assertFalse(trees.get_by_id(987654321))
+        assert not trees.get_by_id(987654321)
 
     def test_get_unexisting_by_uri(self):
-        self.assertFalse(trees.get_by_uri("urn:x-skosprovider:987654321"))
+        assert not trees.get_by_uri("urn:x-skosprovider:987654321")
 
     def test_expand_concept(self):
-        self.assertEqual(["1"], trees.expand(1))
+        assert ["1"] == trees.expand(1)
 
     def test_expand_unexisting(self):
-        self.assertEqual(False, trees.expand(987654321))
+        assert trees.expand(987654321) is False
 
     def test_expand_collection(self):
-        self.assertEqual({"1", "2"}, set(trees.expand(3)))
+        assert {"1", "2"} == set(trees.expand(3))
 
     def test_get_all(self):
-        self.assertEqual(
-            trees.get_all(),
-            [
-                {
-                    "id": "1",
-                    "uri": "http://id.trees.org/1",
-                    "type": "concept",
-                    "label": "De Lariks",
-                },
-                {
-                    "id": "2",
-                    "uri": "http://id.trees.org/2",
-                    "type": "concept",
-                    "label": "De Paardekastanje",
-                },
-                {
-                    "id": 3,
-                    "uri": "http://id.trees.org/3",
-                    "type": "collection",
-                    "label": "Bomen per soort",
-                },
-            ],
-        )
+        assert trees.get_all() == [
+            {
+                "id": "1",
+                "uri": "http://id.trees.org/1",
+                "type": "concept",
+                "label": "De Lariks",
+            },
+            {
+                "id": "2",
+                "uri": "http://id.trees.org/2",
+                "type": "concept",
+                "label": "De Paardekastanje",
+            },
+            {
+                "id": 3,
+                "uri": "http://id.trees.org/3",
+                "type": "collection",
+                "label": "Bomen per soort",
+            },
+        ]
 
     def test_get_all_default_language(self):
-        trees = DictionaryProvider({"id": "TREES"}, [larch])
-        self.assertEqual(
-            trees.get_all(),
-            [
-                {
-                    "id": "1",
-                    "uri": "http://id.trees.org/1",
-                    "type": "concept",
-                    "label": "The Larch",
-                }
-            ],
-        )
+        t = DictionaryProvider({"id": "TREES"}, [larch])
+        assert t.get_all() == [
+            {
+                "id": "1",
+                "uri": "http://id.trees.org/1",
+                "type": "concept",
+                "label": "The Larch",
+            }
+        ]
 
     def test_get_all_sort_label(self):
-        self.assertEqual(
-            trees.get_all(sort="label"),
-            [
-                {
-                    "id": 3,
-                    "uri": "http://id.trees.org/3",
-                    "type": "collection",
-                    "label": "Bomen per soort",
-                },
-                {
-                    "id": "1",
-                    "uri": "http://id.trees.org/1",
-                    "type": "concept",
-                    "label": "De Lariks",
-                },
-                {
-                    "id": "2",
-                    "uri": "http://id.trees.org/2",
-                    "type": "concept",
-                    "label": "De Paardekastanje",
-                },
-            ],
-        )
+        assert trees.get_all(sort="label") == [
+            {
+                "id": 3,
+                "uri": "http://id.trees.org/3",
+                "type": "collection",
+                "label": "Bomen per soort",
+            },
+            {
+                "id": "1",
+                "uri": "http://id.trees.org/1",
+                "type": "concept",
+                "label": "De Lariks",
+            },
+            {
+                "id": "2",
+                "uri": "http://id.trees.org/2",
+                "type": "concept",
+                "label": "De Paardekastanje",
+            },
+        ]
 
     def test_get_all_sort_id(self):
-        self.assertEqual(
-            trees.get_all(sort="id", sort_order="asc"),
-            [
-                {
-                    "id": "1",
-                    "uri": "http://id.trees.org/1",
-                    "type": "concept",
-                    "label": "De Lariks",
-                },
-                {
-                    "id": "2",
-                    "uri": "http://id.trees.org/2",
-                    "type": "concept",
-                    "label": "De Paardekastanje",
-                },
-                {
-                    "id": 3,
-                    "uri": "http://id.trees.org/3",
-                    "type": "collection",
-                    "label": "Bomen per soort",
-                },
-            ],
-        )
+        assert trees.get_all(sort="id", sort_order="asc") == [
+            {
+                "id": "1",
+                "uri": "http://id.trees.org/1",
+                "type": "concept",
+                "label": "De Lariks",
+            },
+            {
+                "id": "2",
+                "uri": "http://id.trees.org/2",
+                "type": "concept",
+                "label": "De Paardekastanje",
+            },
+            {
+                "id": 3,
+                "uri": "http://id.trees.org/3",
+                "type": "collection",
+                "label": "Bomen per soort",
+            },
+        ]
 
     def test_get_all_sort_id_reverse(self):
-        self.assertEqual(
-            trees.get_all(sort="id", sort_order="desc"),
-            [
-                {
-                    "id": 3,
-                    "uri": "http://id.trees.org/3",
-                    "type": "collection",
-                    "label": "Bomen per soort",
-                },
-                {
-                    "id": "2",
-                    "uri": "http://id.trees.org/2",
-                    "type": "concept",
-                    "label": "De Paardekastanje",
-                },
-                {
-                    "id": "1",
-                    "uri": "http://id.trees.org/1",
-                    "type": "concept",
-                    "label": "De Lariks",
-                },
-            ],
-        )
+        assert trees.get_all(sort="id", sort_order="desc") == [
+            {
+                "id": 3,
+                "uri": "http://id.trees.org/3",
+                "type": "collection",
+                "label": "Bomen per soort",
+            },
+            {
+                "id": "2",
+                "uri": "http://id.trees.org/2",
+                "type": "concept",
+                "label": "De Paardekastanje",
+            },
+            {
+                "id": "1",
+                "uri": "http://id.trees.org/1",
+                "type": "concept",
+                "label": "De Lariks",
+            },
+        ]
 
     def test_get_top_concepts_default_language(self):
-        self.assertEqual(
-            trees.get_top_concepts(),
-            [
-                {
-                    "id": "1",
-                    "uri": "http://id.trees.org/1",
-                    "type": "concept",
-                    "label": "De Lariks",
-                },
-                {
-                    "id": "2",
-                    "uri": "http://id.trees.org/2",
-                    "type": "concept",
-                    "label": "De Paardekastanje",
-                },
-            ],
-        )
+        assert trees.get_top_concepts() == [
+            {
+                "id": "1",
+                "uri": "http://id.trees.org/1",
+                "type": "concept",
+                "label": "De Lariks",
+            },
+            {
+                "id": "2",
+                "uri": "http://id.trees.org/2",
+                "type": "concept",
+                "label": "De Paardekastanje",
+            },
+        ]
 
     def test_get_top_concepts_sorted_by_id(self):
-        self.assertEqual(
-            trees.get_top_concepts(sort="id"),
-            [
-                {
-                    "id": "1",
-                    "uri": "http://id.trees.org/1",
-                    "type": "concept",
-                    "label": "De Lariks",
-                },
-                {
-                    "id": "2",
-                    "uri": "http://id.trees.org/2",
-                    "type": "concept",
-                    "label": "De Paardekastanje",
-                },
-            ],
-        )
+        assert trees.get_top_concepts(sort="id") == [
+            {
+                "id": "1",
+                "uri": "http://id.trees.org/1",
+                "type": "concept",
+                "label": "De Lariks",
+            },
+            {
+                "id": "2",
+                "uri": "http://id.trees.org/2",
+                "type": "concept",
+                "label": "De Paardekastanje",
+            },
+        ]
 
     def test_get_all_english(self):
-        self.assertEqual(
-            trees.get_all(language="en"),
-            [
-                {
-                    "id": "1",
-                    "uri": "http://id.trees.org/1",
-                    "type": "concept",
-                    "label": "The Larch",
-                },
-                {
-                    "id": "2",
-                    "uri": "http://id.trees.org/2",
-                    "type": "concept",
-                    "label": "The Chestnut",
-                },
-                {
-                    "id": 3,
-                    "uri": "http://id.trees.org/3",
-                    "type": "collection",
-                    "label": "Trees by species",
-                },
-            ],
-        )
+        assert trees.get_all(language="en") == [
+            {
+                "id": "1",
+                "uri": "http://id.trees.org/1",
+                "type": "concept",
+                "label": "The Larch",
+            },
+            {
+                "id": "2",
+                "uri": "http://id.trees.org/2",
+                "type": "concept",
+                "label": "The Chestnut",
+            },
+            {
+                "id": 3,
+                "uri": "http://id.trees.org/3",
+                "type": "collection",
+                "label": "Trees by species",
+            },
+        ]
 
     def test_get_all_english_sorted_by_label(self):
-        self.assertEqual(
-            trees.get_all(language="en", sort="label"),
-            [
-                {
-                    "id": "2",
-                    "uri": "http://id.trees.org/2",
-                    "type": "concept",
-                    "label": "The Chestnut",
-                },
-                {
-                    "id": "1",
-                    "uri": "http://id.trees.org/1",
-                    "type": "concept",
-                    "label": "The Larch",
-                },
-                {
-                    "id": 3,
-                    "uri": "http://id.trees.org/3",
-                    "type": "collection",
-                    "label": "Trees by species",
-                },
-            ],
-        )
+        assert trees.get_all(language="en", sort="label") == [
+            {
+                "id": "2",
+                "uri": "http://id.trees.org/2",
+                "type": "concept",
+                "label": "The Chestnut",
+            },
+            {
+                "id": "1",
+                "uri": "http://id.trees.org/1",
+                "type": "concept",
+                "label": "The Larch",
+            },
+            {
+                "id": 3,
+                "uri": "http://id.trees.org/3",
+                "type": "collection",
+                "label": "Trees by species",
+            },
+        ]
 
     def test_get_all_french(self):
         la_chataigne = {
@@ -585,137 +554,127 @@ class TreesDictionaryProviderTests(unittest.TestCase):
 
     def test_find_all(self):
         c = trees.find({"type": "all"})
-        self.assertEqual(3, len(c))
+        assert 3 == len(c)
 
     def test_find_all_sort(self):
         c = trees.find({"type": "all"}, sort="id", sort_order="desc")
-        self.assertEqual([3, "2", "1"], [cc["id"] for cc in c])
+        assert [3, "2", "1"] == [cc["id"] for cc in c]
         c = trees.find({"type": "all"}, sort="sortlabel", sort_order="asc")
-        self.assertEqual([3, "1", "2"], [cc["id"] for cc in c])
+        assert [3, "1", "2"] == [cc["id"] for cc in c]
         c = trees.find({"type": "all"}, sort="sortlabel", sort_order="desc")
-        self.assertEqual(["2", "1", 3], [cc["id"] for cc in c])
+        assert ["2", "1", 3] == [cc["id"] for cc in c]
 
     def test_find_concepts(self):
         c = trees.find({"type": "concept"})
-        self.assertEqual(2, len(c))
+        assert 2 == len(c)
 
     def test_find_collections(self):
         c = trees.find({"type": "collection"})
-        self.assertEqual(1, len(c))
+        assert 1 == len(c)
 
     def test_find_type_None(self):
         c = trees.find({"type": None})
         assert len(c) == 3
 
     def test_find_larch(self):
-        self.assertEqual(
-            trees.find({"label": "The Larch"}),
-            [
-                {
-                    "id": "1",
-                    "uri": "http://id.trees.org/1",
-                    "type": "concept",
-                    "label": "De Lariks",
-                }
-            ],
-        )
+        assert trees.find({"label": "The Larch"}) == [
+            {
+                "id": "1",
+                "uri": "http://id.trees.org/1",
+                "type": "concept",
+                "label": "De Lariks",
+            }
+        ]
 
     def test_find_The_Lar(self):
-        self.assertEqual(
-            trees.find({"label": "The Lar"}),
-            [
-                {
-                    "id": "1",
-                    "uri": "http://id.trees.org/1",
-                    "type": "concept",
-                    "label": "De Lariks",
-                }
-            ],
-        )
+        assert trees.find({"label": "The Lar"}) == [
+            {
+                "id": "1",
+                "uri": "http://id.trees.org/1",
+                "type": "concept",
+                "label": "De Lariks",
+            }
+        ]
 
     def test_find_case_sensitive(self):
-        trees = DictionaryProvider(
+        t = DictionaryProvider(
             {"id": "TREES", "default_language": "nl"},
             [larch, chestnut, species],
             case_insensitive=False,
         )
-        self.assertEqual(
-            trees.find({"label": "The Lar"}),
-            [
-                {
-                    "id": "1",
-                    "uri": "http://id.trees.org/1",
-                    "type": "concept",
-                    "label": "De Lariks",
-                }
-            ],
-        )
-        self.assertEqual(trees.find({"label": "lar"}), [])
+        assert t.find({"label": "The Lar"}) == [
+            {
+                "id": "1",
+                "uri": "http://id.trees.org/1",
+                "type": "concept",
+                "label": "De Lariks",
+            }
+        ]
+        assert t.find({"label": "lar"}) == []
 
     def test_find_kastanje(self):
-        trees = DictionaryProvider(
+        t = DictionaryProvider(
             {"id": "TREES", "default_language": "nl"}, [larch, chestnut, species]
         )
-        concepts = trees.find({"label": "De Paardekastanje"})
+        concepts = t.find({"label": "De Paardekastanje"})
         assert len(concepts) == 1
 
     def test_find_empty_label(self):
         c = trees.find({"label": ""})
-        self.assertEqual(3, len(c))
+        assert 3 == len(c)
 
     def test_find_lar(self):
-        self.assertEqual(
-            trees.find({"label": "lar"}),
-            [
-                {
-                    "id": "1",
-                    "uri": "http://id.trees.org/1",
-                    "type": "concept",
-                    "label": "De Lariks",
-                }
-            ],
-        )
+        assert trees.find({"label": "lar"}) == [
+            {
+                "id": "1",
+                "uri": "http://id.trees.org/1",
+                "type": "concept",
+                "label": "De Lariks",
+            }
+        ]
 
     def test_find_es(self):
         c = trees.find({"label": "es"})
-        self.assertEqual(2, len(c))
+        assert 2 == len(c)
 
     def test_find_all_es(self):
         c = trees.find({"label": "es", "type": "all"})
-        self.assertEqual(2, len(c))
+        assert 2 == len(c)
 
     def test_find_concepts_es(self):
         c = trees.find({"label": "es", "type": "concept"})
-        self.assertEqual(1, len(c))
+        assert 1 == len(c)
         for cc in c:
-            self.assertIsInstance(trees.get_by_id(cc["id"]), Concept)
+            assert isinstance(trees.get_by_id(cc["id"]), Concept)
 
     def test_find_collections_es(self):
         c = trees.find({"label": "es", "type": "collection"})
-        self.assertEqual(1, len(c))
+        assert 1 == len(c)
         for cc in c:
-            self.assertIsInstance(trees.get_by_id(cc["id"]), Collection)
+            assert isinstance(trees.get_by_id(cc["id"]), Collection)
 
     def test_find_no_arguments(self):
-        self.assertEqual(trees.find({}), trees.get_all())
+        assert trees.find({}) == trees.get_all()
 
     def test_find_in_collection(self):
         c = trees.find({"collection": {"id": 3}})
-        self.assertEqual(2, len(c))
+        assert 2 == len(c)
         for cc in c:
-            self.assertIsInstance(trees.get_by_id(cc["id"]), Concept)
+            assert isinstance(trees.get_by_id(cc["id"]), Concept)
 
     def test_find_in_collection_es(self):
         c = trees.find({"collection": {"id": 3}, "label": "es"})
-        self.assertEqual(1, len(c))
+        assert 1 == len(c)
         for cc in c:
-            self.assertIsInstance(trees.get_by_id(cc["id"]), Concept)
+            assert isinstance(trees.get_by_id(cc["id"]), Concept)
 
     def test_find_in_unexisting_collection(self):
-        self.assertRaises(ValueError, trees.find, {"collection": {"id": 404}})
+        with pytest.raises(ValueError):
+            trees.find({"collection": {"id": 404}})
 
     def test_find_matches_without_uri(self):
-        self.assertRaises(ValueError, trees.find, {"matches": {"type": "close"}})
+        with pytest.raises(ValueError):
+            trees.find({"matches": {"type": "close"}})
 
     def test_find_matches_uri_not_present(self):
         concepts = trees.find(
@@ -756,7 +715,7 @@ class TreesDictionaryProviderTests(unittest.TestCase):
                 }
             }
         )
-        self.assertEqual(1, len(c))
+        assert 1 == len(c)
 
     def test_find_matches_uri_and_wrong_type(self):
         c = trees.find(
@@ -768,59 +727,50 @@ class TreesDictionaryProviderTests(unittest.TestCase):
                 }
             }
         )
-        self.assertEqual(0, len(c))
+        assert 0 == len(c)
 
     def test_get_display_top(self):
         top = trees.get_top_display()
-        self.assertEqual(1, len(top))
-        self.assertIn(
-            {
-                "id": 3,
-                "type": "collection",
-                "label": "Bomen per soort",
-                "uri": "http://id.trees.org/3",
-            },
-            top,
-        )
+        assert 1 == len(top)
+        assert {
+            "id": 3,
+            "type": "collection",
+            "label": "Bomen per soort",
+            "uri": "http://id.trees.org/3",
+        } in top
 
     def test_get_display_top_sorted_label(self):
         top = trees.get_top_display(sort="label", language="nl")
-        self.assertEqual(1, len(top))
-        self.assertIn(
-            {
-                "id": 3,
-                "type": "collection",
-                "label": "Bomen per soort",
-                "uri": "http://id.trees.org/3",
-            },
-            top,
-        )
+        assert 1 == len(top)
+        assert {
+            "id": 3,
+            "type": "collection",
+            "label": "Bomen per soort",
+            "uri": "http://id.trees.org/3",
+        } in top
 
     def test_get_display_children_unexisting_concept(self):
-        self.assertFalse(trees.get_children_display(404))
+        assert not trees.get_children_display(404)
 
     def test_get_display_children_concept(self):
-        self.assertEqual([], trees.get_children_display(1))
-        self.assertEqual([], trees.get_children_display(2))
+        assert [] == trees.get_children_display(1)
+        assert [] == trees.get_children_display(2)
 
     def test_get_display_children_collection(self):
-        self.assertEqual(
-            trees.get_children_display(3),
-            [
-                {
-                    "id": "1",
-                    "uri": "http://id.trees.org/1",
-                    "type": "concept",
-                    "label": "De Lariks",
-                },
-                {
-                    "id": "2",
-                    "uri": "http://id.trees.org/2",
-                    "type": "concept",
-                    "label": "De Paardekastanje",
-                },
-            ],
-        )
+        assert trees.get_children_display(3) == [
+            {
+                "id": "1",
+                "uri": "http://id.trees.org/1",
+                "type": "concept",
+                "label": "De Lariks",
+            },
+            {
+                "id": "2",
+                "uri": "http://id.trees.org/2",
+                "type": "concept",
+                "label": "De Paardekastanje",
+            },
+        ]
 
     def test_get_display_children_collection_sort_custom(self):
         assert trees.get_children_display(
@@ -841,261 +791,233 @@ class TreesDictionaryProviderTests(unittest.TestCase):
         ]
 
 
-class GeoDictionaryProviderTests(unittest.TestCase):
-
-    def setUp(self):
-        pass
-
-    def tearDown(self):
-        pass
+class TestGeoDictionaryProvider:
 
     def test_get_vocabulary_id(self):
-        self.assertEqual("GEOGRAPHY", geo.get_vocabulary_id())
+        assert "GEOGRAPHY" == geo.get_vocabulary_id()
 
     def test_get_metadata(self):
-        self.assertEqual({"id": "GEOGRAPHY", "subject": []}, geo.get_metadata())
+        assert {"id": "GEOGRAPHY", "subject": []} == geo.get_metadata()
 
     def test_concept_has_scheme(self):
         con = geo.get_by_id(1)
-        self.assertIsInstance(con.concept_scheme, ConceptScheme)
-        self.assertEqual("urn:x-skosprovider:geography", con.concept_scheme.uri)
+        assert isinstance(con.concept_scheme, ConceptScheme)
+        assert "urn:x-skosprovider:geography" == con.concept_scheme.uri
 
     def test_collection_has_scheme(self):
         coll = geo.get_by_id(333)
-        self.assertIsInstance(coll.concept_scheme, ConceptScheme)
-        self.assertEqual("urn:x-skosprovider:geography", coll.concept_scheme.uri)
+        assert isinstance(coll.concept_scheme, ConceptScheme)
+        assert "urn:x-skosprovider:geography" == coll.concept_scheme.uri
 
     def test_get_top_concepts(self):
         top = geo.get_top_concepts()
-        self.assertEqual(4, len(top))
-        self.assertIn(
-            {
-                "id": "1",
-                "uri": "urn:x-skosprovider:geography:1",
-                "type": "concept",
-                "label": "World",
-            },
-            top,
-        )
-        self.assertIn(
-            {
-                "id": 15,
-                "uri": "urn:x-skosprovider:geography:15",
-                "type": "concept",
-                "label": "German",
-            },
-            top,
-        )
+        assert 4 == len(top)
+        assert {
+            "id": "1",
+            "uri": "urn:x-skosprovider:geography:1",
+            "type": "concept",
+            "label": "World",
+        } in top
+        assert {
+            "id": 15,
+            "uri": "urn:x-skosprovider:geography:15",
+            "type": "concept",
+            "label": "German",
+        } in top
 
     def test_get_by_id(self):
         wereld = geo.get_by_id(1)
-        self.assertEqual(world["id"], wereld.id)
-        self.assertIsNotNone(wereld.uri)
-        self.assertEqual(world["labels"], wereld.labels)
-        self.assertEqual(world["narrower"], wereld.narrower)
+        assert world["id"] == wereld.id
+        assert wereld.uri is not None
+        assert world["labels"] == wereld.labels
+        assert world["narrower"] == wereld.narrower
 
     def test_get_belgium_by_id(self):
         belgium = geo.get_by_id(4)
-        self.assertEqual(4, belgium.id)
-        self.assertEqual({"333"}, set(belgium.member_of))
+        assert 4 == belgium.id
+        assert {"333"} == set(belgium.member_of)
 
     def test_get_by_uri(self):
         wereld = geo.get_by_uri("urn:x-skosprovider:geography:1")
-        self.assertEqual(world["id"], wereld.id)
-        self.assertEqual(world["labels"], wereld.labels)
-        self.assertEqual(world["narrower"], wereld.narrower)
+        assert world["id"] == wereld.id
+        assert world["labels"] == wereld.labels
+        assert world["narrower"] == wereld.narrower
 
     def test_get_collection_by_id(self):
         dutch_speaking = geo.get_by_id(333)
-        self.assertEqual("333", dutch_speaking.id)
-        self.assertEqual(["4", "7", "8"], dutch_speaking.members)
+        assert "333" == dutch_speaking.id
+        assert ["4", "7", "8"] == dutch_speaking.members
 
     def test_get_collection_by_uri(self):
         dutch_speaking = geo.get_by_uri("urn:x-skosprovider:geography:333")
-        self.assertEqual("333", dutch_speaking.id)
-        self.assertEqual(["4", "7", "8"], dutch_speaking.members)
+        assert "333" == dutch_speaking.id
+        assert ["4", "7", "8"] == dutch_speaking.members
 
     def test_expand_Belgium(self):
-        self.assertEqual({4, 7, 8, 9, 16}, set(geo.expand(4)))
+        assert {4, 7, 8, 9, 16} == set(geo.expand(4))
 
     def test_expand_UK(self):
-        self.assertEqual({5, 10, 11, 12}, set(geo.expand(5)))
+        assert {5, 10, 11, 12} == set(geo.expand(5))
 
     def test_expand_string(self):
-        self.assertEqual({4, 7, 8, 9, 16}, set(geo.expand("4")))
+        assert {4, 7, 8, 9, 16} == set(geo.expand("4"))
 
     def test_expand_unexisting(self):
-        self.assertEqual(False, geo.expand(987654321))
+        assert geo.expand(987654321) is False
 
     def test_expand_collection(self):
-        self.assertEqual({4, 7, 8, 9, 16}, set(geo.expand(333)))
+        assert {4, 7, 8, 9, 16} == set(geo.expand(333))
 
     def test_find_in_collection(self):
         c = geo.find({"collection": {"id": 333}})
-        self.assertEqual(3, len(c))
+        assert 3 == len(c)
         for cc in c:
-            self.assertIsInstance(geo.get_by_id(cc["id"]), Concept)
+            assert isinstance(geo.get_by_id(cc["id"]), Concept)
 
     def test_find_in_collection_depth_all(self):
         c = geo.find({"collection": {"id": 333, "depth": "all"}})
-        self.assertEqual(5, len(c))
+        assert 5 == len(c)
         for cc in c:
-            self.assertIsInstance(geo.get_by_id(cc["id"]), Concept)
+            assert isinstance(geo.get_by_id(cc["id"]), Concept)
 
     def test_find_in_collection_depth_all_wallon(self):
         c = geo.find({"collection": {"id": "333", "depth": "all"}, "label": "Wallon"})
-        self.assertEqual(1, len(c))
+        assert 1 == len(c)
         for cc in c:
-            self.assertIsInstance(geo.get_by_id(cc["id"]), Concept)
+            assert isinstance(geo.get_by_id(cc["id"]), Concept)
 
     def test_get_display_top(self):
         top = geo.get_top_display()
-        self.assertEqual(2, len(top))
-        self.assertIn(
-            {
-                "id": "1",
-                "uri": "urn:x-skosprovider:geography:1",
-                "type": "concept",
-                "label": "World",
-            },
-            top,
-        )
+        assert 2 == len(top)
+        assert {
+            "id": "1",
+            "uri": "urn:x-skosprovider:geography:1",
+            "type": "concept",
+            "label": "World",
+        } in top
 
     def test_get_display_children_unexisting_concept(self):
-        self.assertFalse(geo.get_children_display(404))
+        assert not geo.get_children_display(404)
 
     def test_get_display_children_concept(self):
-        self.assertEqual(
-            geo.get_children_display(1),
-            [
-                {
-                    "id": 2,
-                    "uri": "urn:x-skosprovider:geography:2",
-                    "type": "concept",
-                    "label": "Europe",
-                },
-                {
-                    "id": 3,
-                    "type": "concept",
-                    "uri": "urn:x-skosprovider:geography:3",
-                    "label": "North-America",
-                },
-            ],
-        )
+        assert geo.get_children_display(1) == [
+            {
+                "id": 2,
+                "uri": "urn:x-skosprovider:geography:2",
+                "type": "concept",
+                "label": "Europe",
+            },
+            {
+                "id": 3,
+                "type": "concept",
+                "uri": "urn:x-skosprovider:geography:3",
+                "label": "North-America",
+            },
+        ]
 
     def test_get_display_children_collection(self):
-        self.assertEqual(
-            [
-                {
-                    "id": 4,
-                    "uri": "urn:x-skosprovider:geography:4",
-                    "type": "concept",
-                    "label": "Belgium",
-                },
-                {
-                    "id": 7,
-                    "uri": "urn:x-skosprovider:geography:7",
-                    "type": "concept",
-                    "label": "Flanders",
-                },
-                {
-                    "id": 8,
-                    "uri": "urn:x-skosprovider:geography:8",
-                    "type": "concept",
-                    "label": "Brussels",
-                },
-            ],
-            geo.get_children_display(333),
-        )
+        assert [
+            {
+                "id": 4,
+                "uri": "urn:x-skosprovider:geography:4",
+                "type": "concept",
+                "label": "Belgium",
+            },
+            {
+                "id": 7,
+                "uri": "urn:x-skosprovider:geography:7",
+                "type": "concept",
+                "label": "Flanders",
+            },
+            {
+                "id": 8,
+                "uri": "urn:x-skosprovider:geography:8",
+                "type": "concept",
+                "label": "Brussels",
+            },
+        ] == geo.get_children_display(333)
 
     def test_get_display_children_concept_with_thesaurus_array(self):
         children = geo.get_children_display(4)
-        self.assertEqual(3, len(children))
-        self.assertIn(
-            {
-                "id": "358",
-                "uri": "urn:x-skosprovider:geography:358",
-                "type": "collection",
-                "label": "Gewesten of Belgium",
-            },
-            children,
-        )
-        self.assertIn(
-            {
-                "id": 359,
-                "uri": "urn:x-skosprovider:geography:359",
-                "type": "collection",
-                "label": "Languages of Belgium",
-            },
-            children,
-        )
-        self.assertIn(
-            {
-                "id": 16,
-                "uri": "urn:x-skosprovider:geography:16",
-                "type": "concept",
-                "label": "The coast",
-            },
-            children,
-        )
+        assert 3 == len(children)
+        assert {
+            "id": "358",
+            "uri": "urn:x-skosprovider:geography:358",
+            "type": "collection",
+            "label": "Gewesten of Belgium",
+        } in children
+        assert {
+            "id": 359,
+            "uri": "urn:x-skosprovider:geography:359",
+            "type": "collection",
+            "label": "Languages of Belgium",
+        } in children
+        assert {
+            "id": 16,
+            "uri": "urn:x-skosprovider:geography:16",
+            "type": "concept",
+            "label": "The coast",
+        } in children
 
 
-class SimpleCsvProviderTests(unittest.TestCase):
+class TestSimpleCsvProvider:
 
-    def setUp(self):
+    @pytest.fixture
+    def csv_file(self):
+        ifile = open(os.path.join(os.path.dirname(__file__), "data", "menu.csv"))
+        yield ifile
+        ifile.close()
+
+    @pytest.fixture
+    def csv_provider(self, csv_file):
         from skosprovider.uri import UriPatternGenerator
 
-        self.ifile = open(os.path.join(os.path.dirname(__file__), "data", "menu.csv"))
-        reader = csv.reader(self.ifile)
-        self.csvprovider = SimpleCsvProvider(
+        reader = csv.reader(csv_file)
+        return SimpleCsvProvider(
             {"id": "MENU"},
             reader,
             uri_generator=UriPatternGenerator("http://id.python.org/menu/%s"),
             concept_scheme=ConceptScheme("http://id.python.org/menu"),
         )
 
-    def tearDown(self):
-        self.ifile.close()
-        del self.csvprovider
+    def testCount(self, csv_provider):
+        assert 11 == len(csv_provider.get_all())
 
-    def testCount(self):
-        self.assertEqual(11, len(self.csvprovider.get_all()))
-
-    def testGetEggAndBacon(self):
-        eb = self.csvprovider.get_by_id(1)
-        self.assertIsInstance(eb, Concept)
-        self.assertEqual("1", eb.id)
-        self.assertEqual("http://id.python.org/menu/1", eb.uri)
-        self.assertEqual("Egg and Bacon", eb.label().label)
-        self.assertEqual("prefLabel", eb.label().type)
-        self.assertEqual([], eb.notes)
+    def testGetEggAndBacon(self, csv_provider):
+        eb = csv_provider.get_by_id(1)
+        assert isinstance(eb, Concept)
+        assert "1" == eb.id
+        assert "http://id.python.org/menu/1" == eb.uri
+        assert "Egg and Bacon" == eb.label().label
+        assert "prefLabel" == eb.label().type
+        assert [] == eb.notes
         assert 1 == len(eb.sources)
         assert "Monthy Python, Episode Twenty-five." == eb.sources[0].citation
 
-    def testGetEggAndSpamByUri(self):
-        eb = self.csvprovider.get_by_uri("http://id.python.org/menu/3")
-        self.assertIsInstance(eb, Concept)
-        self.assertEqual("3", eb.id)
-        self.assertEqual("http://id.python.org/menu/3", eb.uri)
+    def testGetEggAndSpamByUri(self, csv_provider):
+        eb = csv_provider.get_by_uri("http://id.python.org/menu/3")
+        assert isinstance(eb, Concept)
+        assert "3" == eb.id
+        assert "http://id.python.org/menu/3" == eb.uri
 
-    def testFindSpam(self):
-        spam = self.csvprovider.find({"label": "Spam"})
-        self.assertEqual(8, len(spam))
+    def testFindSpam(self, csv_provider):
+        spam = csv_provider.find({"label": "Spam"})
+        assert 8 == len(spam)
 
-    def testGetLobster(self):
-        eb = self.csvprovider.get_by_id(11)
-        self.assertIsInstance(eb, Concept)
-        self.assertEqual("11", eb.id)
-        self.assertEqual("Lobster Thermidor", eb.label().label)
-        self.assertIsInstance(eb.notes[0], Note)
-        self.assertIn("Mornay", eb.notes[0].note)
-        self.assertEqual("note", eb.notes[0].type)
+    def testGetLobster(self, csv_provider):
+        eb = csv_provider.get_by_id(11)
+        assert isinstance(eb, Concept)
+        assert "11" == eb.id
+        assert "Lobster Thermidor" == eb.label().label
+        assert isinstance(eb.notes[0], Note)
+        assert "Mornay" in eb.notes[0].note
+        assert "note" == eb.notes[0].type
 
-    def testFindSausageCaseInsensitive(self):
-        sausages = self.csvprovider.find({"label": "sausage"})
-        self.assertEqual(4, len(sausages))
+    def testFindSausageCaseInsensitive(self, csv_provider):
+        sausages = csv_provider.find({"label": "sausage"})
+        assert 4 == len(sausages)
 
-    def testFindSausageCaseSensitive(self):
-        self.csvprovider.case_insensitive = False
-        sausages = self.csvprovider.find({"label": "Sausage"})
-        self.assertEqual(1, len(sausages))
+    def testFindSausageCaseSensitive(self, csv_provider):
+        csv_provider.case_insensitive = False
+        sausages = csv_provider.find({"label": "Sausage"})
+        assert 1 == len(sausages)

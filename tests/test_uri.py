@@ -1,4 +1,4 @@
-import unittest
+import pytest
 
 from skosprovider.uri import DefaultConceptSchemeUrnGenerator
 from skosprovider.uri import DefaultUrnGenerator
@@ -7,7 +7,8 @@ from skosprovider.uri import UriPatternGenerator
 from skosprovider.uri import is_uri
 
 
-class IsUriTest(unittest.TestCase):
+class TestIsUri:
+
     def test_None(self):
         assert not is_uri(None)
 
@@ -20,21 +21,22 @@ class IsUriTest(unittest.TestCase):
         assert is_uri("urn:x-skosprovider:typologie:1")
 
 
-class UriPatternGeneratorTest(unittest.TestCase):
+class TestUriPatternGenerator:
+
     def test_simple(self):
         urigen = UriPatternGenerator("http://id.example.com/%s")
-        self.assertEqual("http://id.example.com/1", urigen.generate(id=1))
+        assert "http://id.example.com/1" == urigen.generate(id=1)
 
     def test_pattern_none(self):
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             UriPatternGenerator(None)
 
     def test_pattern_no_placeholder(self):
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             UriPatternGenerator("http://id.example.com/")
 
     def test_pattern_multiple_placeholders(self):
-        with self.assertRaises(ValueError):
+        with pytest.raises(ValueError):
             UriPatternGenerator("http://id.example.com/%s/%s")
 
     def test_pattern_escaped_placeholder(self):
@@ -42,55 +44,50 @@ class UriPatternGeneratorTest(unittest.TestCase):
         # No exception should be raised
 
 
-class DefaultUrnGeneratorTest(unittest.TestCase):
-    def setUp(self):
-        self.urigen = DefaultUrnGenerator("typologie")
+class TestDefaultUrnGenerator:
 
-    def tearDown(self):
-        del self.urigen
+    @pytest.fixture
+    def urn_generator(self):
+        return DefaultUrnGenerator("typologie")
 
-    def test_simple(self):
-        self.assertEqual("urn:x-skosprovider:typologie:1", self.urigen.generate(id=1))
+    def test_simple(self, urn_generator):
+        assert "urn:x-skosprovider:typologie:1" == urn_generator.generate(id=1)
 
-    def test_missing_argument(self):
-        self.assertRaises(KeyError, self.urigen.generate, type="set")
+    def test_missing_argument(self, urn_generator):
+        with pytest.raises(KeyError):
+            urn_generator.generate(type="set")
 
 
-class DefaultConceptSchemeUrnGeneratorTest(unittest.TestCase):
-    def setUp(self):
-        self.urigen = DefaultConceptSchemeUrnGenerator()
+class TestDefaultConceptSchemeUrnGenerator:
 
-    def tearDown(self):
-        del self.urigen
+    @pytest.fixture
+    def urn_generator(self):
+        return DefaultConceptSchemeUrnGenerator()
 
-    def test_simple(self):
-        self.assertEqual(
-            "urn:x-skosprovider:typologie", self.urigen.generate(id="TYPOLOGIE")
+    def test_simple(self, urn_generator):
+        assert "urn:x-skosprovider:typologie" == urn_generator.generate(id="TYPOLOGIE")
+
+    def test_missing_argument(self, urn_generator):
+        with pytest.raises(KeyError):
+            urn_generator.generate()
+
+
+class TestTypedUrnGenerator:
+
+    @pytest.fixture
+    def urn_generator(self):
+        return TypedUrnGenerator("typologie")
+
+    def test_concept(self, urn_generator):
+        assert "urn:x-skosprovider:typologie:concept:1" == urn_generator.generate(
+            type="concept", id=1
         )
 
-    def test_missing_argument(self):
-        self.assertRaises(KeyError, self.urigen.generate)
-
-
-class TypedUrnGeneratorTest(unittest.TestCase):
-    def setUp(self):
-        self.urigen = TypedUrnGenerator("typologie")
-
-    def tearDown(self):
-        del self.urigen
-
-    def test_concept(self):
-        self.assertEqual(
-            "urn:x-skosprovider:typologie:concept:1",
-            self.urigen.generate(type="concept", id=1),
+    def test_collection(self, urn_generator):
+        assert "urn:x-skosprovider:typologie:collection:7000" == urn_generator.generate(
+            type="collection", id=7000
         )
 
-    def test_collection(self):
-        self.urigen = TypedUrnGenerator("typologie")
-        self.assertEqual(
-            "urn:x-skosprovider:typologie:collection:7000",
-            self.urigen.generate(type="collection", id=7000),
-        )
-
-    def test_invalid_type(self):
-        self.assertRaises(ValueError, self.urigen.generate, type="set", id=1)
+    def test_invalid_type(self, urn_generator):
+        with pytest.raises(ValueError):
+            urn_generator.generate(type="set", id=1)
