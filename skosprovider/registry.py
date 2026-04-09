@@ -108,17 +108,7 @@ class Registry:
                 "A provider with this id has already been registered."
             )
         self.providers[provider.get_vocabulary_id()] = provider
-        try:
-            conceptscheme_uri = provider.get_vocabulary_uri()
-        except AttributeError as e:
-            log.error(e)
-            # For providers not compatible with skosprovider >= 0.8.0
-            log.warning(
-                "New versions of skosprovider (>=0.8.0) require your provider "
-                "to have a get_vocabulary_uri method. This fallback mechanism "
-                "will be removed in version 2.0.0."
-            )
-            conceptscheme_uri = provider.concept_scheme.uri
+        conceptscheme_uri = provider.get_vocabulary_uri()
         if conceptscheme_uri in self.concept_scheme_uri_map:
             raise RegistryException(
                 "A provider with URI {conceptscheme_uri} has already been registered."
@@ -136,18 +126,7 @@ class Registry:
         if id in self.providers:
             p = self.providers.get(id, False)
             del self.providers[id]
-            try:
-                cs_uri = p.get_vocabulary_uri()
-            except AttributeError as e:
-                log.error(e)
-                # For providers not compatible with skosprovider >= 0.8.0
-                log.warning(
-                    "New versions of skosprovider (>=0.8.0) require your provider "
-                    "to have a get_vocabulary_uri method. This fallback mechanism "
-                    "will be removed in version 2.0.0."
-                )
-                # For providers not compatible with skosprovider >= 0.8.0
-                cs_uri = p.concept_scheme.uri
+            cs_uri = p.get_vocabulary_uri()
             del self.concept_scheme_uri_map[cs_uri]
             return p
         elif id in self.concept_scheme_uri_map:

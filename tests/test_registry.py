@@ -1,6 +1,3 @@
-from unittest.mock import MagicMock
-from unittest.mock import Mock
-
 import pytest
 from test_providers import chestnut
 from test_providers import larch
@@ -82,30 +79,6 @@ class TestRegistry:
         )
         with pytest.raises(RegistryException):
             registry.register_provider(t)
-
-    def test_register_provider_no_uri(self, registry):
-        p = Mock()
-        p.allowed_instance_scopes = ["single"]
-        p.get_vocabulary_id = MagicMock(return_value="MYID")
-        del p.get_vocabulary_uri
-        p.concept_scheme = MagicMock()
-        p.concept_scheme.uri = "http://my.id.org"
-        registry.register_provider(p)
-        assert p == registry.get_provider("MYID")
-        assert p == registry.get_provider("http://my.id.org")
-
-    def test_remove_provider_no_uri(self, registry):
-        provider = Mock()
-        provider.allowed_instance_scopes = ["single"]
-        provider.get_vocabulary_id = MagicMock(return_value="MYID")
-        del provider.get_vocabulary_uri
-        provider.concept_scheme = MagicMock()
-        provider.concept_scheme.uri = "http://my.id.org"
-        registry.register_provider(provider)
-        assert provider == registry.get_provider("MYID")
-        assert provider == registry.get_provider("http://my.id.org")
-        registry.remove_provider("http://my.id.org")
-        assert not registry.get_provider("MYID")
 
     def test_one_provider_removeProvider(self, registry, trees_provider):
         registry.register_provider(trees_provider)
