@@ -157,26 +157,26 @@ class TestDictDumper:
     def _get_tree_provider(self, dictionary):
         return DictionaryProvider({"id": "TEST"}, dictionary)
 
-    def testEmptyProvider(self):
+    def test_empty_provider(self):
         pv = self._get_flat_provider([])
         assert [] == dict_dumper(pv)
 
-    def testOneElementProvider(self, larch_dump):
+    def test_one_element_provider(self, larch_dump):
         pv = self._get_flat_provider([larch])
         assert [larch_dump] == dict_dumper(pv)
 
-    def testFlatProvider(self, larch_dump, chestnut_dump, species_dump):
+    def test_flat_provider(self, larch_dump, chestnut_dump, species_dump):
         assert dict_dumper(trees) == [
             larch_dump,
             chestnut_dump,
             species_dump,
         ]
 
-    def testEmptyTreeprovider(self):
+    def test_empty_tree_provider(self):
         pv = self._get_tree_provider([])
         assert [] == dict_dumper(pv)
 
-    def testTreeProvider(self, world_dump):
+    def test_tree_provider(self, world_dump):
         dump = dict_dumper(geo)
         assert isinstance(dump, list)
         for c in dump:
@@ -185,12 +185,12 @@ class TestDictDumper:
             assert "id" in c
         assert world_dump in dump
 
-    def testFlatProviderRoundTrip(self):
+    def test_flat_provider_round_trip(self):
         dump = dict_dumper(trees)
         dump2 = dict_dumper(self._get_flat_provider(dict_dumper(trees)))
         assert dump == dump2
 
-    def testTreeProviderRoundTrip(self):
+    def test_tree_provider_round_trip(self):
         dump = dict_dumper(geo)
         dump2 = dict_dumper(self._get_tree_provider(dict_dumper(geo)))
         assert dump == dump2

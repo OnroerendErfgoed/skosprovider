@@ -261,7 +261,7 @@ class TestTreesDictionaryProvider:
         assert trees.get_vocabulary_uri() == trees.concept_scheme.uri
 
     def test_override_get_vocabulary_uri(self):
-        t = DictionaryProvider(
+        provider = DictionaryProvider(
             {
                 "id": "TREES",
                 "uri": "http://id.trees.org",
@@ -276,11 +276,11 @@ class TestTreesDictionaryProvider:
                 languages=["nl", "en"],
             ),
         )
-        assert "http://id.trees.org" == t.get_vocabulary_uri()
-        assert "http://idtoo.trees.org" == t.concept_scheme.uri
+        assert "http://id.trees.org" == provider.get_vocabulary_uri()
+        assert "http://idtoo.trees.org" == provider.concept_scheme.uri
 
     def test_override_get_vocabulary_uri_generates_cs(self):
-        t = DictionaryProvider(
+        provider = DictionaryProvider(
             {
                 "id": "TREES",
                 "uri": "http://id.trees.org",
@@ -290,8 +290,8 @@ class TestTreesDictionaryProvider:
             },
             [larch, chestnut, species],
         )
-        assert "http://id.trees.org" == t.get_vocabulary_uri()
-        assert "http://id.trees.org" == t.concept_scheme.uri
+        assert "http://id.trees.org" == provider.get_vocabulary_uri()
+        assert "http://id.trees.org" == provider.concept_scheme.uri
 
     def test_get_metadata(self):
         assert trees.get_metadata() == {
@@ -309,10 +309,10 @@ class TestTreesDictionaryProvider:
         ]
 
     def test_override_instance_scopes(self):
-        t = DictionaryProvider(
+        provider = DictionaryProvider(
             {"id": "TREES"}, [larch], allowed_instance_scopes=["single"]
         )
-        assert t.allowed_instance_scopes == ["single"]
+        assert provider.allowed_instance_scopes == ["single"]
 
     def test_get_by_id(self):
         lariks = trees.get_by_id(1)
@@ -391,8 +391,8 @@ class TestTreesDictionaryProvider:
         ]
 
     def test_get_all_default_language(self):
-        t = DictionaryProvider({"id": "TREES"}, [larch])
-        assert t.get_all() == [
+        provider = DictionaryProvider({"id": "TREES"}, [larch])
+        assert provider.get_all() == [
             {
                 "id": "1",
                 "uri": "http://id.trees.org/1",
@@ -597,12 +597,12 @@ class TestTreesDictionaryProvider:
         ]
 
     def test_find_case_sensitive(self):
-        t = DictionaryProvider(
+        provider = DictionaryProvider(
             {"id": "TREES", "default_language": "nl"},
             [larch, chestnut, species],
             case_insensitive=False,
         )
-        assert t.find({"label": "The Lar"}) == [
+        assert provider.find({"label": "The Lar"}) == [
             {
                 "id": "1",
                 "uri": "http://id.trees.org/1",
@@ -610,13 +610,13 @@ class TestTreesDictionaryProvider:
                 "label": "De Lariks",
             }
         ]
-        assert t.find({"label": "lar"}) == []
+        assert provider.find({"label": "lar"}) == []
 
     def test_find_kastanje(self):
-        t = DictionaryProvider(
+        provider = DictionaryProvider(
             {"id": "TREES", "default_language": "nl"}, [larch, chestnut, species]
         )
-        concepts = t.find({"label": "De Paardekastanje"})
+        concepts = provider.find({"label": "De Paardekastanje"})
         assert len(concepts) == 1
 
     def test_find_empty_label(self):
@@ -980,10 +980,10 @@ class TestSimpleCsvProvider:
             concept_scheme=ConceptScheme("http://id.python.org/menu"),
         )
 
-    def testCount(self, csv_provider):
+    def test_count(self, csv_provider):
         assert 11 == len(csv_provider.get_all())
 
-    def testGetEggAndBacon(self, csv_provider):
+    def test_get_egg_and_bacon(self, csv_provider):
         eb = csv_provider.get_by_id(1)
         assert isinstance(eb, Concept)
         assert "1" == eb.id
@@ -994,17 +994,17 @@ class TestSimpleCsvProvider:
         assert 1 == len(eb.sources)
         assert "Monthy Python, Episode Twenty-five." == eb.sources[0].citation
 
-    def testGetEggAndSpamByUri(self, csv_provider):
+    def test_get_egg_and_spam_by_uri(self, csv_provider):
         eb = csv_provider.get_by_uri("http://id.python.org/menu/3")
         assert isinstance(eb, Concept)
         assert "3" == eb.id
         assert "http://id.python.org/menu/3" == eb.uri
 
-    def testFindSpam(self, csv_provider):
+    def test_find_spam(self, csv_provider):
         spam = csv_provider.find({"label": "Spam"})
         assert 8 == len(spam)
 
-    def testGetLobster(self, csv_provider):
+    def test_get_lobster(self, csv_provider):
         eb = csv_provider.get_by_id(11)
         assert isinstance(eb, Concept)
         assert "11" == eb.id
@@ -1013,11 +1013,11 @@ class TestSimpleCsvProvider:
         assert "Mornay" in eb.notes[0].note
         assert "note" == eb.notes[0].type
 
-    def testFindSausageCaseInsensitive(self, csv_provider):
+    def test_find_sausage_case_insensitive(self, csv_provider):
         sausages = csv_provider.find({"label": "sausage"})
         assert 4 == len(sausages)
 
-    def testFindSausageCaseSensitive(self, csv_provider):
+    def test_find_sausage_case_sensitive(self, csv_provider):
         csv_provider.case_insensitive = False
         sausages = csv_provider.find({"label": "Sausage"})
         assert 1 == len(sausages)
