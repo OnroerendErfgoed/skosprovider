@@ -286,9 +286,9 @@ class TestConceptScheme:
         labels.append(sortlabel)
         conceptscheme = ConceptScheme(uri="urn:x-skosprovider:gemeenten", labels=labels)
         assert "allereerste" == conceptscheme._sortkey("sortlabel")
-        assert "allereerste", conceptscheme._sortkey("sortlabel", "nl")
-        assert "communities", conceptscheme._sortkey("sortlabel", "en")
-        assert "urn:x-skosprovider:gemeenten", conceptscheme._sortkey("uri")
+        assert "allereerste" == conceptscheme._sortkey("sortlabel", "nl")
+        assert "communities" == conceptscheme._sortkey("sortlabel", "en")
+        assert "urn:x-skosprovider:gemeenten" == conceptscheme._sortkey("uri")
 
     def test_languages(self):
         labels = self._get_labels()
@@ -616,11 +616,11 @@ class TestLabelFunction:
         kh = self._get_knokke_heist_nl()
         ch = self._get_cnocke_heyst_nl()
         labels = [kh, ch]
-        assert kh, label(labels)
-        assert kh, label(labels, "nl-BE")
-        assert kh, label(labels, ["nl-BE"])
-        assert kh, label(labels, "en-GB")
-        assert kh, label(labels, None)
+        assert kh == label(labels)
+        assert kh == label(labels, "nl-BE")
+        assert kh == label(labels, ["nl-BE"])
+        assert kh == label(labels, "en-GB")
+        assert kh == label(labels, None)
 
     def test_sortlabel_unused(self):
         kh = self._get_knokke_heist_nl()
