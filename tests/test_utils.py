@@ -1,9 +1,7 @@
-import unittest
-
+import pytest
 from test_providers import geo
 from test_providers import larch
 from test_providers import trees
-
 
 from skosprovider.providers import DictionaryProvider
 from skosprovider.utils import add_lang_to_html
@@ -11,10 +9,11 @@ from skosprovider.utils import dict_dumper
 from skosprovider.utils import extract_language
 
 
-class DictDumperTest(unittest.TestCase):
+class TestDictDumper:
 
-    def setUp(self):
-        self.larch_dump = {
+    @pytest.fixture
+    def larch_dump(self):
+        return {
             "id": "1",
             "uri": "http://id.trees.org/1",
             "type": "concept",
@@ -60,7 +59,10 @@ class DictDumperTest(unittest.TestCase):
                 "broad": [],
             },
         }
-        self.chestnut_dump = {
+
+    @pytest.fixture
+    def chestnut_dump(self):
+        return {
             "id": "2",
             "uri": "http://id.trees.org/2",
             "type": "concept",
@@ -98,7 +100,10 @@ class DictDumperTest(unittest.TestCase):
                 "broad": [],
             },
         }
-        self.species_dump = {
+
+    @pytest.fixture
+    def species_dump(self):
+        return {
             "id": 3,
             "uri": "http://id.trees.org/3",
             "labels": [
@@ -122,7 +127,10 @@ class DictDumperTest(unittest.TestCase):
             "superordinates": [],
             "infer_concept_relations": False,
         }
-        self.world_dump = {
+
+    @pytest.fixture
+    def world_dump(self):
+        return {
             "id": "1",
             "uri": "urn:x-skosprovider:geography:1",
             "type": "concept",
@@ -143,54 +151,49 @@ class DictDumperTest(unittest.TestCase):
             "subordinate_arrays": [],
         }
 
-    def tearDown(self):
-        del self.larch_dump
-        del self.chestnut_dump
-        del self.world_dump
-
     def _get_flat_provider(self, dictionary):
         return DictionaryProvider({"id": "TEST"}, dictionary)
 
     def _get_tree_provider(self, dictionary):
         return DictionaryProvider({"id": "TEST"}, dictionary)
 
-    def testEmptyProvider(self):
+    def test_empty_provider(self):
         pv = self._get_flat_provider([])
-        self.assertEqual([], dict_dumper(pv))
+        assert [] == dict_dumper(pv)
 
-    def testOneElementProvider(self):
+    def test_one_element_provider(self, larch_dump):
         pv = self._get_flat_provider([larch])
-        assert [self.larch_dump] == dict_dumper(pv)
+        assert [larch_dump] == dict_dumper(pv)
 
-    def testFlatProvider(self):
+    def test_flat_provider(self, larch_dump, chestnut_dump, species_dump):
         assert dict_dumper(trees) == [
-            self.larch_dump,
-            self.chestnut_dump,
-            self.species_dump,
+            larch_dump,
+            chestnut_dump,
+            species_dump,
         ]
 
-    def testEmptyTreeprovider(self):
+    def test_empty_tree_provider(self):
         pv = self._get_tree_provider([])
-        self.assertEqual([], dict_dumper(pv))
+        assert [] == dict_dumper(pv)
 
-    def testTreeProvider(self):
+    def test_tree_provider(self, world_dump):
         dump = dict_dumper(geo)
-        self.assertIsInstance(dump, list)
+        assert isinstance(dump, list)
         for c in dump:
-            self.assertIsInstance(c, dict)
-            self.assertIn("type", c)
-            self.assertIn("id", c)
-        self.assertIn(self.world_dump, dump)
+            assert isinstance(c, dict)
+            assert "type" in c
+            assert "id" in c
+        assert world_dump in dump
 
-    def testFlatProviderRoundTrip(self):
+    def test_flat_provider_round_trip(self):
         dump = dict_dumper(trees)
         dump2 = dict_dumper(self._get_flat_provider(dict_dumper(trees)))
-        self.assertEqual(dump, dump2)
+        assert dump == dump2
 
-    def testTreeProviderRoundTrip(self):
+    def test_tree_provider_round_trip(self):
         dump = dict_dumper(geo)
         dump2 = dict_dumper(self._get_tree_provider(dict_dumper(geo)))
-        self.assertEqual(dump, dump2)
+        assert dump == dump2
 
 
 class TestExtractLanguage:
