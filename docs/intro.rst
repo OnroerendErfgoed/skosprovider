@@ -92,7 +92,7 @@ In a few places we've deviated a bit from the :term:`SKOS` standard:
   to have a broader `concept`. Skosprovider expects that the concepts returned
   by the :meth:`skosprovider.providers.VocabularyProvider.get_top_concepts` do
   not have any broader concepts.
-* The SKOS ontology ony describes a SKOS:member predicate to indicate that a
+* The SKOS ontology only describes a SKOS:member predicate to indicate that a
   collection has certain members. There's an implicit reverse side to this 
   relation (eg. a concept is a member of a collection). We've standardised this
   on the member_of property that's available on a 
