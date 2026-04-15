@@ -260,16 +260,6 @@ class ConceptScheme:
     There's no guarantuee that labels or notes in other languages do not exist.
     """
 
-    default_language = None
-    """
-    The default language to use when requesting labels without specifying
-    a language. `None` by default, meaning no preferred language -- any
-    available label will be returned. Can be set by a provider to its own
-    default language.
-
-    .. versionadded:: 2.0.0
-    """
-
     def __init__(
         self,
         uri,
@@ -321,16 +311,7 @@ class ConceptScheme:
         return sortlabel.label.lower() if sortlabel else ""
 
     def _resolve_language(self, language):
-        """Combine an explicit language with the configured default."""
-        if language is None:
-            return self.default_language
-        if isinstance(language, str):
-            language = [language]
-        else:
-            language = list(language)
-        if self.default_language and self.default_language not in language:
-            language.append(self.default_language)
-        return language
+        return _resolve_language(language, self.default_language)
 
     def __repr__(self):
         return f"ConceptScheme('{self.uri}')"
@@ -397,16 +378,6 @@ class Concept:
 
     This dictionary contains a key for each type of Match (close, exact,
     related, broad, narrow). Attached to each key is a list of URI's.
-    """
-
-    default_language = None
-    """
-    The default language to use when requesting labels without specifying
-    a language. `None` by default, meaning no preferred language -- any
-    available label will be returned. Can be set by a provider to its own
-    default language.
-
-    .. versionadded:: 2.0.0
     """
 
     def __init__(
@@ -476,16 +447,7 @@ class Concept:
         return sortlabel.label.lower() if sortlabel else ""
 
     def _resolve_language(self, language):
-        """Combine an explicit language with the configured default."""
-        if language is None:
-            return self.default_language
-        if isinstance(language, str):
-            language = [language]
-        else:
-            language = list(language)
-        if self.default_language and self.default_language not in language:
-            language.append(self.default_language)
-        return language
+        return _resolve_language(language, self.default_language)
 
     def __repr__(self):
         return f"Concept('{self.id}')"
@@ -532,16 +494,6 @@ class Collection:
     infer_concept_relations = True
     """Should member concepts of this collection be seen as narrower concept of
     a superordinate of the collection?"""
-
-    default_language = None
-    """
-    The default language to use when requesting labels without specifying
-    a language. `None` by default, meaning no preferred language -- any
-    available label will be returned. Can be set by a provider to its own
-    default language.
-
-    .. versionadded:: 2.0.0
-    """
 
     def __init__(
         self,
@@ -604,19 +556,23 @@ class Collection:
         return sortlabel.label.lower() if sortlabel else ""
 
     def _resolve_language(self, language):
-        """Combine an explicit language with the configured default."""
-        if language is None:
-            return self.default_language
-        if isinstance(language, str):
-            language = [language]
-        else:
-            language = list(language)
-        if self.default_language and self.default_language not in language:
-            language.append(self.default_language)
-        return language
+        return _resolve_language(language, self.default_language)
 
     def __repr__(self):
         return f"Collection('{self.id}')"
+
+
+def _resolve_language(language, default_language):
+    """Combine an explicit language with the configured default."""
+    if language is None:
+        return default_language
+    if isinstance(language, str):
+        language = [language]
+    else:
+        language = list(language)
+    if default_language and default_language not in language:
+        language.append(default_language)
+    return language
 
 
 def label(labels=None, language=None, sortLabel=False):
@@ -645,13 +601,13 @@ def label(labels=None, language=None, sortLabel=False):
       returning any available label, regardless of language. If the list of
       labels is empty (or only contains hidden labels), `None` is returned.
 
-    ..versionchanged:: 2.0.0
+    .. versionchanged:: 2.0.0
         The magic value `"any"` is no longer supported -- pass `None` instead.
         `None` no longer means "labels explicitly tagged as `und`"; use the
         tag `"und"` for that. Language matching now walks down the subtag
         chain rather than collapsing straight to the primary language.
 
-    ..versionchanged:: 1.1
+    .. versionchanged:: 1.1
         It is now possible to pass a list of languages.
 
     :param labels: A list of :class:`Label` (or dicts convertible to one).
@@ -757,7 +713,7 @@ def filter_labels_by_language(labels, language):
     :mod:`language_tags`). To walk the subtag chain, iterate with
     :func:`_language_fallback_chain` yourself.
 
-    ..versionchanged:: 2.0.0
+    .. versionchanged:: 2.0.0
         The `broader` parameter and the magic `"any"` value have been removed.
 
     :param list labels: A list of :class:`Label`.

@@ -459,6 +459,11 @@ class MemoryProvider(VocabularyProvider):
             :class:`skosprovider.skos.Collection` instances.
         :param Boolean case_insensitive: Should searching for labels be done
             case-insensitive?
+
+        .. versionchanged:: 2.0.0
+            The second positional argument was renamed from ``list`` to
+            ``concepts`` to avoid shadowing the builtin. Callers that passed
+            it as a keyword argument must be updated.
         """
         super().__init__(metadata, **kwargs)
         if "allowed_instance_scopes" not in kwargs:

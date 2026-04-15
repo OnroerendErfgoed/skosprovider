@@ -9,6 +9,7 @@ from skosprovider.skos import Collection
 from skosprovider.skos import Concept
 from skosprovider.skos import ConceptScheme
 from skosprovider.skos import Note
+from skosprovider.uri import UriPatternGenerator
 
 larch = {
     "id": "1",
@@ -1046,8 +1047,6 @@ class TestSimpleCsvProvider:
         assert 1 == len(sausages)
 
     def test_default_language_propagated(self, csv_file):
-        from skosprovider.uri import UriPatternGenerator
-
         reader = csv.reader(csv_file)
         provider = SimpleCsvProvider(
             {"id": "MENU", "default_language": "en"},
