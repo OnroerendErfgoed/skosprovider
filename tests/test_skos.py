@@ -97,16 +97,6 @@ class TestLabel:
         label2 = Label("Knokke", "altLabel")
         assert label1 != label2
 
-    def test_dict_equality(self):
-        label1 = Label("Knokke-Heist")
-        label2 = {"label": "Knokke-Heist", "type": "prefLabel", "language": "und"}
-        assert label1 == label2
-
-    def test_dict_inequality(self):
-        label1 = Label("Knokke-Heist")
-        label2 = {"label": "Knokke", "type": "altLabel", "language": None}
-        assert label1 != label2
-
     def test_uri_equality(self):
         label1 = Label(
             "Knokke-Heist", uri="urn:x-skosprovider:gemeenten:Knokke-Heist:nl-BE"
@@ -123,22 +113,8 @@ class TestLabel:
         assert label1 != label2
         assert label1 == label3
 
-    def test_uri_dict_equality(self):
-        label1 = Label(
-            "Knokke-Heist", uri="urn:x-skosprovider:gemeenten:Knokke-Heist:und"
-        )
-        label2 = {
-            "label": "Knokke-Heist",
-            "type": "prefLabel",
-            "language": "und",
-            "uri": "urn:x-skosprovider:gemeenten:Knokke-Heist:und",
-        }
-        assert label1 == label2
-
-    def test_uri_dict_inequality(self):
-        label1 = Label(
-            "Knokke-Heist", uri="urn:x-skosprovider:gemeenten:Knokke-Heist:nl-BE"
-        )
+    def test_dict_inequality(self):
+        label1 = Label("Knokke-Heist")
         label2 = {"label": "Knokke-Heist", "type": "prefLabel", "language": "und"}
         assert label1 != label2
 
@@ -176,19 +152,9 @@ class TestNote:
         note2 = Note("A note.", "definition", "und")
         assert note1 != note2
 
-    def test_dict_equality(self):
-        note1 = Note("A note.")
-        note2 = {"note": "A note.", "type": "note", "language": "und", "markup": None}
-        assert note1 == note2
-
     def test_dict_inequality(self):
         note1 = Note("A note.")
-        note2 = {
-            "note": "A note.",
-            "type": "definition",
-            "language": "und",
-            "markup": None,
-        }
+        note2 = {"note": "A note.", "type": "note", "language": "und", "markup": None}
         assert note1 != note2
 
     def test_constructor_with_html(self):
