@@ -93,17 +93,21 @@ class VocabularyProvider:
         self.allowed_instance_scopes = kwargs.get(
             "allowed_instance_scopes", ["single", "threaded_thread"]
         )
+        default_language = self.metadata.get("default_language")
+        if default_language is not None:
+            self.concept_scheme.default_language = default_language
 
     def _get_language(self, **kwargs):
         """Determine what language to render labels in.
 
         Will first check if there's a language keyword specified in **kwargs.
         If not, will check the default language of the provider. If there's no
-        default language, will fall back to 'en'.
+        default language, returns `None`, which lets the label lookup fall
+        back to any available label.
 
-        :rtype: str
+        :rtype: str or None
         """
-        return kwargs.get("language", self.metadata.get("default_language", "en"))
+        return kwargs.get("language", self.metadata.get("default_language"))
 
     def _get_sort(self, **kwargs):
         """Determine on what attribute to sort.
@@ -120,7 +124,7 @@ class VocabularyProvider:
         """
         return kwargs.get("sort_order", "asc")
 
-    def _sort(self, concepts, sort=None, language="any", reverse=False):
+    def _sort(self, concepts, sort=None, language=None, reverse=False):
         """
         Returns a sorted version of a list of concepts. Will leave the original
         list unsorted.
@@ -448,10 +452,10 @@ class MemoryProvider(VocabularyProvider):
     be triggered by providing a `case_insensitive` keyword to the constructor.
     """
 
-    def __init__(self, metadata, list, **kwargs):
+    def __init__(self, metadata, concepts, **kwargs):
         """
         :param dict metadata: A dictionary with keywords like language.
-        :param list list: A list of :class:`skosprovider.skos.Concept` and
+        :param list concepts: A list of :class:`skosprovider.skos.Concept` and
             :class:`skosprovider.skos.Collection` instances.
         :param Boolean case_insensitive: Should searching for labels be done
             case-insensitive?
@@ -463,9 +467,17 @@ class MemoryProvider(VocabularyProvider):
                 "threaded_thread",
                 "threaded_global",
             ]
-        self.list = list
         if "case_insensitive" in kwargs:
             self.case_insensitive = kwargs["case_insensitive"]
+        self._set_concepts(concepts)
+
+    def _set_concepts(self, concepts):
+        """Register the list of concepts/collections with this provider."""
+        default_language = self.metadata.get("default_language")
+        if default_language is not None:
+            for item in concepts:
+                item.default_language = default_language
+        self.list = concepts
 
     def get_by_id(self, id):
         id = str(id)
@@ -688,9 +700,12 @@ class DictionaryProvider(MemoryProvider):
     the concepts.
     """
 
-    def __init__(self, metadata, list, **kwargs):
+    def __init__(self, metadata, concepts, **kwargs):
+        # ``_from_dict`` needs ``self.uri_generator`` / ``self.concept_scheme``,
+        # which are only populated once ``super().__init__`` has run. So we
+        # initialise with an empty list, then register the built concepts.
         super().__init__(metadata, [], **kwargs)
-        self.list = [self._from_dict(c) for c in list]
+        self._set_concepts([self._from_dict(c) for c in concepts])
 
     def _from_dict(self, data):
         if "type" in data and data["type"] == "collection":
@@ -748,7 +763,7 @@ class SimpleCsvProvider(MemoryProvider):
         :param reader: A csv reader.
         """
         super().__init__(metadata, [], **kwargs)
-        self.list = [self._from_row(row) for row in reader]
+        self._set_concepts([self._from_row(row) for row in reader])
 
     def _from_row(self, row):
         id = row[0]

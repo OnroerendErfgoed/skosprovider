@@ -328,6 +328,25 @@ class TestTreesDictionaryProvider:
         assert isinstance(lariks.concept_scheme, ConceptScheme)
         assert "http://id.trees.org" == lariks.concept_scheme.uri
 
+    def test_concept_has_default_language(self):
+        lariks = trees.get_by_id(1)
+        assert lariks.default_language == "nl"
+
+    def test_concept_label_uses_default_language(self):
+        lariks = trees.get_by_id(1)
+        assert lariks.label().label == "De Lariks"
+
+    def test_collection_has_default_language(self):
+        coll = trees.get_by_id(3)
+        assert coll.default_language == "nl"
+
+    def test_collection_label_uses_default_language(self):
+        coll = trees.get_by_id(3)
+        assert coll.label().label == "Bomen per soort"
+
+    def test_concept_scheme_has_default_language(self):
+        assert trees.concept_scheme.default_language == "nl"
+
     def test_collection_has_scheme(self):
         coll = trees.get_by_id(3)
         assert isinstance(coll.concept_scheme, ConceptScheme)
@@ -799,6 +818,10 @@ class TestGeoDictionaryProvider:
     def test_get_metadata(self):
         assert {"id": "GEOGRAPHY", "subject": []} == geo.get_metadata()
 
+    def test_concept_default_language_without_provider_default(self):
+        con = geo.get_by_id(1)
+        assert con.default_language is None
+
     def test_concept_has_scheme(self):
         con = geo.get_by_id(1)
         assert isinstance(con.concept_scheme, ConceptScheme)
@@ -1021,3 +1044,17 @@ class TestSimpleCsvProvider:
         csv_provider.case_insensitive = False
         sausages = csv_provider.find({"label": "Sausage"})
         assert 1 == len(sausages)
+
+    def test_default_language_propagated(self, csv_file):
+        from skosprovider.uri import UriPatternGenerator
+
+        reader = csv.reader(csv_file)
+        provider = SimpleCsvProvider(
+            {"id": "MENU", "default_language": "en"},
+            reader,
+            uri_generator=UriPatternGenerator("http://id.python.org/menu/%s"),
+            concept_scheme=ConceptScheme("http://id.python.org/menu"),
+        )
+        eb = provider.get_by_id(1)
+        assert eb.default_language == "en"
+        assert provider.concept_scheme.default_language == "en"
