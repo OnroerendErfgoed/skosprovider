@@ -32,8 +32,9 @@ view of the :mod:`SKOS data model <skosprovider.skos>`.
 Because of this, the only part where the different providers are different is
 when instantiating the provider, since they need to be configured for their 
 data source. Eg., the :class:`skosprovider.providers.DictionaryProvider` is
-a very simple provider that requires a list of dictionaries to operate on.
-Apart from this one very specific data element, there are a few configuration
+a very simple provider that requires a list of concept and collection
+dictionaries as ``concepts_and_collections``. Apart from this one very
+specific data element, there are a few configuration
 :meth:`parameters <skosprovider.providers.VocabularyProvider.__init__>` that 
 are passed to every existing provider. Every provider requires that a 
 parameter `metadata` is passed to it. This is a dictionary that has one 
@@ -50,6 +51,10 @@ you do not pass in a uri generator, the provider will set one up for you.
 Finally, you can also pass in a :class:`skosprovider.skos.ConceptScheme`. This
 is the concept scheme the providers represents. Again, if you do no pass in a
 concept scheme, the provider will create a default scheme.
+
+For in-memory providers, the second constructor argument is named
+``concepts_and_collections`` to make it explicit that the list may contain both
+concepts and collections.
 
 .. code-block:: python
 

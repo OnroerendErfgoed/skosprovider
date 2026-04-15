@@ -452,10 +452,11 @@ class MemoryProvider(VocabularyProvider):
     be triggered by providing a `case_insensitive` keyword to the constructor.
     """
 
-    def __init__(self, metadata, concepts, **kwargs):
+    def __init__(self, metadata, concepts_and_collections, **kwargs):
         """
         :param dict metadata: A dictionary with keywords like language.
-        :param list concepts: A list of :class:`skosprovider.skos.Concept` and
+        :param list concepts_and_collections: A list of
+            :class:`skosprovider.skos.Concept` and
             :class:`skosprovider.skos.Collection` instances.
         :param Boolean case_insensitive: Should searching for labels be done
             case-insensitive?
@@ -464,6 +465,12 @@ class MemoryProvider(VocabularyProvider):
             The second positional argument was renamed from ``list`` to
             ``concepts`` to avoid shadowing the builtin. Callers that passed
             it as a keyword argument must be updated.
+
+        .. versionchanged:: 4.1.0
+            The second positional argument was renamed from ``concepts`` to
+            ``concepts_and_collections`` to better reflect that this list can
+            contain both concepts and collections. Callers that passed it as a
+            keyword argument must be updated.
         """
         super().__init__(metadata, **kwargs)
         if "allowed_instance_scopes" not in kwargs:
@@ -474,7 +481,7 @@ class MemoryProvider(VocabularyProvider):
             ]
         if "case_insensitive" in kwargs:
             self.case_insensitive = kwargs["case_insensitive"]
-        self._set_concepts(concepts)
+        self._set_concepts(concepts_and_collections)
 
     def _set_concepts(self, concepts):
         """Register the list of concepts/collections with this provider."""
@@ -705,12 +712,23 @@ class DictionaryProvider(MemoryProvider):
     the concepts.
     """
 
-    def __init__(self, metadata, concepts, **kwargs):
+    def __init__(self, metadata, concepts_and_collections, **kwargs):
+        """
+        :param dict metadata: A dictionary with keywords like language.
+        :param list concepts_and_collections: A list of dicts representing
+            concepts and collections.
+
+        .. versionchanged:: 4.1.0
+            The second positional argument was renamed from ``concepts`` to
+            ``concepts_and_collections`` to better reflect that this list can
+            contain both concepts and collections. Callers that passed it as a
+            keyword argument must be updated.
+        """
         # ``_from_dict`` needs ``self.uri_generator`` / ``self.concept_scheme``,
         # which are only populated once ``super().__init__`` has run. So we
         # initialise with an empty list, then register the built concepts.
         super().__init__(metadata, [], **kwargs)
-        self._set_concepts([self._from_dict(c) for c in concepts])
+        self._set_concepts([self._from_dict(c) for c in concepts_and_collections])
 
     def _from_dict(self, data):
         if "type" in data and data["type"] == "collection":
