@@ -9,6 +9,8 @@ from skosprovider.skos import Collection
 from skosprovider.skos import Concept
 from skosprovider.skos import ConceptScheme
 from skosprovider.skos import Note
+from skosprovider.skos import dict_to_label
+from skosprovider.skos import dict_to_note
 
 larch = {
     "id": "1",
@@ -318,8 +320,8 @@ class TestTreesDictionaryProvider:
         lariks = trees.get_by_id(1)
         assert larch["id"] == lariks.id
         assert larch["uri"] == lariks.uri
-        assert larch["labels"] == lariks.labels
-        assert larch["notes"] == lariks.notes
+        assert [dict_to_label(label) for label in larch["labels"]] == lariks.labels
+        assert [dict_to_note(note) for note in larch["notes"]] == lariks.notes
         assert len(larch["sources"]) == len(lariks.sources)
         assert larch["sources"][0]["citation"] == lariks.sources[0].citation
 
@@ -341,8 +343,8 @@ class TestTreesDictionaryProvider:
         lariks = trees.get_by_id("1")
         assert larch["id"] == lariks.id
         assert larch["uri"] == lariks.uri
-        assert larch["labels"] == lariks.labels
-        assert larch["notes"] == lariks.notes
+        assert [dict_to_label(label) for label in larch["labels"]] == lariks.labels
+        assert [dict_to_note(note) for note in larch["notes"]] == lariks.notes
         assert larch["member_of"] == lariks.member_of
         assert "concept" == lariks.type
         assert 5 == len(lariks.matches)
@@ -829,7 +831,7 @@ class TestGeoDictionaryProvider:
         wereld = geo.get_by_id(1)
         assert world["id"] == wereld.id
         assert wereld.uri is not None
-        assert world["labels"] == wereld.labels
+        assert [dict_to_label(label) for label in world["labels"]] == wereld.labels
         assert world["narrower"] == wereld.narrower
 
     def test_get_belgium_by_id(self):
@@ -840,7 +842,7 @@ class TestGeoDictionaryProvider:
     def test_get_by_uri(self):
         wereld = geo.get_by_uri("urn:x-skosprovider:geography:1")
         assert world["id"] == wereld.id
-        assert world["labels"] == wereld.labels
+        assert [dict_to_label(label) for label in world["labels"]] == wereld.labels
         assert world["narrower"] == wereld.narrower
 
     def test_get_collection_by_id(self):

@@ -73,14 +73,8 @@ class Label:
             self.label_types = []
 
     def __eq__(self, other):
-        if isinstance(other, dict):
-            if self.uri:
-                return self.uri == other.get("uri")
-            return (
-                self.label == other["label"]
-                and self.type == other["type"]
-                and self.language == other["language"]
-            )
+        if not isinstance(other, Label):
+            return False
         if self.uri:
             return self.uri == other.uri
         return (
@@ -164,12 +158,8 @@ class Note:
             raise ValueError(f"{markup} is not valid markup.")
 
     def __eq__(self, other):
-        if isinstance(other, dict):
-            return (
-                self.note == other["note"]
-                and self.type == other["type"]
-                and self.language == other["language"]
-            )
+        if not isinstance(other, Note):
+            return False
         return (
             self.note == other.note
             and self.type == other.type
