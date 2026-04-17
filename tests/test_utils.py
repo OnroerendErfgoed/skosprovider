@@ -251,9 +251,44 @@ class TestHtml:
 
     def test_nested_single_element(self):
         html = "<div><p>Paragraph</p></div>"
+        assert '<div xml:lang="en"><p>Paragraph</p></div>' == add_lang_to_html(
+            html, "en"
+        )
+
+    def test_already_wrapped_xml_lang_is_replaced(self):
+        html = '<div xml:lang="fr"><p>Paragraph</p></div>'
+        assert '<div xml:lang="en"><p>Paragraph</p></div>' == add_lang_to_html(
+            html, "en"
+        )
+
+    def test_existing_div_attrs_preserved(self):
+        html = '<div class="note"><p>Paragraph</p></div>'
         assert (
-            '<div xml:lang="en"><div><p>Paragraph</p></div></div>'
+            '<div xml:lang="en" class="note"><p>Paragraph</p></div>'
             == add_lang_to_html(html, "en")
+        )
+
+    def test_idempotent_on_repeated_calls(self):
+        html = "<p>Paragraph</p>"
+        once = add_lang_to_html(html, "en")
+        assert once == add_lang_to_html(once, "en")
+
+    def test_multiple_divs_not_single_root(self):
+        html = "<div>a</div><div>b</div>"
+        assert '<div xml:lang="en"><div>a</div><div>b</div></div>' == add_lang_to_html(
+            html, "en"
+        )
+
+    def test_inner_div_alongside_other_content(self):
+        html = "<div>a</div><p>b</p>"
+        assert '<div xml:lang="en"><div>a</div><p>b</p></div>' == add_lang_to_html(
+            html, "en"
+        )
+
+    def test_nested_div_inside_single_root(self):
+        html = "<div>outer<div>inner</div></div>"
+        assert '<div xml:lang="en">outer<div>inner</div></div>' == add_lang_to_html(
+            html, "en"
         )
 
     def test_text_before_element(self):
