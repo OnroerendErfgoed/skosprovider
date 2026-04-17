@@ -2,12 +2,6 @@
 This module contains utility functions for dealing with skos providers.
 """
 
-from xml.dom.minidom import DocumentFragment
-from xml.dom.minidom import Element
-from xml.dom.minidom import Node
-
-import html5lib
-
 from skosprovider.skos import Collection
 from skosprovider.skos import Concept
 
@@ -97,53 +91,10 @@ def extract_language(lang):
 
 def add_lang_to_html(htmltext, lang):
     """
-    Take a piece of HTML and add an xml:lang attribute to it.
+    Wrap a piece of HTML in a ``<div>`` carrying an ``xml:lang`` attribute.
 
     .. versionadded:: 0.7.0
     """
     if lang == "und":
         return htmltext
-    parser = html5lib.HTMLParser(tree=html5lib.treebuilders.getTreeBuilder("dom"))
-    html = parser.parseFragment(htmltext)
-    html.normalize()
-    if len(html.childNodes) == 0:
-        return f'<div xml:lang="{lang}"></div>'
-    elif len(html.childNodes) == 1:
-        node = html.firstChild
-        if node.nodeType == Node.TEXT_NODE:
-            div = Element("div")
-            div.ownerDocument = html.ownerDocument
-            div.setAttribute("xml:lang", lang)
-            div.childNodes = [node]
-            html.childNodes = [div]
-        else:
-            node.setAttribute("xml:lang", lang)
-    else:
-        # add a single encompassing div
-        div = Element("div")
-        div.ownerDocument = html.ownerDocument
-        div.setAttribute("xml:lang", lang)
-        div.childNodes = html.childNodes
-        html.childNodes = [div]
-    return html.toxml()
-
-
-def _df_writexml(self, writer, indent="", addindent="", newl=""):
-    """
-    Monkeypatch method for unexisting `writexml` in
-    :class:`xml.dom.minidom.DocumentFragment`.
-
-    .. versionadded:: 0.7.0
-    """
-    # indent = current indentation
-    # addindent = indentation to add to higher levels
-    # newl = newline string
-    if self.childNodes:
-        if len(self.childNodes) == 1 and self.childNodes[0].nodeType == Node.TEXT_NODE:
-            self.childNodes[0].writexml(writer, "", "", "")
-        else:
-            for node in self.childNodes:
-                node.writexml(writer, indent + addindent, addindent, newl)
-
-
-DocumentFragment.writexml = _df_writexml
+    return f'<div xml:lang="{lang}">{htmltext}</div>'
