@@ -633,17 +633,19 @@ class MemoryProvider(VocabularyProvider):
         for concept_or_collection in self.list:
             if str(concept_or_collection.id) == id:
                 if isinstance(concept_or_collection, Concept):
-                    ret = {concept_or_collection.id}
-                    for narrower_id in concept_or_collection.narrower:
+                    concept = concept_or_collection
+                    ret = {concept.id}
+                    for narrower_id in concept.narrower:
                         ret |= set(self.expand(narrower_id))
-                    for collection_id in concept_or_collection.subordinate_arrays:
+                    for collection_id in concept.subordinate_arrays:
                         collection = self.get_by_id(collection_id)
                         if collection.infer_concept_relations:
                             ret |= set(self.expand(collection_id))
                     return list(ret)
                 elif isinstance(concept_or_collection, Collection):
+                    collection = concept_or_collection
                     ret = set()
-                    for member in concept_or_collection.members:
+                    for member in collection.members:
                         ret |= set(self.expand(member))
                     return list(ret)
         return False
