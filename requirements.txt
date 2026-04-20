@@ -1,10 +1,10 @@
-cachetools==5.5.0
+cachetools==7.0.5
     # via pyld
-frozendict==2.4.4
+frozendict==2.4.7
     # via pyld
 language-tags==1.2.0
     # via skosprovider (pyproject.toml)
-lxml==5.3.0
+lxml==6.0.4
     # via pyld
 pyld==2.0.3
     # via skosprovider (pyproject.toml)
