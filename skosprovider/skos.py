@@ -250,7 +250,15 @@ class ConceptScheme:
     There's no guarantuee that labels or notes in other languages do not exist.
     """
 
-    def __init__(self, uri, labels=None, notes=None, sources=None, languages=None):
+    def __init__(
+        self,
+        uri,
+        labels=None,
+        notes=None,
+        sources=None,
+        languages=None,
+        default_language=None,
+    ):
         if not is_uri(uri):
             raise ValueError(f"{uri} is not a valid URI.")
         self.uri = uri
@@ -258,8 +266,9 @@ class ConceptScheme:
         self.notes = [dict_to_note(note) for note in notes] if notes else []
         self.sources = [dict_to_source(source) for source in sources] if sources else []
         self.languages = languages or []
+        self.default_language = default_language
 
-    def label(self, language="any"):
+    def label(self, language=None):
         """
         Provide a single label for this conceptscheme.
 
@@ -267,25 +276,32 @@ class ConceptScheme:
         return.
 
         :param string language: The preferred language to receive the label in.
-            This should be a valid IANA language tag.
+            This should be a valid IANA language tag. If not specified or `None`,
+            the :attr:`default_language` will be used, falling back to any
+            available label.
         :rtype: :class:`skosprovider.skos.Label` or None if no labels were found.
         """
-        return label(self.labels, language)
+        return label(self.labels, self._resolve_language(language))
 
-    def _sortkey(self, key="uri", language="any"):
+    def _sortkey(self, key="uri", language=None):
         """
         Provide a single sortkey for this conceptscheme.
 
         :param string key: Either `uri`, `label` or `sortlabel`.
         :param string language: The preferred language to receive the label in
             if key is `label` or `sortlabel`. This should be a valid IANA language tag.
+            If not specified or `None`, the :attr:`default_language` will be used.
         :rtype: :class:`str`
         """
         if key == "uri":
             return self.uri
-        else:
-            sortlabel = label(self.labels, language, key == "sortlabel")
-            return sortlabel.label.lower() if sortlabel else ""
+        sortlabel = label(
+            self.labels, self._resolve_language(language), key == "sortlabel"
+        )
+        return sortlabel.label.lower() if sortlabel else ""
+
+    def _resolve_language(self, language):
+        return _resolve_language(language, self.default_language)
 
     def __repr__(self):
         return f"ConceptScheme('{self.uri}')"
@@ -368,6 +384,7 @@ class Concept:
         member_of=None,
         subordinate_arrays=None,
         matches=None,
+        default_language=None,
     ):
         self.id = id
         self.uri = uri
@@ -384,8 +401,9 @@ class Concept:
         self.matches = {key: [] for key in self.matchtypes}
         if matches:
             self.matches.update(matches)
+        self.default_language = default_language
 
-    def label(self, language="any"):
+    def label(self, language=None):
         """
         Provide a single label for this concept.
 
@@ -393,26 +411,33 @@ class Concept:
 
         :param string language: The preferred language to receive the label in.
             This should be a valid IANA language tag or a list of language tags.
+            If not specified or `None`, the :attr:`default_language` will be used,
+            falling back to any available label.
         :rtype: :class:`skosprovider.skos.Label` or None if no labels were found.
         """
-        return label(self.labels, language)
+        return label(self.labels, self._resolve_language(language))
 
-    def _sortkey(self, key="id", language="any"):
+    def _sortkey(self, key="id", language=None):
         """
         Provide a single sortkey for this collection.
 
         :param string key: Either `id`, `uri`, `label` or `sortlabel`.
         :param string language: The preferred language to receive the label in
             if key is `label` or `sortlabel`. This should be a valid IANA language tag.
+            If not specified or `None`, the :attr:`default_language` will be used.
         :rtype: :class:`str`
         """
         if key == "id":
             return str(self.id)
         elif key == "uri":
             return self.uri if self.uri else ""
-        else:
-            sortlabel = label(self.labels, language, key == "sortlabel")
-            return sortlabel.label.lower() if sortlabel else ""
+        sortlabel = label(
+            self.labels, self._resolve_language(language), key == "sortlabel"
+        )
+        return sortlabel.label.lower() if sortlabel else ""
+
+    def _resolve_language(self, language):
+        return _resolve_language(language, self.default_language)
 
     def __repr__(self):
         return f"Concept('{self.id}')"
@@ -472,6 +497,7 @@ class Collection:
         member_of=None,
         superordinates=None,
         infer_concept_relations=True,
+        default_language=None,
     ):
         self.id = id
         self.uri = uri
@@ -484,41 +510,65 @@ class Collection:
         self.member_of = member_of or []
         self.superordinates = superordinates or []
         self.infer_concept_relations = infer_concept_relations
+        self.default_language = default_language
 
-    def label(self, language="any"):
+    def label(self, language=None):
         """
         Provide a single label for this collection.
 
         This uses the :func:`label` function to determine which label to return.
 
         :param string language: The preferred language to receive the label in.
-            This should be a valid IANA language tag.
+            This should be a valid IANA language tag. If not specified or `None`,
+            the :attr:`default_language` will be used, falling back to any
+            available label.
         :rtype: :class:`skosprovider.skos.Label` or None if no labels were found.
         """
-        return label(self.labels, language, False)
+        return label(self.labels, self._resolve_language(language), False)
 
-    def _sortkey(self, key="id", language="any"):
+    def _sortkey(self, key="id", language=None):
         """
         Provide a single sortkey for this collection.
 
         :param string key: Either `id`, `uri`, `label` or `sortlabel`.
         :param string language: The preferred language to receive the label in
             if key is `label` or `sortlabel`. This should be a valid IANA language tag.
+            If not specified or `None`, the :attr:`default_language` will be used.
         :rtype: :class:`str`
         """
         if key == "id":
             return str(self.id)
         elif key == "uri":
             return self.uri if self.uri else ""
-        else:
-            sortlabel = label(self.labels, language, key == "sortlabel")
-            return sortlabel.label.lower() if sortlabel else ""
+        sortlabel = label(
+            self.labels, self._resolve_language(language), key == "sortlabel"
+        )
+        return sortlabel.label.lower() if sortlabel else ""
+
+    def _resolve_language(self, language):
+        return _resolve_language(language, self.default_language)
 
     def __repr__(self):
         return f"Collection('{self.id}')"
 
 
-def label(labels=None, language="any", sortLabel=False):
+def _resolve_language(language, default_language):
+    """Combine an explicit language with the configured default.
+
+    Always returns a list so callers have a single return type to handle.
+    """
+    if language is None:
+        language = []
+    elif isinstance(language, str):
+        language = [language]
+    else:
+        language = list(language)
+    if default_language and default_language not in language:
+        language.append(default_language)
+    return language
+
+
+def label(labels=None, language=None, sortLabel=False):
     """
     Provide a label for a list of labels.
 
@@ -526,41 +576,36 @@ def label(labels=None, language="any", sortLabel=False):
     :class:`Label`, or dicts with at least the key `label` in them. These will
     be passed to the :func:`dict_to_label` function.
 
-    This method tries to find a label by looking if there's
-    a pref label for the specified language. If there's no pref label,
-    it looks for an alt label. It disregards hidden labels.
+    Within each candidate language the function prefers a `prefLabel` over an
+    `altLabel` (and a `sortLabel` over both when `sortLabel=True`). Hidden
+    labels are never considered.
 
-    While matching languages, preference will be given to exact matches. But,
-    if no exact match is present, an inexact match will be attempted. This might
-    be because a label in language `nl-BE` is being requested, but only `nl` or
-    even `nl-NL` is present. Similarly, when requesting `nl`, a label with
-    language `nl-NL` or even `nl-Latn-NL` will also be considered,
-    providing no label is present that has an exact match with the
-    requested language.
+    Language resolution:
 
-    It's possible to pass multiple languages as a list. In this case, the method
-    will try handling each language in turn. Please be aware that this includes
-    handling variations. When assing `nl-BE, nl, nl-NL`, the second and third
-    languages will never be handled since handling `nl-BE` includes looking for
-    other related languages such as `nl-NL` and `nl`.
+    - Passing `None` (or omitting the argument) means "no preference" --
+      any available label is returned.
+    - Passing a specific IANA language tag such as `en-GB` will first look for
+      an exact match on that tag, then progressively drop subtags
+      (e.g. `nl-BE-Latn` -> `nl-BE` -> `nl`). The literal tag `und` behaves
+      like any other tag and only matches labels explicitly tagged as `und`.
+    - Passing a list of tags tries each in turn, applying the same subtag
+      fallback to each.
+    - If no language-specific label can be found, the function falls back to
+      returning any available label, regardless of language. If the list of
+      labels is empty (or only contains hidden labels), `None` is returned.
 
-    If language 'any' was specified, all labels will be considered,
-    regardless of language.
+    .. versionchanged:: 2.0.0
+        The magic value `"any"` is no longer supported -- pass `None` instead.
+        `None` no longer means "labels explicitly tagged as `und`"; use the
+        tag `"und"` for that. Language matching now walks down the subtag
+        chain rather than collapsing straight to the primary language.
 
-    To find a label without a specified language, pass `None` as language.
-
-    If a language or None was specified, and no label could be found, this
-    method will automatically try to find a label in some other language.
-
-    Finally, if no label could be found, None is returned.
-
-    ..versionchanged:: 1.1
+    .. versionchanged:: 1.1
         It is now possible to pass a list of languages.
 
-    :param any language: The preferred language to receive the label in. This
-        should be a valid IANA language tag or list of language tags. If you
-        pass a list, the order of the languages in the list will be taken into
-        account when trying to determine a label.
+    :param labels: A list of :class:`Label` (or dicts convertible to one).
+    :param language: The preferred language to receive the label in. This
+        should be a valid IANA language tag, a list of such tags, or `None`.
     :param boolean sortLabel: Should sortLabels be considered or not? If True,
         sortLabels will be preferred over prefLabels. Bear in mind that these
         are still language dependent. So, it's possible to have a different
@@ -569,71 +614,106 @@ def label(labels=None, language="any", sortLabel=False):
     """
     if not labels:
         return None
+    labels = [dict_to_label(label) for label in labels]
+
+    if language is None:
+        return _pick_best_label(labels, sortLabel)
+
     if isinstance(language, str):
         language = [language]
-    if isinstance(language, list):
-        language = [lang for lang in language if tags.tag(lang).language]
-    if not language:
-        language = ["und"]
-    labels = [dict_to_label(label) for label in labels]
-    return_label = False
+    language = [lang for lang in language if lang and tags.tag(lang).language]
+
+    type_order = ("prefLabel", "altLabel")
+    if sortLabel:
+        type_order = ("sortLabel",) + type_order
+
     for lang in language:
-        if sortLabel:
-            return_label = find_best_label_for_type(labels, lang, "sortLabel")
-        if not return_label:
-            return_label = find_best_label_for_type(labels, lang, "prefLabel")
-        if not return_label:
-            return_label = find_best_label_for_type(labels, lang, "altLabel")
-        if return_label:
-            return return_label
-    return label(labels, "any", sortLabel) if "any" not in language else None
+        for labeltype in type_order:
+            found = find_best_label_for_type(labels, lang, labeltype)
+            if found:
+                return found
+
+    return _pick_best_label(labels, sortLabel)
+
+
+def _language_fallback_chain(language):
+    """Yield progressively less specific forms of an IANA language tag.
+
+    For `nl-BE-Latn` this yields `nl-BE-Latn`, `nl-BE`, `nl`.
+    """
+    parts = language.split("-")
+    while parts:
+        yield "-".join(parts)
+        parts.pop()
+
+
+def _primary_language(language):
+    """Return the canonical primary subtag of an IANA language tag, or None."""
+    subtag = tags.tag(language).language
+    return subtag.format if subtag else None
+
+
+def _pick_best_label(labels, sortLabel):
+    """Pick the best-typed label from a list, disregarding language."""
+    if not labels:
+        return None
+    type_order = ("prefLabel", "altLabel")
+    if sortLabel:
+        type_order = ("sortLabel",) + type_order
+    for ltype in type_order:
+        for lbl in labels:
+            if lbl.type == ltype:
+                return lbl
+    return None
 
 
 def find_best_label_for_type(labels, language, labeltype):
     """
-    Find the best label for a certain labeltype.
+    Find the best label of a specific type in a given language.
+
+    First tries an exact match on the language tag, then walks down the
+    subtag chain (e.g. `nl-BE-Latn` -> `nl-BE` -> `nl`). If still nothing
+    matches, falls back to any label that shares the same primary language
+    subtag (so `en-GB` will also match `en-US` once the more specific tries
+    are exhausted). Returns `False` if nothing matches.
 
     :param list labels: A list of :class:`Label`.
     :param str language: An IANA language string, eg. `nl` or `nl-BE`.
     :param str labeltype: Type of label to look for, eg. `prefLabel`.
     """
-    typelabels = [label for label in labels if label.type == labeltype]
+    typelabels = [lbl for lbl in labels if lbl.type == labeltype]
     if not typelabels:
         return False
-    if language == "any":
-        return typelabels[0]
-    exact = filter_labels_by_language(typelabels, language)
-    if exact:
-        return exact[0]
-    inexact = filter_labels_by_language(typelabels, language, True)
-    if inexact:
-        return inexact[0]
+    for candidate in _language_fallback_chain(language):
+        matches = filter_labels_by_language(typelabels, candidate)
+        if matches:
+            return matches[0]
+    primary = _primary_language(language)
+    if primary:
+        family = [
+            lbl for lbl in typelabels if _primary_language(lbl.language) == primary
+        ]
+        if family:
+            return family[0]
     return False
 
 
-def filter_labels_by_language(labels, language, broader=False):
+def filter_labels_by_language(labels, language):
     """
     Filter a list of labels, leaving only labels of a certain language.
 
+    Matches the IANA language tag exactly (canonicalised via
+    :mod:`language_tags`). To walk the subtag chain, iterate with
+    :func:`_language_fallback_chain` yourself.
+
+    .. versionchanged:: 2.0.0
+        The `broader` parameter and the magic `"any"` value have been removed.
+
     :param list labels: A list of :class:`Label`.
     :param str language: An IANA language string, eg. `nl` or `nl-BE`.
-    :param boolean broader: When true, will also match `nl-BE` when filtering
-        on `nl`. When false, only exact matches are considered.
     """
-    if language == "any":
-        return labels
-    if broader:
-        language = tags.tag(language).language.format
-        return [
-            label
-            for label in labels
-            if tags.tag(label.language).language.format == language
-        ]
-    else:
-        language = tags.tag(language).format
-        return [
-            label for label in labels if tags.tag(label.language).format == language
-        ]
+    target = tags.tag(language).format
+    return [lbl for lbl in labels if tags.tag(lbl.language).format == target]
 
 
 def dict_to_label(dict):
