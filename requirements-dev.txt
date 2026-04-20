@@ -38,8 +38,6 @@ flake8-import-order==0.19.2
     # via skosprovider (pyproject.toml)
 frozendict==2.4.7
     # via pyld
-html5lib==1.1
-    # via skosprovider (pyproject.toml)
 identify==2.6.18
     # via pre-commit
 idna==3.11
@@ -114,8 +112,6 @@ roman-numerals-py==4.1.0
     # via sphinx
 setuptools==82.0.1
     # via flake8-import-order
-six==1.17.0
-    # via html5lib
 snowballstemmer==3.0.1
     # via sphinx
 sphinx==8.3.0
@@ -143,5 +139,3 @@ urllib3==2.6.3
     # via requests
 virtualenv==21.2.4
     # via pre-commit
-webencodings==0.5.1
-    # via html5lib
