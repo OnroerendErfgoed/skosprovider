@@ -409,7 +409,7 @@ class Concept:
 
         This uses the :func:`label` function to determine which label to return.
 
-        :param language: The preferred language to receive the label in.
+        :param string language: The preferred language to receive the label in.
             This should be a valid IANA language tag or a list of language tags.
             If not specified or `None`, the :attr:`default_language` will be used,
             falling back to any available label.
@@ -422,7 +422,7 @@ class Concept:
         Provide a single sortkey for this collection.
 
         :param string key: Either `id`, `uri`, `label` or `sortlabel`.
-        :param language: The preferred language to receive the label in
+        :param string language: The preferred language to receive the label in
             if key is `label` or `sortlabel`. This should be a valid IANA language tag.
             If not specified or `None`, the :attr:`default_language` will be used.
         :rtype: :class:`str`
@@ -518,7 +518,7 @@ class Collection:
 
         This uses the :func:`label` function to determine which label to return.
 
-        :param language: The preferred language to receive the label in.
+        :param string language: The preferred language to receive the label in.
             This should be a valid IANA language tag. If not specified or `None`,
             the :attr:`default_language` will be used, falling back to any
             available label.
@@ -531,7 +531,7 @@ class Collection:
         Provide a single sortkey for this collection.
 
         :param string key: Either `id`, `uri`, `label` or `sortlabel`.
-        :param language: The preferred language to receive the label in
+        :param string language: The preferred language to receive the label in
             if key is `label` or `sortlabel`. This should be a valid IANA language tag.
             If not specified or `None`, the :attr:`default_language` will be used.
         :rtype: :class:`str`
@@ -553,10 +553,13 @@ class Collection:
 
 
 def _resolve_language(language, default_language):
-    """Combine an explicit language with the configured default."""
+    """Combine an explicit language with the configured default.
+
+    Always returns a list so callers have a single return type to handle.
+    """
     if language is None:
-        return default_language
-    if isinstance(language, str):
+        language = []
+    elif isinstance(language, str):
         language = [language]
     else:
         language = list(language)
