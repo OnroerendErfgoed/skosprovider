@@ -26,19 +26,19 @@ def dict_dumper(provider):
     """
     ret = []
     for stuff in provider.get_all():
-        c = provider.get_by_id(stuff["id"])
+        concept_or_collection = provider.get_by_id(stuff["id"])
         labels = []
-        for label in c.labels:
-            ldict = {
+        for label in concept_or_collection.labels:
+            label_dict = {
                 "language": label.language,
                 "type": label.type,
                 "label": label.label,
             }
             if label.uri:
-                ldict["uri"] = label.uri
+                label_dict["uri"] = label.uri
                 if len(label.label_types):
-                    ldict["label_types"] = label.label_types
-            labels.append(ldict)
+                    label_dict["label_types"] = label.label_types
+            labels.append(label_dict)
         notes = [
             {
                 "note": note.note,
@@ -46,42 +46,42 @@ def dict_dumper(provider):
                 "language": note.language,
                 "markup": note.markup,
             }
-            for note in c.notes
+            for note in concept_or_collection.notes
         ]
         sources = [
             {"citation": source.citation, "markup": source.markup}
-            for source in c.sources
+            for source in concept_or_collection.sources
         ]
-        if isinstance(c, Concept):
+        if isinstance(concept_or_collection, Concept):
             ret.append(
                 {
-                    "id": c.id,
-                    "uri": c.uri,
-                    "type": c.type,
+                    "id": concept_or_collection.id,
+                    "uri": concept_or_collection.uri,
+                    "type": concept_or_collection.type,
                     "labels": labels,
                     "notes": notes,
                     "sources": sources,
-                    "narrower": c.narrower,
-                    "broader": c.broader,
-                    "related": c.related,
-                    "member_of": c.member_of,
-                    "subordinate_arrays": c.subordinate_arrays,
-                    "matches": c.matches,
+                    "narrower": concept_or_collection.narrower,
+                    "broader": concept_or_collection.broader,
+                    "related": concept_or_collection.related,
+                    "member_of": concept_or_collection.member_of,
+                    "subordinate_arrays": concept_or_collection.subordinate_arrays,
+                    "matches": concept_or_collection.matches,
                 }
             )
-        elif isinstance(c, Collection):
+        elif isinstance(concept_or_collection, Collection):
             ret.append(
                 {
-                    "id": c.id,
-                    "uri": c.uri,
-                    "type": c.type,
+                    "id": concept_or_collection.id,
+                    "uri": concept_or_collection.uri,
+                    "type": concept_or_collection.type,
                     "labels": labels,
                     "notes": notes,
                     "sources": sources,
-                    "members": c.members,
-                    "member_of": c.member_of,
-                    "superordinates": c.superordinates,
-                    "infer_concept_relations": c.infer_concept_relations,
+                    "members": concept_or_collection.members,
+                    "member_of": concept_or_collection.member_of,
+                    "superordinates": concept_or_collection.superordinates,
+                    "infer_concept_relations": concept_or_collection.infer_concept_relations,  # NoQa: B950
                 }
             )
     return ret

@@ -555,28 +555,28 @@ class TestTreesDictionaryProvider:
         assert la_chataigne in trees.get_all(language="fr")
 
     def test_find_all(self):
-        c = trees.find({"type": "all"})
-        assert 3 == len(c)
+        concepts = trees.find({"type": "all"})
+        assert 3 == len(concepts)
 
     def test_find_all_sort(self):
-        c = trees.find({"type": "all"}, sort="id", sort_order="desc")
-        assert [3, "2", "1"] == [cc["id"] for cc in c]
-        c = trees.find({"type": "all"}, sort="sortlabel", sort_order="asc")
-        assert [3, "1", "2"] == [cc["id"] for cc in c]
-        c = trees.find({"type": "all"}, sort="sortlabel", sort_order="desc")
-        assert ["2", "1", 3] == [cc["id"] for cc in c]
+        concepts = trees.find({"type": "all"}, sort="id", sort_order="desc")
+        assert [3, "2", "1"] == [concept["id"] for concept in concepts]
+        concepts = trees.find({"type": "all"}, sort="sortlabel", sort_order="asc")
+        assert [3, "1", "2"] == [concept["id"] for concept in concepts]
+        concepts = trees.find({"type": "all"}, sort="sortlabel", sort_order="desc")
+        assert ["2", "1", 3] == [concept["id"] for concept in concepts]
 
     def test_find_concepts(self):
-        c = trees.find({"type": "concept"})
-        assert 2 == len(c)
+        concepts = trees.find({"type": "concept"})
+        assert 2 == len(concepts)
 
     def test_find_collections(self):
-        c = trees.find({"type": "collection"})
-        assert 1 == len(c)
+        concepts = trees.find({"type": "collection"})
+        assert 1 == len(concepts)
 
     def test_find_type_None(self):
-        c = trees.find({"type": None})
-        assert len(c) == 3
+        concepts = trees.find({"type": None})
+        assert len(concepts) == 3
 
     def test_find_larch(self):
         assert trees.find({"label": "The Larch"}) == [
@@ -622,8 +622,8 @@ class TestTreesDictionaryProvider:
         assert len(concepts) == 1
 
     def test_find_empty_label(self):
-        c = trees.find({"label": ""})
-        assert 3 == len(c)
+        concepts = trees.find({"label": ""})
+        assert 3 == len(concepts)
 
     def test_find_lar(self):
         assert trees.find({"label": "lar"}) == [
@@ -636,39 +636,39 @@ class TestTreesDictionaryProvider:
         ]
 
     def test_find_es(self):
-        c = trees.find({"label": "es"})
-        assert 2 == len(c)
+        concepts = trees.find({"label": "es"})
+        assert 2 == len(concepts)
 
     def test_find_all_es(self):
-        c = trees.find({"label": "es", "type": "all"})
-        assert 2 == len(c)
+        concepts = trees.find({"label": "es", "type": "all"})
+        assert 2 == len(concepts)
 
     def test_find_concepts_es(self):
-        c = trees.find({"label": "es", "type": "concept"})
-        assert 1 == len(c)
-        for cc in c:
-            assert isinstance(trees.get_by_id(cc["id"]), Concept)
+        concepts = trees.find({"label": "es", "type": "concept"})
+        assert 1 == len(concepts)
+        for concept in concepts:
+            assert isinstance(trees.get_by_id(concept["id"]), Concept)
 
     def test_find_collections_es(self):
-        c = trees.find({"label": "es", "type": "collection"})
-        assert 1 == len(c)
-        for cc in c:
-            assert isinstance(trees.get_by_id(cc["id"]), Collection)
+        concepts = trees.find({"label": "es", "type": "collection"})
+        assert 1 == len(concepts)
+        for concept in concepts:
+            assert isinstance(trees.get_by_id(concept["id"]), Collection)
 
     def test_find_no_arguments(self):
         assert trees.find({}) == trees.get_all()
 
     def test_find_in_collection(self):
-        c = trees.find({"collection": {"id": 3}})
-        assert 2 == len(c)
-        for cc in c:
-            assert isinstance(trees.get_by_id(cc["id"]), Concept)
+        concepts = trees.find({"collection": {"id": 3}})
+        assert 2 == len(concepts)
+        for concept in concepts:
+            assert isinstance(trees.get_by_id(concept["id"]), Concept)
 
     def test_find_in_collection_es(self):
-        c = trees.find({"collection": {"id": 3}, "label": "es"})
-        assert 1 == len(c)
-        for cc in c:
-            assert isinstance(trees.get_by_id(cc["id"]), Concept)
+        concepts = trees.find({"collection": {"id": 3}, "label": "es"})
+        assert 1 == len(concepts)
+        for concept in concepts:
+            assert isinstance(trees.get_by_id(concept["id"]), Concept)
 
     def test_find_in_unexisting_collection(self):
         with pytest.raises(ValueError):
@@ -708,7 +708,7 @@ class TestTreesDictionaryProvider:
         assert 1 == len(concepts)
 
     def test_find_matches_uri_and_type_inheritance_present(self):
-        c = trees.find(
+        concepts = trees.find(
             {
                 "matches": {
                     "uri": "http://id.python.org/different/"
@@ -717,10 +717,10 @@ class TestTreesDictionaryProvider:
                 }
             }
         )
-        assert 1 == len(c)
+        assert 1 == len(concepts)
 
     def test_find_matches_uri_and_wrong_type(self):
-        c = trees.find(
+        concepts = trees.find(
             {
                 "matches": {
                     "uri": "http://id.python.org/different/"
@@ -729,7 +729,7 @@ class TestTreesDictionaryProvider:
                 }
             }
         )
-        assert 0 == len(c)
+        assert 0 == len(concepts)
 
     def test_get_display_top(self):
         top = trees.get_top_display()
@@ -871,22 +871,24 @@ class TestGeoDictionaryProvider:
         assert {4, 7, 8, 9, 16} == set(geo.expand(333))
 
     def test_find_in_collection(self):
-        c = geo.find({"collection": {"id": 333}})
-        assert 3 == len(c)
-        for cc in c:
-            assert isinstance(geo.get_by_id(cc["id"]), Concept)
+        concepts = geo.find({"collection": {"id": 333}})
+        assert 3 == len(concepts)
+        for concept in concepts:
+            assert isinstance(geo.get_by_id(concept["id"]), Concept)
 
     def test_find_in_collection_depth_all(self):
-        c = geo.find({"collection": {"id": 333, "depth": "all"}})
-        assert 5 == len(c)
-        for cc in c:
-            assert isinstance(geo.get_by_id(cc["id"]), Concept)
+        concepts = geo.find({"collection": {"id": 333, "depth": "all"}})
+        assert 5 == len(concepts)
+        for concept in concepts:
+            assert isinstance(geo.get_by_id(concept["id"]), Concept)
 
     def test_find_in_collection_depth_all_wallon(self):
-        c = geo.find({"collection": {"id": "333", "depth": "all"}, "label": "Wallon"})
-        assert 1 == len(c)
-        for cc in c:
-            assert isinstance(geo.get_by_id(cc["id"]), Concept)
+        concepts = geo.find(
+            {"collection": {"id": "333", "depth": "all"}, "label": "Wallon"}
+        )
+        assert 1 == len(concepts)
+        for concept in concepts:
+            assert isinstance(geo.get_by_id(concept["id"]), Concept)
 
     def test_get_display_top(self):
         top = geo.get_top_display()
@@ -986,34 +988,34 @@ class TestSimpleCsvProvider:
         assert 11 == len(csv_provider.get_all())
 
     def test_get_egg_and_bacon(self, csv_provider):
-        eb = csv_provider.get_by_id(1)
-        assert isinstance(eb, Concept)
-        assert "1" == eb.id
-        assert "http://id.python.org/menu/1" == eb.uri
-        assert "Egg and Bacon" == eb.label().label
-        assert "prefLabel" == eb.label().type
-        assert [] == eb.notes
-        assert 1 == len(eb.sources)
-        assert "Monthy Python, Episode Twenty-five." == eb.sources[0].citation
+        concept = csv_provider.get_by_id(1)
+        assert isinstance(concept, Concept)
+        assert "1" == concept.id
+        assert "http://id.python.org/menu/1" == concept.uri
+        assert "Egg and Bacon" == concept.label().label
+        assert "prefLabel" == concept.label().type
+        assert [] == concept.notes
+        assert 1 == len(concept.sources)
+        assert "Monthy Python, Episode Twenty-five." == concept.sources[0].citation
 
     def test_get_egg_and_spam_by_uri(self, csv_provider):
-        eb = csv_provider.get_by_uri("http://id.python.org/menu/3")
-        assert isinstance(eb, Concept)
-        assert "3" == eb.id
-        assert "http://id.python.org/menu/3" == eb.uri
+        concept = csv_provider.get_by_uri("http://id.python.org/menu/3")
+        assert isinstance(concept, Concept)
+        assert "3" == concept.id
+        assert "http://id.python.org/menu/3" == concept.uri
 
     def test_find_spam(self, csv_provider):
         spam = csv_provider.find({"label": "Spam"})
         assert 8 == len(spam)
 
     def test_get_lobster(self, csv_provider):
-        eb = csv_provider.get_by_id(11)
-        assert isinstance(eb, Concept)
-        assert "11" == eb.id
-        assert "Lobster Thermidor" == eb.label().label
-        assert isinstance(eb.notes[0], Note)
-        assert "Mornay" in eb.notes[0].note
-        assert "note" == eb.notes[0].type
+        concept = csv_provider.get_by_id(11)
+        assert isinstance(concept, Concept)
+        assert "11" == concept.id
+        assert "Lobster Thermidor" == concept.label().label
+        assert isinstance(concept.notes[0], Note)
+        assert "Mornay" in concept.notes[0].note
+        assert "note" == concept.notes[0].type
 
     def test_find_sausage_case_insensitive(self, csv_provider):
         sausages = csv_provider.find({"label": "sausage"})

@@ -300,60 +300,60 @@ class TestConcept:
         assert "Concept('1')" == repr(concept)
 
     def test_in(self):
-        c = Concept(1)
-        assert hasattr(c, "id")
-        assert hasattr(c, "uri")
-        assert hasattr(c, "labels")
-        assert hasattr(c, "notes")
-        assert hasattr(c, "broader")
-        assert hasattr(c, "narrower")
-        assert hasattr(c, "related")
-        assert hasattr(c, "member_of")
+        concept = Concept(1)
+        assert hasattr(concept, "id")
+        assert hasattr(concept, "uri")
+        assert hasattr(concept, "labels")
+        assert hasattr(concept, "notes")
+        assert hasattr(concept, "broader")
+        assert hasattr(concept, "narrower")
+        assert hasattr(concept, "related")
+        assert hasattr(concept, "member_of")
 
     def test_label(self):
         labels = self._get_labels()
-        c = Concept(1, labels=labels)
-        assert label(labels) == c.label()
-        assert label(labels, "nl") == c.label("nl")
-        assert label(labels, "en") == c.label("en")
-        assert label(labels, None) == c.label(None)
+        concept = Concept(1, labels=labels)
+        assert label(labels) == concept.label()
+        assert label(labels, "nl") == concept.label("nl")
+        assert label(labels, "en") == concept.label("en")
+        assert label(labels, None) == concept.label(None)
 
     def test_sort_key(self):
         labels = self._get_labels()
-        sl = Label("allereerste", type="sortLabel", language="nl-BE")
-        labels.append(sl)
-        c = Concept(1, labels=labels)
-        assert "allereerste" == c._sortkey("sortlabel")
-        assert "allereerste" == c._sortkey("sortlabel", "nl")
-        assert "knocke-heyst" == c._sortkey("sortlabel", "en")
-        assert "" == c._sortkey("uri")
+        sort_label = Label("allereerste", type="sortLabel", language="nl-BE")
+        labels.append(sort_label)
+        concept = Concept(1, labels=labels)
+        assert "allereerste" == concept._sortkey("sortlabel")
+        assert "allereerste" == concept._sortkey("sortlabel", "nl")
+        assert "knocke-heyst" == concept._sortkey("sortlabel", "en")
+        assert "" == concept._sortkey("uri")
 
     def test_uri(self):
-        c = Concept(1, uri="urn:x-skosprovider:gemeenten:1")
-        assert 1 == c.id
-        assert "urn:x-skosprovider:gemeenten:1" == c.uri
+        concept = Concept(1, uri="urn:x-skosprovider:gemeenten:1")
+        assert 1 == concept.id
+        assert "urn:x-skosprovider:gemeenten:1" == concept.uri
 
     def test_member_of(self):
-        c = Concept(1, uri="urn:x-skosprovider:gemeenten:1", member_of=[15])
-        assert {15} == set(c.member_of)
+        concept = Concept(1, uri="urn:x-skosprovider:gemeenten:1", member_of=[15])
+        assert {15} == set(concept.member_of)
 
     def test_matches(self):
-        c = Concept(
+        concept = Concept(
             1,
             uri="urn:x-skosprovider:gemeenten:1",
             matches={"broad": ["http://id.something.org/provincies/1"]},
         )
-        assert "close" in c.matches
-        assert "exact" in c.matches
-        assert "broad" in c.matches
-        assert "narrow" in c.matches
-        assert "related" in c.matches
-        assert ["http://id.something.org/provincies/1"] == c.matches["broad"]
+        assert "close" in concept.matches
+        assert "exact" in concept.matches
+        assert "broad" in concept.matches
+        assert "narrow" in concept.matches
+        assert "related" in concept.matches
+        assert ["http://id.something.org/provincies/1"] == concept.matches["broad"]
 
     def test_source(self):
-        c = Concept(id=1, sources=[{"citation": "My citation"}])
-        assert 1 == len(c.sources)
-        assert "My citation" == c.sources[0].citation
+        concept = Concept(id=1, sources=[{"citation": "My citation"}])
+        assert 1 == len(concept.sources)
+        assert "My citation" == concept.sources[0].citation
 
 
 class TestCollection:

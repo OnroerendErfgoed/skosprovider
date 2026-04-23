@@ -173,16 +173,16 @@ class TestDictDumper:
         ]
 
     def test_empty_tree_provider(self):
-        pv = self._get_tree_provider([])
-        assert [] == dict_dumper(pv)
+        provider = self._get_tree_provider([])
+        assert [] == dict_dumper(provider)
 
     def test_tree_provider(self, world_dump):
         dump = dict_dumper(geo)
         assert isinstance(dump, list)
-        for c in dump:
-            assert isinstance(c, dict)
-            assert "type" in c
-            assert "id" in c
+        for concept_or_collection in dump:
+            assert isinstance(concept_or_collection, dict)
+            assert "type" in concept_or_collection
+            assert "id" in concept_or_collection
         assert world_dump in dump
 
     def test_flat_provider_round_trip(self):
