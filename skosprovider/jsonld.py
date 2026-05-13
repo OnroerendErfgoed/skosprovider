@@ -137,10 +137,14 @@ def jsonld_dumper(provider, context=None, language=None):
             provider, None, relations_profile="uri", language=language
         )
     )
-    for c in provider.get_all():
+    for concept_or_collection in provider.get_all():
         doc["@graph"].append(
             jsonld_c_dumper(
-                provider, c["id"], None, relations_profile="uri", language=language
+                provider,
+                concept_or_collection["id"],
+                None,
+                relations_profile="uri",
+                language=language,
             )
         )
     return doc
@@ -162,122 +166,156 @@ def jsonld_c_dumper(
 
     :rtype: A `dict`
     """
-    c = provider.get_by_id(id)
-    doc = _jsonld_c_basic_renderer(c, language)
+    concept_or_collection = provider.get_by_id(id)
+    doc = _jsonld_c_basic_renderer(concept_or_collection, language)
     if context:
         doc["@context"] = context
     if relations_profile == "partial":
-        doc["concept_scheme"] = _jsonld_cs_basic_renderer(c.concept_scheme, language)
+        doc["concept_scheme"] = _jsonld_cs_basic_renderer(
+            concept_or_collection.concept_scheme, language
+        )
     else:
-        doc["concept_scheme"] = c.concept_scheme.uri
+        doc["concept_scheme"] = concept_or_collection.concept_scheme.uri
     dataset_uri = provider.get_metadata().get("dataset", {}).get("uri", None)
     if dataset_uri:
         doc["in_dataset"] = dataset_uri
-    doc.update(_jsonld_labels_renderer(c))
-    doc.update(_jsonld_labels_xl_renderer(c))
-    doc.update(_jsonld_notes_renderer(c))
-    doc.update(_jsonld_sources_renderer(c))
-    doc.update(_jsonld_member_of_renderer(c, provider, relations_profile, language))
-    if c.type == "concept":
-        doc.update(_jsonld_matches_renderer(c))
-        doc.update(_jsonld_broader_renderer(c, provider, relations_profile, language))
-        doc.update(_jsonld_narrower_renderer(c, provider, relations_profile, language))
-        doc.update(_jsonld_related_renderer(c, provider, relations_profile, language))
+    doc.update(_jsonld_labels_renderer(concept_or_collection))
+    doc.update(_jsonld_labels_xl_renderer(concept_or_collection))
+    doc.update(_jsonld_notes_renderer(concept_or_collection))
+    doc.update(_jsonld_sources_renderer(concept_or_collection))
+    doc.update(
+        _jsonld_member_of_renderer(
+            concept_or_collection, provider, relations_profile, language
+        )
+    )
+    if concept_or_collection.type == "concept":
+        doc.update(_jsonld_matches_renderer(concept_or_collection))
         doc.update(
-            _jsonld_subordinate_arrays_renderer(
-                c, provider, relations_profile, language
+            _jsonld_broader_renderer(
+                concept_or_collection, provider, relations_profile, language
             )
         )
-    elif c.type == "collection":
-        doc["infer_concept_relations"] = True
-        doc.update(_jsonld_members_renderer(c, provider, relations_profile, language))
         doc.update(
-            _jsonld_superordinates_renderer(c, provider, relations_profile, language)
+            _jsonld_narrower_renderer(
+                concept_or_collection, provider, relations_profile, language
+            )
+        )
+        doc.update(
+            _jsonld_related_renderer(
+                concept_or_collection, provider, relations_profile, language
+            )
+        )
+        doc.update(
+            _jsonld_subordinate_arrays_renderer(
+                concept_or_collection, provider, relations_profile, language
+            )
+        )
+    elif concept_or_collection.type == "collection":
+        doc["infer_concept_relations"] = True
+        doc.update(
+            _jsonld_members_renderer(
+                concept_or_collection, provider, relations_profile, language
+            )
+        )
+        doc.update(
+            _jsonld_superordinates_renderer(
+                concept_or_collection, provider, relations_profile, language
+            )
         )
     return doc
 
 
-def _jsonld_c_basic_renderer(c, language="en"):
-    doc = {"id": c.id, "uri": c.uri, "type": c.type}
-    label = c.label(language)
+def _jsonld_c_basic_renderer(concept_or_collection, language="en"):
+    doc = {
+        "id": concept_or_collection.id,
+        "uri": concept_or_collection.uri,
+        "type": concept_or_collection.type,
+    }
+    label = concept_or_collection.label(language)
     if label:
         doc["label"] = label.label
     return doc
 
 
-def _jsonld_cs_basic_renderer(cs, language="en"):
-    doc = {"uri": cs.uri, "type": "skos:ConceptScheme"}
-    label = cs.label(language)
+def _jsonld_cs_basic_renderer(concept_scheme, language="en"):
+    doc = {"uri": concept_scheme.uri, "type": "skos:ConceptScheme"}
+    label = concept_scheme.label(language)
     if label:
         doc["label"] = label.label
     return doc
 
 
-def _jsonld_labels_renderer(c):
-    if not len(c.labels):
+def _jsonld_labels_renderer(concept_or_collection):
+    if not len(concept_or_collection.labels):
         return {}
     doc = {"labels": {}}
 
-    def lbl_renderer(label):
+    def label_renderer(label):
         language = extract_language(label.language)
         return {"language": language, "@language": language, "lbl": label.label}
 
-    ltypemap = {
+    label_type_map = {
         "prefLabel": "pref_labels",
         "altLabel": "alt_labels",
         "hiddenLabel": "hidden_labels",
         "sortLabel": "hidden_labels",
     }
-    for label in c.labels:
-        doc["labels"].setdefault(ltypemap[label.type], []).append(lbl_renderer(label))
+    for label in concept_or_collection.labels:
+        doc["labels"].setdefault(label_type_map[label.type], []).append(
+            label_renderer(label)
+        )
     return doc
 
 
-def _jsonld_labels_xl_renderer(c):
-    if not len([label for label in c.labels if label.is_xl()]):
+def _jsonld_labels_xl_renderer(concept_or_collection):
+    if not len([label for label in concept_or_collection.labels if label.is_xl()]):
         return {}
     doc = {"labels_xl": {}}
 
-    def lbl_xl_renderer(label):
+    def label_xl_renderer(label):
         language = extract_language(label.language)
-        lbl = {
+        rendered_label = {
             "uri": label.uri,
             "type": "skosxl:Label",
             "skosxl:literalForm": {"@language": language, "lbl": label.label},
         }
         if len(label.label_types):
-            lbl["label_types"] = label.label_types
-        return lbl
+            rendered_label["label_types"] = label.label_types
+        return rendered_label
 
-    ltypemap = {
+    label_type_map = {
         "prefLabel": "pref_labels_xl",
         "altLabel": "alt_labels_xl",
         "hiddenLabel": "hidden_labels_xl",
         "sortLabel": "hidden_labels_xl",
     }
-    for label in c.labels:
+    for label in concept_or_collection.labels:
         if label.is_xl():
-            doc["labels_xl"].setdefault(ltypemap[label.type], []).append(
-                lbl_xl_renderer(label)
+            doc["labels_xl"].setdefault(label_type_map[label.type], []).append(
+                label_xl_renderer(label)
             )
     return doc
 
 
-def _jsonld_notes_renderer(c):
-    if not len(c.notes):
+def _jsonld_notes_renderer(concept_or_collection):
+    if not len(concept_or_collection.notes):
         return {}
     doc = {"notes": {}}
 
-    def nt_renderer(n):
-        language = extract_language(n.language)
-        note = {"language": language, "@language": language, "nt": n.note}
-        if n.markup is not None:
-            del note["@language"]
-            note["nt"] = add_lang_to_html(note["nt"], language)
-            note["@type"] = n.markup
-        return note
+    def note_renderer(note):
+        language = extract_language(note.language)
+        rendered_note = {
+            "language": language,
+            "@language": language,
+            "nt": note.note,
+        }
+        if note.markup is not None:
+            del rendered_note["@language"]
+            rendered_note["nt"] = add_lang_to_html(rendered_note["nt"], language)
+            rendered_note["@type"] = note.markup
+        return rendered_note
 
-    ntypemap = {
+    note_type_map = {
         "note": "general_notes",
         "scopeNote": "scope_notes",
         "definition": "definitions",
@@ -286,88 +324,118 @@ def _jsonld_notes_renderer(c):
         "changeNote": "change_notes",
         "example": "examples",
     }
-    for n in c.notes:
-        doc["notes"].setdefault(ntypemap[n.type], []).append(nt_renderer(n))
+    for note in concept_or_collection.notes:
+        doc["notes"].setdefault(note_type_map[note.type], []).append(
+            note_renderer(note)
+        )
     return doc
 
 
-def _jsonld_sources_renderer(c):
-    if not len(c.sources):
+def _jsonld_sources_renderer(concept_or_collection):
+    if not len(concept_or_collection.sources):
         return {}
     doc = {"sources": []}
 
-    def s_renderer(s):
-        source = {
+    def source_renderer(source):
+        rendered_source = {
             "type": "dct:BibliographicResource",
-            "citations": [{"ct": s.citation}],
+            "citations": [{"ct": source.citation}],
         }
-        if s.markup is not None:
-            source["citations"][0]["@type"] = s.markup
-        return source
+        if source.markup is not None:
+            rendered_source["citations"][0]["@type"] = source.markup
+        return rendered_source
 
-    for s in c.sources:
-        doc["sources"].append(s_renderer(s))
+    for source in concept_or_collection.sources:
+        doc["sources"].append(source_renderer(source))
     return doc
 
 
-def _jsonld_matches_renderer(c):
-    if not any([len(matches) for matches in c.matches.values()]):
+def _jsonld_matches_renderer(concept_or_collection):
+    if not any([len(matches) for matches in concept_or_collection.matches.values()]):
         return {}
     doc = {"matches": {}}
-    for matchtype, matches in c.matches.items():
+    for matchtype, matches in concept_or_collection.matches.items():
         if len(matches):
             doc["matches"].setdefault(f"{matchtype}_matches", []).extend(matches)
     return doc
 
 
-def _jsonld_superordinates_renderer(c, provider, profile="partial", language="en"):
-    return _jsonld_relation_renderer(c, provider, "superordinates", profile, language)
-
-
-def _jsonld_members_renderer(c, provider, profile="partial", language="en"):
-    return _jsonld_relation_renderer(c, provider, "members", profile, language)
-
-
-def _jsonld_member_of_renderer(c, provider, profile="partial", language="en"):
-    return _jsonld_relation_renderer(c, provider, "member_of", profile, language)
-
-
-def _jsonld_broader_renderer(c, provider, profile="partial", language="en"):
-    return _jsonld_relation_renderer(c, provider, "broader", profile, language)
-
-
-def _jsonld_narrower_renderer(c, provider, profile="partial", language="en"):
-    return _jsonld_relation_renderer(c, provider, "narrower", profile, language)
-
-
-def _jsonld_related_renderer(c, provider, profile="partial", language="en"):
-    return _jsonld_relation_renderer(c, provider, "related", profile, language)
-
-
-def _jsonld_subordinate_arrays_renderer(c, provider, profile="partial", language="en"):
+def _jsonld_superordinates_renderer(
+    concept_or_collection, provider, profile="partial", language="en"
+):
     return _jsonld_relation_renderer(
-        c, provider, "subordinate_arrays", profile, language
+        concept_or_collection, provider, "superordinates", profile, language
     )
 
 
-def _jsonld_relation_renderer(c, provider, relation, profile="partial", language="en"):
+def _jsonld_members_renderer(
+    concept_or_collection, provider, profile="partial", language="en"
+):
+    return _jsonld_relation_renderer(
+        concept_or_collection, provider, "members", profile, language
+    )
+
+
+def _jsonld_member_of_renderer(
+    concept_or_collection, provider, profile="partial", language="en"
+):
+    return _jsonld_relation_renderer(
+        concept_or_collection, provider, "member_of", profile, language
+    )
+
+
+def _jsonld_broader_renderer(
+    concept_or_collection, provider, profile="partial", language="en"
+):
+    return _jsonld_relation_renderer(
+        concept_or_collection, provider, "broader", profile, language
+    )
+
+
+def _jsonld_narrower_renderer(
+    concept_or_collection, provider, profile="partial", language="en"
+):
+    return _jsonld_relation_renderer(
+        concept_or_collection, provider, "narrower", profile, language
+    )
+
+
+def _jsonld_related_renderer(
+    concept_or_collection, provider, profile="partial", language="en"
+):
+    return _jsonld_relation_renderer(
+        concept_or_collection, provider, "related", profile, language
+    )
+
+
+def _jsonld_subordinate_arrays_renderer(
+    concept_or_collection, provider, profile="partial", language="en"
+):
+    return _jsonld_relation_renderer(
+        concept_or_collection, provider, "subordinate_arrays", profile, language
+    )
+
+
+def _jsonld_relation_renderer(
+    concept_or_collection, provider, relation, profile="partial", language="en"
+):
     doc = {relation: []}
-    for m in getattr(c, relation):
-        relc = provider.get_by_id(m)
+    for member_id in getattr(concept_or_collection, relation):
+        related_concept = provider.get_by_id(member_id)
         if profile == "partial":
-            doc[relation].append(_jsonld_c_basic_renderer(relc, language))
+            doc[relation].append(_jsonld_c_basic_renderer(related_concept, language))
         else:
-            doc[relation].append(relc.uri)
+            doc[relation].append(related_concept.uri)
     return doc
 
 
 def _jsonld_topconcepts_renderer(provider, profile="partial"):
     doc = {"top_concepts": []}
-    for c in provider.get_top_concepts():
+    for top_concept in provider.get_top_concepts():
         if profile == "partial":
-            doc["top_concepts"].append(c)
+            doc["top_concepts"].append(top_concept)
         else:
-            doc["top_concepts"].append(c["uri"])
+            doc["top_concepts"].append(top_concept["uri"])
     return doc
 
 

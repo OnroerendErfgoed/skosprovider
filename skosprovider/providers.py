@@ -469,27 +469,33 @@ class MemoryProvider(VocabularyProvider):
 
     def get_by_id(self, id):
         id = str(id)
-        for c in self.list:
-            if str(c.id) == id:
-                return c
+        for concept_or_collection in self.list:
+            if str(concept_or_collection.id) == id:
+                return concept_or_collection
         return False
 
     def get_by_uri(self, uri):
         uri = str(uri)
-        for c in self.list:
-            if str(c.uri) == uri:
-                return c
+        for concept_or_collection in self.list:
+            if str(concept_or_collection.uri) == uri:
+                return concept_or_collection
         return False
 
     def find(self, query, **kwargs):
         query = self._normalise_query(query)
-        filtered = [c for c in self.list if self._include_in_find(c, query)]
+        filtered = [
+            concept_or_collection
+            for concept_or_collection in self.list
+            if self._include_in_find(concept_or_collection, query)
+        ]
         language = self._get_language(**kwargs)
         sort = self._get_sort(**kwargs)
         reverse_sort = self._get_sort_order(**kwargs) == "desc"
         return [
-            self._get_find_dict(c, **kwargs)
-            for c in self._sort(filtered, sort, language, reverse_sort)
+            self._get_find_dict(concept_or_collection, **kwargs)
+            for concept_or_collection in self._sort(
+                filtered, sort, language, reverse_sort
+            )
         ]
 
     def _normalise_query(self, query):
@@ -503,16 +509,16 @@ class MemoryProvider(VocabularyProvider):
             query["type"] = "concept"
         return query
 
-    def _include_in_find(self, c, query):
+    def _include_in_find(self, concept_or_collection, query):
         """
-        :param c: A :class:`skosprovider.skos.Concept` or
+        :param concept_or_collection: A :class:`skosprovider.skos.Concept` or
             :class:`skosprovider.skos.Collection`.
         :param query: A dict that can be used to express a query.
         :rtype: boolean
         """
         include = True
         if include and "type" in query:
-            include = query["type"] == c.type
+            include = query["type"] == concept_or_collection.type
         if include and "label" in query:
 
             def finder(label, query):
@@ -521,49 +527,57 @@ class MemoryProvider(VocabularyProvider):
                 else:
                     return label.label.upper().find(query["label"].upper())
 
-            include = any([finder(label, query) >= 0 for label in c.labels])
+            include = any(
+                [finder(label, query) >= 0 for label in concept_or_collection.labels]
+            )
         if include and "collection" in query:
-            coll = self.get_by_id(query["collection"]["id"])
-            if not coll or not isinstance(coll, Collection):
+            collection = self.get_by_id(query["collection"]["id"])
+            if not collection or not isinstance(collection, Collection):
                 raise ValueError(
                     "You are searching for items in an unexisting collection."
                 )
             if "depth" in query["collection"] and query["collection"]["depth"] == "all":
-                members = self.expand(coll.id)
+                members = self.expand(collection.id)
             else:
-                members = coll.members
-            include = any([True for id in members if str(id) == str(c.id)])
-        if include and "matches" in query and c.type == "concept":
+                members = collection.members
+            include = any(
+                [True for id in members if str(id) == str(concept_or_collection.id)]
+            )
+        if include and "matches" in query and concept_or_collection.type == "concept":
             match_uri = query["matches"].get("uri", None)
             if not match_uri:
                 raise ValueError("Please provide a URI to match with.")
             match_type = query["matches"].get("type", None)
             if not match_type:
                 matches = []
-                for mt in c.matchtypes:
-                    matches.extend(c.matches[mt])
+                for matchtype in concept_or_collection.matchtypes:
+                    matches.extend(concept_or_collection.matches[matchtype])
             else:
-                matches = c.matches.get(match_type, [])[:]
+                matches = concept_or_collection.matches.get(match_type, [])[:]
                 if match_type == "close":
-                    matches.extend(c.matches.get("exact", []))
+                    matches.extend(concept_or_collection.matches.get("exact", []))
             include = any([True for uri in matches if uri == match_uri])
         return include
 
-    def _get_find_dict(self, c, **kwargs):
+    def _get_find_dict(self, concept_or_collection, **kwargs):
         """
         Return a dict that can be used in the return list of the :meth:`find`
         method.
 
-        :param c: A :class:`skosprovider.skos.Concept` or
+        :param concept_or_collection: A :class:`skosprovider.skos.Concept` or
             :class:`skosprovider.skos.Collection`.
         :rtype: dict
         """
         language = self._get_language(**kwargs)
         return {
-            "id": c.id,
-            "uri": c.uri,
-            "type": c.type,
-            "label": None if c.label() is None else c.label(language).label,
+            "id": concept_or_collection.id,
+            "uri": concept_or_collection.uri,
+            "type": concept_or_collection.type,
+            "label": (
+                None
+                if concept_or_collection.label() is None
+                else concept_or_collection.label(language).label
+            ),
         }
 
     def get_all(self, **kwargs):
@@ -571,36 +585,38 @@ class MemoryProvider(VocabularyProvider):
         sort = self._get_sort(**kwargs)
         reverse_sort = self._get_sort_order(**kwargs) == "desc"
         return [
-            self._get_find_dict(c, **kwargs)
-            for c in self._sort(self.list, sort, language, reverse_sort)
+            self._get_find_dict(concept_or_collection, **kwargs)
+            for concept_or_collection in self._sort(
+                self.list, sort, language, reverse_sort
+            )
         ]
 
-    def _is_top_concept(self, c):
+    def _is_top_concept(self, concept_or_collection):
         """
         Is this a top concept or not?
 
         A top concept is a concept that has no broader concepts directly or
         indirectly (because it might be part of a thesaurus array).
 
-        :param c: A :class:`skosprovider.skos.Concept` or
+        :param concept_or_collection: A :class:`skosprovider.skos.Concept` or
             :class:`skosprovider.skos.Collection`.
         :rtype: boolean
         """
-        if not isinstance(c, Concept):
+        if not isinstance(concept_or_collection, Concept):
             return False
-        if len(c.broader):
+        if len(concept_or_collection.broader):
             return False
 
-        def _has_higher_concept(c):
-            for collid in c.member_of:
-                coll = self.get_by_id(collid)
-                if coll.infer_concept_relations and (
-                    coll.superordinates or _has_higher_concept(coll)
+        def _has_higher_concept(concept_or_collection):
+            for collection_id in concept_or_collection.member_of:
+                collection = self.get_by_id(collection_id)
+                if collection.infer_concept_relations and (
+                    collection.superordinates or _has_higher_concept(collection)
                 ):
                     return True
             return False
 
-        return not _has_higher_concept(c)
+        return not _has_higher_concept(concept_or_collection)
 
     def get_top_concepts(self, **kwargs):
         language = self._get_language(**kwargs)
@@ -614,21 +630,23 @@ class MemoryProvider(VocabularyProvider):
 
     def expand(self, id):
         id = str(id)
-        for c in self.list:
-            if str(c.id) == id:
-                if isinstance(c, Concept):
-                    ret = {c.id}
-                    for cid in c.narrower:
-                        ret |= set(self.expand(cid))
-                    for collid in c.subordinate_arrays:
-                        coll = self.get_by_id(collid)
-                        if coll.infer_concept_relations:
-                            ret |= set(self.expand(collid))
+        for concept_or_collection in self.list:
+            if str(concept_or_collection.id) == id:
+                if isinstance(concept_or_collection, Concept):
+                    concept = concept_or_collection
+                    ret = {concept.id}
+                    for narrower_id in concept.narrower:
+                        ret |= set(self.expand(narrower_id))
+                    for collection_id in concept.subordinate_arrays:
+                        collection = self.get_by_id(collection_id)
+                        if collection.infer_concept_relations:
+                            ret |= set(self.expand(collection_id))
                     return list(ret)
-                elif isinstance(c, Collection):
+                elif isinstance(concept_or_collection, Collection):
+                    collection = concept_or_collection
                     ret = set()
-                    for m in c.members:
-                        ret |= set(self.expand(m))
+                    for member in collection.members:
+                        ret |= set(self.expand(member))
                     return list(ret)
         return False
 
@@ -636,48 +654,65 @@ class MemoryProvider(VocabularyProvider):
         language = self._get_language(**kwargs)
         sort = self._get_sort(**kwargs)
         sort_order = self._get_sort_order(**kwargs)
-        td = [
-            c
-            for c in self.list
+        top_display = [
+            concept_or_collection
+            for concept_or_collection in self.list
             if (
-                isinstance(c, Concept) and len(c.broader) == 0 and len(c.member_of) == 0
+                isinstance(concept_or_collection, Concept)
+                and len(concept_or_collection.broader) == 0
+                and len(concept_or_collection.member_of) == 0
             )
             or (
-                isinstance(c, Collection)
-                and len(c.superordinates) == 0
-                and len(c.member_of) == 0
+                isinstance(concept_or_collection, Collection)
+                and len(concept_or_collection.superordinates) == 0
+                and len(concept_or_collection.member_of) == 0
             )
         ]
         return [
             {
-                "id": c.id,
-                "uri": c.uri,
-                "type": c.type,
-                "label": None if c.label() is None else c.label(language).label,
+                "id": concept_or_collection.id,
+                "uri": concept_or_collection.uri,
+                "type": concept_or_collection.type,
+                "label": (
+                    None
+                    if concept_or_collection.label() is None
+                    else concept_or_collection.label(language).label
+                ),
             }
-            for c in self._sort(td, sort, language, sort_order == "desc")
+            for concept_or_collection in self._sort(
+                top_display, sort, language, sort_order == "desc"
+            )
         ]
 
     def get_children_display(self, id, **kwargs):
-        c = self.get_by_id(id)
-        if not c:
+        concept_or_collection = self.get_by_id(id)
+        if not concept_or_collection:
             return False
         language = self._get_language(**kwargs)
         sort = self._get_sort(**kwargs)
         sort_order = self._get_sort_order(**kwargs)
-        if isinstance(c, Concept):
-            display_children = c.subordinate_arrays + c.narrower
+        if isinstance(concept_or_collection, Concept):
+            display_children = (
+                concept_or_collection.subordinate_arrays
+                + concept_or_collection.narrower
+            )
         else:
-            display_children = c.members
-        dc = [self.get_by_id(dcid) for dcid in display_children]
+            display_children = concept_or_collection.members
+        display_children_list = [
+            self.get_by_id(display_child_id) for display_child_id in display_children
+        ]
         return [
             {
-                "id": co.id,
-                "uri": co.uri,
-                "type": co.type,
-                "label": None if co.label() is None else co.label(language).label,
+                "id": child.id,
+                "uri": child.uri,
+                "type": child.type,
+                "label": (
+                    None if child.label() is None else child.label(language).label
+                ),
             }
-            for co in self._sort(dc, sort, language, sort_order == "desc")
+            for child in self._sort(
+                display_children_list, sort, language, sort_order == "desc"
+            )
         ]
 
 
@@ -690,7 +725,9 @@ class DictionaryProvider(MemoryProvider):
 
     def __init__(self, metadata, list, **kwargs):
         super().__init__(metadata, [], **kwargs)
-        self.list = [self._from_dict(c) for c in list]
+        self.list = [
+            self._from_dict(concept_or_collection) for concept_or_collection in list
+        ]
 
     def _from_dict(self, data):
         if "type" in data and data["type"] == "collection":
