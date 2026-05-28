@@ -8,11 +8,16 @@ subordinate array).
 .. versionadded:: 0.2.0
 """
 
+from collections.abc import Sequence
+from typing import Any
+from typing import ClassVar
+from typing import Literal
+
 from language_tags import tags
 
 from .uri import is_uri
 
-valid_markup = [None, "HTML"]
+valid_markup: list[str | None] = [None, "HTML"]
 """
 Valid types of markup for a note or a source.
 """
@@ -23,39 +28,49 @@ class Label:
     A :term:`SKOS` Label.
     """
 
-    uri = None
+    uri: str | None
     """A :term:`URI` for this label."""
 
-    label = None
+    label: str
     """
     The label itself (eg. `churches`, `trees`, `Spitfires`, ...)
     """
 
-    type = "prefLabel"
+    type: str
     """
     The type of this label (`prefLabel`, `altLabel`, `hiddenLabel`, 'sortLabel').
     """
 
-    label_types = []
+    label_types: list[str]
     """
     Zero or more extra types for this label.
     These types should be URI's that map to SKOS Concepts,
     adding some typing but nor formal semantics.
     """
 
-    language = "und"
+    language: str
     """
     The language the label is in (eg. `en`, `en-US`, `nl`, `nl-BE`).
     """
 
-    valid_types = ["prefLabel", "altLabel", "hiddenLabel", "sortLabel"]
+    valid_types: ClassVar[list[str]] = [
+        "prefLabel",
+        "altLabel",
+        "hiddenLabel",
+        "sortLabel",
+    ]
     """
     The valid types for a label
     """
 
     def __init__(
-        self, label, type="prefLabel", language="und", uri=None, label_types=None
-    ):
+        self,
+        label: str,
+        type: str = "prefLabel",
+        language: str = "und",
+        uri: str | None = None,
+        label_types: list[str] | None = None,
+    ) -> None:
         self.label = label
         self.type = type
         if not language:
@@ -72,7 +87,7 @@ class Label:
         else:
             self.label_types = []
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         if not isinstance(other, Label):
             return False
         if self.uri:
@@ -83,11 +98,11 @@ class Label:
             and self.language == other.language
         )
 
-    def __ne__(self, other):
+    def __ne__(self, other: object) -> bool:
         return not self == other
 
     @staticmethod
-    def is_valid_type(type):
+    def is_valid_type(type: str) -> bool:
         """
         Check if the argument is a valid SKOS label type.
 
@@ -95,10 +110,10 @@ class Label:
         """
         return type in Label.valid_types
 
-    def is_xl(self):
+    def is_xl(self) -> bool:
         return self.uri is not None
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         if not self.is_xl():
             return f"Label('{self.label}', '{self.type}', '{self.language}')"
         return f"Label('{self.label}', '{self.type}', '{self.language}', '{self.uri}')"
@@ -109,20 +124,20 @@ class Note:
     A :term:`SKOS` Note.
     """
 
-    note = None
+    note: str
     """The note itself"""
 
-    type = "note"
+    type: str
     """
     The type of this note ( `note`, `definition`, `scopeNote`, ...).
     """
 
-    language = "und"
+    language: str
     """
     The language the label is in (eg. `en`, `en-US`, `nl`, `nl-BE`).
     """
 
-    markup = None
+    markup: str | None
     """
     What kind of markup does the note contain?
 
@@ -130,7 +145,7 @@ class Note:
     Currently only HTML is allowed.
     """
 
-    valid_types = [
+    valid_types: ClassVar[list[str]] = [
         "note",
         "changeNote",
         "definition",
@@ -143,7 +158,13 @@ class Note:
     The valid types for a note.
     """
 
-    def __init__(self, note, type="note", language="und", markup=None):
+    def __init__(
+        self,
+        note: str,
+        type: str = "note",
+        language: str = "und",
+        markup: str | None = None,
+    ) -> None:
         self.note = note
         self.type = type
         if not language:
@@ -157,7 +178,7 @@ class Note:
         else:
             raise ValueError(f"{markup} is not valid markup.")
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         if not isinstance(other, Note):
             return False
         return (
@@ -166,11 +187,11 @@ class Note:
             and self.language == other.language
         )
 
-    def __ne__(self, other):
+    def __ne__(self, other: object) -> bool:
         return not self == other
 
     @staticmethod
-    def is_valid_type(type):
+    def is_valid_type(type: str) -> bool:
         """
         Check if the argument is a valid SKOS note type.
 
@@ -179,7 +200,7 @@ class Note:
         return type in Note.valid_types
 
     @staticmethod
-    def is_valid_markup(markup):
+    def is_valid_markup(markup: str | None) -> bool:
         """
         Check the argument is a valid type of markup.
 
@@ -194,10 +215,10 @@ class Source:
 
     """
 
-    citation = None
+    citation: str
     """A bibliographic citation for this source."""
 
-    markup = None
+    markup: str | None
     """
     What kind of markup does the source contain?
 
@@ -205,7 +226,7 @@ class Source:
     Currently only HTML is allowed.
     """
 
-    def __init__(self, citation, markup=None):
+    def __init__(self, citation: str, markup: str | None = None) -> None:
         self.citation = citation
         if self.is_valid_markup(markup):
             self.markup = markup
@@ -213,7 +234,7 @@ class Source:
             raise ValueError(f"{markup} is not valid markup.")
 
     @staticmethod
-    def is_valid_markup(markup):
+    def is_valid_markup(markup: str | None) -> bool:
         """
         Check the argument is a valid type of markup.
 
@@ -231,26 +252,33 @@ class ConceptScheme:
     :param list notes: A list of :class:`skosprovider.skos.Note` instances.
     """
 
-    uri = None
+    uri: str
     """A :term:`URI` for this conceptscheme."""
 
-    labels = []
+    labels: list[Label]
     """A :class:`lst` of :class:`skosprovider.skos.label` instances."""
 
-    notes = []
+    notes: list[Note]
     """A :class:`lst` of :class:`skosprovider.skos.Note` instances."""
 
-    sources = []
+    sources: list[Source]
     """A :class:`lst` of :class:`skosprovider.skos.Source` instances."""
 
-    languages = []
+    languages: list[str]
     """
     A :class:`lst` of languages that are being used in the ConceptScheme.
 
     There's no guarantuee that labels or notes in other languages do not exist.
     """
 
-    def __init__(self, uri, labels=None, notes=None, sources=None, languages=None):
+    def __init__(
+        self,
+        uri: str,
+        labels: list[Label | dict] | None = None,
+        notes: list[Note | dict] | None = None,
+        sources: list[Source | dict] | None = None,
+        languages: list[str] | None = None,
+    ) -> None:
         if not is_uri(uri):
             raise ValueError(f"{uri} is not a valid URI.")
         self.uri = uri
@@ -259,7 +287,7 @@ class ConceptScheme:
         self.sources = [dict_to_source(source) for source in sources] if sources else []
         self.languages = languages or []
 
-    def label(self, language="any"):
+    def label(self, language: str | list[str] = "any") -> Label | None:
         """
         Provide a single label for this conceptscheme.
 
@@ -272,7 +300,7 @@ class ConceptScheme:
         """
         return label(self.labels, language)
 
-    def _sortkey(self, key="uri", language="any"):
+    def _sortkey(self, key: str = "uri", language: str | list[str] = "any") -> str:
         """
         Provide a single sortkey for this conceptscheme.
 
@@ -287,7 +315,7 @@ class ConceptScheme:
             sortlabel = label(self.labels, language, key == "sortlabel")
             return sortlabel.label.lower() if sortlabel else ""
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"ConceptScheme('{self.uri}')"
 
 
@@ -296,58 +324,58 @@ class Concept:
     A :term:`SKOS` Concept.
     """
 
-    id = None
+    id: Any
     """An id for this Concept within a vocabulary
 
     eg. 12345
     """
 
-    uri = None
+    uri: str | None
     """A proper uri for this Concept
 
     eg. `http://id.example.com/skos/trees/1`
     """
 
-    type = "concept"
+    type: Literal["concept"]
     """The type of this concept or collection.
 
     eg. 'concept'
     """
 
-    concept_scheme = None
+    concept_scheme: ConceptScheme | None
     """The :class:`ConceptScheme` this Concept is a part of."""
 
-    labels = []
+    labels: list[Label]
     """A :class:`lst` of :class:`Label` instances."""
 
-    notes = []
+    notes: list[Note]
     """A :class:`lst` of :class:`Note` instances."""
 
-    sources = []
+    sources: list[Source]
     """A :class:`lst` of :class:`skosprovider.skos.Source` instances."""
 
-    broader = []
+    broader: list[Any]
     """A :class:`lst` of concept ids."""
 
-    narrower = []
+    narrower: list[Any]
     """A :class:`lst` of concept ids."""
 
-    related = []
+    related: list[Any]
     """A :class:`lst` of concept ids."""
 
-    member_of = []
+    member_of: list[Any]
     """A :class:`lst` of collection ids."""
 
-    subordinate_arrays = []
+    subordinate_arrays: list[Any]
     """A :class:`list` of collection ids."""
 
-    matches = ({},)
+    matches: dict[str, list[str]]
     """
     A :class:`dictionary`. Each key is a matchtype and
     contains a :class:`list` of URI's.
     """
 
-    matchtypes = ["close", "exact", "related", "broad", "narrow"]
+    matchtypes: ClassVar[list[str]] = ["close", "exact", "related", "broad", "narrow"]
     """Matches with Concepts in other ConceptSchemes.
 
     This dictionary contains a key for each type of Match (close, exact,
@@ -356,19 +384,19 @@ class Concept:
 
     def __init__(
         self,
-        id,
-        uri=None,
-        concept_scheme=None,
-        labels=None,
-        notes=None,
-        sources=None,
-        broader=None,
-        narrower=None,
-        related=None,
-        member_of=None,
-        subordinate_arrays=None,
-        matches=None,
-    ):
+        id: Any,
+        uri: str | None = None,
+        concept_scheme: ConceptScheme | None = None,
+        labels: list[Label | dict] | None = None,
+        notes: list[Note | dict] | None = None,
+        sources: list[Source | dict] | None = None,
+        broader: list[Any] | None = None,
+        narrower: list[Any] | None = None,
+        related: list[Any] | None = None,
+        member_of: list[Any] | None = None,
+        subordinate_arrays: list[Any] | None = None,
+        matches: dict[str, list[str]] | None = None,
+    ) -> None:
         self.id = id
         self.uri = uri
         self.type = "concept"
@@ -385,7 +413,7 @@ class Concept:
         if matches:
             self.matches.update(matches)
 
-    def label(self, language="any"):
+    def label(self, language: str | list[str] = "any") -> Label | None:
         """
         Provide a single label for this concept.
 
@@ -397,9 +425,9 @@ class Concept:
         """
         return label(self.labels, language)
 
-    def _sortkey(self, key="id", language="any"):
+    def _sortkey(self, key: str = "id", language: str | list[str] = "any") -> str:
         """
-        Provide a single sortkey for this collection.
+        Provide a single sortkey for this concept.
 
         :param string key: Either `id`, `uri`, `label` or `sortlabel`.
         :param string language: The preferred language to receive the label in
@@ -414,7 +442,7 @@ class Concept:
             sortlabel = label(self.labels, language, key == "sortlabel")
             return sortlabel.label.lower() if sortlabel else ""
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"Concept('{self.id}')"
 
 
@@ -423,56 +451,56 @@ class Collection:
     A :term:`SKOS` Collection.
     """
 
-    id = None
+    id: Any
     """An id for this Collection within a vocabulary"""
 
-    uri = None
+    uri: str | None
     """A proper uri for this Collection"""
 
-    type = "collection"
+    type: Literal["collection"]
     """The type of this concept or collection.
 
     eg. 'collection'
     """
 
-    concept_scheme = None
+    concept_scheme: ConceptScheme | None
     """The :class:`ConceptScheme` this Collection is a part of."""
 
-    labels = []
+    labels: list[Label]
     """A :class:`lst` of :class:`skosprovider.skos.label` instances."""
 
-    notes = []
+    notes: list[Note]
     """A :class:`lst` of :class:`skosprovider.skos.Note` instances."""
 
-    sources = []
+    sources: list[Source]
     """A :class:`lst` of :class:`skosprovider.skos.Source` instances."""
 
-    members = []
+    members: list[Any]
     """A :class:`lst` of concept or collection ids."""
 
-    member_of = []
+    member_of: list[Any]
     """A :class:`lst` of collection ids."""
 
-    superordinates = []
+    superordinates: list[Any]
     """A :class:`lst` of concept ids."""
 
-    infer_concept_relations = True
+    infer_concept_relations: bool
     """Should member concepts of this collection be seen as narrower concept of
     a superordinate of the collection?"""
 
     def __init__(
         self,
-        id,
-        uri=None,
-        concept_scheme=None,
-        labels=None,
-        notes=None,
-        sources=None,
-        members=None,
-        member_of=None,
-        superordinates=None,
-        infer_concept_relations=True,
-    ):
+        id: Any,
+        uri: str | None = None,
+        concept_scheme: ConceptScheme | None = None,
+        labels: list[Label | dict] | None = None,
+        notes: list[Note | dict] | None = None,
+        sources: list[Source | dict] | None = None,
+        members: list[Any] | None = None,
+        member_of: list[Any] | None = None,
+        superordinates: list[Any] | None = None,
+        infer_concept_relations: bool = True,
+    ) -> None:
         self.id = id
         self.uri = uri
         self.type = "collection"
@@ -485,7 +513,7 @@ class Collection:
         self.superordinates = superordinates or []
         self.infer_concept_relations = infer_concept_relations
 
-    def label(self, language="any"):
+    def label(self, language: str | list[str] = "any") -> Label | None:
         """
         Provide a single label for this collection.
 
@@ -495,9 +523,9 @@ class Collection:
             This should be a valid IANA language tag.
         :rtype: :class:`skosprovider.skos.Label` or None if no labels were found.
         """
-        return label(self.labels, language, False)
+        return label(self.labels, language)
 
-    def _sortkey(self, key="id", language="any"):
+    def _sortkey(self, key: str = "id", language: str | list[str] = "any") -> str:
         """
         Provide a single sortkey for this collection.
 
@@ -514,11 +542,15 @@ class Collection:
             sortlabel = label(self.labels, language, key == "sortlabel")
             return sortlabel.label.lower() if sortlabel else ""
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"Collection('{self.id}')"
 
 
-def label(labels=None, language="any", sortLabel=False):
+def label(
+    labels: Sequence[Label | dict] | None = None,
+    language: str | list[str] | None = "any",
+    sortLabel: bool = False,
+) -> Label | None:
     """
     Provide a label for a list of labels.
 
@@ -570,26 +602,31 @@ def label(labels=None, language="any", sortLabel=False):
     if not labels:
         return None
     if isinstance(language, str):
-        language = [language]
-    if isinstance(language, list):
-        language = [lang for lang in language if tags.tag(lang).language]
-    if not language:
-        language = ["und"]
-    labels = [dict_to_label(label) for label in labels]
-    return_label = False
-    for lang in language:
+        langs: list[str] = [language]
+    elif isinstance(language, list):
+        langs = language
+    else:
+        langs = ["und"]
+    langs = [lang for lang in langs if tags.tag(lang).language] or ["und"]
+    actual_labels = [dict_to_label(lbl_or_dict) for lbl_or_dict in labels]
+    return_label: Label | Literal[False] = False
+    for lang in langs:
         if sortLabel:
-            return_label = find_best_label_for_type(labels, lang, "sortLabel")
+            return_label = find_best_label_for_type(actual_labels, lang, "sortLabel")
         if not return_label:
-            return_label = find_best_label_for_type(labels, lang, "prefLabel")
+            return_label = find_best_label_for_type(actual_labels, lang, "prefLabel")
         if not return_label:
-            return_label = find_best_label_for_type(labels, lang, "altLabel")
+            return_label = find_best_label_for_type(actual_labels, lang, "altLabel")
         if return_label:
             return return_label
-    return label(labels, "any", sortLabel) if "any" not in language else None
+    return label(labels, "any", sortLabel) if "any" not in langs else None
 
 
-def find_best_label_for_type(labels, language, labeltype):
+def find_best_label_for_type(
+    labels: Sequence[Label],
+    language: str,
+    labeltype: str,
+) -> Label | Literal[False]:
     """
     Find the best label for a certain labeltype.
 
@@ -597,7 +634,7 @@ def find_best_label_for_type(labels, language, labeltype):
     :param str language: An IANA language string, eg. `nl` or `nl-BE`.
     :param str labeltype: Type of label to look for, eg. `prefLabel`.
     """
-    typelabels = [label for label in labels if label.type == labeltype]
+    typelabels = [lbl for lbl in labels if lbl.type == labeltype]
     if not typelabels:
         return False
     if language == "any":
@@ -611,7 +648,11 @@ def find_best_label_for_type(labels, language, labeltype):
     return False
 
 
-def filter_labels_by_language(labels, language, broader=False):
+def filter_labels_by_language(
+    labels: Sequence[Label],
+    language: str,
+    broader: bool = False,
+) -> Sequence[Label]:
     """
     Filter a list of labels, leaving only labels of a certain language.
 
@@ -623,11 +664,15 @@ def filter_labels_by_language(labels, language, broader=False):
     if language == "any":
         return labels
     if broader:
-        language = tags.tag(language).language.format
+        lang_subtag = tags.tag(language).language
+        if lang_subtag is None:
+            return []
+        language = lang_subtag.format
         return [
             label
             for label in labels
-            if tags.tag(label.language).language.format == language
+            if (subtag := tags.tag(label.language).language) is not None
+            and subtag.format == language
         ]
     else:
         language = tags.tag(language).format
@@ -636,7 +681,7 @@ def filter_labels_by_language(labels, language, broader=False):
         ]
 
 
-def dict_to_label(dict):
+def dict_to_label(value: Label | dict) -> Label:
     """
     Transform a dict with keys `label`, `type`, `language` and `uri`
     into a :class:`Label`.
@@ -648,19 +693,18 @@ def dict_to_label(dict):
     If the argument passed is not a dict, this method just
     returns the argument.
     """
-    try:
-        return Label(
-            dict["label"],
-            dict.get("type", "prefLabel"),
-            dict.get("language", "und"),
-            uri=dict.get("uri"),
-            label_types=dict.get("label_types", []),
-        )
-    except (KeyError, AttributeError, TypeError):
-        return dict
+    if isinstance(value, Label):
+        return value
+    return Label(
+        value["label"],
+        value.get("type", "prefLabel"),
+        value.get("language", "und"),
+        uri=value.get("uri"),
+        label_types=value.get("label_types", []),
+    )
 
 
-def dict_to_note(dict):
+def dict_to_note(value: Note | dict) -> Note:
     """
     Transform a dict with keys `note`, `type` and `language` into a
     :class:`Note`.
@@ -672,17 +716,17 @@ def dict_to_note(dict):
     If the argument passed is already a :class:`Note`, this method just returns
     the argument.
     """
-    if isinstance(dict, Note):
-        return dict
+    if isinstance(value, Note):
+        return value
     return Note(
-        dict["note"],
-        dict.get("type", "note"),
-        dict.get("language", "und"),
-        dict.get("markup"),
+        value["note"],
+        value.get("type", "note"),
+        value.get("language", "und"),
+        value.get("markup"),
     )
 
 
-def dict_to_source(dict):
+def dict_to_source(value: Source | dict) -> Source:
     """
     Transform a dict with key 'citation' into a :class:`Source`.
 
@@ -690,6 +734,6 @@ def dict_to_source(dict):
     returns the argument.
     """
 
-    if isinstance(dict, Source):
-        return dict
-    return Source(dict["citation"], dict.get("markup"))
+    if isinstance(value, Source):
+        return value
+    return Source(value["citation"], value.get("markup"))
