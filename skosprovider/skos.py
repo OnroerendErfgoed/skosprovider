@@ -11,11 +11,15 @@ subordinate array).
 from collections.abc import Sequence
 from typing import Any
 from typing import ClassVar
+from typing import Generic
 from typing import Literal
+from typing import TypeVar
 
 from language_tags import tags
 
 from .uri import is_uri
+
+T = TypeVar("T")
 
 valid_markup: list[str | None] = [None, "HTML"]
 """
@@ -23,7 +27,7 @@ Valid types of markup for a note or a source.
 """
 
 
-class Label:
+class Label(Generic[T]):
     """
     A :term:`SKOS` Label.
     """
@@ -53,6 +57,9 @@ class Label:
     The language the label is in (eg. `en`, `en-US`, `nl`, `nl-BE`).
     """
 
+    extra_data: T | None
+    """Extra data attached to this label."""
+
     valid_types: ClassVar[list[str]] = [
         "prefLabel",
         "altLabel",
@@ -70,6 +77,7 @@ class Label:
         language: str = "und",
         uri: str | None = None,
         label_types: list[str] | None = None,
+        extra_data: T | None = None,
     ) -> None:
         self.label = label
         self.type = type
@@ -86,6 +94,7 @@ class Label:
             self.label_types = label_types
         else:
             self.label_types = []
+        self.extra_data = extra_data
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, Label):
@@ -119,7 +128,7 @@ class Label:
         return f"Label('{self.label}', '{self.type}', '{self.language}', '{self.uri}')"
 
 
-class Note:
+class Note(Generic[T]):
     """
     A :term:`SKOS` Note.
     """
@@ -145,6 +154,9 @@ class Note:
     Currently only HTML is allowed.
     """
 
+    extra_data: T | None
+    """Extra data attached to this note."""
+
     valid_types: ClassVar[list[str]] = [
         "note",
         "changeNote",
@@ -164,6 +176,7 @@ class Note:
         type: str = "note",
         language: str = "und",
         markup: str | None = None,
+        extra_data: T | None = None,
     ) -> None:
         self.note = note
         self.type = type
@@ -177,6 +190,7 @@ class Note:
             self.markup = markup
         else:
             raise ValueError(f"{markup} is not valid markup.")
+        self.extra_data = extra_data
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, Note):
@@ -209,7 +223,7 @@ class Note:
         return markup in valid_markup
 
 
-class Source:
+class Source(Generic[T]):
     """
     A `Source` for a concept, collection or scheme.
 
@@ -226,12 +240,16 @@ class Source:
     Currently only HTML is allowed.
     """
 
-    def __init__(self, citation: str, markup: str | None = None) -> None:
+    extra_data: T | None
+    """Extra data attached to this source."""
+
+    def __init__(self, citation: str, markup: str | None = None, extra_data: T | None = None) -> None:
         self.citation = citation
         if self.is_valid_markup(markup):
             self.markup = markup
         else:
             raise ValueError(f"{markup} is not valid markup.")
+        self.extra_data = extra_data
 
     @staticmethod
     def is_valid_markup(markup: str | None) -> bool:
@@ -243,7 +261,7 @@ class Source:
         return markup in valid_markup
 
 
-class ConceptScheme:
+class ConceptScheme(Generic[T]):
     """
     A :term:`SKOS` ConceptScheme.
 
@@ -271,6 +289,9 @@ class ConceptScheme:
     There's no guarantuee that labels or notes in other languages do not exist.
     """
 
+    extra_data: T | None
+    """Extra data attached to this concept scheme."""
+
     def __init__(
         self,
         uri: str,
@@ -278,6 +299,7 @@ class ConceptScheme:
         notes: list[Note | dict] | None = None,
         sources: list[Source | dict] | None = None,
         languages: list[str] | None = None,
+        extra_data: T | None = None,
     ) -> None:
         if not is_uri(uri):
             raise ValueError(f"{uri} is not a valid URI.")
@@ -286,6 +308,7 @@ class ConceptScheme:
         self.notes = [dict_to_note(note) for note in notes] if notes else []
         self.sources = [dict_to_source(source) for source in sources] if sources else []
         self.languages = languages or []
+        self.extra_data = extra_data
 
     def label(self, language: str | list[str] = "any") -> Label | None:
         """
@@ -319,7 +342,7 @@ class ConceptScheme:
         return f"ConceptScheme('{self.uri}')"
 
 
-class Concept:
+class Concept(Generic[T]):
     """
     A :term:`SKOS` Concept.
     """
@@ -375,6 +398,9 @@ class Concept:
     contains a :class:`list` of URI's.
     """
 
+    extra_data: T | None
+    """Extra data attached to this concept."""
+
     matchtypes: ClassVar[list[str]] = ["close", "exact", "related", "broad", "narrow"]
     """Matches with Concepts in other ConceptSchemes.
 
@@ -396,6 +422,7 @@ class Concept:
         member_of: list[Any] | None = None,
         subordinate_arrays: list[Any] | None = None,
         matches: dict[str, list[str]] | None = None,
+        extra_data: T | None = None,
     ) -> None:
         self.id = id
         self.uri = uri
@@ -412,6 +439,7 @@ class Concept:
         self.matches = {key: [] for key in self.matchtypes}
         if matches:
             self.matches.update(matches)
+        self.extra_data = extra_data
 
     def label(self, language: str | list[str] = "any") -> Label | None:
         """
@@ -446,7 +474,7 @@ class Concept:
         return f"Concept('{self.id}')"
 
 
-class Collection:
+class Collection(Generic[T]):
     """
     A :term:`SKOS` Collection.
     """
@@ -488,6 +516,9 @@ class Collection:
     """Should member concepts of this collection be seen as narrower concept of
     a superordinate of the collection?"""
 
+    extra_data: T | None
+    """Extra data attached to this collection."""
+
     def __init__(
         self,
         id: Any,
@@ -500,6 +531,7 @@ class Collection:
         member_of: list[Any] | None = None,
         superordinates: list[Any] | None = None,
         infer_concept_relations: bool = True,
+        extra_data: T | None = None,
     ) -> None:
         self.id = id
         self.uri = uri
@@ -512,6 +544,7 @@ class Collection:
         self.member_of = member_of or []
         self.superordinates = superordinates or []
         self.infer_concept_relations = infer_concept_relations
+        self.extra_data = extra_data
 
     def label(self, language: str | list[str] = "any") -> Label | None:
         """
