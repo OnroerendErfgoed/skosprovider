@@ -19,7 +19,7 @@ from language_tags import tags
 
 from .uri import is_uri
 
-T = TypeVar("T")
+ExtraData = TypeVar("ExtraData")
 
 valid_markup: list[str | None] = [None, "HTML"]
 """
@@ -27,7 +27,7 @@ Valid types of markup for a note or a source.
 """
 
 
-class Label(Generic[T]):
+class Label(Generic[ExtraData]):
     """
     A :term:`SKOS` Label.
     """
@@ -57,7 +57,7 @@ class Label(Generic[T]):
     The language the label is in (eg. `en`, `en-US`, `nl`, `nl-BE`).
     """
 
-    extra_data: T | None
+    extra_data: ExtraData | None
     """Extra data attached to this label."""
 
     valid_types: ClassVar[list[str]] = [
@@ -77,7 +77,7 @@ class Label(Generic[T]):
         language: str = "und",
         uri: str | None = None,
         label_types: list[str] | None = None,
-        extra_data: T | None = None,
+        extra_data: ExtraData | None = None,
     ) -> None:
         self.label = label
         self.type = type
@@ -128,7 +128,7 @@ class Label(Generic[T]):
         return f"Label('{self.label}', '{self.type}', '{self.language}', '{self.uri}')"
 
 
-class Note(Generic[T]):
+class Note(Generic[ExtraData]):
     """
     A :term:`SKOS` Note.
     """
@@ -154,7 +154,7 @@ class Note(Generic[T]):
     Currently only HTML is allowed.
     """
 
-    extra_data: T | None
+    extra_data: ExtraData | None
     """Extra data attached to this note."""
 
     valid_types: ClassVar[list[str]] = [
@@ -176,7 +176,7 @@ class Note(Generic[T]):
         type: str = "note",
         language: str = "und",
         markup: str | None = None,
-        extra_data: T | None = None,
+        extra_data: ExtraData | None = None,
     ) -> None:
         self.note = note
         self.type = type
@@ -223,7 +223,7 @@ class Note(Generic[T]):
         return markup in valid_markup
 
 
-class Source(Generic[T]):
+class Source(Generic[ExtraData]):
     """
     A `Source` for a concept, collection or scheme.
 
@@ -240,10 +240,15 @@ class Source(Generic[T]):
     Currently only HTML is allowed.
     """
 
-    extra_data: T | None
+    extra_data: ExtraData | None
     """Extra data attached to this source."""
 
-    def __init__(self, citation: str, markup: str | None = None, extra_data: T | None = None) -> None:
+    def __init__(
+        self,
+        citation: str,
+        markup: str | None = None,
+        extra_data: ExtraData | None = None,
+    ) -> None:
         self.citation = citation
         if self.is_valid_markup(markup):
             self.markup = markup
@@ -261,7 +266,7 @@ class Source(Generic[T]):
         return markup in valid_markup
 
 
-class ConceptScheme(Generic[T]):
+class ConceptScheme(Generic[ExtraData]):
     """
     A :term:`SKOS` ConceptScheme.
 
@@ -289,7 +294,7 @@ class ConceptScheme(Generic[T]):
     There's no guarantuee that labels or notes in other languages do not exist.
     """
 
-    extra_data: T | None
+    extra_data: ExtraData | None
     """Extra data attached to this concept scheme."""
 
     def __init__(
@@ -299,7 +304,7 @@ class ConceptScheme(Generic[T]):
         notes: list[Note | dict] | None = None,
         sources: list[Source | dict] | None = None,
         languages: list[str] | None = None,
-        extra_data: T | None = None,
+        extra_data: ExtraData | None = None,
     ) -> None:
         if not is_uri(uri):
             raise ValueError(f"{uri} is not a valid URI.")
@@ -342,7 +347,7 @@ class ConceptScheme(Generic[T]):
         return f"ConceptScheme('{self.uri}')"
 
 
-class Concept(Generic[T]):
+class Concept(Generic[ExtraData]):
     """
     A :term:`SKOS` Concept.
     """
@@ -398,7 +403,7 @@ class Concept(Generic[T]):
     contains a :class:`list` of URI's.
     """
 
-    extra_data: T | None
+    extra_data: ExtraData | None
     """Extra data attached to this concept."""
 
     matchtypes: ClassVar[list[str]] = ["close", "exact", "related", "broad", "narrow"]
@@ -422,7 +427,7 @@ class Concept(Generic[T]):
         member_of: list[Any] | None = None,
         subordinate_arrays: list[Any] | None = None,
         matches: dict[str, list[str]] | None = None,
-        extra_data: T | None = None,
+        extra_data: ExtraData | None = None,
     ) -> None:
         self.id = id
         self.uri = uri
@@ -474,7 +479,7 @@ class Concept(Generic[T]):
         return f"Concept('{self.id}')"
 
 
-class Collection(Generic[T]):
+class Collection(Generic[ExtraData]):
     """
     A :term:`SKOS` Collection.
     """
@@ -516,7 +521,7 @@ class Collection(Generic[T]):
     """Should member concepts of this collection be seen as narrower concept of
     a superordinate of the collection?"""
 
-    extra_data: T | None
+    extra_data: ExtraData | None
     """Extra data attached to this collection."""
 
     def __init__(
@@ -531,7 +536,7 @@ class Collection(Generic[T]):
         member_of: list[Any] | None = None,
         superordinates: list[Any] | None = None,
         infer_concept_relations: bool = True,
-        extra_data: T | None = None,
+        extra_data: ExtraData | None = None,
     ) -> None:
         self.id = id
         self.uri = uri
@@ -714,7 +719,7 @@ def filter_labels_by_language(
         ]
 
 
-def dict_to_label(value: Label | dict) -> Label:
+def dict_to_label(value: Label | dict) -> Label[dict]:
     """
     Transform a dict with keys `label`, `type`, `language` and `uri`
     into a :class:`Label`.
@@ -728,16 +733,18 @@ def dict_to_label(value: Label | dict) -> Label:
     """
     if isinstance(value, Label):
         return value
+    value = value.copy()
     return Label(
-        value["label"],
-        value.get("type", "prefLabel"),
-        value.get("language", "und"),
-        uri=value.get("uri"),
-        label_types=value.get("label_types", []),
+        value.pop("label"),
+        value.pop("type", "prefLabel"),
+        value.pop("language", "und"),
+        uri=value.pop("uri", None),
+        label_types=value.pop("label_types", []),
+        extra_data=value,
     )
 
 
-def dict_to_note(value: Note | dict) -> Note:
+def dict_to_note(value: Note | dict) -> Note[dict]:
     """
     Transform a dict with keys `note`, `type` and `language` into a
     :class:`Note`.
@@ -751,22 +758,28 @@ def dict_to_note(value: Note | dict) -> Note:
     """
     if isinstance(value, Note):
         return value
+    value = value.copy()
     return Note(
-        value["note"],
-        value.get("type", "note"),
-        value.get("language", "und"),
-        value.get("markup"),
+        value.pop("note"),
+        value.pop("type", "note"),
+        value.pop("language", "und"),
+        value.pop("markup", None),
+        extra_data=value,
     )
 
 
-def dict_to_source(value: Source | dict) -> Source:
+def dict_to_source(value: Source | dict) -> Source[dict]:
     """
     Transform a dict with key 'citation' into a :class:`Source`.
 
     If the argument passed is already a :class:`Source`, this method just
     returns the argument.
     """
-
     if isinstance(value, Source):
         return value
-    return Source(value["citation"], value.get("markup"))
+    value = value.copy()
+    return Source(
+        value.pop("citation"),
+        value.pop("markup", None),
+        extra_data=value,
+    )

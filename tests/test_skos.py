@@ -51,6 +51,12 @@ class TestLabel:
                 uri="12345",
             )
 
+    def test_extra_data(self):
+        label = Label("Knokke-Heist", extra_data={"custom": "value"})
+        assert label.extra_data == {"custom": "value"}
+        label_no_extra = Label("Knokke-Heist")
+        assert label_no_extra.extra_data is None
+
     def test_label_types(self):
         label = Label(
             "Knokke-Heist",
@@ -181,6 +187,12 @@ class TestNote:
         note = Note("A community in West-Flanders.", "definition", "en", None)
         assert note.is_valid_markup(None)
 
+    def test_extra_data(self):
+        note = Note("A note.", extra_data={"source": "wiki"})
+        assert note.extra_data == {"source": "wiki"}
+        note_no_extra = Note("A note.")
+        assert note_no_extra.extra_data is None
+
 
 class TestSource:
 
@@ -214,6 +226,12 @@ class TestSource:
             "<em>Data-driven systems and system-driven data: the story of the "
             "Flanders Heritage Inventory (1995-2015)</em>"
             Source(citation, markup="markdown")
+
+    def test_extra_data(self):
+        source = Source("My citation", extra_data={"doi": "10.1234/foo"})
+        assert source.extra_data == {"doi": "10.1234/foo"}
+        source_no_extra = Source("My citation")
+        assert source_no_extra.extra_data is None
 
 
 class TestConceptScheme:
@@ -275,6 +293,14 @@ class TestConceptScheme:
     def test_empty_uri(self):
         with pytest.raises(ValueError):
             ConceptScheme(uri=None)
+
+    def test_extra_data(self):
+        cs = ConceptScheme(
+            uri="urn:x-skosprovider:test", extra_data={"owner": "AGIV"}
+        )
+        assert cs.extra_data == {"owner": "AGIV"}
+        cs_no_extra = ConceptScheme(uri="urn:x-skosprovider:test")
+        assert cs_no_extra.extra_data is None
 
 
 class TestConcept:
@@ -355,6 +381,12 @@ class TestConcept:
         assert 1 == len(concept.sources)
         assert "My citation" == concept.sources[0].citation
 
+    def test_extra_data(self):
+        concept = Concept(id=1, extra_data={"provenance": "GIS"})
+        assert concept.extra_data == {"provenance": "GIS"}
+        concept_no_extra = Concept(id=1)
+        assert concept_no_extra.extra_data is None
+
 
 class TestCollection:
 
@@ -429,6 +461,12 @@ class TestCollection:
         coll = Collection(id=1, infer_concept_relations=False)
         assert not coll.infer_concept_relations
 
+    def test_extra_data(self):
+        coll = Collection(id=1, extra_data={"theme": "nature"})
+        assert coll.extra_data == {"theme": "nature"}
+        coll_no_extra = Collection(id=1)
+        assert coll_no_extra.extra_data is None
+
 
 class TestDictToNoteFunction:
 
@@ -444,6 +482,14 @@ class TestDictToNoteFunction:
         assert "note" == note.type
         assert "und" == note.language
 
+    def test_dict_to_note_with_extra_keys(self):
+        note = dict_to_note({"note": "A note.", "type": "note", "custom": "value"})
+        assert note.extra_data == {"custom": "value"}
+
+    def test_dict_to_note_no_extra_keys(self):
+        note = dict_to_note({"note": "A note.", "type": "note"})
+        assert note.extra_data == {}
+
 
 class TestDictToLabelFunction:
 
@@ -458,6 +504,14 @@ class TestDictToLabelFunction:
         assert "A label." == label.label
         assert "prefLabel" == label.type
         assert "und" == label.language
+
+    def test_dict_to_label_with_extra_keys(self):
+        label = dict_to_label({"label": "A label.", "type": "prefLabel", "custom": "x"})
+        assert label.extra_data == {"custom": "x"}
+
+    def test_dict_to_label_no_extra_keys(self):
+        label = dict_to_label({"label": "A label.", "type": "prefLabel"})
+        assert label.extra_data == {}
 
 
 class TestDictToSourceFunction:
@@ -483,6 +537,14 @@ class TestDictToSourceFunction:
         "Flanders Heritage Inventory (1995-2015)"
         source = dict_to_source(Source(citation))
         assert citation == source.citation
+
+    def test_dict_to_source_with_extra_keys(self):
+        source = dict_to_source({"citation": "My citation", "doi": "10.1234/foo"})
+        assert source.extra_data == {"doi": "10.1234/foo"}
+
+    def test_dict_to_source_no_extra_keys(self):
+        source = dict_to_source({"citation": "My citation"})
+        assert source.extra_data == {}
 
 
 class TestLabelFunction:

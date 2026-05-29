@@ -5,11 +5,49 @@ This module contains functions dealing with jsonld reading and writing.
 """
 
 import logging
+from typing import Callable
+from typing import Literal
+from typing import TypeAlias
 
+from skosprovider.providers import VocabularyProvider
+from skosprovider.skos import Collection
+from skosprovider.skos import Concept
+from skosprovider.skos import ConceptScheme
+from skosprovider.skos import Label
+from skosprovider.skos import Note
+from skosprovider.skos import Source
 from skosprovider.utils import add_lang_to_html
 from skosprovider.utils import extract_language
 
 log = logging.getLogger(__name__)
+
+SkosObject: TypeAlias = Concept | Collection | ConceptScheme | Label | Note | Source
+
+Serializer: TypeAlias = Callable[[SkosObject], dict | None] | None
+"""A callable that receives a SKOS object and returns a :class:`dict` to
+merge into the rendered output, or :obj:`None` to skip.  Called only when
+the object's :attr:`extra_data` is not :obj:`None`.
+
+Example usage with an rdflib Graph as extra_data::
+
+    import json
+    from rdflib import Graph
+
+    def my_serializer(obj):
+        if isinstance(obj.extra_data, Graph):
+            return json.loads(obj.extra_data.serialize(format="json-ld"))
+        return None
+
+    result = jsonld_dumper(provider, extra_data_serializer=my_serializer)
+"""
+
+
+def _apply_extra_data(doc: dict, obj: SkosObject, extra_data_serializer: Serializer) -> None:
+    if extra_data_serializer is not None and obj.extra_data is not None:
+        extra = extra_data_serializer(obj)
+        if extra is not None:
+            doc.update(extra)
+
 
 MINI_CONTEXT = {
     "@version": 1.1,
@@ -116,7 +154,12 @@ CONTEXT = {
 }
 
 
-def jsonld_dumper(provider, context=None, language=None):
+def jsonld_dumper(
+    provider: VocabularyProvider,
+    context: str | dict | None = None,
+    language: str | None = None,
+    extra_data_serializer: Serializer = None,
+) -> dict:
     """
     Dump a provider to a JSON-LD serialisable dictionary.
 
@@ -124,6 +167,9 @@ def jsonld_dumper(provider, context=None, language=None):
         that wil be turned into a JSON-LD `dict`.
     :param str or dict context: Context as a dict or link to context file.
     :param string language: Language to render a single label in.
+    :param extra_data_serializer: Optional callable that receives an `extra_data` value
+        and returns a `dict` to merge into the rendered output, or `None` to
+        skip.  See :data:`Serializer`.
 
     :rtype: A `dict`
     """
@@ -134,7 +180,11 @@ def jsonld_dumper(provider, context=None, language=None):
         doc["@context"] = context
     doc["@graph"].append(
         jsonld_conceptscheme_dumper(
-            provider, None, relations_profile="uri", language=language
+            provider,
+            None,
+            relations_profile="uri",
+            language=language,
+            extra_data_serializer=extra_data_serializer,
         )
     )
     for concept_or_collection in provider.get_all():
@@ -145,14 +195,20 @@ def jsonld_dumper(provider, context=None, language=None):
                 None,
                 relations_profile="uri",
                 language=language,
+                extra_data_serializer=extra_data_serializer,
             )
         )
     return doc
 
 
 def jsonld_c_dumper(
-    provider, id, context=None, relations_profile="partial", language="en"
-):
+    provider: VocabularyProvider,
+    id: str | int,
+    context: str | dict | None = None,
+    relations_profile: Literal["partial", "uri"] = "partial",
+    language: str = "en",
+    extra_data_serializer: Serializer = None,
+) -> dict:
     """
     Dump a concept or collection to a JSON-LD serialisable dictionary.
 
@@ -163,10 +219,15 @@ def jsonld_c_dumper(
     :param str relations_profile: Either `partial` or `uri` to render links to
         other resources with some information or just a :term:`URI`.
     :param string language: Language to render a single label in.
+    :param extra_data_serializer: Optional callable that receives an `extra_data` value
+        and returns a `dict` to merge into the rendered output, or `None` to
+        skip.  See :data:`Serializer`.
 
     :rtype: A `dict`
     """
     concept_or_collection = provider.get_by_id(id)
+    if concept_or_collection is False:
+        raise ValueError(f"id {id} was not found in the provider.")
     doc = _jsonld_c_basic_renderer(concept_or_collection, language)
     if context:
         doc["@context"] = context
@@ -179,10 +240,10 @@ def jsonld_c_dumper(
     dataset_uri = provider.get_metadata().get("dataset", {}).get("uri", None)
     if dataset_uri:
         doc["in_dataset"] = dataset_uri
-    doc.update(_jsonld_labels_renderer(concept_or_collection))
-    doc.update(_jsonld_labels_xl_renderer(concept_or_collection))
-    doc.update(_jsonld_notes_renderer(concept_or_collection))
-    doc.update(_jsonld_sources_renderer(concept_or_collection))
+    doc.update(_jsonld_labels_renderer(concept_or_collection, extra_data_serializer))
+    doc.update(_jsonld_labels_xl_renderer(concept_or_collection, extra_data_serializer))
+    doc.update(_jsonld_notes_renderer(concept_or_collection, extra_data_serializer))
+    doc.update(_jsonld_sources_renderer(concept_or_collection, extra_data_serializer))
     doc.update(
         _jsonld_member_of_renderer(
             concept_or_collection, provider, relations_profile, language
@@ -222,10 +283,14 @@ def jsonld_c_dumper(
                 concept_or_collection, provider, relations_profile, language
             )
         )
+    _apply_extra_data(doc, concept_or_collection, extra_data_serializer)
     return doc
 
 
-def _jsonld_c_basic_renderer(concept_or_collection, language="en"):
+def _jsonld_c_basic_renderer(
+    concept_or_collection: Concept | Collection,
+    language: str = "en",
+) -> dict:
     doc = {
         "id": concept_or_collection.id,
         "uri": concept_or_collection.uri,
@@ -237,7 +302,10 @@ def _jsonld_c_basic_renderer(concept_or_collection, language="en"):
     return doc
 
 
-def _jsonld_cs_basic_renderer(concept_scheme, language="en"):
+def _jsonld_cs_basic_renderer(
+    concept_scheme: ConceptScheme,
+    language: str = "en",
+) -> dict:
     doc = {"uri": concept_scheme.uri, "type": "skos:ConceptScheme"}
     label = concept_scheme.label(language)
     if label:
@@ -245,14 +313,19 @@ def _jsonld_cs_basic_renderer(concept_scheme, language="en"):
     return doc
 
 
-def _jsonld_labels_renderer(concept_or_collection):
+def _jsonld_labels_renderer(
+    concept_or_collection: Concept | Collection | ConceptScheme,
+    extra_data_serializer: Serializer = None,
+) -> dict:
     if not len(concept_or_collection.labels):
         return {}
     doc = {"labels": {}}
 
     def label_renderer(label):
         language = extract_language(label.language)
-        return {"language": language, "@language": language, "lbl": label.label}
+        rendered = {"language": language, "@language": language, "lbl": label.label}
+        _apply_extra_data(rendered, label, extra_data_serializer)
+        return rendered
 
     label_type_map = {
         "prefLabel": "pref_labels",
@@ -267,7 +340,10 @@ def _jsonld_labels_renderer(concept_or_collection):
     return doc
 
 
-def _jsonld_labels_xl_renderer(concept_or_collection):
+def _jsonld_labels_xl_renderer(
+    concept_or_collection: Concept | Collection | ConceptScheme,
+    extra_data_serializer: Serializer = None,
+) -> dict:
     if not len([label for label in concept_or_collection.labels if label.is_xl()]):
         return {}
     doc = {"labels_xl": {}}
@@ -281,6 +357,7 @@ def _jsonld_labels_xl_renderer(concept_or_collection):
         }
         if len(label.label_types):
             rendered_label["label_types"] = label.label_types
+        _apply_extra_data(rendered_label, label, extra_data_serializer)
         return rendered_label
 
     label_type_map = {
@@ -297,7 +374,10 @@ def _jsonld_labels_xl_renderer(concept_or_collection):
     return doc
 
 
-def _jsonld_notes_renderer(concept_or_collection):
+def _jsonld_notes_renderer(
+    concept_or_collection: Concept | Collection | ConceptScheme,
+    extra_data_serializer: Serializer = None,
+) -> dict:
     if not len(concept_or_collection.notes):
         return {}
     doc = {"notes": {}}
@@ -313,6 +393,7 @@ def _jsonld_notes_renderer(concept_or_collection):
             del rendered_note["@language"]
             rendered_note["nt"] = add_lang_to_html(rendered_note["nt"], language)
             rendered_note["@type"] = note.markup
+        _apply_extra_data(rendered_note, note, extra_data_serializer)
         return rendered_note
 
     note_type_map = {
@@ -331,7 +412,10 @@ def _jsonld_notes_renderer(concept_or_collection):
     return doc
 
 
-def _jsonld_sources_renderer(concept_or_collection):
+def _jsonld_sources_renderer(
+    concept_or_collection: Concept | Collection | ConceptScheme,
+    extra_data_serializer: Serializer = None,
+) -> dict:
     if not len(concept_or_collection.sources):
         return {}
     doc = {"sources": []}
@@ -343,6 +427,7 @@ def _jsonld_sources_renderer(concept_or_collection):
         }
         if source.markup is not None:
             rendered_source["citations"][0]["@type"] = source.markup
+        _apply_extra_data(rendered_source, source, extra_data_serializer)
         return rendered_source
 
     for source in concept_or_collection.sources:
@@ -350,7 +435,7 @@ def _jsonld_sources_renderer(concept_or_collection):
     return doc
 
 
-def _jsonld_matches_renderer(concept_or_collection):
+def _jsonld_matches_renderer(concept_or_collection: Concept) -> dict:
     if not any([len(matches) for matches in concept_or_collection.matches.values()]):
         return {}
     doc = {"matches": {}}
@@ -361,64 +446,89 @@ def _jsonld_matches_renderer(concept_or_collection):
 
 
 def _jsonld_superordinates_renderer(
-    concept_or_collection, provider, profile="partial", language="en"
-):
+    concept_or_collection: Collection,
+    provider: VocabularyProvider,
+    profile: Literal["partial", "uri"] = "partial",
+    language: str = "en",
+) -> dict:
     return _jsonld_relation_renderer(
         concept_or_collection, provider, "superordinates", profile, language
     )
 
 
 def _jsonld_members_renderer(
-    concept_or_collection, provider, profile="partial", language="en"
-):
+    concept_or_collection: Collection,
+    provider: VocabularyProvider,
+    profile: Literal["partial", "uri"] = "partial",
+    language: str = "en",
+) -> dict:
     return _jsonld_relation_renderer(
         concept_or_collection, provider, "members", profile, language
     )
 
 
 def _jsonld_member_of_renderer(
-    concept_or_collection, provider, profile="partial", language="en"
-):
+    concept_or_collection: Concept | Collection,
+    provider: VocabularyProvider,
+    profile: Literal["partial", "uri"] = "partial",
+    language: str = "en",
+) -> dict:
     return _jsonld_relation_renderer(
         concept_or_collection, provider, "member_of", profile, language
     )
 
 
 def _jsonld_broader_renderer(
-    concept_or_collection, provider, profile="partial", language="en"
-):
+    concept_or_collection: Concept,
+    provider: VocabularyProvider,
+    profile: Literal["partial", "uri"] = "partial",
+    language: str = "en",
+) -> dict:
     return _jsonld_relation_renderer(
         concept_or_collection, provider, "broader", profile, language
     )
 
 
 def _jsonld_narrower_renderer(
-    concept_or_collection, provider, profile="partial", language="en"
-):
+    concept_or_collection: Concept,
+    provider: VocabularyProvider,
+    profile: Literal["partial", "uri"] = "partial",
+    language: str = "en",
+) -> dict:
     return _jsonld_relation_renderer(
         concept_or_collection, provider, "narrower", profile, language
     )
 
 
 def _jsonld_related_renderer(
-    concept_or_collection, provider, profile="partial", language="en"
-):
+    concept_or_collection: Concept,
+    provider: VocabularyProvider,
+    profile: Literal["partial", "uri"] = "partial",
+    language: str = "en",
+) -> dict:
     return _jsonld_relation_renderer(
         concept_or_collection, provider, "related", profile, language
     )
 
 
 def _jsonld_subordinate_arrays_renderer(
-    concept_or_collection, provider, profile="partial", language="en"
-):
+    concept_or_collection: Concept,
+    provider: VocabularyProvider,
+    profile: Literal["partial", "uri"] = "partial",
+    language: str = "en",
+) -> dict:
     return _jsonld_relation_renderer(
         concept_or_collection, provider, "subordinate_arrays", profile, language
     )
 
 
 def _jsonld_relation_renderer(
-    concept_or_collection, provider, relation, profile="partial", language="en"
-):
+    concept_or_collection: Concept | Collection,
+    provider: VocabularyProvider,
+    relation: str,
+    profile: Literal["partial", "uri"] = "partial",
+    language: str = "en",
+) -> dict:
     doc = {relation: []}
     for member_id in getattr(concept_or_collection, relation):
         related_concept = provider.get_by_id(member_id)
@@ -429,7 +539,10 @@ def _jsonld_relation_renderer(
     return doc
 
 
-def _jsonld_topconcepts_renderer(provider, profile="partial"):
+def _jsonld_topconcepts_renderer(
+    provider: VocabularyProvider,
+    profile: Literal["partial", "uri"] = "partial",
+) -> dict:
     doc = {"top_concepts": []}
     for top_concept in provider.get_top_concepts():
         if profile == "partial":
@@ -439,7 +552,7 @@ def _jsonld_topconcepts_renderer(provider, profile="partial"):
     return doc
 
 
-def _jsonld_cs_languages_renderer(cs):
+def _jsonld_cs_languages_renderer(cs: ConceptScheme) -> dict:
     doc = {"languages": []}
     for language in cs.languages:
         doc["languages"].append(language)
@@ -447,8 +560,12 @@ def _jsonld_cs_languages_renderer(cs):
 
 
 def jsonld_conceptscheme_dumper(
-    provider, context=None, relations_profile="partial", language="en"
-):
+    provider: VocabularyProvider,
+    context: str | dict | None = None,
+    relations_profile: Literal["partial", "uri"] = "partial",
+    language: str = "en",
+    extra_data_serializer: Serializer = None,
+) -> dict:
     """
     Dump a conceptscheme to a JSON-LD serialisable dictionary.
 
@@ -458,6 +575,9 @@ def jsonld_conceptscheme_dumper(
     :param str relations_profile: Either `partial` or `uri` to render links to
         other resources with some information or just a :term:`URI`.
     :param string language: Language to render a single label in.
+    :param extra_data_serializer: Optional callable that receives an `extra_data` value
+        and returns a `dict` to merge into the rendered output, or `None` to
+        skip.  See :data:`Serializer`.
 
     :rtype: A `dict`
     """
@@ -469,10 +589,11 @@ def jsonld_conceptscheme_dumper(
     if dataset_uri:
         doc["in_dataset"] = dataset_uri
     doc["id"] = provider.get_metadata()["id"]
-    doc.update(_jsonld_labels_renderer(conceptscheme))
-    doc.update(_jsonld_labels_xl_renderer(conceptscheme))
-    doc.update(_jsonld_notes_renderer(conceptscheme))
-    doc.update(_jsonld_sources_renderer(conceptscheme))
+    doc.update(_jsonld_labels_renderer(conceptscheme, extra_data_serializer))
+    doc.update(_jsonld_labels_xl_renderer(conceptscheme, extra_data_serializer))
+    doc.update(_jsonld_notes_renderer(conceptscheme, extra_data_serializer))
+    doc.update(_jsonld_sources_renderer(conceptscheme, extra_data_serializer))
     doc.update(_jsonld_cs_languages_renderer(conceptscheme))
     doc.update(_jsonld_topconcepts_renderer(provider, relations_profile))
+    _apply_extra_data(doc, conceptscheme, extra_data_serializer)
     return doc

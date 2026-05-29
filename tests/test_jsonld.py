@@ -1,3 +1,4 @@
+import pytest
 from test_providers import geo
 from test_providers import larch
 from test_providers import trees
@@ -6,6 +7,8 @@ from skosprovider.jsonld import CONTEXT
 from skosprovider.jsonld import jsonld_c_dumper
 from skosprovider.jsonld import jsonld_conceptscheme_dumper
 from skosprovider.jsonld import jsonld_dumper
+from skosprovider.providers import DictionaryProvider
+from skosprovider.skos import ConceptScheme
 
 
 class TestDumperTrees:
@@ -259,3 +262,119 @@ class TestDumperGeo:
         doc = jsonld_c_dumper(geo, 4, CONTEXT)
         assert len(doc["subordinate_arrays"]) == 2
         assert "matches" not in doc
+
+
+def _dict_serializer(obj):
+    if isinstance(obj.extra_data, dict) and obj.extra_data:
+        return obj.extra_data
+    return None
+
+
+def _make_extra_data_provider():
+    return DictionaryProvider(
+        {"id": "EXTRA", "default_language": "en"},
+        [
+            {
+                "id": "1",
+                "uri": "http://example.com/1",
+                "labels": [
+                    {
+                        "type": "prefLabel",
+                        "language": "en",
+                        "label": "Test",
+                        "label_prop": "label_val",
+                    }
+                ],
+                "notes": [
+                    {
+                        "type": "note",
+                        "language": "en",
+                        "note": "A note.",
+                        "note_prop": "note_val",
+                    }
+                ],
+                "sources": [
+                    {
+                        "citation": "Some source",
+                        "src_prop": "src_val",
+                    }
+                ],
+                "concept_prop": "concept_val",
+            },
+            {
+                "id": "2",
+                "uri": "http://example.com/coll/2",
+                "type": "collection",
+                "labels": [{"type": "prefLabel", "language": "en", "label": "Coll"}],
+                "coll_prop": "coll_val",
+            },
+        ],
+        concept_scheme=ConceptScheme("http://example.com"),
+    )
+
+
+class TestExtraDataSerializer:
+
+    def test_unknown_id_raises_value_error(self):
+        with pytest.raises(ValueError):
+            jsonld_c_dumper(trees, 9999)
+
+    def test_serializer_none_by_default(self):
+        provider = _make_extra_data_provider()
+        doc = jsonld_c_dumper(provider, "1")
+        assert "concept_prop" not in doc
+
+    def test_serializer_merges_into_concept(self):
+        provider = _make_extra_data_provider()
+        doc = jsonld_c_dumper(provider, "1", extra_data_serializer=_dict_serializer)
+        assert doc["concept_prop"] == "concept_val"
+
+    def test_serializer_merges_into_collection(self):
+        provider = _make_extra_data_provider()
+        doc = jsonld_c_dumper(provider, "2", extra_data_serializer=_dict_serializer)
+        assert doc["coll_prop"] == "coll_val"
+
+    def test_serializer_merges_into_label(self):
+        provider = _make_extra_data_provider()
+        doc = jsonld_c_dumper(provider, "1", extra_data_serializer=_dict_serializer)
+        pref_labels = doc["labels"]["pref_labels"]
+        assert any(lbl.get("label_prop") == "label_val" for lbl in pref_labels)
+
+    def test_serializer_merges_into_note(self):
+        provider = _make_extra_data_provider()
+        doc = jsonld_c_dumper(provider, "1", extra_data_serializer=_dict_serializer)
+        notes = doc["notes"]["general_notes"]
+        assert any(n.get("note_prop") == "note_val" for n in notes)
+
+    def test_serializer_merges_into_source(self):
+        provider = _make_extra_data_provider()
+        doc = jsonld_c_dumper(provider, "1", extra_data_serializer=_dict_serializer)
+        assert any(s.get("src_prop") == "src_val" for s in doc["sources"])
+
+    def test_serializer_returning_none_skips(self):
+        provider = _make_extra_data_provider()
+        doc = jsonld_c_dumper(provider, "1", extra_data_serializer=lambda obj: None)
+        assert "concept_prop" not in doc
+        pref_labels = doc["labels"]["pref_labels"]
+        assert all("label_prop" not in lbl for lbl in pref_labels)
+
+    def test_serializer_in_conceptscheme_dumper(self):
+        provider = DictionaryProvider(
+            {"id": "CS_EXTRA", "default_language": "en"},
+            [],
+            concept_scheme=ConceptScheme(
+                "http://example.com/cs",
+                extra_data={"cs_prop": "cs_val"},
+            ),
+        )
+        doc = jsonld_conceptscheme_dumper(
+            provider, extra_data_serializer=_dict_serializer
+        )
+        assert doc["cs_prop"] == "cs_val"
+
+    def test_serializer_in_jsonld_dumper(self):
+        provider = _make_extra_data_provider()
+        doc = jsonld_dumper(provider, extra_data_serializer=_dict_serializer)
+        graph = doc["@graph"]
+        concept_docs = [item for item in graph if item.get("type") == "concept"]
+        assert any(c.get("concept_prop") == "concept_val" for c in concept_docs)

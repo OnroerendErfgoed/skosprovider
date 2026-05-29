@@ -793,6 +793,98 @@ class TestTreesDictionaryProvider:
         ]
 
 
+class TestDictionaryProviderExtraData:
+
+    def test_concept_extra_data_from_dict(self):
+        provider = DictionaryProvider(
+            {"id": "TEST"},
+            [
+                {
+                    "id": "1",
+                    "uri": "http://example.com/1",
+                    "labels": [{"type": "prefLabel", "language": "en", "label": "One"}],
+                    "custom_field": "my_value",
+                    "nested": {"key": "val"},
+                }
+            ],
+        )
+        concept = provider.get_by_id("1")
+        assert concept.extra_data == {"custom_field": "my_value", "nested": {"key": "val"}}
+
+    def test_concept_no_extra_data(self):
+        provider = DictionaryProvider(
+            {"id": "TEST"},
+            [
+                {
+                    "id": "1",
+                    "uri": "http://example.com/1",
+                    "labels": [{"type": "prefLabel", "language": "en", "label": "One"}],
+                }
+            ],
+        )
+        concept = provider.get_by_id("1")
+        assert concept.extra_data == {}
+
+    def test_collection_extra_data_from_dict(self):
+        provider = DictionaryProvider(
+            {"id": "TEST"},
+            [
+                {
+                    "id": "1",
+                    "uri": "http://example.com/coll/1",
+                    "type": "collection",
+                    "labels": [{"type": "prefLabel", "language": "en", "label": "Coll"}],
+                    "theme": "nature",
+                }
+            ],
+        )
+        coll = provider.get_by_id("1")
+        assert coll.extra_data == {"theme": "nature"}
+
+    def test_label_extra_data_from_dict(self):
+        provider = DictionaryProvider(
+            {"id": "TEST"},
+            [
+                {
+                    "id": "1",
+                    "uri": "http://example.com/1",
+                    "labels": [
+                        {
+                            "type": "prefLabel",
+                            "language": "en",
+                            "label": "One",
+                            "label_extra": "extra_val",
+                        }
+                    ],
+                }
+            ],
+        )
+        concept = provider.get_by_id("1")
+        assert concept.labels[0].extra_data == {"label_extra": "extra_val"}
+
+    def test_note_extra_data_from_dict(self):
+        provider = DictionaryProvider(
+            {"id": "TEST"},
+            [
+                {
+                    "id": "1",
+                    "uri": "http://example.com/1",
+                    "labels": [{"type": "prefLabel", "language": "en", "label": "One"}],
+                    "notes": [
+                        {
+                            "type": "note",
+                            "language": "en",
+                            "note": "A note.",
+                            "note_meta": "something",
+                        }
+                    ],
+                }
+            ],
+        )
+        concept = provider.get_by_id("1")
+        assert concept.notes[0].extra_data == {"note_meta": "something"}
+
+
 class TestGeoDictionaryProvider:
 
     def test_get_vocabulary_id(self):
