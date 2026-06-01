@@ -42,7 +42,9 @@ Example usage with an rdflib Graph as extra_data::
 """
 
 
-def _apply_extra_data(doc: dict, obj: SkosObject, extra_data_serializer: Serializer) -> None:
+def _apply_extra_data(
+    doc: dict, obj: SkosObject, extra_data_serializer: Serializer
+) -> None:
     if extra_data_serializer is not None and obj.extra_data is not None:
         extra = extra_data_serializer(obj)
         if extra is not None:

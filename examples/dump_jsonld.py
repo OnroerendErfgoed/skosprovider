@@ -1,26 +1,52 @@
 """
 This example demonstrates the skosprovider API with a simple
 DictionaryProvider containing just three items.
+
+Extra data is attached to a label, a note, and a concept to show how
+custom context entries and a serializer can round-trip application-specific
+properties through JSON-LD.
 """
 
 import json
 
 from pyld import jsonld
-
-from skosprovider.jsonld import (
-    CONTEXT,
-    jsonld_dumper,
-)
+from skosprovider.jsonld import CONTEXT
+from skosprovider.jsonld import SkosObject
+from skosprovider.jsonld import jsonld_dumper
 from skosprovider.providers import DictionaryProvider
 from skosprovider.skos import ConceptScheme
 from skosprovider.uri import UriPatternGenerator
+
+# Extended context: copy CONTEXT and map application-specific keys to URIs.
+# Note: keys used inside label/note objects (which expand to @value nodes) cannot
+# be mapped here — JSON-LD forbids extra properties alongside @value.  Those keys
+# (source_system, source_citation) are left unmapped so they are treated as
+# opaque application data and are dropped by JSON-LD processors during expansion.
+CUSTOM_CONTEXT = {
+    **CONTEXT,
+    "notation": {"@id": "skos:notation", "@container": "@set"},
+    "source_system": {"@id": "dct:source"},
+}
+
+
+def extra_data_serializer(obj: SkosObject) -> dict | None:
+    """Return extra_data dict directly; keys are mapped in CUSTOM_CONTEXT."""
+    if isinstance(obj.extra_data, dict) and obj.extra_data:
+        return obj.extra_data
+    return None
 
 
 larch = {
     "id": "1",
     "uri": "http://id.trees.org/1",
     "labels": [
-        {"type": "prefLabel", "language": "en", "label": "The Larch"},
+        {
+            "uri": "http://id.trees.org/labels/larch-en",
+            "type": "prefLabel",
+            "language": "en",
+            "label": "The Larch",
+            "source_system": "legacy_db",  # extra_data on xl Label
+        },
         {
             "uri": "http://id.trees.org/labels/lariks-nl",
             "type": "prefLabel",
@@ -31,11 +57,19 @@ larch = {
             ],
         },
     ],
-    "notes": [{"type": "definition", "language": "en", "note": "A type of tree."}],
+    "notes": [
+        {
+            "type": "definition",
+            "language": "en",
+            "note": "A type of tree.",
+            "source_citation": "Botanical Dictionary, 2nd ed.",  # extra_data on Note
+        }
+    ],
     "member_of": ["3"],
     "matches": {
         "close": ["http://id.python.org/different/types/of/trees/nr/1/the/larch"]
     },
+    "notation": ["larch-001"],  # extra_data on Concept, maps to skos:notation
 }
 
 chestnut = {
@@ -105,29 +139,38 @@ provider = DictionaryProvider(
     ),
 )
 
-# Generate a doc for a cs
-doc = jsonld_dumper(provider, CONTEXT)
-msg = "Conceptscheme"
+# classic json-ld dumper with minimal skos info.
+doc = jsonld_dumper(provider)
+msg = "Conceptscheme without extra data"
+print(msg)
+print(len(msg) * "=")
+print(json.dumps(doc, indent=2))
+
+# Generate a doc with custom context and serializer
+doc = jsonld_dumper(
+    provider, CUSTOM_CONTEXT, extra_data_serializer=extra_data_serializer
+)
+msg = "Conceptscheme with extra data"
 print(msg)
 print(len(msg) * "=")
 print(json.dumps(doc, indent=2))
 
 # Print an expanded doc
-expanded = jsonld.expand(doc, CONTEXT)
+expanded = jsonld.expand(doc, CUSTOM_CONTEXT)
 msg = "Conceptscheme expanded"
 print(msg)
 print(len(msg) * "=")
 print(json.dumps(expanded, indent=2))
 
 # Compact the doc again
-compacted = jsonld.compact(expanded, CONTEXT)
+compacted = jsonld.compact(expanded, CUSTOM_CONTEXT)
 msg = "Conceptscheme compacted again"
 print(msg)
 print(len(msg) * "=")
 print(json.dumps(compacted, indent=2))
 
 # And now flatten it
-flattened = jsonld.flatten(compacted, CONTEXT)
+flattened = jsonld.flatten(compacted, CUSTOM_CONTEXT)
 msg = "Conceptscheme flattened"
 print(msg)
 print(len(msg) * "=")
