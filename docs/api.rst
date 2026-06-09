@@ -44,3 +44,15 @@ Utils module
 
 .. automodule:: skosprovider.utils
    :members:
+
+RDF Providers module
+--------------------
+
+.. automodule:: skosprovider.rdf.providers
+   :members:
+
+RDF Utils module
+----------------
+
+.. automodule:: skosprovider.rdf.utils
+   :members:

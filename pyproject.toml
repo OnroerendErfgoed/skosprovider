@@ -36,6 +36,9 @@ Source = "https://github.com/OnroerendErfgoed/skosprovider"
 Documentation = "https://skosprovider.readthedocs.io/en/latest/"
 
 [project.optional-dependencies]
+rdf = [
+    "rdflib[html]>=7.0.0",
+]
 dev = [
     # Linting and formatting
     "flake8>=7.1.2",

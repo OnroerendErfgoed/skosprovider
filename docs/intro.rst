@@ -37,12 +37,13 @@ Currently the following other providers exist:
   :class:`VocabularyProvider <skosprovider.providers.VocabularyProvider>` 
   interface with a `SQLAlchemy <http://www.sqlalchemy.org>`_ backend. This allows
   using a RDBMS for reading, but also writing, :term:`SKOS` concepts.
-* `Skosprovider_rdf <http://skosprovider-rdf.readthedocs.org/en/latest/>`_:
-  An implementation of the 
-  :class:`VocabularyProvider <skosprovider.providers.VocabularyProvider>` 
-  interface with a `RDFLib <https://rdflib.readthedocs.org/en/latest/>`_ 
-  backend. This allows using a SKOS RDF file as the source for a provider, 
-  but also dumping a skosprovider to a SKOS RDF file.
+* :mod:`skosprovider.rdf`:
+  An implementation of the
+  :class:`VocabularyProvider <skosprovider.providers.VocabularyProvider>`
+  interface with a `RDFLib <https://rdflib.readthedocs.org/en/latest/>`_
+  backend. This allows using a SKOS RDF file as the source for a provider,
+  but also dumping a skosprovider to a SKOS RDF file. Install with
+  ``pip install skosprovider[rdf]``.
 * `Skosprovider_atramhasis <https://skosprovider-atramhasis.readthedocs.org>`_:
   The :class:`AtramhasisProvider <skosprovider.providers.AtramhasisProvider>` 
   lets you interact with an Atramhasis_ instance. 

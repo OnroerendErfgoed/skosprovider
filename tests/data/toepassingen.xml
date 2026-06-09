@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:skos="http://www.w3.org/2004/02/skos/core#"
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+>
+  <rdf:Description rdf:about="https://id.erfgoed.net/toepassingen/3">
+    <skos:prefLabel xml:lang="nl">Premies</skos:prefLabel>
+    <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+    <dc:identifier rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">3</dc:identifier>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://id.erfgoed.net/toepassingen/1">
+    <skos:prefLabel xml:lang="nl">Adviezen</skos:prefLabel>
+    <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+    <dc:identifier rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">1</dc:identifier>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://id.erfgoed.net/toepassingen/2">
+    <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+    <skos:prefLabel xml:lang="nl">Beschermingen</skos:prefLabel>
+    <dc:identifier rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">2</dc:identifier>
+  </rdf:Description>
+</rdf:RDF>
