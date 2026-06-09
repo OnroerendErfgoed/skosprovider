@@ -8,7 +8,6 @@ import logging
 
 from .uri import is_uri
 
-
 log = logging.getLogger(__name__)
 
 
