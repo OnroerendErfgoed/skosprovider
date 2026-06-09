@@ -38,6 +38,8 @@ flake8-import-order==0.19.2
     # via skosprovider (pyproject.toml)
 frozendict==2.4.7
     # via pyld
+greenlet==3.5.1
+    # via sqlalchemy
 html5rdf==1.2.1
     # via rdflib
 identify==2.6.18
@@ -141,6 +143,10 @@ sphinxcontrib-qthelp==2.0.0
     # via sphinx
 sphinxcontrib-serializinghtml==2.0.0
     # via sphinx
+sqlalchemy==2.0.50
+    # via skosprovider (pyproject.toml)
+typing-extensions==4.15.0
+    # via sqlalchemy
 urllib3==2.6.3
     # via requests
 virtualenv==21.2.4
