@@ -264,10 +264,9 @@ class TestDumperGeo:
         assert "matches" not in doc
 
 
-def _dict_serializer(obj):
+def _dict_serializer(doc, obj):
     if isinstance(obj.extra_data, dict) and obj.extra_data:
-        return obj.extra_data
-    return None
+        doc.update(obj.extra_data)
 
 
 def _make_extra_data_provider():
@@ -353,7 +352,7 @@ class TestExtraDataSerializer:
 
     def test_serializer_returning_none_skips(self):
         provider = _make_extra_data_provider()
-        doc = jsonld_c_dumper(provider, "1", extra_data_serializer=lambda obj: None)
+        doc = jsonld_c_dumper(provider, "1", extra_data_serializer=lambda doc, obj: None)
         assert "concept_prop" not in doc
         pref_labels = doc["labels"]["pref_labels"]
         assert all("label_prop" not in lbl for lbl in pref_labels)

@@ -316,7 +316,7 @@ class TestRDFProviderExtraData:
         concept = provider.get_by_uri("http://id.test.org/1")
         assert concept.extra_data is not None
         assert (URIRef("http://id.test.org/1"), SKOS.prefLabel, None) not in [
-            (s, p, o) for s, p, o in concept.extra_data
+            triple for triple in concept.extra_data
         ]
 
     def test_no_extra_predicates_returns_none(self):
@@ -342,10 +342,10 @@ class TestRDFProviderExtraData:
         graph = self._build_graph()
         provider = RDFProvider({"id": "TEST"}, graph)
 
-        def reinjector(out_graph, subject, obj):
+        def reinjector(out_graph, obj):
             if isinstance(obj.extra_data, rdflib.Graph):
-                for s, p, o in obj.extra_data.triples((subject, None, None)):
-                    out_graph.add((s, p, o))
+                for triple in obj.extra_data:
+                    out_graph.add(triple)
 
         dumped = rdf_utils.rdf_dumper(provider, extra_data_serializer=reinjector)
         assert (

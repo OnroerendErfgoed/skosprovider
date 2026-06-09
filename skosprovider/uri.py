@@ -29,7 +29,7 @@ class UriGenerator:
     __metaclass__ = abc.ABCMeta
 
     @abc.abstractmethod
-    def generate(self, **kwargs):
+    def generate(self, concept_id: str | int, uri_type: str | None = None) -> str:
         """
         Generate a :term:`URI` based on parameters passed.
         """
@@ -45,14 +45,14 @@ class UriPatternGenerator(UriGenerator):
             raise ValueError("A URI pattern must contain exactly one '%s' placeholder")
         self.pattern = pattern
 
-    def generate(self, **kwargs):
+    def generate(self, concept_id: str | int, uri_type: str | None = None) -> str:
         """
         Generate a :term:`URI` based on parameters passed.
 
-        :param id: The id of the concept or collection.
+        :param concept_id: The id of the concept or collection.
         :rtype: string
         """
-        return self.pattern % kwargs["id"]
+        return self.pattern % concept_id
 
 
 class DefaultUrnGenerator(UriGenerator):
@@ -70,14 +70,14 @@ class DefaultUrnGenerator(UriGenerator):
     def __init__(self, vocabulary_id):
         self.vocabulary_id = vocabulary_id
 
-    def generate(self, **kwargs):
+    def generate(self, concept_id: str | int, uri_type: str | None = None) -> str:
         """
         Generate a :term:`URI` based on parameters passed.
 
-        :param id: The id of the concept or collection.
+        :param concept_id: The id of the concept or collection.
         :rtype: string
         """
-        return (self.pattern % (self.vocabulary_id, kwargs["id"])).lower()
+        return (self.pattern % (self.vocabulary_id, concept_id)).lower()
 
 
 class DefaultConceptSchemeUrnGenerator(UriGenerator):
@@ -90,14 +90,14 @@ class DefaultConceptSchemeUrnGenerator(UriGenerator):
 
     pattern = "urn:x-skosprovider:%s"
 
-    def generate(self, **kwargs):
+    def generate(self, concept_id: str | int, uri_type: str | None = None) -> str:
         """
         Generate a :term:`URI` based on parameters passed.
 
-        :param id: The id of the conceptscheme.
+        :param concept_id: The id of the conceptscheme.
         :rtype: string
         """
-        return (self.pattern % (kwargs["id"])).lower()
+        return (self.pattern % concept_id).lower()
 
 
 class TypedUrnGenerator(DefaultUrnGenerator):
@@ -113,17 +113,15 @@ class TypedUrnGenerator(DefaultUrnGenerator):
     def __init__(self, vocabulary_id):
         self.vocabulary_id = vocabulary_id
 
-    def generate(self, **kwargs):
+    def generate(self, concept_id: str | int, uri_type: str | None = None) -> str:
         """
         Generate a :term:`URI` based on parameters passed.
 
-        :param id: The id of the concept or collection.
+        :param concept_id: The id of the concept or collection.
         :param type: What we're generating a :term:`URI` for: `concept`
             or `collection`.
         :rtype: string
         """
-        if kwargs["type"] not in ["concept", "collection"]:
-            raise ValueError(f"Type {kwargs['type']} is invalid")
-        return (
-            self.pattern % (self.vocabulary_id, kwargs["type"], kwargs["id"])
-        ).lower()
+        if uri_type not in ["concept", "collection"]:
+            raise ValueError(f"Type {uri_type} is invalid")
+        return (self.pattern % (self.vocabulary_id, uri_type, concept_id)).lower()

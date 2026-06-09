@@ -35,7 +35,7 @@ def materials_provider():
         {'id': 'Materials'},
         materials_data,
         uri_generator=UriPatternGenerator('https://id.erfgoed.net/thesauri/materialen/%s'),
-        conceptscheme=ConceptScheme(
+        concept_scheme=ConceptScheme(
             uri='https://id.erfgoed.net/thesauri/materialen',
             labels=[Label(type='prefLabel', language='nl', label='Materialen')],
             notes=[Note(

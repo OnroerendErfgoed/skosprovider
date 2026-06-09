@@ -4,7 +4,10 @@ This module contains an RDFProvider, an implementation of the
 :class:`rdflib.graph.Graph` as input.
 """
 
+import itertools
 import logging
+
+from typing import Any
 
 import rdflib
 from language_tags import tags
@@ -13,10 +16,10 @@ from rdflib.namespace import DCTERMS
 from rdflib.namespace import RDF
 from rdflib.namespace import SKOS
 from rdflib.namespace import VOID
+from rdflib.term import Literal as RdfLiteral
 from rdflib.term import URIRef
 
 from skosprovider.providers import MemoryProvider
-from skosprovider.rdf.utils import text_
 from skosprovider.skos import Collection
 from skosprovider.skos import Concept
 from skosprovider.skos import ConceptScheme
@@ -24,10 +27,12 @@ from skosprovider.skos import Label
 from skosprovider.skos import Note
 from skosprovider.skos import Source
 from skosprovider.uri import DefaultConceptSchemeUrnGenerator
+from skosprovider.uri import UriGenerator
 
 log = logging.getLogger(__name__)
 
 SKOS_THES = rdflib.Namespace("http://purl.org/iso25964/skos-thes#")
+
 
 def _skos_term(name: str) -> URIRef:
     return URIRef("http://www.w3.org/2004/02/skos/core#" + name)
@@ -99,17 +104,26 @@ class RDFProvider(MemoryProvider[rdflib.Graph]):
     Please be aware that this provider needs to load the entire graph in memory.
     """
 
-    def __init__(self, metadata, graph, **kwargs):
+    def __init__(
+        self,
+        metadata: dict,
+        graph: rdflib.Graph,
+        uri_generator: UriGenerator | None = None,
+        concept_scheme: ConceptScheme | None = None,
+        concept_scheme_uri: str | None = None,
+        allowed_instance_scopes: list[str] | None = None,
+        case_insensitive: bool = True,
+    ) -> None:
         self.graph = graph
         self.check_in_scheme = False
-        if not "concept_scheme" in kwargs:
-            kwargs["concept_scheme"] = self._cs_from_graph(metadata, **kwargs)
+        if concept_scheme is None:
+            concept_scheme = self._cs_from_graph(metadata, concept_scheme_uri=concept_scheme_uri)
         else:
             self.check_in_scheme = True
-        super().__init__(metadata, [], **kwargs)
+        super().__init__(metadata, [], uri_generator=uri_generator, concept_scheme=concept_scheme, allowed_instance_scopes=allowed_instance_scopes, case_insensitive=case_insensitive)
         self.list = self._from_graph()
 
-    def _cs_from_graph(self, metadata, **kwargs):
+    def _cs_from_graph(self, metadata: dict, concept_scheme_uri: str | None = None) -> ConceptScheme:
         cslist = []
         for sub in self.graph.subjects(RDF.type, SKOS.ConceptScheme):
             uri = self.to_text(sub)
@@ -121,17 +135,19 @@ class RDFProvider(MemoryProvider[rdflib.Graph]):
                 notes=self._create_from_subject_typelist(sub, Note.valid_types),
                 sources=self._create_sources(sub),
                 languages=self._create_languages(sub),
-                extra_data=self._create_extra_data(sub, _KNOWN_CONCEPTSCHEME_PREDICATES),
+                extra_data=self._create_extra_data(
+                    sub, _KNOWN_CONCEPTSCHEME_PREDICATES
+                ),
             )
             cslist.append(cs)
         if len(cslist) == 0:
             return ConceptScheme(
-                uri=DefaultConceptSchemeUrnGenerator().generate(id=metadata.get("id"))
+                uri=DefaultConceptSchemeUrnGenerator().generate(concept_id=metadata.get("id"))
             )
         elif len(cslist) == 1:
             return cslist[0]
         else:
-            if not "concept_scheme_uri" in kwargs:
+            if concept_scheme_uri is None:
                 raise RuntimeError(
                     "This RDF file contains more than one ConceptScheme. \
                     Please specify one. The following schemes were found: \
@@ -140,7 +156,7 @@ class RDFProvider(MemoryProvider[rdflib.Graph]):
                 )
             else:
                 self.check_in_scheme = True
-                csuri = kwargs["concept_scheme_uri"]
+                csuri = concept_scheme_uri
                 filteredcslist = [cs for cs in cslist if cs.uri == csuri]
                 if len(filteredcslist) == 0:
                     raise RuntimeError(
@@ -152,9 +168,9 @@ class RDFProvider(MemoryProvider[rdflib.Graph]):
                 else:
                     return filteredcslist[0]
 
-    def _from_graph(self):
+    def _from_graph(self) -> list[Concept | Collection]:
         clist = []
-        for sub, pred, obj in self.graph.triples((None, RDF.type, SKOS.Concept)):
+        for sub in self.graph.subjects(RDF.type, SKOS.Concept):
             if (
                 self.check_in_scheme
                 and self._get_in_scheme(sub) != self.concept_scheme.uri
@@ -162,9 +178,9 @@ class RDFProvider(MemoryProvider[rdflib.Graph]):
                 continue
             uri = self.to_text(sub)
             matches = {}
-            for k in Concept.matchtypes:
-                matches[k] = self._create_from_subject_predicate(
-                    sub, URIRef(SKOS[k + "Match"])
+            for match_type in Concept.matchtypes:
+                matches[match_type] = self._create_from_subject_predicate(
+                    sub, URIRef(SKOS[match_type + "Match"])
                 )
             con = Concept(
                 id=self._get_id_for_subject(sub, uri),
@@ -187,7 +203,7 @@ class RDFProvider(MemoryProvider[rdflib.Graph]):
             )
             clist.append(con)
 
-        for sub, pred, obj in self.graph.triples((None, RDF.type, SKOS.Collection)):
+        for sub in self.graph.subjects(RDF.type, SKOS.Collection):
             if (
                 self.check_in_scheme
                 and self._get_in_scheme(sub) != self.concept_scheme.uri
@@ -215,7 +231,7 @@ class RDFProvider(MemoryProvider[rdflib.Graph]):
         self._set_infer_concept_relations(clist)
         return clist
 
-    def _get_in_scheme(self, subject):
+    def _get_in_scheme(self, subject: URIRef) -> str | None:
         """
         Determine if a subject is part of a scheme.
 
@@ -229,15 +245,17 @@ class RDFProvider(MemoryProvider[rdflib.Graph]):
             scheme = self.graph.value(subject, SKOS.topConceptOf)
         return self.to_text(scheme) if scheme else None
 
-    def _fill_member_of(self, clist):
-        collections = list({c for c in clist if isinstance(c, Collection)})
+    def _fill_member_of(self, clist: list[Concept | Collection]) -> None:
+        collections = list(
+            {skos_obj for skos_obj in clist if isinstance(skos_obj, Collection)}
+        )
         for col in collections:
-            for c in clist:
-                if c.id in col.members:
-                    c.member_of.append(col.id)
+            for skos_obj in clist:
+                if skos_obj.id in col.members:
+                    skos_obj.member_of.append(col.id)
         return
 
-    def _set_infer_concept_relations(self, clist):
+    def _set_infer_concept_relations(self, clist: list[Concept | Collection]) -> None:
         collections = list({c for c in clist if isinstance(c, Collection)})
         for col in collections:
             if not col.superordinates:
@@ -249,13 +267,19 @@ class RDFProvider(MemoryProvider[rdflib.Graph]):
                 Collect all broader concepts of members of a collection or
                 their (recursive) members.
                 """
-                members = list({c for c in clist if c.id in collection.members})
+                members = list(
+                    {
+                        skos_obj
+                        for skos_obj in clist
+                        if skos_obj.id in collection.members
+                    }
+                )
                 broader = []
-                for m in members:
-                    if m.type == "concept":
-                        broader.extend(m.broader)
-                    elif m.type == "collection":
-                        broader.extend(_collect_broader(m, clist))
+                for member in members:
+                    if member.type == "concept":
+                        broader.extend(member.broader)
+                    elif member.type == "collection":
+                        broader.extend(_collect_broader(member, clist))
                 return broader
 
             broader = _collect_broader(col, clist)
@@ -263,22 +287,25 @@ class RDFProvider(MemoryProvider[rdflib.Graph]):
                 len(set(broader).intersection(col.superordinates)) > 0
             )
 
-    def _create_extra_data(self, subject, known_predicates: frozenset) -> rdflib.Graph | None:
+    def _create_extra_data(
+        self, subject: URIRef, known_predicates: frozenset
+    ) -> rdflib.Graph | None:
         """Return a Graph of triples for subject whose predicate is not in known_predicates."""
         g = rdflib.Graph()
-        for s, p, o in self.graph.triples((subject, None, None)):
-            if p not in known_predicates:
-                g.add((s, p, o))
+        for triple in self.graph.triples((subject, None, None)):
+            if triple[1] not in known_predicates:
+                g.add(triple)
         return g if len(g) > 0 else None
 
-    def _create_from_subject_typelist(self, subject, typelist):
-        list = []
+    def _create_from_subject_typelist(
+        self, subject: URIRef, typelist: list[str]
+    ) -> list[Label | Note]:
+        result = []
         for p in typelist:
-            term = SKOS.__getitem__(p)
-            list.extend(self._create_from_subject_predicate(subject, term))
-        return list
+            result.extend(self._create_from_subject_predicate(subject, SKOS[p]))
+        return result
 
-    def _get_id_for_subject(self, subject, uri):
+    def _get_id_for_subject(self, subject: URIRef, uri: str) -> str:
         if (subject, DCTERMS.identifier, None) in self.graph:
             return self.to_text(
                 self.graph.value(
@@ -292,27 +319,27 @@ class RDFProvider(MemoryProvider[rdflib.Graph]):
         else:
             return uri
 
-    def _create_from_subject_predicate(self, subject, predicate):
-        list = []
-        for s, p, o in self.graph.triples((subject, predicate, None)):
-            type = predicate.split("#")[-1]
-            if Label.is_valid_type(type):
-                o = self._create_label(o, type)
-            elif Note.is_valid_type(type):
-                o = self._create_note(o, type)
+    def _create_from_subject_predicate(self, subject: URIRef, predicate: URIRef) -> list[Label | Note | str]:
+        items = []
+        predicate_type = predicate.split("#")[-1]
+        for rdf_obj in self.graph.objects(subject, predicate):
+            if Label.is_valid_type(predicate_type):
+                rdf_obj = self._create_label(rdf_obj, predicate_type)
+            elif Note.is_valid_type(predicate_type):
+                rdf_obj = self._create_note(rdf_obj, predicate_type)
             else:
-                o = self._get_id_for_subject(o, self.to_text(o))
-            list.append(o)
-        return list
+                rdf_obj = self._get_id_for_subject(rdf_obj, self.to_text(rdf_obj))
+            items.append(rdf_obj)
+        return items
 
-    def _create_label(self, literal, type):
-        if not Label.is_valid_type(type):
+    def _create_label(self, literal: RdfLiteral, label_type: str) -> Label:
+        if not Label.is_valid_type(label_type):
             raise ValueError("Type of Label is not valid.")
         return Label(
-            self.to_text(literal), type, self._get_language_from_literal(literal)
+            self.to_text(literal), label_type, self._get_language_from_literal(literal)
         )
 
-    def _read_markupped_literal(self, literal):
+    def _read_markupped_literal(self, literal: RdfLiteral) -> tuple[str, str, str | None]:
         if literal.datatype == RDF.HTML:
             df = literal.value.cloneNode(True)
             if (
@@ -330,13 +357,13 @@ class RDFProvider(MemoryProvider[rdflib.Graph]):
         else:
             return (literal, self._get_language_from_literal(literal), None)
 
-    def _create_note(self, literal, type):
-        if not Note.is_valid_type(type):
+    def _create_note(self, literal: RdfLiteral, note_type: str) -> Note:
+        if not Note.is_valid_type(note_type):
             raise ValueError("Type of Note is not valid.")
-        l = self._read_markupped_literal(literal)
-        return Note(self.to_text(l[0]), type, l[1], l[2])
+        text, language, markup = self._read_markupped_literal(literal)
+        return Note(self.to_text(text), note_type, language, markup)
 
-    def _create_sources(self, subject):
+    def _create_sources(self, subject: URIRef) -> list[Source]:
         """
         Create the sources for this subject.
 
@@ -344,18 +371,17 @@ class RDFProvider(MemoryProvider[rdflib.Graph]):
         :returns: A :class:`list` of :class:`skosprovider.skos.Source` objects.
         """
         ret = []
-        for s, p, o in self.graph.triples((subject, DCTERMS.source, None)):
-            for si, pi, oi in self.graph.triples(
-                (o, DCTERMS.bibliographicCitation, None)
-            ):
+        for source in self.graph.objects(subject, DCTERMS.source):
+            for citation in self.graph.objects(source, DCTERMS.bibliographicCitation):
                 ret.append(
                     Source(
-                        self.to_text(oi), "HTML" if oi.datatype == RDF.HTML else None
+                        self.to_text(citation),
+                        "HTML" if citation.datatype == RDF.HTML else None,
                     )
                 )
         return ret
 
-    def _create_languages(self, subject):
+    def _create_languages(self, subject: URIRef) -> set[str]:
         """
         Create the languages for this subject.
 
@@ -363,13 +389,15 @@ class RDFProvider(MemoryProvider[rdflib.Graph]):
         :returns: A :class:`list` of IANA language tags.
         """
         ret = set()
-        for s, p, o in self.graph.triples((subject, DCTERMS.language, None)):
-            ret.add(self.to_text(self._scrub_language(o)))
-        for s, p, o in self.graph.triples((subject, DC.language, None)):
-            ret.add(self.to_text(self._scrub_language(o)))
+        languages = itertools.chain(
+            self.graph.objects(subject, DCTERMS.language),
+            self.graph.objects(subject, DC.language),
+        )
+        for language in languages:
+            ret.add(self.to_text(self._scrub_language(language)))
         return ret
 
-    def _scrub_language(self, language):
+    def _scrub_language(self, language: str | RdfLiteral) -> str:
         if tags.check(language):
             return language
         else:
@@ -378,21 +406,16 @@ class RDFProvider(MemoryProvider[rdflib.Graph]):
             )
             return "und"
 
-    def _scrub_label_types(self):
+    def _scrub_label_types(self) -> list[str]:
         valid_label_types = Label.valid_types[:]
         if "sortLabel" in valid_label_types:
             valid_label_types.remove("sortLabel")
         return valid_label_types
 
-    def _get_language_from_literal(self, data):
+    def _get_language_from_literal(self, data: RdfLiteral) -> str | None:
         if not hasattr(data, "language") or data.language is None:
             return None
         return self.to_text(self._scrub_language(data.language))
 
-    def to_text(self, data):
-        """
-        data of binary type or literal type that needs to be converted to text.
-        :param data
-        :return: text representation of the data
-        """
-        return text_(data.encode("utf-8"), "utf-8")
+    def to_text(self, data: Any) -> str:
+        return str(data)

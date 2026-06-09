@@ -25,7 +25,7 @@ class TestUriPatternGenerator:
 
     def test_simple(self):
         urigen = UriPatternGenerator("http://id.example.com/%s")
-        assert "http://id.example.com/1" == urigen.generate(id=1)
+        assert "http://id.example.com/1" == urigen.generate(concept_id=1)
 
     def test_pattern_none(self):
         with pytest.raises(ValueError):
@@ -51,11 +51,11 @@ class TestDefaultUrnGenerator:
         return DefaultUrnGenerator("typologie")
 
     def test_simple(self, urn_generator):
-        assert "urn:x-skosprovider:typologie:1" == urn_generator.generate(id=1)
+        assert "urn:x-skosprovider:typologie:1" == urn_generator.generate(concept_id=1)
 
     def test_missing_argument(self, urn_generator):
-        with pytest.raises(KeyError):
-            urn_generator.generate(type="set")
+        with pytest.raises(TypeError):
+            urn_generator.generate(uri_type="set")
 
 
 class TestDefaultConceptSchemeUrnGenerator:
@@ -65,10 +65,10 @@ class TestDefaultConceptSchemeUrnGenerator:
         return DefaultConceptSchemeUrnGenerator()
 
     def test_simple(self, urn_generator):
-        assert "urn:x-skosprovider:typologie" == urn_generator.generate(id="TYPOLOGIE")
+        assert "urn:x-skosprovider:typologie" == urn_generator.generate(concept_id="TYPOLOGIE")
 
     def test_missing_argument(self, urn_generator):
-        with pytest.raises(KeyError):
+        with pytest.raises(TypeError):
             urn_generator.generate()
 
 
@@ -80,14 +80,14 @@ class TestTypedUrnGenerator:
 
     def test_concept(self, urn_generator):
         assert "urn:x-skosprovider:typologie:concept:1" == urn_generator.generate(
-            type="concept", id=1
+            uri_type="concept", concept_id=1
         )
 
     def test_collection(self, urn_generator):
         assert "urn:x-skosprovider:typologie:collection:7000" == urn_generator.generate(
-            type="collection", id=7000
+            uri_type="collection", concept_id=7000
         )
 
     def test_invalid_type(self, urn_generator):
         with pytest.raises(ValueError):
-            urn_generator.generate(type="set", id=1)
+            urn_generator.generate(uri_type="set", concept_id=1)

@@ -29,11 +29,10 @@ CUSTOM_CONTEXT = {
 }
 
 
-def extra_data_serializer(obj: SkosObject) -> dict | None:
-    """Return extra_data dict directly; keys are mapped in CUSTOM_CONTEXT."""
-    if isinstance(obj.extra_data, dict) and obj.extra_data:
-        return obj.extra_data
-    return None
+def extra_data_serializer(doc: dict, obj: SkosObject) -> None:
+    """Merge extra_data dict into doc; keys are mapped in CUSTOM_CONTEXT."""
+    if isinstance(obj.extra_data, dict):
+        doc.update(obj.extra_data)
 
 
 larch = {

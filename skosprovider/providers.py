@@ -49,9 +49,14 @@ class VocabularyProvider(Generic[ExtraData]):
     """Indicates what instance_scopes this provider can safely accomodate. This
     will be checked by the registry upon registering a provider."""
 
-    def __init__(self, metadata: dict, **kwargs: Any) -> None:
+    def __init__(
+        self,
+        metadata: dict,
+        uri_generator: UriGenerator | None = None,
+        concept_scheme: ConceptScheme[ExtraData] | None = None,
+        allowed_instance_scopes: list[str] | None = None,
+    ) -> None:
         """Create a new provider and register some metadata.
-
 
         :param uri_generator: An object that implements the
             :class:`skosprovider.uri.UriGenerator` interface.
@@ -85,49 +90,27 @@ class VocabularyProvider(Generic[ExtraData]):
         if "subject" not in metadata:
             metadata["subject"] = []
         self.metadata = metadata
-        if "uri_generator" in kwargs:
-            self.uri_generator = kwargs["uri_generator"]
-        else:
-            self.uri_generator = DefaultUrnGenerator(self.metadata.get("id"))
-        if "concept_scheme" in kwargs:
-            self.concept_scheme = kwargs.get("concept_scheme")
+        self.uri_generator = uri_generator if uri_generator is not None else DefaultUrnGenerator(self.metadata.get("id"))
+        if concept_scheme is not None:
+            self.concept_scheme = concept_scheme
         elif "uri" in metadata:
             self.concept_scheme = ConceptScheme(uri=metadata["uri"])
         else:
             self.concept_scheme = ConceptScheme(
                 uri=DefaultConceptSchemeUrnGenerator().generate(
-                    id=self.metadata.get("id")
+                    concept_id=self.metadata.get("id")
                 )
             )
-        self.allowed_instance_scopes = kwargs.get(
-            "allowed_instance_scopes", ["single", "threaded_thread"]
-        )
+        self.allowed_instance_scopes = allowed_instance_scopes if allowed_instance_scopes is not None else ["single", "threaded_thread"]
 
-    def _get_language(self, **kwargs: Any) -> str:
+    def _get_language(self, language: str | None = None) -> str:
         """Determine what language to render labels in.
 
-        Will first check if there's a language keyword specified in **kwargs.
-        If not, will check the default language of the provider. If there's no
-        default language, will fall back to 'en'.
+        Falls back to the provider default language, then 'en'.
 
         :rtype: str
         """
-        return kwargs.get("language", self.metadata.get("default_language", "en"))
-
-    def _get_sort(self, **kwargs: Any) -> str | None:
-        """Determine on what attribute to sort.
-
-        :rtype: str
-        """
-        return kwargs.get("sort", None)
-
-    def _get_sort_order(self, **kwargs: Any) -> str:
-        """Determine the sort order.
-
-        :rtype: str
-        :returns: 'asc' or 'desc'
-        """
-        return kwargs.get("sort_order", "asc")
+        return language if language is not None else self.metadata.get("default_language", "en")
 
     def _sort(
         self,
@@ -147,10 +130,10 @@ class VocabularyProvider(Generic[ExtraData]):
         :param boolean reverse: Reverse the sort order?
         :rtype: list
         """
-        sorted = copy.copy(concepts)
+        result = copy.copy(concepts)
         if sort:
-            sorted.sort(key=methodcaller("_sortkey", sort, language), reverse=reverse)
-        return sorted
+            result.sort(key=methodcaller("_sortkey", sort, language), reverse=reverse)
+        return result
 
     def get_vocabulary_id(self) -> Any:
         """Get a local identifier for the vocabulary.
@@ -178,7 +161,7 @@ class VocabularyProvider(Generic[ExtraData]):
 
     @abc.abstractmethod
     def get_by_id(
-        self, id: str | int
+        self, concept_id: str | int
     ) -> Concept[ExtraData] | Collection[ExtraData] | Literal[False]:
         """Get all information on a concept or collection, based on id.
 
@@ -210,7 +193,7 @@ class VocabularyProvider(Generic[ExtraData]):
         """
 
     @abc.abstractmethod
-    def get_all(self, **kwargs: Any) -> list[dict]:
+    def get_all(self, language: str | None = None, sort: str | None = None, sort_order: str = "asc") -> list[dict]:
         """Returns all concepts and collections in this provider.
 
         :param string language: Optional. If present, it should be a
@@ -237,7 +220,7 @@ class VocabularyProvider(Generic[ExtraData]):
         """
 
     @abc.abstractmethod
-    def get_top_concepts(self, **kwargs: Any) -> list[dict]:
+    def get_top_concepts(self, language: str | None = None, sort: str | None = None, sort_order: str = "asc") -> list[dict]:
         """
         Returns all top-level concepts in this provider.
 
@@ -269,7 +252,7 @@ class VocabularyProvider(Generic[ExtraData]):
         """
 
     @abc.abstractmethod
-    def find(self, query: dict, **kwargs: Any) -> list[dict]:
+    def find(self, query: dict, language: str | None = None, sort: str | None = None, sort_order: str = "asc") -> list[dict]:
         """Find concepts that match a certain query.
 
         Currently query is expected to be a dict, so that complex queries can
@@ -368,7 +351,7 @@ class VocabularyProvider(Generic[ExtraData]):
         """
 
     @abc.abstractmethod
-    def expand(self, id: str | int) -> list[Any] | Literal[False]:
+    def expand(self, concept_id: str | int) -> list[Any] | Literal[False]:
         """Expand a concept or collection to all it's narrower
         concepts.
 
@@ -388,7 +371,7 @@ class VocabularyProvider(Generic[ExtraData]):
             exist.
         """
 
-    def get_top_display(self, **kwargs: Any) -> list[dict] | None:
+    def get_top_display(self, language: str | None = None, sort: str | None = None, sort_order: str = "asc") -> list[dict] | None:
         """
         Returns all concepts or collections that form the top-level of a
         display hierarchy.
@@ -419,7 +402,7 @@ class VocabularyProvider(Generic[ExtraData]):
 
         """
 
-    def get_children_display(self, id: str | int, **kwargs: Any) -> list[dict] | None:
+    def get_children_display(self, concept_id: str | int, language: str | None = None, sort: str | None = None, sort_order: str = "asc") -> list[dict] | None:
         """
         Return a list of concepts or collections that should be displayed
         under this concept or collection.
@@ -472,33 +455,35 @@ class MemoryProvider(VocabularyProvider[ExtraData]):
     def __init__(
         self,
         metadata: dict,
-        list: list[Concept[ExtraData] | Collection[ExtraData]],
-        **kwargs: Any,
+        concepts: list[Concept[ExtraData] | Collection[ExtraData]],
+        uri_generator: UriGenerator | None = None,
+        concept_scheme: ConceptScheme[ExtraData] | None = None,
+        allowed_instance_scopes: list[str] | None = None,
+        case_insensitive: bool = True,
     ) -> None:
         """
         :param dict metadata: A dictionary with keywords like language.
-        :param list list: A list of :class:`skosprovider.skos.Concept` and
+        :param list concepts: A list of :class:`skosprovider.skos.Concept` and
             :class:`skosprovider.skos.Collection` instances.
-        :param Boolean case_insensitive: Should searching for labels be done
+        :param bool case_insensitive: Should searching for labels be done
             case-insensitive?
         """
-        super().__init__(metadata, **kwargs)
-        if "allowed_instance_scopes" not in kwargs:
+        super().__init__(metadata, uri_generator=uri_generator, concept_scheme=concept_scheme, allowed_instance_scopes=allowed_instance_scopes)
+        if allowed_instance_scopes is None:
             self.allowed_instance_scopes = [
                 "single",
                 "threaded_thread",
                 "threaded_global",
             ]
-        self.list = list
-        if "case_insensitive" in kwargs:
-            self.case_insensitive = kwargs["case_insensitive"]
+        self.list = concepts
+        self.case_insensitive = case_insensitive
 
     def get_by_id(
-        self, id: str | int
+        self, concept_id: str | int
     ) -> Concept[ExtraData] | Collection[ExtraData] | Literal[False]:
-        id = str(id)
+        id_str = str(concept_id)
         for concept_or_collection in self.list:
-            if str(concept_or_collection.id) == id:
+            if str(concept_or_collection.id) == id_str:
                 return concept_or_collection
         return False
 
@@ -511,21 +496,18 @@ class MemoryProvider(VocabularyProvider[ExtraData]):
                 return concept_or_collection
         return False
 
-    def find(self, query: dict, **kwargs: Any) -> list[dict]:
+    def find(self, query: dict, language: str | None = None, sort: str | None = None, sort_order: str = "asc") -> list[dict]:
         query = self._normalise_query(query)
         filtered = [
             concept_or_collection
             for concept_or_collection in self.list
             if self._include_in_find(concept_or_collection, query)
         ]
-        language = self._get_language(**kwargs)
-        sort = self._get_sort(**kwargs)
-        reverse_sort = self._get_sort_order(**kwargs) == "desc"
+        lang = self._get_language(language)
+        reverse_sort = sort_order == "desc"
         return [
-            self._get_find_dict(concept_or_collection, **kwargs)
-            for concept_or_collection in self._sort(
-                filtered, sort, language, reverse_sort
-            )
+            self._get_find_dict(concept_or_collection, language)
+            for concept_or_collection in self._sort(filtered, sort, lang, reverse_sort)
         ]
 
     def _normalise_query(self, query: dict) -> dict:
@@ -596,7 +578,7 @@ class MemoryProvider(VocabularyProvider[ExtraData]):
     def _get_find_dict(
         self,
         concept_or_collection: Concept[ExtraData] | Collection[ExtraData],
-        **kwargs: Any,
+        language: str | None = None,
     ) -> dict:
         """
         Return a dict that can be used in the return list of the :meth:`find`
@@ -606,7 +588,7 @@ class MemoryProvider(VocabularyProvider[ExtraData]):
             :class:`skosprovider.skos.Collection`.
         :rtype: dict
         """
-        language = self._get_language(**kwargs)
+        lang = self._get_language(language)
         return {
             "id": concept_or_collection.id,
             "uri": concept_or_collection.uri,
@@ -614,19 +596,16 @@ class MemoryProvider(VocabularyProvider[ExtraData]):
             "label": (
                 None
                 if concept_or_collection.label() is None
-                else concept_or_collection.label(language).label
+                else concept_or_collection.label(lang).label
             ),
         }
 
-    def get_all(self, **kwargs: Any) -> list[dict]:
-        language = self._get_language(**kwargs)
-        sort = self._get_sort(**kwargs)
-        reverse_sort = self._get_sort_order(**kwargs) == "desc"
+    def get_all(self, language: str | None = None, sort: str | None = None, sort_order: str = "asc") -> list[dict]:
+        lang = self._get_language(language)
+        reverse_sort = sort_order == "desc"
         return [
-            self._get_find_dict(concept_or_collection, **kwargs)
-            for concept_or_collection in self._sort(
-                self.list, sort, language, reverse_sort
-            )
+            self._get_find_dict(concept_or_collection, language)
+            for concept_or_collection in self._sort(self.list, sort, lang, reverse_sort)
         ]
 
     def _is_top_concept(
@@ -658,20 +637,19 @@ class MemoryProvider(VocabularyProvider[ExtraData]):
 
         return not _has_higher_concept(concept_or_collection)
 
-    def get_top_concepts(self, **kwargs: Any) -> list[dict]:
-        language = self._get_language(**kwargs)
-        sort = self._get_sort(**kwargs)
-        reverse_sort = self._get_sort_order(**kwargs) == "desc"
+    def get_top_concepts(self, language: str | None = None, sort: str | None = None, sort_order: str = "asc") -> list[dict]:
+        lang = self._get_language(language)
+        reverse_sort = sort_order == "desc"
         top = [concept for concept in self.list if self._is_top_concept(concept)]
         return [
-            self._get_find_dict(concept, **kwargs)
-            for concept in self._sort(top, sort, language, reverse_sort)
+            self._get_find_dict(concept, language)
+            for concept in self._sort(top, sort, lang, reverse_sort)
         ]
 
-    def expand(self, id: str | int) -> list[Any] | Literal[False]:
-        id = str(id)
+    def expand(self, concept_id: str | int) -> list[Any] | Literal[False]:
+        id_str = str(concept_id)
         for concept_or_collection in self.list:
-            if str(concept_or_collection.id) != id:
+            if str(concept_or_collection.id) != id_str:
                 continue
             if isinstance(concept_or_collection, Concept):
                 concept = concept_or_collection
@@ -691,10 +669,8 @@ class MemoryProvider(VocabularyProvider[ExtraData]):
                 return list(ret)
         return False
 
-    def get_top_display(self, **kwargs: Any) -> list[dict]:
-        language = self._get_language(**kwargs)
-        sort = self._get_sort(**kwargs)
-        sort_order = self._get_sort_order(**kwargs)
+    def get_top_display(self, language: str | None = None, sort: str | None = None, sort_order: str = "asc") -> list[dict]:
+        lang = self._get_language(language)
         top_display = [
             concept_or_collection
             for concept_or_collection in self.list
@@ -717,23 +693,21 @@ class MemoryProvider(VocabularyProvider[ExtraData]):
                 "label": (
                     None
                     if concept_or_collection.label() is None
-                    else concept_or_collection.label(language).label
+                    else concept_or_collection.label(lang).label
                 ),
             }
             for concept_or_collection in self._sort(
-                top_display, sort, language, sort_order == "desc"
+                top_display, sort, lang, sort_order == "desc"
             )
         ]
 
     def get_children_display(
-        self, id: str | int, **kwargs: Any
+        self, concept_id: str | int, language: str | None = None, sort: str | None = None, sort_order: str = "asc"
     ) -> list[dict] | Literal[False]:
-        concept_or_collection = self.get_by_id(id)
+        concept_or_collection = self.get_by_id(concept_id)
         if not concept_or_collection:
             return False
-        language = self._get_language(**kwargs)
-        sort = self._get_sort(**kwargs)
-        sort_order = self._get_sort_order(**kwargs)
+        lang = self._get_language(language)
         if isinstance(concept_or_collection, Concept):
             display_children = (
                 concept_or_collection.subordinate_arrays
@@ -750,11 +724,11 @@ class MemoryProvider(VocabularyProvider[ExtraData]):
                 "uri": child.uri,
                 "type": child.type,
                 "label": (
-                    None if child.label() is None else child.label(language).label
+                    None if child.label() is None else child.label(lang).label
                 ),
             }
             for child in self._sort(
-                display_children_list, sort, language, sort_order == "desc"
+                display_children_list, sort, lang, sort_order == "desc"
             )
         ]
 
@@ -766,17 +740,25 @@ class DictionaryProvider(MemoryProvider[dict]):
     the concepts.
     """
 
-    def __init__(self, metadata: dict, list: list[dict], **kwargs: Any) -> None:
-        super().__init__(metadata, [], **kwargs)
+    def __init__(
+        self,
+        metadata: dict,
+        data: list[dict],
+        uri_generator: UriGenerator | None = None,
+        concept_scheme: ConceptScheme | None = None,
+        allowed_instance_scopes: list[str] | None = None,
+        case_insensitive: bool = True,
+    ) -> None:
+        super().__init__(metadata, [], uri_generator=uri_generator, concept_scheme=concept_scheme, allowed_instance_scopes=allowed_instance_scopes, case_insensitive=case_insensitive)
         self.list = [
-            self._from_dict(concept_or_collection) for concept_or_collection in list
+            self._from_dict(concept_or_collection) for concept_or_collection in data
         ]
 
     def _from_dict(self, data: dict) -> Concept[dict] | Collection[dict]:
         data = data.copy()
         if data.pop("type", None) == "collection":
             uri = data.pop("uri", None) or self.uri_generator.generate(
-                type="collection", id=data["id"]
+                uri_type="collection", concept_id=data["id"]
             )
             collection = Collection(
                 id=data.pop("id"),
@@ -795,7 +777,7 @@ class DictionaryProvider(MemoryProvider[dict]):
         else:
             data.pop("type", None)
             uri = data.pop("uri", None) or self.uri_generator.generate(
-                type="concept", id=data["id"]
+                uri_type="concept", concept_id=data["id"]
             )
             concept = Concept(
                 id=data.pop("id"),
@@ -829,17 +811,23 @@ class SimpleCsvProvider(MemoryProvider[ExtraData]):
     """
 
     def __init__(
-        self, metadata: dict, reader: Iterable[Sequence[str]], **kwargs: Any
+        self,
+        metadata: dict,
+        reader: Iterable[Sequence[str]],
+        uri_generator: UriGenerator | None = None,
+        concept_scheme: ConceptScheme | None = None,
+        allowed_instance_scopes: list[str] | None = None,
+        case_insensitive: bool = True,
     ) -> None:
         """
         :param metadata: A metadata dictionary.
         :param reader: A csv reader.
         """
-        super().__init__(metadata, [], **kwargs)
+        super().__init__(metadata, [], uri_generator=uri_generator, concept_scheme=concept_scheme, allowed_instance_scopes=allowed_instance_scopes, case_insensitive=case_insensitive)
         self.list = [self._from_row(row) for row in reader]
 
     def _from_row(self, row: Sequence[str]) -> Concept[ExtraData]:
-        id = row[0]
+        concept_id = row[0]
         labels = [{"label": row[1], "type": "prefLabel"}]
         if len(row) > 2 and row[2]:
             notes = [{"note": row[2], "type": "note"}]
@@ -850,8 +838,8 @@ class SimpleCsvProvider(MemoryProvider[ExtraData]):
         else:
             sources = []
         return Concept(
-            id=id,
-            uri=self.uri_generator.generate(type="concept", id=id),
+            id=concept_id,
+            uri=self.uri_generator.generate(uri_type="concept", concept_id=concept_id),
             labels=labels,
             notes=notes,
             sources=sources,

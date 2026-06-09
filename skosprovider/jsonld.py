@@ -15,40 +15,30 @@ from skosprovider.skos import Concept
 from skosprovider.skos import ConceptScheme
 from skosprovider.skos import Label
 from skosprovider.skos import Note
+from skosprovider.skos import SkosObject
 from skosprovider.skos import Source
 from skosprovider.utils import add_lang_to_html
 from skosprovider.utils import extract_language
 
 log = logging.getLogger(__name__)
 
-SkosObject: TypeAlias = Concept | Collection | ConceptScheme | Label | Note | Source
-
-Serializer: TypeAlias = Callable[[SkosObject], dict | None] | None
-"""A callable that receives a SKOS object and returns a :class:`dict` to
-merge into the rendered output, or :obj:`None` to skip.  Called only when
-the object's :attr:`extra_data` is not :obj:`None`.
+Serializer: TypeAlias = Callable[[dict, SkosObject], None] | None
+"""A callable that receives the output :class:`dict` and a SKOS object, and
+mutates the dict directly to add extra data.  Called only when the object's
+:attr:`extra_data` is not :obj:`None`.
 
 Example usage with an rdflib Graph as extra_data::
 
     import json
     from rdflib import Graph
 
-    def my_serializer(obj):
+    def my_serializer(doc, obj):
         if isinstance(obj.extra_data, Graph):
-            return json.loads(obj.extra_data.serialize(format="json-ld"))
-        return None
+            doc.update(json.loads(obj.extra_data.serialize(format="json-ld")))
 
     result = jsonld_dumper(provider, extra_data_serializer=my_serializer)
 """
 
-
-def _apply_extra_data(
-    doc: dict, obj: SkosObject, extra_data_serializer: Serializer
-) -> None:
-    if extra_data_serializer is not None and obj.extra_data is not None:
-        extra = extra_data_serializer(obj)
-        if extra is not None:
-            doc.update(extra)
 
 
 MINI_CONTEXT = {
@@ -169,9 +159,9 @@ def jsonld_dumper(
         that wil be turned into a JSON-LD `dict`.
     :param str or dict context: Context as a dict or link to context file.
     :param string language: Language to render a single label in.
-    :param extra_data_serializer: Optional callable that receives an `extra_data` value
-        and returns a `dict` to merge into the rendered output, or `None` to
-        skip.  See :data:`Serializer`.
+    :param extra_data_serializer: Optional :data:`Serializer` callable that
+        receives the output dict and a SKOS object, and mutates the dict to
+        add extra data.
 
     :rtype: A `dict`
     """
@@ -221,9 +211,9 @@ def jsonld_c_dumper(
     :param str relations_profile: Either `partial` or `uri` to render links to
         other resources with some information or just a :term:`URI`.
     :param string language: Language to render a single label in.
-    :param extra_data_serializer: Optional callable that receives an `extra_data` value
-        and returns a `dict` to merge into the rendered output, or `None` to
-        skip.  See :data:`Serializer`.
+    :param extra_data_serializer: Optional :data:`Serializer` callable that
+        receives the output dict and a SKOS object, and mutates the dict to
+        add extra data.
 
     :rtype: A `dict`
     """
@@ -285,7 +275,8 @@ def jsonld_c_dumper(
                 concept_or_collection, provider, relations_profile, language
             )
         )
-    _apply_extra_data(doc, concept_or_collection, extra_data_serializer)
+    if extra_data_serializer is not None and concept_or_collection.extra_data is not None:
+        extra_data_serializer(doc, concept_or_collection)
     return doc
 
 
@@ -326,7 +317,8 @@ def _jsonld_labels_renderer(
     def label_renderer(label):
         language = extract_language(label.language)
         rendered = {"language": language, "@language": language, "lbl": label.label}
-        _apply_extra_data(rendered, label, extra_data_serializer)
+        if extra_data_serializer is not None and label.extra_data is not None:
+            extra_data_serializer(rendered, label)
         return rendered
 
     label_type_map = {
@@ -359,7 +351,8 @@ def _jsonld_labels_xl_renderer(
         }
         if len(label.label_types):
             rendered_label["label_types"] = label.label_types
-        _apply_extra_data(rendered_label, label, extra_data_serializer)
+        if extra_data_serializer is not None and label.extra_data is not None:
+            extra_data_serializer(rendered_label, label)
         return rendered_label
 
     label_type_map = {
@@ -395,7 +388,8 @@ def _jsonld_notes_renderer(
             del rendered_note["@language"]
             rendered_note["nt"] = add_lang_to_html(rendered_note["nt"], language)
             rendered_note["@type"] = note.markup
-        _apply_extra_data(rendered_note, note, extra_data_serializer)
+        if extra_data_serializer is not None and note.extra_data is not None:
+            extra_data_serializer(rendered_note, note)
         return rendered_note
 
     note_type_map = {
@@ -429,7 +423,8 @@ def _jsonld_sources_renderer(
         }
         if source.markup is not None:
             rendered_source["citations"][0]["@type"] = source.markup
-        _apply_extra_data(rendered_source, source, extra_data_serializer)
+        if extra_data_serializer is not None and source.extra_data is not None:
+            extra_data_serializer(rendered_source, source)
         return rendered_source
 
     for source in concept_or_collection.sources:
@@ -577,9 +572,9 @@ def jsonld_conceptscheme_dumper(
     :param str relations_profile: Either `partial` or `uri` to render links to
         other resources with some information or just a :term:`URI`.
     :param string language: Language to render a single label in.
-    :param extra_data_serializer: Optional callable that receives an `extra_data` value
-        and returns a `dict` to merge into the rendered output, or `None` to
-        skip.  See :data:`Serializer`.
+    :param extra_data_serializer: Optional :data:`Serializer` callable that
+        receives the output dict and a SKOS object, and mutates the dict to
+        add extra data.
 
     :rtype: A `dict`
     """
@@ -597,5 +592,6 @@ def jsonld_conceptscheme_dumper(
     doc.update(_jsonld_sources_renderer(conceptscheme, extra_data_serializer))
     doc.update(_jsonld_cs_languages_renderer(conceptscheme))
     doc.update(_jsonld_topconcepts_renderer(provider, relations_profile))
-    _apply_extra_data(doc, conceptscheme, extra_data_serializer)
+    if extra_data_serializer is not None and conceptscheme.extra_data is not None:
+        extra_data_serializer(doc, conceptscheme)
     return doc

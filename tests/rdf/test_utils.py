@@ -317,8 +317,9 @@ class TestRDFDumperExtraData:
 
     @pytest.fixture
     def notation_serializer(self):
-        def serializer(graph, subject, obj):
+        def serializer(graph, obj):
             if isinstance(obj.extra_data, dict):
+                subject = URIRef(obj.uri)
                 for notation in obj.extra_data.get('notation', []):
                     graph.add((subject, SKOS.notation, Literal(notation)))
         return serializer
@@ -348,9 +349,9 @@ class TestRDFDumperExtraData:
         cs = ConceptScheme('http://id.trees.org', extra_data={'created': '2024-01-01'})
         provider = DictionaryProvider({'id': 'TREES'}, [], concept_scheme=cs)
 
-        def serializer(graph, subject, obj):
+        def serializer(graph, obj):
             if isinstance(obj.extra_data, dict) and 'created' in obj.extra_data:
-                graph.add((subject, DCTERMS_CREATED, Literal(obj.extra_data['created'])))
+                graph.add((URIRef(obj.uri), DCTERMS_CREATED, Literal(obj.extra_data['created'])))
 
         graph = utils.rdf_conceptscheme_dumper(provider, extra_data_serializer=serializer)
         cs_ref = URIRef('http://id.trees.org')

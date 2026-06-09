@@ -13,6 +13,7 @@ from typing import Any
 from typing import ClassVar
 from typing import Generic
 from typing import Literal
+from typing import TypeAlias
 from typing import TypeVar
 
 from language_tags import tags
@@ -309,7 +310,7 @@ class ConceptScheme(Generic[ExtraData]):
         if not is_uri(uri):
             raise ValueError(f"{uri} is not a valid URI.")
         self.uri = uri
-        self.labels = [dict_to_label(label) for label in labels] if labels else []
+        self.labels = [dict_to_label(lbl) for lbl in labels] if labels else []
         self.notes = [dict_to_note(note) for note in notes] if notes else []
         self.sources = [dict_to_source(source) for source in sources] if sources else []
         self.languages = languages or []
@@ -433,7 +434,7 @@ class Concept(Generic[ExtraData]):
         self.uri = uri
         self.type = "concept"
         self.concept_scheme = concept_scheme
-        self.labels = [dict_to_label(label) for label in labels] if labels else []
+        self.labels = [dict_to_label(lbl) for lbl in labels] if labels else []
         self.notes = [dict_to_note(note) for note in notes] if notes else []
         self.sources = [dict_to_source(source) for source in sources] if sources else []
         self.broader = broader or []
@@ -542,7 +543,7 @@ class Collection(Generic[ExtraData]):
         self.uri = uri
         self.type = "collection"
         self.concept_scheme = concept_scheme
-        self.labels = [dict_to_label(label) for label in labels] if labels else []
+        self.labels = [dict_to_label(lbl) for lbl in labels] if labels else []
         self.notes = [dict_to_note(note) for note in notes] if notes else []
         self.sources = [dict_to_source(source) for source in sources] if sources else []
         self.members = members or []
@@ -707,15 +708,15 @@ def filter_labels_by_language(
             return []
         language = lang_subtag.format
         return [
-            label
-            for label in labels
-            if (subtag := tags.tag(label.language).language) is not None
+            lbl
+            for lbl in labels
+            if (subtag := tags.tag(lbl.language).language) is not None
             and subtag.format == language
         ]
     else:
         language = tags.tag(language).format
         return [
-            label for label in labels if tags.tag(label.language).format == language
+            lbl for lbl in labels if tags.tag(lbl.language).format == language
         ]
 
 
@@ -783,3 +784,6 @@ def dict_to_source(value: Source | dict) -> Source[dict]:
         value.pop("markup", None),
         extra_data=value,
     )
+
+
+SkosObject: TypeAlias = Concept | Collection | ConceptScheme | Label | Note | Source

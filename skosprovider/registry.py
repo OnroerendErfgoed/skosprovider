@@ -114,48 +114,48 @@ class Registry:
             )
         self.concept_scheme_uri_map[conceptscheme_uri] = provider.get_vocabulary_id()
 
-    def remove_provider(self, id):
+    def remove_provider(self, provider_id):
         """
         Remove the provider with the given id or :term:`URI`.
 
-        :param str id: The identifier for the provider.
+        :param str provider_id: The identifier for the provider.
         :returns: A :class:`skosprovider.providers.VocabularyProvider` or
             `False` if the id is unknown.
         """
-        if id in self.providers:
-            provider = self.providers.get(id, False)
-            del self.providers[id]
+        if provider_id in self.providers:
+            provider = self.providers.get(provider_id, False)
+            del self.providers[provider_id]
             concept_scheme_uri = provider.get_vocabulary_uri()
             del self.concept_scheme_uri_map[concept_scheme_uri]
             return provider
-        elif id in self.concept_scheme_uri_map:
-            id = self.concept_scheme_uri_map[id]
-            return self.remove_provider(id)
+        elif provider_id in self.concept_scheme_uri_map:
+            provider_id = self.concept_scheme_uri_map[provider_id]
+            return self.remove_provider(provider_id)
         else:
             return False
 
-    def get_provider(self, id):
+    def get_provider(self, provider_id):
         """
         Get a provider by id or :term:`URI`.
 
-        :param str id: The identifier for the provider. This can either be the
+        :param str provider_id: The identifier for the provider. This can either be the
             id with which it was registered or the :term:`URI` of the conceptscheme
             that the provider services.
         :returns: A :class:`skosprovider.providers.VocabularyProvider`
             or `False` if the id or uri is unknown.
         """
-        if id in self.providers:
-            return self.providers.get(id, False)
-        elif is_uri(id) and id in self.concept_scheme_uri_map:
-            return self.providers.get(self.concept_scheme_uri_map[id], False)
+        if provider_id in self.providers:
+            return self.providers.get(provider_id, False)
+        elif is_uri(provider_id) and provider_id in self.concept_scheme_uri_map:
+            return self.providers.get(self.concept_scheme_uri_map[provider_id], False)
         return False
 
-    def get_providers(self, **kwargs):
+    def get_providers(self, ids: list | None = None, subject: str | None = None):
         """Get all providers registered.
 
-        If keyword `ids` is present, get only the providers with these ids.
+        If `ids` is present, get only the providers with these ids.
 
-        If keys `subject` is present, get only the providers that have this subject.
+        If `subject` is present, get only the providers that have this subject.
 
         .. code-block:: python
 
@@ -166,7 +166,7 @@ class Registry:
            registry.get_providers(ids=[1,2])
 
            # Get all providers with id 1 or 2 and subject 'biology'
-           registry.get_providers(ids=[1,2], subject='biology']
+           registry.get_providers(ids=[1,2], subject='biology')
 
         :param list ids: Only return providers with one of the Ids
             or :term:`URIs <URI>`.
@@ -174,24 +174,30 @@ class Registry:
         :returns: A list of
             :class:`providers <skosprovider.providers.VocabularyProvider>`
         """
-        if "ids" in kwargs:
-            ids = [self.concept_scheme_uri_map.get(id, id) for id in kwargs["ids"]]
+        if ids is not None:
+            resolved_ids = [self.concept_scheme_uri_map.get(id, id) for id in ids]
             providers = [
                 self.providers[provider_id]
                 for provider_id in self.providers.keys()
-                if provider_id in ids
+                if provider_id in resolved_ids
             ]
         else:
             providers = list(self.providers.values())
-        if "subject" in kwargs:
+        if subject is not None:
             providers = [
                 provider
                 for provider in providers
-                if kwargs["subject"] in provider.metadata["subject"]
+                if subject in provider.metadata["subject"]
             ]
         return providers
 
-    def find(self, query, **kwargs):
+    def find(
+        self,
+        query: dict,
+        providers: list | dict | None = None,
+        language: str | None = None,
+        subject: str | None = None,
+    ) -> list[dict]:
         """Launch a query across all or a selection of providers.
 
         .. code-block:: python
@@ -224,7 +230,7 @@ class Registry:
             # Find anything that has a label of lariks
             # with a close match to an external concept
             # If possible, display the results with a Dutch label.
-            provider.find({
+            registry.find({
                 'matches': {
                     'label': 'lariks',
                     'type': 'close',
@@ -235,37 +241,35 @@ class Registry:
             :meth:`~skosprovider.providers.VocabularyProvider.find` method of
             the selected.
             :class:`providers <skosprovider.providers.VocabularyProvider>`.
-        :param dict providers: Optional. If present, it should be a dictionary.
-            This dictionary can contain any of the keyword arguments available
-            to the :meth:`get_providers` method. The query will then only
-            be passed to the providers confirming to these arguments.
+        :param providers: Optional. A list of provider ids or a dict with keys
+            `ids` and/or `subject` to filter which providers to query.
         :param string language: Optional. If present, it should be a
             :term:`language-tag`. This language-tag is passed on to the
             underlying providers and used when selecting the label to display
             for each concept.
+        :param string subject: Optional. If present, only query providers
+            tagged with this subject.
         :returns: a list of :class:`dict`.
             Each dict has two keys: id and concepts.
         """
-        if "providers" not in kwargs:
-            providers = self.get_providers()
+        if providers is None:
+            selected_providers = self.get_providers(subject=subject)
+        elif isinstance(providers, list):
+            selected_providers = self.get_providers(ids=providers)
         else:
-            provider_args = kwargs["providers"]
-            if isinstance(provider_args, list):
-                providers = self.get_providers(ids=provider_args)
-            else:
-                providers = self.get_providers(**provider_args)
-        kwarguments = {}
-        if "language" in kwargs:
-            kwarguments["language"] = kwargs["language"]
+            selected_providers = self.get_providers(
+                ids=providers.get("ids"),
+                subject=providers.get("subject"),
+            )
         return [
             {
                 "id": provider.get_vocabulary_id(),
-                "concepts": provider.find(query, **kwarguments),
+                "concepts": provider.find(query, language=language),
             }
-            for provider in providers
+            for provider in selected_providers
         ]
 
-    def get_all(self, **kwargs):
+    def get_all(self, language: str | None = None) -> list[dict]:
         """Get all concepts from all providers.
 
         .. code-block:: python
@@ -285,13 +289,10 @@ class Registry:
         :returns: a list of :class:`dict`.
             Each dict has two keys: id and concepts.
         """
-        kwarguments = {}
-        if "language" in kwargs:
-            kwarguments["language"] = kwargs["language"]
         return [
             {
                 "id": provider.get_vocabulary_id(),
-                "concepts": provider.get_all(**kwarguments),
+                "concepts": provider.get_all(language=language),
             }
             for provider in self.providers.values()
         ]
