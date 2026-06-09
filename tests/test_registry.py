@@ -1,7 +1,7 @@
 import pytest
-from test_providers import chestnut
-from test_providers import larch
-from test_providers import species
+from tests.test_providers import chestnut
+from tests.test_providers import larch
+from tests.test_providers import species
 
 from skosprovider.registry import Registry
 from skosprovider.registry import RegistryException
