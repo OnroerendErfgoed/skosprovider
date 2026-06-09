@@ -11,7 +11,7 @@ uv pip compile $PIP_COMPILE_ARGS -o "$SCRIPT_DIR/../requirements.txt" pyproject.
 echo " └Done"
 
 echo "Compiling requirements-dev.txt..."
-uv pip compile $PIP_COMPILE_ARGS --extra dev -o "$SCRIPT_DIR/../requirements-dev.txt" pyproject.toml
+uv pip compile $PIP_COMPILE_ARGS --all-extras -o "$SCRIPT_DIR/../requirements-dev.txt" pyproject.toml
 echo " └Done"
 
 cd -

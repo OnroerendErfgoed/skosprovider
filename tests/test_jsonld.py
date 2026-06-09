@@ -1,7 +1,7 @@
 import pytest
-from test_providers import geo
-from test_providers import larch
-from test_providers import trees
+from tests.test_providers import geo
+from tests.test_providers import larch
+from tests.test_providers import trees
 
 from skosprovider.jsonld import CONTEXT
 from skosprovider.jsonld import jsonld_c_dumper

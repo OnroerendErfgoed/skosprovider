@@ -1,16 +1,15 @@
 import pytest
-from test_providers import geo
-from test_providers import larch
-from test_providers import trees
-
 from skosprovider.providers import DictionaryProvider
 from skosprovider.utils import add_lang_to_html
 from skosprovider.utils import dict_dumper
 from skosprovider.utils import extract_language
+from tests.test_providers import larch
+from tests.test_providers import trees
+
+from tests.test_providers import geo
 
 
 class TestDictDumper:
-
     @pytest.fixture
     def larch_dump(self):
         return {
@@ -197,7 +196,6 @@ class TestDictDumper:
 
 
 class TestExtractLanguage:
-
     def test_extract_language_nlBE(self):
         assert "nl-BE" == extract_language("nl-BE")
 
@@ -206,7 +204,6 @@ class TestExtractLanguage:
 
 
 class TestHtml:
-
     def test_lang_und(self):
         assert "" == add_lang_to_html("", "und")
         assert "<p></p>" == add_lang_to_html("<p></p>", "und")
