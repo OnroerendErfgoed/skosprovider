@@ -1,7 +1,7 @@
 import pytest
-from test_providers import geo
-from test_providers import larch
-from test_providers import trees
+from tests.test_providers import geo
+from tests.test_providers import larch
+from tests.test_providers import trees
 
 from skosprovider.providers import DictionaryProvider
 from skosprovider.utils import add_lang_to_html
