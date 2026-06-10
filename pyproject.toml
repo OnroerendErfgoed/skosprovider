@@ -39,6 +39,9 @@ Documentation = "https://skosprovider.readthedocs.io/en/latest/"
 rdf = [
     "rdflib[html]>=7.0.0",
 ]
+sqlalchemy = [
+    "SQLAlchemy>=2.0.35",
+]
 dev = [
     # Linting and formatting
     "flake8>=7.1.2",
