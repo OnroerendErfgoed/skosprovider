@@ -18,14 +18,14 @@ from skosprovider.skos import ConceptScheme
 from skosprovider.uri import UriPatternGenerator
 
 # Extended context: copy CONTEXT and map application-specific keys to URIs.
-# Note: keys used inside label/note objects (which expand to @value nodes) cannot
-# be mapped here — JSON-LD forbids extra properties alongside @value.  Those keys
-# (source_system, source_citation) are left unmapped so they are treated as
-# opaque application data and are dropped by JSON-LD processors during expansion.
+# Notes: override "nt" from "@value" to rdf:value so note objects become regular
+# nodes that can carry extra properties.  source_citation is then safely mappable.
+
 CUSTOM_CONTEXT = {
     **CONTEXT,
     "notation": {"@id": "skos:notation", "@container": "@set"},
-    "source_system": {"@id": "dct:source"},
+    "nt": {"@id": "rdf:value"},
+    "source_citation": {"@id": "dct:bibliographicCitation"},
 }
 
 
@@ -62,7 +62,7 @@ larch = {
             "type": "definition",
             "language": "en",
             "note": "A type of tree.",
-            "source_citation": "Botanical Dictionary, 2nd ed.",  # extra_data on Note
+            "source_citation": "okokokok Dictionary, 2nd ed.",  # extra_data on Note
         }
     ],
     "member_of": ["3"],
