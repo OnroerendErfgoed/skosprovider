@@ -29,6 +29,10 @@ class TestLabel:
         label = Label("Knokke-Heist", type="prefLabel", language=None)
         assert label.language == "und"
 
+    def test_constructor_private_use_language(self):
+        label = Label("Knokke-Heist", type="prefLabel", language="x-private")
+        assert label.language == "x-private"
+
     def test_constructor_optional_fields(self):
         label = Label(
             "Knokke-Heist",
@@ -132,6 +136,12 @@ class TestNote:
             Note("Een gemeente in West-Vlaanderen.", type="note", language="nederlands")
         note = Note("Een gemeente in West-Vlaanderen.", type="note", language=None)
         assert note.language == "und"
+
+    def test_constructor_private_use_language(self):
+        note = Note(
+            "Een gemeente in West-Vlaanderen.", type="note", language="x-private"
+        )
+        assert note.language == "x-private"
 
     def test_constructor_invalid_markup(self):
         with pytest.raises(ValueError):

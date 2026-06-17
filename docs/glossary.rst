@@ -30,6 +30,6 @@ Glossary
 
    language-tag
     A valid tag from the `IANA language subtag registry <http://www.iana.org/assignments/language-subtag-registry/language-subtag-registry>`__. Eg. `nl-BE`, `en-Latn-GB`, `i-klingon`, `lb`, `zh-latn-pinyin-x-notone`, ... 
-    Skosprovider uses the 
-    `language-tags <https://pypi.python.org/pypi/language-tags>`__ library 
+    Skosprovider uses the
+    `langcodes <https://pypi.python.org/pypi/langcodes>`__ library
     to handle the complexities of these tags.

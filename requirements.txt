@@ -2,7 +2,9 @@ cachetools==7.0.5
     # via pyld
 frozendict==2.4.7
     # via pyld
-language-tags==1.2.0
+html5lib==1.1
+    # via skosprovider (pyproject.toml)
+langcodes==3.5.1
     # via skosprovider (pyproject.toml)
 lxml==6.0.4
     # via pyld

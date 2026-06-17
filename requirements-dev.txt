@@ -48,7 +48,7 @@ iniconfig==2.3.0
     # via pytest
 jinja2==3.1.6
     # via sphinx
-language-tags==1.2.0
+langcodes==3.5.1
     # via skosprovider (pyproject.toml)
 lxml==6.0.4
     # via pyld

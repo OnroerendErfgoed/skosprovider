@@ -8,7 +8,8 @@ subordinate array).
 .. versionadded:: 0.2.0
 """
 
-from language_tags import tags
+from langcodes import Language
+from langcodes import tag_is_valid
 
 from .uri import is_uri
 
@@ -60,7 +61,7 @@ class Label:
         self.type = type
         if not language:
             language = "und"
-        if tags.check(language):
+        if tag_is_valid(language):
             self.language = language
         else:
             raise ValueError(f"{language} is not a valid IANA language tag.")
@@ -148,7 +149,7 @@ class Note:
         self.type = type
         if not language:
             language = "und"
-        if tags.check(language):
+        if tag_is_valid(language):
             self.language = language
         else:
             raise ValueError(f"{language} is not a valid IANA language tag.")
@@ -572,7 +573,7 @@ def label(labels=None, language="any", sortLabel=False):
     if isinstance(language, str):
         language = [language]
     if isinstance(language, list):
-        language = [lang for lang in language if tags.tag(lang).language]
+        language = [lang for lang in language if tag_is_valid(lang)]
     if not language:
         language = ["und"]
     labels = [dict_to_label(label) for label in labels]
@@ -623,16 +624,18 @@ def filter_labels_by_language(labels, language, broader=False):
     if language == "any":
         return labels
     if broader:
-        language = tags.tag(language).language.format
+        language = Language.get(language).language
         return [
             label
             for label in labels
-            if tags.tag(label.language).language.format == language
+            if Language.get(label.language).language == language
         ]
     else:
-        language = tags.tag(language).format
+        language = Language.get(language).to_tag()
         return [
-            label for label in labels if tags.tag(label.language).format == language
+            label
+            for label in labels
+            if Language.get(label.language).to_tag() == language
         ]
 
 
