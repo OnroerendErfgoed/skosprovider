@@ -7,6 +7,9 @@ This module contains functions dealing with jsonld reading and writing.
 import json
 import logging
 
+from pyld import jsonld as pyld_jsonld
+from rdflib import Graph
+
 from skosprovider.utils import add_lang_to_html
 from skosprovider.utils import extract_language
 
@@ -117,17 +120,13 @@ CONTEXT = {
 }
 
 
-def _graph_to_jsonld(graph):
-    return json.loads(graph.serialize(format="json-ld"))
-
-
-def _extra_data_to_props(extra_data):
+def _extra_data_to_props(extra_data: Graph):
     """Extract properties from an extra_data Graph for merging into a rendered dict."""
-    nodes = _graph_to_jsonld(extra_data)
-    if not nodes:
+    serialized = json.loads(extra_data.serialize(format="json-ld"))
+    expanded = pyld_jsonld.expand(serialized)
+    if not expanded:
         return {}
-    props = nodes[0] if isinstance(nodes, list) else nodes
-    return {k: v for k, v in props.items() if k != "@id"}
+    return {k: v for k, v in expanded[0].items() if k != "@id"}
 
 
 def jsonld_dumper(provider, context=None, language=None):
@@ -324,7 +323,10 @@ def _jsonld_notes_renderer(concept_or_collection):
         language = extract_language(note.language)
         if note.is_object():
             if note.markup is not None:
-                rdf_value = {"@value": add_lang_to_html(note.note, language), "@type": note.markup}
+                rdf_value = {
+                    "@value": add_lang_to_html(note.note, language),
+                    "@type": note.markup,
+                }
             else:
                 rdf_value = {"@value": note.note, "@language": language}
             rendered_note = {
