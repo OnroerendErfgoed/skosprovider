@@ -6,15 +6,70 @@ DictionaryProvider containing just three items.
 import json
 
 from pyld import jsonld
-
-from skosprovider.jsonld import (
-    CONTEXT,
-    jsonld_dumper,
-)
+from rdflib import Graph
+from rdflib import Literal
+from rdflib import Namespace
+from rdflib import URIRef
+from rdflib.namespace import XSD
+from skosprovider.jsonld import CONTEXT
+from skosprovider.jsonld import jsonld_dumper
 from skosprovider.providers import DictionaryProvider
 from skosprovider.skos import ConceptScheme
+from skosprovider.skos import Note
+from skosprovider.skos import Source
 from skosprovider.uri import UriPatternGenerator
 
+DCT = Namespace("http://purl.org/dc/terms/")
+
+# extra_data for a Note: creator and date of the change note
+_larch_change_note_uri = URIRef("http://id.trees.org/notes/larch-change-1999")
+_larch_change_note_graph = Graph()
+_larch_change_note_graph.add(
+    (
+        _larch_change_note_uri,
+        DCT.creator,
+        URIRef("http://id.trees.org/persons/HoraceGray"),
+    )
+)
+_larch_change_note_graph.add(
+    (_larch_change_note_uri, DCT.date, Literal("1999-01-23", datatype=XSD.date))
+)
+
+# extra_data for a Source: creator and date of the source
+_larch_source_uri = URIRef("http://id.trees.org/sources/larch-monograph")
+_larch_source_graph = Graph()
+_larch_source_graph.add(
+    (
+        _larch_source_uri,
+        DCT.creator,
+        URIRef("http://id.trees.org/persons/JohnDoe"),
+    )
+)
+_larch_source_graph.add(
+    (_larch_source_uri, DCT.date, Literal("2005", datatype=XSD.gYear))
+)
+
+# extra_data for the larch Concept itself: creation and modification dates
+_larch_uri = URIRef("http://id.trees.org/1")
+_larch_concept_graph = Graph()
+_larch_concept_graph.add(
+    (_larch_uri, DCT.created, Literal("2010-01-15", datatype=XSD.date))
+)
+_larch_concept_graph.add(
+    (_larch_uri, DCT.modified, Literal("2020-06-01", datatype=XSD.date))
+)
+
+# extra_data for the species Collection: creation date
+_species_uri = URIRef("http://id.trees.org/3")
+_species_collection_graph = Graph()
+_species_collection_graph.add(
+    (_species_uri, DCT.created, Literal("2010-01-15", datatype=XSD.date))
+)
+
+# extra_data for the ConceptScheme: creation date
+_cs_uri = URIRef("http://id.trees.org")
+_cs_graph = Graph()
+_cs_graph.add((_cs_uri, DCT.created, Literal("2009-12-01", datatype=XSD.date)))
 
 larch = {
     "id": "1",
@@ -31,11 +86,29 @@ larch = {
             ],
         },
     ],
-    "notes": [{"type": "definition", "language": "en", "note": "A type of tree."}],
+    "notes": [
+        {"type": "definition", "language": "en", "note": "A type of tree."},
+        Note(
+            "Moved from under 'conifers' to under 'deciduous'",
+            type="changeNote",
+            language="en",
+            uri="http://id.trees.org/notes/larch-change-1999",
+            extra_data=_larch_change_note_graph,
+        ),
+    ],
+    "sources": [
+        {"citation": "Monographs on Trees, vol. 1."},
+        Source(
+            "The Larch: A Complete Monograph",
+            uri="http://id.trees.org/sources/larch-monograph",
+            extra_data=_larch_source_graph,
+        ),
+    ],
     "member_of": ["3"],
     "matches": {
         "close": ["http://id.python.org/different/types/of/trees/nr/1/the/larch"]
     },
+    "extra_data": _larch_concept_graph,
 }
 
 chestnut = {
@@ -75,6 +148,7 @@ species = {
             "markup": "HTML",
         }
     ],
+    "extra_data": _species_collection_graph,
 }
 
 provider = DictionaryProvider(
@@ -102,6 +176,7 @@ provider = DictionaryProvider(
                 "uri": "http://id.trees.org/labels/bomen-nl",
             },
         ],
+        extra_data=_cs_graph,
     ),
 )
 

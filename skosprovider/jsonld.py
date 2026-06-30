@@ -4,6 +4,7 @@ This module contains functions dealing with jsonld reading and writing.
 .. versionadded:: 0.7.0
 """
 
+import json
 import logging
 
 from skosprovider.utils import add_lang_to_html
@@ -116,6 +117,19 @@ CONTEXT = {
 }
 
 
+def _graph_to_jsonld(graph):
+    return json.loads(graph.serialize(format="json-ld"))
+
+
+def _extra_data_to_props(extra_data):
+    """Extract properties from an extra_data Graph for merging into a rendered dict."""
+    nodes = _graph_to_jsonld(extra_data)
+    if not nodes:
+        return {}
+    props = nodes[0] if isinstance(nodes, list) else nodes
+    return {k: v for k, v in props.items() if k != "@id"}
+
+
 def jsonld_dumper(provider, context=None, language=None):
     """
     Dump a provider to a JSON-LD serialisable dictionary.
@@ -222,6 +236,8 @@ def jsonld_c_dumper(
                 concept_or_collection, provider, relations_profile, language
             )
         )
+    if concept_or_collection.extra_data is not None:
+        doc.update(_extra_data_to_props(concept_or_collection.extra_data))
     return doc
 
 
@@ -281,6 +297,8 @@ def _jsonld_labels_xl_renderer(concept_or_collection):
         }
         if len(label.label_types):
             rendered_label["label_types"] = label.label_types
+        if label.extra_data is not None:
+            rendered_label.update(_extra_data_to_props(label.extra_data))
         return rendered_label
 
     label_type_map = {
@@ -304,16 +322,30 @@ def _jsonld_notes_renderer(concept_or_collection):
 
     def note_renderer(note):
         language = extract_language(note.language)
-        rendered_note = {
+        if note.is_object():
+            if note.markup is not None:
+                rdf_value = {"@value": add_lang_to_html(note.note, language), "@type": note.markup}
+            else:
+                rdf_value = {"@value": note.note, "@language": language}
+            rendered_note = {
+                "language": language,
+                "uri": note.uri,
+                "rdf:value": rdf_value,
+            }
+            if note.extra_data is not None:
+                rendered_note.update(_extra_data_to_props(note.extra_data))
+            return rendered_note
+        if note.markup is not None:
+            return {
+                "language": language,
+                "@type": note.markup,
+                "nt": add_lang_to_html(note.note, language),
+            }
+        return {
             "language": language,
             "@language": language,
             "nt": note.note,
         }
-        if note.markup is not None:
-            del rendered_note["@language"]
-            rendered_note["nt"] = add_lang_to_html(rendered_note["nt"], language)
-            rendered_note["@type"] = note.markup
-        return rendered_note
 
     note_type_map = {
         "note": "general_notes",
@@ -337,13 +369,28 @@ def _jsonld_sources_renderer(concept_or_collection):
     doc = {"sources": []}
 
     def source_renderer(source):
-        rendered_source = {
+        if source.is_object():
+            if source.markup is not None:
+                rdf_value = {"@value": source.citation, "@type": source.markup}
+            else:
+                rdf_value = {"@value": source.citation}
+            rendered_source = {
+                "type": "dct:BibliographicResource",
+                "uri": source.uri,
+                "rdf:value": rdf_value,
+            }
+            if source.extra_data is not None:
+                rendered_source.update(_extra_data_to_props(source.extra_data))
+            return rendered_source
+        if source.markup is not None:
+            return {
+                "type": "dct:BibliographicResource",
+                "citations": [{"ct": source.citation, "@type": source.markup}],
+            }
+        return {
             "type": "dct:BibliographicResource",
             "citations": [{"ct": source.citation}],
         }
-        if source.markup is not None:
-            rendered_source["citations"][0]["@type"] = source.markup
-        return rendered_source
 
     for source in concept_or_collection.sources:
         doc["sources"].append(source_renderer(source))
@@ -475,4 +522,6 @@ def jsonld_conceptscheme_dumper(
     doc.update(_jsonld_sources_renderer(conceptscheme))
     doc.update(_jsonld_cs_languages_renderer(conceptscheme))
     doc.update(_jsonld_topconcepts_renderer(provider, relations_profile))
+    if conceptscheme.extra_data is not None:
+        doc.update(_extra_data_to_props(conceptscheme.extra_data))
     return doc

@@ -1,3 +1,8 @@
+from rdflib import Graph
+from rdflib import Literal
+from rdflib import Namespace
+from rdflib import URIRef
+from rdflib.namespace import XSD
 from test_providers import geo
 from test_providers import larch
 from test_providers import trees
@@ -6,6 +11,11 @@ from skosprovider.jsonld import CONTEXT
 from skosprovider.jsonld import jsonld_c_dumper
 from skosprovider.jsonld import jsonld_conceptscheme_dumper
 from skosprovider.jsonld import jsonld_dumper
+from skosprovider.providers import DictionaryProvider
+from skosprovider.skos import ConceptScheme
+from skosprovider.skos import Label
+from skosprovider.skos import Note
+from skosprovider.skos import Source
 
 
 class TestDumperTrees:
@@ -259,3 +269,277 @@ class TestDumperGeo:
         doc = jsonld_c_dumper(geo, 4, CONTEXT)
         assert len(doc["subordinate_arrays"]) == 2
         assert "matches" not in doc
+
+
+DCT = Namespace("http://purl.org/dc/terms/")
+
+_note_uri = URIRef("http://id.trees.org/notes/larch-change-1999")
+_note_graph = Graph()
+_note_graph.add((_note_uri, DCT.creator, URIRef("http://id.trees.org/persons/HoraceGray")))
+_note_graph.add((_note_uri, DCT.date, Literal("1999-01-23", datatype=XSD.date)))
+
+_source_uri = URIRef("http://id.trees.org/sources/larch-monograph")
+_source_graph = Graph()
+_source_graph.add((_source_uri, DCT.creator, URIRef("http://id.trees.org/persons/JohnDoe")))
+_source_graph.add((_source_uri, DCT.date, Literal("2005", datatype=XSD.gYear)))
+
+_larch_extra = {
+    "id": "1",
+    "uri": "http://id.trees.org/1",
+    "labels": [{"type": "prefLabel", "language": "en", "label": "The Larch"}],
+    "notes": [
+        Note(
+            "Moved from 'conifers' to 'deciduous'",
+            type="changeNote",
+            language="en",
+            uri=str(_note_uri),
+            extra_data=_note_graph,
+        ),
+    ],
+    "sources": [
+        Source(
+            "The Larch: A Complete Monograph",
+            uri=str(_source_uri),
+            extra_data=_source_graph,
+        ),
+    ],
+    "member_of": [],
+}
+
+_trees_extra = DictionaryProvider(
+    {"id": "TREES_EXTRA", "dataset": {"uri": "http://id.trees.org/dataset"}},
+    [_larch_extra],
+    concept_scheme=ConceptScheme("http://id.trees.org"),
+)
+
+
+_larch_object_notes = {
+    "id": "1",
+    "uri": "http://id.trees.org/1",
+    "labels": [{"type": "prefLabel", "language": "en", "label": "The Larch"}],
+    "notes": [
+        Note(
+            "Moved from 'conifers' to 'deciduous'",
+            type="changeNote",
+            language="en",
+            uri="http://id.trees.org/notes/larch-change-1",
+        ),
+        Note(
+            "<p>A <em>historical</em> note.</p>",
+            type="historyNote",
+            language="en",
+            markup="HTML",
+            uri="http://id.trees.org/notes/larch-history-1",
+        ),
+    ],
+    "sources": [
+        Source(
+            "The Larch: A Complete Monograph",
+            uri="http://id.trees.org/sources/larch-monograph",
+        ),
+        Source(
+            "<em>Trees</em>, vol. 1",
+            markup="HTML",
+            uri="http://id.trees.org/sources/trees-vol1",
+        ),
+    ],
+    "member_of": [],
+}
+
+_trees_object_notes = DictionaryProvider(
+    {"id": "TREES_OBJ", "dataset": {"uri": "http://id.trees.org/dataset"}},
+    [_larch_object_notes],
+    concept_scheme=ConceptScheme("http://id.trees.org"),
+)
+
+
+class TestDumperObjectNotes:
+
+    def test_object_note_renders_uri_and_rdf_value(self):
+        doc = jsonld_c_dumper(_trees_object_notes, "1", CONTEXT)
+        change_note = doc["notes"]["change_notes"][0]
+        assert change_note["uri"] == "http://id.trees.org/notes/larch-change-1"
+        assert change_note["rdf:value"] == {
+            "@value": "Moved from 'conifers' to 'deciduous'",
+            "@language": "en",
+        }
+        assert "nt" not in change_note
+        assert "@language" not in change_note
+
+    def test_object_note_with_markup_uses_type_in_rdf_value(self):
+        doc = jsonld_c_dumper(_trees_object_notes, "1", CONTEXT)
+        history_note = doc["notes"]["history_notes"][0]
+        assert history_note["uri"] == "http://id.trees.org/notes/larch-history-1"
+        assert history_note["rdf:value"]["@type"] == "HTML"
+        assert "@language" not in history_note["rdf:value"]
+
+    def test_object_source_renders_uri_and_rdf_value(self):
+        doc = jsonld_c_dumper(_trees_object_notes, "1", CONTEXT)
+        source = doc["sources"][0]
+        assert source["uri"] == "http://id.trees.org/sources/larch-monograph"
+        assert source["rdf:value"] == {"@value": "The Larch: A Complete Monograph"}
+        assert "citations" not in source
+
+    def test_object_source_with_markup_uses_type_in_rdf_value(self):
+        doc = jsonld_c_dumper(_trees_object_notes, "1", CONTEXT)
+        source = doc["sources"][1]
+        assert source["uri"] == "http://id.trees.org/sources/trees-vol1"
+        assert source["rdf:value"]["@type"] == "HTML"
+        assert "citations" not in source
+
+
+class TestDumperExtraData:
+
+    def test_note_extra_data_includes_expanded_props(self):
+        doc = jsonld_c_dumper(_trees_extra, "1", CONTEXT)
+        change_note = doc["notes"]["change_notes"][0]
+        assert change_note["uri"] == str(_note_uri)
+        dct_creator = "http://purl.org/dc/terms/creator"
+        dct_date = "http://purl.org/dc/terms/date"
+        assert dct_creator in change_note
+        assert change_note[dct_creator] == [{"@id": "http://id.trees.org/persons/HoraceGray"}]
+        assert dct_date in change_note
+        assert change_note[dct_date] == [
+            {"@type": "http://www.w3.org/2001/XMLSchema#date", "@value": "1999-01-23"}
+        ]
+
+    def test_note_extra_data_no_context_leak(self):
+        doc = jsonld_c_dumper(_trees_extra, "1", CONTEXT)
+        change_note = doc["notes"]["change_notes"][0]
+        assert "@context" not in change_note
+
+    def test_source_extra_data_includes_expanded_props(self):
+        doc = jsonld_c_dumper(_trees_extra, "1", CONTEXT)
+        source = doc["sources"][0]
+        assert source["uri"] == str(_source_uri)
+        dct_creator = "http://purl.org/dc/terms/creator"
+        dct_date = "http://purl.org/dc/terms/date"
+        assert dct_creator in source
+        assert source[dct_creator] == [{"@id": "http://id.trees.org/persons/JohnDoe"}]
+        assert dct_date in source
+        assert source[dct_date] == [
+            {"@type": "http://www.w3.org/2001/XMLSchema#gYear", "@value": "2005"}
+        ]
+
+    def test_source_extra_data_no_context_leak(self):
+        doc = jsonld_c_dumper(_trees_extra, "1", CONTEXT)
+        source = doc["sources"][0]
+        assert "@context" not in source
+
+
+DCT2 = Namespace("http://purl.org/dc/terms/")
+
+_concept_uri = URIRef("http://id.trees.org/1")
+_concept_graph = Graph()
+_concept_graph.add((_concept_uri, DCT2.created, Literal("2010-01-15", datatype=XSD.date)))
+_concept_graph.add((_concept_uri, DCT2.modified, Literal("2020-06-01", datatype=XSD.date)))
+
+_collection_uri = URIRef("http://id.trees.org/3")
+_collection_graph = Graph()
+_collection_graph.add((_collection_uri, DCT2.created, Literal("2010-01-15", datatype=XSD.date)))
+
+_cs_uri_extra = URIRef("http://id.trees.org")
+_cs_graph_extra = Graph()
+_cs_graph_extra.add((_cs_uri_extra, DCT2.created, Literal("2009-12-01", datatype=XSD.date)))
+
+_cs_with_extra = ConceptScheme("http://id.trees.org", extra_data=_cs_graph_extra)
+
+_larch_with_extra = {
+    "id": "1",
+    "uri": "http://id.trees.org/1",
+    "labels": [{"type": "prefLabel", "language": "en", "label": "The Larch"}],
+    "notes": [],
+    "member_of": ["3"],
+    "extra_data": _concept_graph,
+}
+
+_species_with_extra = {
+    "id": "3",
+    "uri": "http://id.trees.org/3",
+    "labels": [{"type": "prefLabel", "language": "en", "label": "Trees by species"}],
+    "type": "collection",
+    "members": ["1"],
+    "member_of": [],
+    "extra_data": _collection_graph,
+}
+
+_trees_concept_extra = DictionaryProvider(
+    {"id": "TREES_CONCEPT_EXTRA", "dataset": {"uri": "http://id.trees.org/dataset"}},
+    [_larch_with_extra, _species_with_extra],
+    concept_scheme=_cs_with_extra,
+)
+
+
+class TestDumperConceptExtraData:
+
+    def test_concept_extra_data_includes_expanded_props(self):
+        doc = jsonld_c_dumper(_trees_concept_extra, "1", CONTEXT)
+        dct_created = "http://purl.org/dc/terms/created"
+        dct_modified = "http://purl.org/dc/terms/modified"
+        assert dct_created in doc
+        assert doc[dct_created] == [
+            {"@type": "http://www.w3.org/2001/XMLSchema#date", "@value": "2010-01-15"}
+        ]
+        assert dct_modified in doc
+        assert doc[dct_modified] == [
+            {"@type": "http://www.w3.org/2001/XMLSchema#date", "@value": "2020-06-01"}
+        ]
+
+    def test_concept_extra_data_no_context_leak(self):
+        doc = jsonld_c_dumper(_trees_concept_extra, "1")
+        assert "@context" not in doc
+
+    def test_collection_extra_data_includes_expanded_props(self):
+        doc = jsonld_c_dumper(_trees_concept_extra, "3", CONTEXT)
+        dct_created = "http://purl.org/dc/terms/created"
+        assert dct_created in doc
+        assert doc[dct_created] == [
+            {"@type": "http://www.w3.org/2001/XMLSchema#date", "@value": "2010-01-15"}
+        ]
+
+    def test_collection_extra_data_no_context_leak(self):
+        doc = jsonld_c_dumper(_trees_concept_extra, "3")
+        assert "@context" not in doc
+
+    def test_conceptscheme_extra_data_includes_expanded_props(self):
+        doc = jsonld_conceptscheme_dumper(_trees_concept_extra)
+        dct_created = "http://purl.org/dc/terms/created"
+        assert dct_created in doc
+        assert doc[dct_created] == [
+            {"@type": "http://www.w3.org/2001/XMLSchema#date", "@value": "2009-12-01"}
+        ]
+
+    def test_conceptscheme_extra_data_no_context_leak(self):
+        doc = jsonld_conceptscheme_dumper(_trees_concept_extra)
+        assert "@context" not in doc
+
+    def test_label_extra_data_includes_expanded_props(self):
+        _label_uri = URIRef("http://id.trees.org/labels/larch-en")
+        _label_graph = Graph()
+        _label_graph.add((_label_uri, DCT2.created, Literal("2010-01-15", datatype=XSD.date)))
+        larch_with_xl_extra = {
+            "id": "10",
+            "uri": "http://id.trees.org/10",
+            "labels": [
+                Label(
+                    "The Larch",
+                    type="prefLabel",
+                    language="en",
+                    uri="http://id.trees.org/labels/larch-en",
+                    extra_data=_label_graph,
+                )
+            ],
+            "member_of": [],
+        }
+        provider = DictionaryProvider(
+            {"id": "LARCH_LABEL_EXTRA"},
+            [larch_with_xl_extra],
+            concept_scheme=ConceptScheme("http://id.trees.org"),
+        )
+        doc = jsonld_c_dumper(provider, "10", CONTEXT)
+        xl_label = doc["labels_xl"]["pref_labels_xl"][0]
+        dct_created = "http://purl.org/dc/terms/created"
+        assert dct_created in xl_label
+        assert xl_label[dct_created] == [
+            {"@type": "http://www.w3.org/2001/XMLSchema#date", "@value": "2010-01-15"}
+        ]

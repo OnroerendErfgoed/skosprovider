@@ -730,6 +730,8 @@ class DictionaryProvider(MemoryProvider):
         ]
 
     def _from_dict(self, data):
+        if isinstance(data, (Concept, Collection)):
+            return data
         if "type" in data and data["type"] == "collection":
             uri = data.get("uri") or self.uri_generator.generate(
                 type="collection", id=data["id"]
@@ -745,6 +747,7 @@ class DictionaryProvider(MemoryProvider):
                 member_of=data.get("member_of", []),
                 superordinates=data.get("superordinates", []),
                 infer_concept_relations=data.get("infer_concept_relations", True),
+                extra_data=data.get("extra_data"),
             )
         else:
             uri = data.get("uri") or self.uri_generator.generate(
@@ -763,6 +766,7 @@ class DictionaryProvider(MemoryProvider):
                 member_of=data.get("member_of", []),
                 subordinate_arrays=data.get("subordinate_arrays", []),
                 matches=data.get("matches", {}),
+                extra_data=data.get("extra_data"),
             )
 
 
