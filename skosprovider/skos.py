@@ -59,7 +59,13 @@ class Label:
     """
 
     def __init__(
-        self, label, type="prefLabel", language="und", uri=None, label_types=None, extra_data=None
+        self,
+        label,
+        type="prefLabel",
+        language="und",
+        uri=None,
+        label_types=None,
+        extra_data=None,
     ):
         self.label = label
         self.type = type
@@ -155,7 +161,9 @@ class Note:
     The valid types for a note.
     """
 
-    def __init__(self, note, type="note", language="und", markup=None, uri=None, extra_data=None):
+    def __init__(
+        self, note, type="note", language="und", markup=None, uri=None, extra_data=None
+    ):
         self.note = note
         self.type = type
         if not language:
@@ -317,7 +325,15 @@ class ConceptScheme:
     extra_data: Graph | None = None
     """An optional RDF graph with extra data for this conceptscheme."""
 
-    def __init__(self, uri, labels=None, notes=None, sources=None, languages=None, extra_data=None):
+    def __init__(
+        self,
+        uri,
+        labels=None,
+        notes=None,
+        sources=None,
+        languages=None,
+        extra_data=None,
+    ):
         if not is_uri(uri):
             raise ValueError(f"{uri} is not a valid URI.")
         self.uri = uri
@@ -354,6 +370,50 @@ class ConceptScheme:
         else:
             sortlabel = label(self.labels, language, key == "sortlabel")
             return sortlabel.label.lower() if sortlabel else ""
+
+    @property
+    def pref_labels(self):
+        return [lbl for lbl in self.labels if lbl.type == "prefLabel"]
+
+    @property
+    def alt_labels(self):
+        return [lbl for lbl in self.labels if lbl.type == "altLabel"]
+
+    @property
+    def hidden_labels(self):
+        return [lbl for lbl in self.labels if lbl.type == "hiddenLabel"]
+
+    @property
+    def sort_labels(self):
+        return [lbl for lbl in self.labels if lbl.type == "sortLabel"]
+
+    @property
+    def general_notes(self):
+        return [n for n in self.notes if n.type == "note"]
+
+    @property
+    def scope_notes(self):
+        return [n for n in self.notes if n.type == "scopeNote"]
+
+    @property
+    def definitions(self):
+        return [n for n in self.notes if n.type == "definition"]
+
+    @property
+    def history_notes(self):
+        return [n for n in self.notes if n.type == "historyNote"]
+
+    @property
+    def editorial_notes(self):
+        return [n for n in self.notes if n.type == "editorialNote"]
+
+    @property
+    def change_notes(self):
+        return [n for n in self.notes if n.type == "changeNote"]
+
+    @property
+    def examples(self):
+        return [n for n in self.notes if n.type == "example"]
 
     def __repr__(self):
         return f"ConceptScheme('{self.uri}')"
@@ -409,7 +469,7 @@ class Concept:
     subordinate_arrays = []
     """A :class:`list` of collection ids."""
 
-    matches = ({},)
+    matches = {}
     """
     A :class:`dictionary`. Each key is a matchtype and
     contains a :class:`list` of URI's.
@@ -486,6 +546,50 @@ class Concept:
         else:
             sortlabel = label(self.labels, language, key == "sortlabel")
             return sortlabel.label.lower() if sortlabel else ""
+
+    @property
+    def pref_labels(self):
+        return [lbl for lbl in self.labels if lbl.type == "prefLabel"]
+
+    @property
+    def alt_labels(self):
+        return [lbl for lbl in self.labels if lbl.type == "altLabel"]
+
+    @property
+    def hidden_labels(self):
+        return [lbl for lbl in self.labels if lbl.type == "hiddenLabel"]
+
+    @property
+    def sort_labels(self):
+        return [lbl for lbl in self.labels if lbl.type == "sortLabel"]
+
+    @property
+    def general_notes(self):
+        return [n for n in self.notes if n.type == "note"]
+
+    @property
+    def scope_notes(self):
+        return [n for n in self.notes if n.type == "scopeNote"]
+
+    @property
+    def definitions(self):
+        return [n for n in self.notes if n.type == "definition"]
+
+    @property
+    def history_notes(self):
+        return [n for n in self.notes if n.type == "historyNote"]
+
+    @property
+    def editorial_notes(self):
+        return [n for n in self.notes if n.type == "editorialNote"]
+
+    @property
+    def change_notes(self):
+        return [n for n in self.notes if n.type == "changeNote"]
+
+    @property
+    def examples(self):
+        return [n for n in self.notes if n.type == "example"]
 
     def __repr__(self):
         return f"Concept('{self.id}')"
@@ -591,6 +695,50 @@ class Collection:
         else:
             sortlabel = label(self.labels, language, key == "sortlabel")
             return sortlabel.label.lower() if sortlabel else ""
+
+    @property
+    def pref_labels(self):
+        return [lbl for lbl in self.labels if lbl.type == "prefLabel"]
+
+    @property
+    def alt_labels(self):
+        return [lbl for lbl in self.labels if lbl.type == "altLabel"]
+
+    @property
+    def hidden_labels(self):
+        return [lbl for lbl in self.labels if lbl.type == "hiddenLabel"]
+
+    @property
+    def sort_labels(self):
+        return [lbl for lbl in self.labels if lbl.type == "sortLabel"]
+
+    @property
+    def general_notes(self):
+        return [n for n in self.notes if n.type == "note"]
+
+    @property
+    def scope_notes(self):
+        return [n for n in self.notes if n.type == "scopeNote"]
+
+    @property
+    def definitions(self):
+        return [n for n in self.notes if n.type == "definition"]
+
+    @property
+    def history_notes(self):
+        return [n for n in self.notes if n.type == "historyNote"]
+
+    @property
+    def editorial_notes(self):
+        return [n for n in self.notes if n.type == "editorialNote"]
+
+    @property
+    def change_notes(self):
+        return [n for n in self.notes if n.type == "changeNote"]
+
+    @property
+    def examples(self):
+        return [n for n in self.notes if n.type == "example"]
 
     def __repr__(self):
         return f"Collection('{self.id}')"

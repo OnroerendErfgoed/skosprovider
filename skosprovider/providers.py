@@ -14,6 +14,8 @@ import abc
 import copy
 import logging
 from operator import methodcaller
+from typing import Literal
+from typing import TypedDict
 
 from .skos import Collection
 from .skos import Concept
@@ -22,6 +24,13 @@ from .uri import DefaultConceptSchemeUrnGenerator
 from .uri import DefaultUrnGenerator
 
 log = logging.getLogger(__name__)
+
+
+class SkosRef(TypedDict):
+    id: str
+    uri: str
+    type: Literal["concept", "collection"]
+    label: str
 
 
 class VocabularyProvider:
@@ -162,7 +171,7 @@ class VocabularyProvider:
         return self.metadata
 
     @abc.abstractmethod
-    def get_by_id(self, id):
+    def get_by_id(self, id) -> Concept | Collection | Literal[False]:
         """Get all information on a concept or collection, based on id.
 
         Providers should assume that all id's passed are strings. If a provider
@@ -181,7 +190,7 @@ class VocabularyProvider:
         """
 
     @abc.abstractmethod
-    def get_by_uri(self, uri):
+    def get_by_uri(self, uri) -> Concept | Collection | Literal[False]:
         """Get all information on a concept or collection, based on a
         :term:`URI`.
 
@@ -191,7 +200,7 @@ class VocabularyProvider:
         """
 
     @abc.abstractmethod
-    def get_all(self, **kwargs):
+    def get_all(self, **kwargs) -> list[SkosRef]:
         """Returns all concepts and collections in this provider.
 
         :param string language: Optional. If present, it should be a
@@ -218,7 +227,7 @@ class VocabularyProvider:
         """
 
     @abc.abstractmethod
-    def get_top_concepts(self, **kwargs):
+    def get_top_concepts(self, **kwargs) -> list[SkosRef]:
         """
         Returns all top-level concepts in this provider.
 
@@ -250,7 +259,7 @@ class VocabularyProvider:
         """
 
     @abc.abstractmethod
-    def find(self, query, **kwargs):
+    def find(self, query, **kwargs) -> list[SkosRef]:
         """Find concepts that match a certain query.
 
         Currently query is expected to be a dict, so that complex queries can
@@ -369,7 +378,8 @@ class VocabularyProvider:
             exist.
         """
 
-    def get_top_display(self, **kwargs):
+    @abc.abstractmethod
+    def get_top_display(self, **kwargs) -> list[SkosRef]:
         """
         Returns all concepts or collections that form the top-level of a
         display hierarchy.
@@ -400,7 +410,8 @@ class VocabularyProvider:
 
         """
 
-    def get_children_display(self, id, **kwargs):
+    @abc.abstractmethod
+    def get_children_display(self, id, **kwargs) -> list[SkosRef]:
         """
         Return a list of concepts or collections that should be displayed
         under this concept or collection.

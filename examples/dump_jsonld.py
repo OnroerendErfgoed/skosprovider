@@ -12,7 +12,8 @@ from rdflib import Namespace
 from rdflib import URIRef
 from rdflib.namespace import XSD
 from skosprovider.jsonld import CONTEXT
-from skosprovider.jsonld import jsonld_dumper
+from skosprovider.jsonld import to_jsonld
+from skosprovider.original_jsonld import jsonld_dumper
 from skosprovider.providers import DictionaryProvider
 from skosprovider.skos import ConceptScheme
 from skosprovider.skos import Note
@@ -181,7 +182,10 @@ provider = DictionaryProvider(
 )
 
 # Generate a doc for a cs
-doc = jsonld_dumper(provider, CONTEXT)
+from skosprovider.jsonld import to_jsonld
+
+# doc = jsonld_dumper(provider, CONTEXT)
+doc = to_jsonld(provider)
 msg = "Conceptscheme"
 print(msg)
 print(len(msg) * "=")
