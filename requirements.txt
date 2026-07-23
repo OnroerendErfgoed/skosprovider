@@ -2,13 +2,15 @@ cachetools==7.0.5
     # via pyld
 frozendict==2.4.7
     # via pyld
-html5lib==1.1
-    # via skosprovider (pyproject.toml)
 langcodes==3.5.1
     # via skosprovider (pyproject.toml)
 lxml==6.0.4
     # via pyld
 pyld==2.0.3
+    # via skosprovider (pyproject.toml)
+pyparsing==3.3.2
+    # via rdflib
+rdflib==7.6.0
     # via skosprovider (pyproject.toml)
 rfc3987==1.3.8
     # via skosprovider (pyproject.toml)
