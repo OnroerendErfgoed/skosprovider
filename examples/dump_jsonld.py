@@ -13,7 +13,6 @@ from rdflib import URIRef
 from rdflib.namespace import XSD
 from skosprovider.jsonld import CONTEXT
 from skosprovider.jsonld import to_jsonld
-from skosprovider.original_jsonld import jsonld_dumper
 from skosprovider.providers import DictionaryProvider
 from skosprovider.skos import ConceptScheme
 from skosprovider.skos import Note
@@ -61,10 +60,17 @@ _larch_concept_graph.add(
 )
 
 # extra_data for the species Collection: creation date
-_species_uri = URIRef("http://id.trees.org/3")
+_species_uri = URIRef("http://id.python.org/different/types/of/trees")
 _species_collection_graph = Graph()
 _species_collection_graph.add(
-    (_species_uri, DCT.created, Literal("2010-01-15", datatype=XSD.date))
+    (_species_uri, DCT.created, Literal("1969", datatype=XSD.gYear))
+)
+_species_collection_graph.add(
+    (
+        _species_uri,
+        DCT.creator,
+        URIRef("http://www.wikidata.org/entity/16402"),
+    )
 )
 
 # extra_data for the ConceptScheme: creation date
@@ -133,7 +139,7 @@ chestnut = {
 
 species = {
     "id": 3,
-    "uri": "http://id.trees.org/3",
+    "uri": "http://id.python.org/different/types/of/trees",
     "labels": [
         {"type": "prefLabel", "language": "en", "label": "Trees by species"},
         {"type": "prefLabel", "language": "nl", "label": "Bomen per soort"},
