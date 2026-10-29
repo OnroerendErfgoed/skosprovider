@@ -10,6 +10,7 @@ subordinate array).
 
 from langcodes import Language
 from langcodes import tag_is_valid
+from rdflib import Graph
 
 from .uri import is_uri
 
@@ -31,6 +32,9 @@ class Label:
     """
     The label itself (eg. `churches`, `trees`, `Spitfires`, ...)
     """
+
+    extra_data: Graph | None = None
+    """An optional RDF graph with extra data for this label."""
 
     type = "prefLabel"
     """
@@ -55,7 +59,13 @@ class Label:
     """
 
     def __init__(
-        self, label, type="prefLabel", language="und", uri=None, label_types=None
+        self,
+        label,
+        type="prefLabel",
+        language="und",
+        uri=None,
+        label_types=None,
+        extra_data=None,
     ):
         self.label = label
         self.type = type
@@ -72,6 +82,7 @@ class Label:
             self.label_types = label_types
         else:
             self.label_types = []
+        self.extra_data = extra_data
 
     def __eq__(self, other):
         if not isinstance(other, Label):
@@ -110,6 +121,9 @@ class Note:
     A :term:`SKOS` Note.
     """
 
+    uri = None
+    """A :term:`URI` for this note."""
+
     note = None
     """The note itself"""
 
@@ -131,6 +145,9 @@ class Note:
     Currently only HTML is allowed.
     """
 
+    extra_data: Graph | None = None
+    """An optional RDF graph with extra data for this note."""
+
     valid_types = [
         "note",
         "changeNote",
@@ -144,7 +161,9 @@ class Note:
     The valid types for a note.
     """
 
-    def __init__(self, note, type="note", language="und", markup=None):
+    def __init__(
+        self, note, type="note", language="und", markup=None, uri=None, extra_data=None
+    ):
         self.note = note
         self.type = type
         if not language:
@@ -157,10 +176,24 @@ class Note:
             self.markup = markup
         else:
             raise ValueError(f"{markup} is not valid markup.")
+        if uri and not is_uri(uri):
+            raise ValueError(f"{uri} is not a valid URI.")
+        self.uri = uri
+        self.extra_data = extra_data
+
+    def is_literal(self):
+        """Returns True if this note has no URI."""
+        return self.uri is None
+
+    def is_object(self):
+        """Returns True if this note has a URI."""
+        return self.uri is not None
 
     def __eq__(self, other):
         if not isinstance(other, Note):
             return False
+        if self.uri:
+            return self.uri == other.uri
         return (
             self.note == other.note
             and self.type == other.type
@@ -169,6 +202,11 @@ class Note:
 
     def __ne__(self, other):
         return not self == other
+
+    def __repr__(self):
+        if not self.is_object():
+            return f"Note('{self.note}', '{self.type}', '{self.language}')"
+        return f"Note('{self.note}', '{self.type}', '{self.language}', '{self.uri}')"
 
     @staticmethod
     def is_valid_type(type):
@@ -195,6 +233,9 @@ class Source:
 
     """
 
+    uri = None
+    """A :term:`URI` for this source."""
+
     citation = None
     """A bibliographic citation for this source."""
 
@@ -206,12 +247,42 @@ class Source:
     Currently only HTML is allowed.
     """
 
-    def __init__(self, citation, markup=None):
+    extra_data: Graph | None = None
+    """An optional RDF graph with extra data for this source."""
+
+    def __init__(self, citation, markup=None, uri=None, extra_data=None):
         self.citation = citation
         if self.is_valid_markup(markup):
             self.markup = markup
         else:
             raise ValueError(f"{markup} is not valid markup.")
+        if uri and not is_uri(uri):
+            raise ValueError(f"{uri} is not a valid URI.")
+        self.uri = uri
+        self.extra_data = extra_data
+
+    def is_literal(self):
+        """Returns True if this source has no URI."""
+        return self.uri is None
+
+    def is_object(self):
+        """Returns True if this source has a URI."""
+        return self.uri is not None
+
+    def __eq__(self, other):
+        if not isinstance(other, Source):
+            return False
+        if self.uri:
+            return self.uri == other.uri
+        return self.citation == other.citation
+
+    def __ne__(self, other):
+        return not self == other
+
+    def __repr__(self):
+        if not self.is_object():
+            return f"Source('{self.citation}')"
+        return f"Source('{self.citation}', '{self.uri}')"
 
     @staticmethod
     def is_valid_markup(markup):
@@ -251,7 +322,18 @@ class ConceptScheme:
     There's no guarantuee that labels or notes in other languages do not exist.
     """
 
-    def __init__(self, uri, labels=None, notes=None, sources=None, languages=None):
+    extra_data: Graph | None = None
+    """An optional RDF graph with extra data for this conceptscheme."""
+
+    def __init__(
+        self,
+        uri,
+        labels=None,
+        notes=None,
+        sources=None,
+        languages=None,
+        extra_data=None,
+    ):
         if not is_uri(uri):
             raise ValueError(f"{uri} is not a valid URI.")
         self.uri = uri
@@ -259,6 +341,7 @@ class ConceptScheme:
         self.notes = [dict_to_note(note) for note in notes] if notes else []
         self.sources = [dict_to_source(source) for source in sources] if sources else []
         self.languages = languages or []
+        self.extra_data = extra_data
 
     def label(self, language="any"):
         """
@@ -287,6 +370,50 @@ class ConceptScheme:
         else:
             sortlabel = label(self.labels, language, key == "sortlabel")
             return sortlabel.label.lower() if sortlabel else ""
+
+    @property
+    def pref_labels(self):
+        return [lbl for lbl in self.labels if lbl.type == "prefLabel"]
+
+    @property
+    def alt_labels(self):
+        return [lbl for lbl in self.labels if lbl.type == "altLabel"]
+
+    @property
+    def hidden_labels(self):
+        return [lbl for lbl in self.labels if lbl.type == "hiddenLabel"]
+
+    @property
+    def sort_labels(self):
+        return [lbl for lbl in self.labels if lbl.type == "sortLabel"]
+
+    @property
+    def general_notes(self):
+        return [n for n in self.notes if n.type == "note"]
+
+    @property
+    def scope_notes(self):
+        return [n for n in self.notes if n.type == "scopeNote"]
+
+    @property
+    def definitions(self):
+        return [n for n in self.notes if n.type == "definition"]
+
+    @property
+    def history_notes(self):
+        return [n for n in self.notes if n.type == "historyNote"]
+
+    @property
+    def editorial_notes(self):
+        return [n for n in self.notes if n.type == "editorialNote"]
+
+    @property
+    def change_notes(self):
+        return [n for n in self.notes if n.type == "changeNote"]
+
+    @property
+    def examples(self):
+        return [n for n in self.notes if n.type == "example"]
 
     def __repr__(self):
         return f"ConceptScheme('{self.uri}')"
@@ -342,7 +469,7 @@ class Concept:
     subordinate_arrays = []
     """A :class:`list` of collection ids."""
 
-    matches = ({},)
+    matches = {}
     """
     A :class:`dictionary`. Each key is a matchtype and
     contains a :class:`list` of URI's.
@@ -354,6 +481,9 @@ class Concept:
     This dictionary contains a key for each type of Match (close, exact,
     related, broad, narrow). Attached to each key is a list of URI's.
     """
+
+    extra_data: Graph | None = None
+    """An optional RDF graph with extra data for this concept."""
 
     def __init__(
         self,
@@ -369,6 +499,7 @@ class Concept:
         member_of=None,
         subordinate_arrays=None,
         matches=None,
+        extra_data=None,
     ):
         self.id = id
         self.uri = uri
@@ -385,6 +516,7 @@ class Concept:
         self.matches = {key: [] for key in self.matchtypes}
         if matches:
             self.matches.update(matches)
+        self.extra_data = extra_data
 
     def label(self, language="any"):
         """
@@ -414,6 +546,50 @@ class Concept:
         else:
             sortlabel = label(self.labels, language, key == "sortlabel")
             return sortlabel.label.lower() if sortlabel else ""
+
+    @property
+    def pref_labels(self):
+        return [lbl for lbl in self.labels if lbl.type == "prefLabel"]
+
+    @property
+    def alt_labels(self):
+        return [lbl for lbl in self.labels if lbl.type == "altLabel"]
+
+    @property
+    def hidden_labels(self):
+        return [lbl for lbl in self.labels if lbl.type == "hiddenLabel"]
+
+    @property
+    def sort_labels(self):
+        return [lbl for lbl in self.labels if lbl.type == "sortLabel"]
+
+    @property
+    def general_notes(self):
+        return [n for n in self.notes if n.type == "note"]
+
+    @property
+    def scope_notes(self):
+        return [n for n in self.notes if n.type == "scopeNote"]
+
+    @property
+    def definitions(self):
+        return [n for n in self.notes if n.type == "definition"]
+
+    @property
+    def history_notes(self):
+        return [n for n in self.notes if n.type == "historyNote"]
+
+    @property
+    def editorial_notes(self):
+        return [n for n in self.notes if n.type == "editorialNote"]
+
+    @property
+    def change_notes(self):
+        return [n for n in self.notes if n.type == "changeNote"]
+
+    @property
+    def examples(self):
+        return [n for n in self.notes if n.type == "example"]
 
     def __repr__(self):
         return f"Concept('{self.id}')"
@@ -461,6 +637,9 @@ class Collection:
     """Should member concepts of this collection be seen as narrower concept of
     a superordinate of the collection?"""
 
+    extra_data: Graph | None = None
+    """An optional RDF graph with extra data for this collection."""
+
     def __init__(
         self,
         id,
@@ -473,6 +652,7 @@ class Collection:
         member_of=None,
         superordinates=None,
         infer_concept_relations=True,
+        extra_data=None,
     ):
         self.id = id
         self.uri = uri
@@ -485,6 +665,7 @@ class Collection:
         self.member_of = member_of or []
         self.superordinates = superordinates or []
         self.infer_concept_relations = infer_concept_relations
+        self.extra_data = extra_data
 
     def label(self, language="any"):
         """
@@ -514,6 +695,50 @@ class Collection:
         else:
             sortlabel = label(self.labels, language, key == "sortlabel")
             return sortlabel.label.lower() if sortlabel else ""
+
+    @property
+    def pref_labels(self):
+        return [lbl for lbl in self.labels if lbl.type == "prefLabel"]
+
+    @property
+    def alt_labels(self):
+        return [lbl for lbl in self.labels if lbl.type == "altLabel"]
+
+    @property
+    def hidden_labels(self):
+        return [lbl for lbl in self.labels if lbl.type == "hiddenLabel"]
+
+    @property
+    def sort_labels(self):
+        return [lbl for lbl in self.labels if lbl.type == "sortLabel"]
+
+    @property
+    def general_notes(self):
+        return [n for n in self.notes if n.type == "note"]
+
+    @property
+    def scope_notes(self):
+        return [n for n in self.notes if n.type == "scopeNote"]
+
+    @property
+    def definitions(self):
+        return [n for n in self.notes if n.type == "definition"]
+
+    @property
+    def history_notes(self):
+        return [n for n in self.notes if n.type == "historyNote"]
+
+    @property
+    def editorial_notes(self):
+        return [n for n in self.notes if n.type == "editorialNote"]
+
+    @property
+    def change_notes(self):
+        return [n for n in self.notes if n.type == "changeNote"]
+
+    @property
+    def examples(self):
+        return [n for n in self.notes if n.type == "example"]
 
     def __repr__(self):
         return f"Collection('{self.id}')"
@@ -682,6 +907,7 @@ def dict_to_note(dict):
         dict.get("type", "note"),
         dict.get("language", "und"),
         dict.get("markup"),
+        uri=dict.get("uri"),
     )
 
 
@@ -695,4 +921,4 @@ def dict_to_source(dict):
 
     if isinstance(dict, Source):
         return dict
-    return Source(dict["citation"], dict.get("markup"))
+    return Source(dict["citation"], dict.get("markup"), uri=dict.get("uri"))
