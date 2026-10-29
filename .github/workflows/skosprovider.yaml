@@ -1,47 +1,33 @@
 name: skosprovider backend tests
+
 on:
   pull_request:
     paths:
       - skosprovider/**
       - tests/**
-      - skosprovider.yaml
+      - .github/workflows/skosprovider.yaml
       - pyproject.toml
       - requirements*.txt
+
   push:
     branches:
-      - main
+      - master
+
+permissions: {}
+
 jobs:
   test:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: ["3.11", "3.12", "3.13"]
-
-    steps:
-      - uses: actions/checkout@v4
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python-version }}
-      # You can test your matrix by printing the current Python version
-      - name: Display Python version
-        run: python -c "import sys; print(sys.version)"
-
-      - name: Install python requirements
-        env:
-          HATCH_BUILD_NO_HOOKS: true
-        working-directory: ./
-        run: |
-          pip --version
-          pip install pip-tools
-          pip-sync requirements-dev.txt
-          pip install -e .
-
-      - name: Python tests
-        run: pytest --cov-report xml:${{ runner.temp }}/coverage.xml --cov=skosprovider tests
-
-      - name: Get Cover
-        uses: orgoro/coverage@v3.2
-        with:
-          coverageFile: ${{ runner.temp }}/coverage.xml
-          token: ${{ secrets.GITHUB_TOKEN }}
+    uses: OnroerendErfgoed/shared-workflows/.github/workflows/python-tests.yml@v1
+    permissions:
+      contents: read
+      pull-requests: write # coverage comment
+    with:
+      runs-on: ubuntu-latest # public repo: no self-hosted runners
+      python-versions: '["3.11", "3.12", "3.13"]'
+      requirements-file: requirements-dev.txt
+      lint-command: "" # the old workflow ran no linter
+      test-command: pytest --cov=skosprovider --cov-report xml:"$COVERAGE_XML" tests
+      # The old workflow used the orgoro/coverage defaults: report only, no thresholds
+      coverage-threshold-all: 0
+      coverage-threshold-new: 0
+      coverage-threshold-modified: 0
