@@ -16,6 +16,11 @@ charset-normalizer==3.4.7
     # via requests
 click==8.3.2
     # via black
+colorama==0.4.6 ; sys_platform == 'win32'
+    # via
+    #   click
+    #   pytest
+    #   sphinx
 coverage==7.13.5
     # via pytest-cov
 distlib==0.4.0
@@ -42,7 +47,7 @@ identify==2.6.18
     # via pre-commit
 idna==3.11
     # via requests
-imagesize==2.0.0
+imagesize==2.0.1
     # via sphinx
 iniconfig==2.3.0
     # via pytest
@@ -50,9 +55,9 @@ jinja2==3.1.6
     # via sphinx
 langcodes==3.5.1
     # via skosprovider (pyproject.toml)
-lxml==6.0.4
+lxml==6.1.3
     # via pyld
-markupsafe==3.0.3
+markupsafe==3.0.4
     # via jinja2
 mccabe==0.7.0
     # via flake8
@@ -135,6 +140,8 @@ sphinxcontrib-qthelp==2.0.0
     # via sphinx
 sphinxcontrib-serializinghtml==2.0.0
     # via sphinx
+tomli==2.5.0 ; python_full_version <= '3.11'
+    # via coverage
 urllib3==2.6.3
     # via requests
 virtualenv==21.2.4

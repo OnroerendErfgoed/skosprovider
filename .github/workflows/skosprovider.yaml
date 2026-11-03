@@ -23,7 +23,7 @@ jobs:
       pull-requests: write # coverage comment
     with:
       runs-on: ubuntu-latest # public repo: no self-hosted runners
-      python-versions: '["3.11", "3.12", "3.13"]'
+      python-versions: '["3.11", "3.12", "3.13", "3.14", "3.15"]'
       requirements-file: requirements-dev.txt
       lint-command: "" # the old workflow ran no linter
       test-command: pytest --cov=skosprovider --cov-report xml:"$COVERAGE_XML" tests
