@@ -14,6 +14,10 @@ from skosprovider.skos import find_best_label_for_type
 from skosprovider.skos import label
 
 
+def scheme_with_language(language):
+    return ConceptScheme(uri="urn:x-skosprovider:gemeenten", default_language=language)
+
+
 class TestLabel:
 
     def test_constructor(self):
@@ -391,31 +395,29 @@ class TestConcept:
         assert 1 == len(concept.sources)
         assert "My citation" == concept.sources[0].citation
 
-    def test_default_language(self):
-        c = Concept(1)
-        assert c.default_language is None
-
-    def test_default_language_set(self):
-        c = Concept(1, default_language="nl")
-        assert c.default_language == "nl"
-
-    def test_label_uses_default_language(self):
+    def test_label_uses_concept_scheme_default_language(self):
         labels = self._get_labels()
-        c = Concept(1, labels=labels, default_language="en")
+        c = Concept(1, labels=labels, concept_scheme=scheme_with_language("en"))
         assert c.label().label == "Knocke-Heyst"
-        c_nl = Concept(1, labels=labels, default_language="nl")
+        c_nl = Concept(1, labels=labels, concept_scheme=scheme_with_language("nl"))
         assert c_nl.label().label == "Knokke-Heist"
+
+    def test_label_follows_concept_scheme_default_language_change(self):
+        cs = scheme_with_language("en")
+        c = Concept(1, labels=self._get_labels(), concept_scheme=cs)
+        cs.default_language = "nl"
+        assert c.label().label == "Knokke-Heist"
 
     def test_label_explicit_overrides_default(self):
         labels = self._get_labels()
-        c = Concept(1, labels=labels, default_language="nl")
+        c = Concept(1, labels=labels, concept_scheme=scheme_with_language("nl"))
         assert c.label("en").label == "Knocke-Heyst"
 
     def test_label_none_uses_default_language(self):
         labels = self._get_labels()
-        c = Concept(1, labels=labels, default_language="en")
+        c = Concept(1, labels=labels, concept_scheme=scheme_with_language("en"))
         assert c.label(None).label == "Knocke-Heyst"
-        c_nl = Concept(1, labels=labels, default_language="nl")
+        c_nl = Concept(1, labels=labels, concept_scheme=scheme_with_language("nl"))
         assert c_nl.label(None).label == "Knokke-Heist"
 
     def test_label_none_without_default_returns_any(self):
@@ -425,30 +427,22 @@ class TestConcept:
 
     def test_label_und_prefers_label_without_language(self):
         labels = self._get_labels() + [{"label": "nokke-eist"}]
-        c = Concept(1, labels=labels, default_language="nl")
+        c = Concept(1, labels=labels, concept_scheme=scheme_with_language("nl"))
         assert c.label("und").label == "nokke-eist"
         assert c.label("und").language == "und"
 
     def test_label_und_falls_back_to_default_language(self):
         labels = self._get_labels()
-        c = Concept(1, labels=labels, default_language="en")
+        c = Concept(1, labels=labels, concept_scheme=scheme_with_language("en"))
         assert c.label("und").label == "Knocke-Heyst"
-        c_nl = Concept(1, labels=labels, default_language="nl")
+        c_nl = Concept(1, labels=labels, concept_scheme=scheme_with_language("nl"))
         assert c_nl.label("und").label == "Knokke-Heist"
-
-    def test_label_falls_back_to_concept_scheme_default_language(self):
-        labels = self._get_labels()
-        cs = ConceptScheme(uri="urn:x-skosprovider:gemeenten", default_language="en")
-        c = Concept(1, labels=labels, concept_scheme=cs)
-        assert c.label().label == "Knocke-Heyst"
-        c_nl = Concept(1, labels=labels, concept_scheme=cs, default_language="nl")
-        assert c_nl.label().label == "Knokke-Heist"
 
     def test_sortkey_uses_default_language(self):
         labels = self._get_labels()
-        c = Concept(1, labels=labels, default_language="en")
+        c = Concept(1, labels=labels, concept_scheme=scheme_with_language("en"))
         assert c._sortkey("label") == "knocke-heyst"
-        c_nl = Concept(1, labels=labels, default_language="nl")
+        c_nl = Concept(1, labels=labels, concept_scheme=scheme_with_language("nl"))
         assert c_nl._sortkey("label") == "knokke-heist"
 
 
@@ -525,48 +519,32 @@ class TestCollection:
         coll = Collection(id=1, infer_concept_relations=False)
         assert not coll.infer_concept_relations
 
-    def test_default_language(self):
-        coll = Collection(1)
-        assert coll.default_language is None
-
-    def test_default_language_set(self):
-        coll = Collection(1, default_language="nl")
-        assert coll.default_language == "nl"
-
-    def test_label_uses_default_language(self):
-        labels = self._get_labels()
-        en_label = Label("Subcommunities", type="prefLabel", language="en")
-        labels.append(en_label)
-        coll = Collection(350, labels=labels, default_language="en")
-        assert coll.label().label == "Subcommunities"
-        coll_nl = Collection(350, labels=labels, default_language="nl")
-        assert coll_nl.label().label == "Deelgemeenten"
-
-    def test_label_explicit_overrides_default(self):
-        labels = self._get_labels()
-        en_label = Label("Subcommunities", type="prefLabel", language="en")
-        labels.append(en_label)
-        coll = Collection(350, labels=labels, default_language="nl")
-        assert coll.label("en").label == "Subcommunities"
-
-    def test_label_falls_back_to_concept_scheme_default_language(self):
+    def _get_labels_with_en(self):
         labels = self._get_labels()
         labels.append(Label("Subcommunities", type="prefLabel", language="en"))
-        cs = ConceptScheme(uri="urn:x-skosprovider:gemeenten", default_language="en")
-        coll = Collection(350, labels=labels, concept_scheme=cs)
+        return labels
+
+    def test_label_uses_concept_scheme_default_language(self):
+        labels = self._get_labels_with_en()
+        coll = Collection(350, labels=labels, concept_scheme=scheme_with_language("en"))
         assert coll.label().label == "Subcommunities"
         coll_nl = Collection(
-            350, labels=labels, concept_scheme=cs, default_language="nl"
+            350, labels=labels, concept_scheme=scheme_with_language("nl")
         )
         assert coll_nl.label().label == "Deelgemeenten"
 
+    def test_label_explicit_overrides_default(self):
+        labels = self._get_labels_with_en()
+        coll = Collection(350, labels=labels, concept_scheme=scheme_with_language("nl"))
+        assert coll.label("en").label == "Subcommunities"
+
     def test_sortkey_uses_default_language(self):
-        labels = self._get_labels()
-        en_label = Label("Subcommunities", type="prefLabel", language="en")
-        labels.append(en_label)
-        coll = Collection(350, labels=labels, default_language="en")
+        labels = self._get_labels_with_en()
+        coll = Collection(350, labels=labels, concept_scheme=scheme_with_language("en"))
         assert coll._sortkey("label") == "subcommunities"
-        coll_nl = Collection(350, labels=labels, default_language="nl")
+        coll_nl = Collection(
+            350, labels=labels, concept_scheme=scheme_with_language("nl")
+        )
         assert coll_nl._sortkey("label") == "deelgemeenten"
 
 

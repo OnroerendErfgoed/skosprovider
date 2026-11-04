@@ -382,7 +382,6 @@ class Concept:
         member_of=None,
         subordinate_arrays=None,
         matches=None,
-        default_language=None,
     ):
         self.id = id
         self.uri = uri
@@ -399,7 +398,6 @@ class Concept:
         self.matches = {key: [] for key in self.matchtypes}
         if matches:
             self.matches.update(matches)
-        self.default_language = default_language
 
     def label(self, language=None):
         """
@@ -409,9 +407,9 @@ class Concept:
 
         :param string language: The preferred language to receive the label in.
             This should be a valid IANA language tag or a list of language tags.
-            If not specified or `None`, the :attr:`default_language` (or that of
-            the :attr:`concept_scheme`) will be used, falling back to any
-            available label.
+            If not specified or `None`, the default language of the
+            :attr:`concept_scheme` will be used, falling back to any available
+            label.
         :rtype: :class:`skosprovider.skos.Label` or None if no labels were found.
         """
         return label(self.labels, resolve_language(language, self))
@@ -423,7 +421,8 @@ class Concept:
         :param string key: Either `id`, `uri`, `label` or `sortlabel`.
         :param string language: The preferred language to receive the label in
             if key is `label` or `sortlabel`. This should be a valid IANA language tag.
-            If not specified or `None`, the :attr:`default_language` will be used.
+            If not specified or `None`, the default language of the
+            :attr:`concept_scheme` will be used.
         :rtype: :class:`str`
         """
         if key == "id":
@@ -493,7 +492,6 @@ class Collection:
         member_of=None,
         superordinates=None,
         infer_concept_relations=True,
-        default_language=None,
     ):
         self.id = id
         self.uri = uri
@@ -506,7 +504,6 @@ class Collection:
         self.member_of = member_of or []
         self.superordinates = superordinates or []
         self.infer_concept_relations = infer_concept_relations
-        self.default_language = default_language
 
     def label(self, language=None):
         """
@@ -516,8 +513,8 @@ class Collection:
 
         :param string language: The preferred language to receive the label in.
             This should be a valid IANA language tag. If not specified or `None`,
-            the :attr:`default_language` (or that of the :attr:`concept_scheme`)
-            will be used, falling back to any available label.
+            the default language of the :attr:`concept_scheme` will be used,
+            falling back to any available label.
         :rtype: :class:`skosprovider.skos.Label` or None if no labels were found.
         """
         return label(self.labels, resolve_language(language, self), False)
@@ -529,7 +526,8 @@ class Collection:
         :param string key: Either `id`, `uri`, `label` or `sortlabel`.
         :param string language: The preferred language to receive the label in
             if key is `label` or `sortlabel`. This should be a valid IANA language tag.
-            If not specified or `None`, the :attr:`default_language` will be used.
+            If not specified or `None`, the default language of the
+            :attr:`concept_scheme` will be used.
         :rtype: :class:`str`
         """
         if key == "id":
@@ -547,15 +545,13 @@ class Collection:
 
 def resolve_language(language, item):
     """Combine an explicit language with the default language of a
-    :class:`ConceptScheme`, :class:`Concept` or :class:`Collection`, falling
-    back to the default language of its concept scheme.
+    :class:`ConceptScheme`, or of the concept scheme of a :class:`Concept` or
+    :class:`Collection`.
 
     Always returns a list so callers have a single return type to handle.
     """
-    concept_scheme = getattr(item, "concept_scheme", None)
-    default_language = item.default_language or getattr(
-        concept_scheme, "default_language", None
-    )
+    concept_scheme = getattr(item, "concept_scheme", item)
+    default_language = getattr(concept_scheme, "default_language", None)
     if language is None:
         language = []
     elif isinstance(language, str):

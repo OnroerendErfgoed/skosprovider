@@ -478,11 +478,9 @@ class MemoryProvider(VocabularyProvider):
         self.set_concepts(concepts_and_collections)
 
     def set_concepts(self, concepts):
-        default_language = self.metadata.get("default_language")
-        if default_language is not None:
-            for item in concepts:
-                if item.default_language is None:
-                    item.default_language = default_language
+        for item in concepts:
+            if item.concept_scheme is None:
+                item.concept_scheme = self.concept_scheme
         self.list = concepts
 
     def get_by_id(self, id):

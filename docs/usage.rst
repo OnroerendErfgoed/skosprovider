@@ -46,16 +46,16 @@ of `subjects` for the provider.
 
 The provider sets the `default_language` on its concept scheme. If the metadata
 doesn't specify one, the default language of the concept scheme is kept, or
-`en` if it has none. In-memory providers also set an explicitly configured
-`default_language` on every concept and collection that doesn't have one of its
-own. When a concept or collection is asked for a label, the language is
-resolved in this order:
+`en` if it has none. Concepts and collections don't have a default language of
+their own, they use the one of their concept scheme. In-memory providers assign
+their concept scheme to every concept and collection that doesn't have one.
+When a concept or collection is asked for a label, the language is resolved in
+this order:
 
 1. The language explicitly asked for (including the subtag fallback, eg.
    `nl-BE` -> `nl`).
-2. The `default_language` of the concept or collection itself.
-3. The `default_language` of its concept scheme.
-4. Any available label.
+2. The `default_language` of its concept scheme.
+3. Any available label.
 
 Providers that build their own concepts and collections only need to pass
 the provider's concept scheme to them to get this behaviour.

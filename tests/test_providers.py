@@ -332,17 +332,9 @@ class TestTreesDictionaryProvider:
         assert isinstance(lariks.concept_scheme, ConceptScheme)
         assert "http://id.trees.org" == lariks.concept_scheme.uri
 
-    def test_concept_has_default_language(self):
-        lariks = trees.get_by_id(1)
-        assert lariks.default_language == "nl"
-
     def test_concept_label_uses_default_language(self):
         lariks = trees.get_by_id(1)
         assert lariks.label().label == "De Lariks"
-
-    def test_collection_has_default_language(self):
-        coll = trees.get_by_id(3)
-        assert coll.default_language == "nl"
 
     def test_collection_label_uses_default_language(self):
         coll = trees.get_by_id(3)
@@ -366,18 +358,26 @@ class TestTreesDictionaryProvider:
         assert cs.default_language == "nl"
         assert lariks.label().label == "De Lariks"
 
-    def test_concept_without_provider_default_uses_concept_scheme(self):
+    def test_concept_own_concept_scheme_is_kept(self):
         cs = ConceptScheme("http://id.trees.org", default_language="nl")
         lariks = Concept(1, labels=larch["labels"], concept_scheme=cs)
         MemoryProvider({"id": "TREES"}, [lariks])
-        assert lariks.default_language is None
+        assert lariks.concept_scheme is cs
         assert lariks.label().label == "De Lariks"
 
-    def test_concept_own_default_language_is_kept(self):
-        lariks = Concept(1, labels=larch["labels"], default_language="nl")
-        provider = MemoryProvider({"id": "TREES"}, [lariks])
-        assert provider.get_by_id(1).default_language == "nl"
-        assert provider.get_by_id(1).label().label == "De Lariks"
+    def test_concept_without_concept_scheme_gets_provider_concept_scheme(self):
+        lariks = Concept(1, labels=larch["labels"])
+        provider = MemoryProvider({"id": "TREES", "default_language": "nl"}, [lariks])
+        assert lariks.concept_scheme is provider.concept_scheme
+        assert lariks.label().label == "De Lariks"
+
+    def test_concept_label_follows_concept_scheme_language_change(self):
+        provider = DictionaryProvider(
+            {"id": "TREES", "default_language": "nl"}, [larch, chestnut, species]
+        )
+        provider.concept_scheme.default_language = "en"
+        assert provider.get_by_id(1).label().label == "The Larch"
+        assert provider.get_by_id(3).label().label == "Trees by species"
 
     def test_collection_has_scheme(self):
         coll = trees.get_by_id(3)
@@ -852,8 +852,8 @@ class TestGeoDictionaryProvider:
 
     def test_concept_default_language_without_provider_default(self):
         con = geo.get_by_id(1)
-        assert con.default_language is None
-        assert geo.concept_scheme.default_language == "en"
+        assert con.concept_scheme.default_language == "en"
+        assert con.label().label == "World"
 
     def test_concept_has_scheme(self):
         con = geo.get_by_id(1)
@@ -1089,5 +1089,5 @@ class TestSimpleCsvProvider:
             concept_scheme=ConceptScheme("http://id.python.org/menu"),
         )
         eb = provider.get_by_id(1)
-        assert eb.default_language == "en"
+        assert eb.concept_scheme is provider.concept_scheme
         assert provider.concept_scheme.default_language == "en"
