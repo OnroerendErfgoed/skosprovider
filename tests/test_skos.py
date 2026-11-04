@@ -424,10 +424,10 @@ class TestConcept:
         assert c.label(None) is not None
 
     def test_label_und_prefers_label_without_language(self):
-        und = Label("nokke-eist", type="prefLabel", language="und")
-        labels = self._get_labels() + [und]
+        labels = self._get_labels() + [{"label": "nokke-eist"}]
         c = Concept(1, labels=labels, default_language="nl")
-        assert c.label("und") == und
+        assert c.label("und").label == "nokke-eist"
+        assert c.label("und").language == "und"
 
     def test_label_und_falls_back_to_default_language(self):
         labels = self._get_labels()
