@@ -588,7 +588,8 @@ def label(labels=None, language=None, sortLabel=False):
     - Passing a specific IANA language tag such as `en-GB` will first look for
       an exact match on that tag, then progressively drop subtags
       (e.g. `nl-BE-Latn` -> `nl-BE` -> `nl`). The literal tag `und` behaves
-      like any other tag and only matches labels explicitly tagged as `und`.
+      like any other tag and only matches labels explicitly tagged as `und`,
+      i.e. labels without a language.
     - Passing a list of tags tries each in turn, applying the same subtag
       fallback to each.
     - If no language-specific label can be found, the function falls back to

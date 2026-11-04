@@ -423,6 +423,19 @@ class TestConcept:
         c = Concept(1, labels=labels)
         assert c.label(None) is not None
 
+    def test_label_und_prefers_label_without_language(self):
+        und = Label("nokke-eist", type="prefLabel", language="und")
+        labels = self._get_labels() + [und]
+        c = Concept(1, labels=labels, default_language="nl")
+        assert c.label("und") == und
+
+    def test_label_und_falls_back_to_default_language(self):
+        labels = self._get_labels()
+        c = Concept(1, labels=labels, default_language="en")
+        assert c.label("und").label == "Knocke-Heyst"
+        c_nl = Concept(1, labels=labels, default_language="nl")
+        assert c_nl.label("und").label == "Knokke-Heist"
+
     def test_sortkey_uses_default_language(self):
         labels = self._get_labels()
         c = Concept(1, labels=labels, default_language="en")
@@ -638,6 +651,24 @@ class TestLabelFunction:
         assert und == label(labels, "und")
         assert und == label(labels, ["und"])
         assert und == label(labels, None)
+
+    def test_label_und_matches_only_und(self):
+        kh = self._get_knokke_heist_nl()
+        khen = self._get_knokke_heist_en()
+        und = self._get_und()
+        labels = [kh, khen, und]
+        assert und == label(labels, "und")
+        assert und == label(labels, ["und"])
+        assert und == label(labels, ["fr", "und", "nl-BE"])
+        assert kh == label(labels, "nl-BE")
+        assert khen == label(labels, "en")
+
+    def test_label_und_without_und_label_returns_any(self):
+        kh = self._get_knokke_heist_nl()
+        khen = self._get_knokke_heist_en()
+        labels = [kh, khen]
+        assert label(labels, "und") in [kh, khen]
+        assert khen == label(labels, ["und", "en-GB"])
 
     def test_label_pref_nl_and_en(self):
         kh = self._get_knokke_heist_nl()

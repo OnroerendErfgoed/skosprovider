@@ -463,14 +463,8 @@ class MemoryProvider(VocabularyProvider):
 
         .. versionchanged:: 2.0.0
             The second positional argument was renamed from ``list`` to
-            ``concepts`` to avoid shadowing the builtin. Callers that passed
-            it as a keyword argument must be updated.
-
-        .. versionchanged:: 4.1.0
-            The second positional argument was renamed from ``concepts`` to
-            ``concepts_and_collections`` to better reflect that this list can
-            contain both concepts and collections. Callers that passed it as a
-            keyword argument must be updated.
+            ``concepts_and_collections`` to avoid shadowing the builtin.
+            Callers that passed it as a keyword argument must be updated.
         """
         super().__init__(metadata, **kwargs)
         if "allowed_instance_scopes" not in kwargs:
@@ -753,11 +747,10 @@ class DictionaryProvider(MemoryProvider):
         :param list concepts_and_collections: A list of dicts representing
             concepts and collections.
 
-        .. versionchanged:: 4.1.0
-            The second positional argument was renamed from ``concepts`` to
-            ``concepts_and_collections`` to better reflect that this list can
-            contain both concepts and collections. Callers that passed it as a
-            keyword argument must be updated.
+        .. versionchanged:: 2.0.0
+            The second positional argument was renamed from ``list`` to
+            ``concepts_and_collections`` to avoid shadowing the builtin.
+            Callers that passed it as a keyword argument must be updated.
         """
         # ``_from_dict`` needs ``self.uri_generator`` / ``self.concept_scheme``,
         # which are only populated once ``super().__init__`` has run. So we
