@@ -44,6 +44,20 @@ and for a few other things. Other than this required parameter, a `metadata`
 object can also set a `default_language` for the provider and register a number
 of `subjects` for the provider.
 
+The `default_language` defaults to `en`. The provider sets it on its concept
+scheme, and in-memory providers also set it on every concept and collection
+that doesn't have a `default_language` of its own. When a concept or collection
+is asked for a label, the language is resolved in this order:
+
+1. The language explicitly asked for (including the subtag fallback, eg.
+   `nl-BE` -> `nl`).
+2. The `default_language` of the concept or collection itself.
+3. The `default_language` of its concept scheme.
+4. Any available label.
+
+Providers that build their own concepts and collections only need to pass
+the provider's concept scheme to them to get this behaviour.
+
 Upon instantiation, a provider can also be passed a 
 :class:`skosprovider.uri.UriGenerator`. This is an object that allows the 
 provider to generate :term:`URI's <URI>` for it's concepts and collections. If

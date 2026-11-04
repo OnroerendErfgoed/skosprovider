@@ -93,21 +93,20 @@ class VocabularyProvider:
         self.allowed_instance_scopes = kwargs.get(
             "allowed_instance_scopes", ["single", "threaded_thread"]
         )
-        default_language = self.metadata.get("default_language")
-        if default_language is not None:
-            self.concept_scheme.default_language = default_language
+        self.concept_scheme.default_language = self.metadata.get(
+            "default_language", "en"
+        )
 
     def _get_language(self, **kwargs):
         """Determine what language to render labels in.
 
         Will first check if there's a language keyword specified in **kwargs.
-        If not, will check the default language of the provider. If there's no
-        default language, returns `None`, which lets the label lookup fall
-        back to any available label.
+        If not, will check the default language of the provider, which
+        defaults to `en`.
 
-        :rtype: str or None
+        :rtype: str
         """
-        return kwargs.get("language", self.metadata.get("default_language"))
+        return kwargs.get("language", self.metadata.get("default_language", "en"))
 
     def _get_sort(self, **kwargs):
         """Determine on what attribute to sort.
@@ -479,9 +478,9 @@ class MemoryProvider(VocabularyProvider):
 
     def _set_concepts(self, concepts):
         """Register the list of concepts/collections with this provider."""
-        default_language = self.metadata.get("default_language")
-        if default_language is not None:
-            for item in concepts:
+        default_language = self.metadata.get("default_language", "en")
+        for item in concepts:
+            if item.default_language is None:
                 item.default_language = default_language
         self.list = concepts
 

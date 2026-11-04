@@ -436,6 +436,14 @@ class TestConcept:
         c_nl = Concept(1, labels=labels, default_language="nl")
         assert c_nl.label("und").label == "Knokke-Heist"
 
+    def test_label_falls_back_to_concept_scheme_default_language(self):
+        labels = self._get_labels()
+        cs = ConceptScheme(uri="urn:x-skosprovider:gemeenten", default_language="en")
+        c = Concept(1, labels=labels, concept_scheme=cs)
+        assert c.label().label == "Knocke-Heyst"
+        c_nl = Concept(1, labels=labels, concept_scheme=cs, default_language="nl")
+        assert c_nl.label().label == "Knokke-Heist"
+
     def test_sortkey_uses_default_language(self):
         labels = self._get_labels()
         c = Concept(1, labels=labels, default_language="en")
@@ -540,6 +548,17 @@ class TestCollection:
         labels.append(en_label)
         coll = Collection(350, labels=labels, default_language="nl")
         assert coll.label("en").label == "Subcommunities"
+
+    def test_label_falls_back_to_concept_scheme_default_language(self):
+        labels = self._get_labels()
+        labels.append(Label("Subcommunities", type="prefLabel", language="en"))
+        cs = ConceptScheme(uri="urn:x-skosprovider:gemeenten", default_language="en")
+        coll = Collection(350, labels=labels, concept_scheme=cs)
+        assert coll.label().label == "Subcommunities"
+        coll_nl = Collection(
+            350, labels=labels, concept_scheme=cs, default_language="nl"
+        )
+        assert coll_nl.label().label == "Deelgemeenten"
 
     def test_sortkey_uses_default_language(self):
         labels = self._get_labels()
@@ -669,6 +688,20 @@ class TestLabelFunction:
         labels = [kh, khen]
         assert label(labels, "und") in [kh, khen]
         assert khen == label(labels, ["und", "en-GB"])
+
+    def test_label_grandfathered_tag_uses_canonical_fallback(self):
+        art = Label("artificial", type="prefLabel", language="art")
+        lojban = Label("lojban", type="altLabel", language="jbo")
+        assert lojban == label([art, lojban], "art-lojban")
+        sgn = Label("sign language", type="prefLabel", language="sgn")
+        vgt = Label("Vlaamse Gebarentaal", type="altLabel", language="vgt")
+        assert vgt == label([sgn, vgt], "sgn-BE-NL")
+
+    def test_label_private_use_tag(self):
+        kh = self._get_knokke_heist_nl()
+        custom = Label("custom", type="prefLabel", language="x-custom")
+        assert custom == label([kh, custom], "x-custom")
+        assert kh == label([custom, kh], "nl-BE-x-foo")
 
     def test_label_pref_nl_and_en(self):
         kh = self._get_knokke_heist_nl()

@@ -412,8 +412,9 @@ class Concept:
 
         :param string language: The preferred language to receive the label in.
             This should be a valid IANA language tag or a list of language tags.
-            If not specified or `None`, the :attr:`default_language` will be used,
-            falling back to any available label.
+            If not specified or `None`, the :attr:`default_language` (or that of
+            the :attr:`concept_scheme`) will be used, falling back to any
+            available label.
         :rtype: :class:`skosprovider.skos.Label` or None if no labels were found.
         """
         return label(self.labels, self._resolve_language(language))
@@ -438,7 +439,10 @@ class Concept:
         return sortlabel.label.lower() if sortlabel else ""
 
     def _resolve_language(self, language):
-        return _resolve_language(language, self.default_language)
+        default_language = self.default_language or getattr(
+            self.concept_scheme, "default_language", None
+        )
+        return _resolve_language(language, default_language)
 
     def __repr__(self):
         return f"Concept('{self.id}')"
@@ -521,8 +525,8 @@ class Collection:
 
         :param string language: The preferred language to receive the label in.
             This should be a valid IANA language tag. If not specified or `None`,
-            the :attr:`default_language` will be used, falling back to any
-            available label.
+            the :attr:`default_language` (or that of the :attr:`concept_scheme`)
+            will be used, falling back to any available label.
         :rtype: :class:`skosprovider.skos.Label` or None if no labels were found.
         """
         return label(self.labels, self._resolve_language(language), False)
@@ -547,7 +551,10 @@ class Collection:
         return sortlabel.label.lower() if sortlabel else ""
 
     def _resolve_language(self, language):
-        return _resolve_language(language, self.default_language)
+        default_language = self.default_language or getattr(
+            self.concept_scheme, "default_language", None
+        )
+        return _resolve_language(language, default_language)
 
     def __repr__(self):
         return f"Collection('{self.id}')"
@@ -641,9 +648,11 @@ def label(labels=None, language=None, sortLabel=False):
 def _language_fallback_chain(language):
     """Yield progressively less specific forms of an IANA language tag.
 
-    For `nl-BE-Latn` this yields `nl-BE-Latn`, `nl-BE`, `nl`.
+    The tag is canonicalised first, so grandfathered tags such as
+    `art-lojban` become `jbo` instead of falling back to `art`.
+    For `nl-BE-x-foo` this yields `nl-BE-x-foo`, `nl-BE`, `nl`.
     """
-    parts = language.split("-")
+    parts = Language.get(language).to_tag().split("-")
     while parts:
         candidate = "-".join(parts)
         if tag_is_valid(candidate):

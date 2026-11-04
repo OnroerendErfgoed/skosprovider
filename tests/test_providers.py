@@ -4,6 +4,7 @@ import os
 import pytest
 
 from skosprovider.providers import DictionaryProvider
+from skosprovider.providers import MemoryProvider
 from skosprovider.providers import SimpleCsvProvider
 from skosprovider.skos import Collection
 from skosprovider.skos import Concept
@@ -349,6 +350,20 @@ class TestTreesDictionaryProvider:
 
     def test_concept_scheme_has_default_language(self):
         assert trees.concept_scheme.default_language == "nl"
+
+    def test_get_all_without_default_language_uses_en(self):
+        provider = DictionaryProvider({"id": "TREES"}, [larch, chestnut, species])
+        assert [c["label"] for c in provider.get_all()] == [
+            "The Larch",
+            "The Chestnut",
+            "Trees by species",
+        ]
+
+    def test_concept_own_default_language_is_kept(self):
+        lariks = Concept(1, labels=larch["labels"], default_language="nl")
+        provider = MemoryProvider({"id": "TREES"}, [lariks])
+        assert provider.get_by_id(1).default_language == "nl"
+        assert provider.get_by_id(1).label().label == "De Lariks"
 
     def test_collection_has_scheme(self):
         coll = trees.get_by_id(3)
@@ -823,7 +838,8 @@ class TestGeoDictionaryProvider:
 
     def test_concept_default_language_without_provider_default(self):
         con = geo.get_by_id(1)
-        assert con.default_language is None
+        assert con.default_language == "en"
+        assert geo.concept_scheme.default_language == "en"
 
     def test_concept_has_scheme(self):
         con = geo.get_by_id(1)
