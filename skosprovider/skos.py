@@ -282,7 +282,7 @@ class ConceptScheme:
             available label.
         :rtype: :class:`skosprovider.skos.Label` or None if no labels were found.
         """
-        return label(self.labels, self.resolve_language(language))
+        return label(self.labels, resolve_language(language, self))
 
     def _sortkey(self, key="uri", language=None):
         """
@@ -297,12 +297,9 @@ class ConceptScheme:
         if key == "uri":
             return self.uri
         sortlabel = label(
-            self.labels, self.resolve_language(language), key == "sortlabel"
+            self.labels, resolve_language(language, self), key == "sortlabel"
         )
         return sortlabel.label.lower() if sortlabel else ""
-
-    def resolve_language(self, language):
-        return resolve_language(language, self.default_language)
 
     def __repr__(self):
         return f"ConceptScheme('{self.uri}')"
@@ -417,7 +414,7 @@ class Concept:
             available label.
         :rtype: :class:`skosprovider.skos.Label` or None if no labels were found.
         """
-        return label(self.labels, self.resolve_language(language))
+        return label(self.labels, resolve_language(language, self))
 
     def _sortkey(self, key="id", language=None):
         """
@@ -434,15 +431,9 @@ class Concept:
         elif key == "uri":
             return self.uri if self.uri else ""
         sortlabel = label(
-            self.labels, self.resolve_language(language), key == "sortlabel"
+            self.labels, resolve_language(language, self), key == "sortlabel"
         )
         return sortlabel.label.lower() if sortlabel else ""
-
-    def resolve_language(self, language):
-        default_language = self.default_language or getattr(
-            self.concept_scheme, "default_language", None
-        )
-        return resolve_language(language, default_language)
 
     def __repr__(self):
         return f"Concept('{self.id}')"
@@ -529,7 +520,7 @@ class Collection:
             will be used, falling back to any available label.
         :rtype: :class:`skosprovider.skos.Label` or None if no labels were found.
         """
-        return label(self.labels, self.resolve_language(language), False)
+        return label(self.labels, resolve_language(language, self), False)
 
     def _sortkey(self, key="id", language=None):
         """
@@ -546,25 +537,25 @@ class Collection:
         elif key == "uri":
             return self.uri if self.uri else ""
         sortlabel = label(
-            self.labels, self.resolve_language(language), key == "sortlabel"
+            self.labels, resolve_language(language, self), key == "sortlabel"
         )
         return sortlabel.label.lower() if sortlabel else ""
-
-    def resolve_language(self, language):
-        default_language = self.default_language or getattr(
-            self.concept_scheme, "default_language", None
-        )
-        return resolve_language(language, default_language)
 
     def __repr__(self):
         return f"Collection('{self.id}')"
 
 
-def resolve_language(language, default_language):
-    """Combine an explicit language with the configured default.
+def resolve_language(language, item):
+    """Combine an explicit language with the default language of a
+    :class:`ConceptScheme`, :class:`Concept` or :class:`Collection`, falling
+    back to the default language of its concept scheme.
 
     Always returns a list so callers have a single return type to handle.
     """
+    concept_scheme = getattr(item, "concept_scheme", None)
+    default_language = item.default_language or getattr(
+        concept_scheme, "default_language", None
+    )
     if language is None:
         language = []
     elif isinstance(language, str):
@@ -624,17 +615,16 @@ def label(labels=None, language=None, sortLabel=False):
     if not labels:
         return None
     labels = [dict_to_label(label) for label in labels]
+    type_order = ("prefLabel", "altLabel")
+    if sortLabel:
+        type_order = ("sortLabel",) + type_order
 
     if language is None:
-        return pick_best_label(labels, sortLabel)
+        return pick_best_label(labels, type_order)
 
     if isinstance(language, str):
         language = [language]
     language = [lang for lang in language if lang and tag_is_valid(lang)]
-
-    type_order = ("prefLabel", "altLabel")
-    if sortLabel:
-        type_order = ("sortLabel",) + type_order
 
     for lang in language:
         for labeltype in type_order:
@@ -642,7 +632,7 @@ def label(labels=None, language=None, sortLabel=False):
             if found:
                 return found
 
-    return pick_best_label(labels, sortLabel)
+    return pick_best_label(labels, type_order)
 
 
 def language_fallback_chain(language):
@@ -664,13 +654,8 @@ def primary_language(language):
     return Language.get(language).language
 
 
-def pick_best_label(labels, sortLabel):
+def pick_best_label(labels, type_order):
     """Pick the best-typed label from a list, disregarding language."""
-    if not labels:
-        return None
-    type_order = ("prefLabel", "altLabel")
-    if sortLabel:
-        type_order = ("sortLabel",) + type_order
     for ltype in type_order:
         for lbl in labels:
             if lbl.type == ltype:
