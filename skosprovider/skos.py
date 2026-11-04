@@ -8,7 +8,8 @@ subordinate array).
 .. versionadded:: 0.2.0
 """
 
-from language_tags import tags
+from langcodes import Language
+from langcodes import tag_is_valid
 
 from .uri import is_uri
 
@@ -60,7 +61,7 @@ class Label:
         self.type = type
         if not language:
             language = "und"
-        if tags.check(language):
+        if tag_is_valid(language):
             self.language = language
         else:
             raise ValueError(f"{language} is not a valid IANA language tag.")
@@ -148,7 +149,7 @@ class Note:
         self.type = type
         if not language:
             language = "und"
-        if tags.check(language):
+        if tag_is_valid(language):
             self.language = language
         else:
             raise ValueError(f"{language} is not a valid IANA language tag.")
@@ -621,7 +622,7 @@ def label(labels=None, language=None, sortLabel=False):
 
     if isinstance(language, str):
         language = [language]
-    language = [lang for lang in language if lang and tags.tag(lang).language]
+    language = [lang for lang in language if lang and tag_is_valid(lang)]
 
     type_order = ("prefLabel", "altLabel")
     if sortLabel:
@@ -643,14 +644,15 @@ def _language_fallback_chain(language):
     """
     parts = language.split("-")
     while parts:
-        yield "-".join(parts)
+        candidate = "-".join(parts)
+        if tag_is_valid(candidate):
+            yield candidate
         parts.pop()
 
 
 def _primary_language(language):
     """Return the canonical primary subtag of an IANA language tag, or None."""
-    subtag = tags.tag(language).language
-    return subtag.format if subtag else None
+    return Language.get(language).language
 
 
 def _pick_best_label(labels, sortLabel):
@@ -703,7 +705,7 @@ def filter_labels_by_language(labels, language):
     Filter a list of labels, leaving only labels of a certain language.
 
     Matches the IANA language tag exactly (canonicalised via
-    :mod:`language_tags`). To walk the subtag chain, iterate with
+    :mod:`langcodes`). To walk the subtag chain, iterate with
     :func:`_language_fallback_chain` yourself.
 
     .. versionchanged:: 2.0.0
@@ -712,8 +714,8 @@ def filter_labels_by_language(labels, language):
     :param list labels: A list of :class:`Label`.
     :param str language: An IANA language string, eg. `nl` or `nl-BE`.
     """
-    target = tags.tag(language).format
-    return [lbl for lbl in labels if tags.tag(lbl.language).format == target]
+    target = Language.get(language).to_tag()
+    return [lbl for lbl in labels if Language.get(lbl.language).to_tag() == target]
 
 
 def dict_to_label(dict):

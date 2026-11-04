@@ -15,6 +15,19 @@ authors:
     email: jonas.geuens@vlaanderen.be
     affiliation: Flanders Heritage Agency
     orcid: 'https://orcid.org/0000-0001-8197-5034'
+  - given-names: Bram
+    family-names: Goessens
+    email: bram.goessens@vlaanderen.be
+    affiliation: Flanders Heritage Agency
+    orcid: 'https://orcid.org/0000-0001-6693-0866'
+  - given-names: Tim
+    family-names: Van Campenhout
+    email: tim.vancampenhout@vlaanderen.be
+    affiliation: Flanders Heritage Agency
+  - given-names: Wim
+    family-names: De Clercq
+    email: wim.declercq@vlaanderen.be
+    affiliation: Flanders Heritage Agency
 abstract: >-
   Skosprovider provides an interface that can be
   included in an application to allow it to talk to

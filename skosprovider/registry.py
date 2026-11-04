@@ -124,11 +124,11 @@ class Registry:
             `False` if the id is unknown.
         """
         if id in self.providers:
-            p = self.providers.get(id, False)
+            provider = self.providers.get(id, False)
             del self.providers[id]
-            cs_uri = p.get_vocabulary_uri()
-            del self.concept_scheme_uri_map[cs_uri]
-            return p
+            concept_scheme_uri = provider.get_vocabulary_uri()
+            del self.concept_scheme_uri_map[concept_scheme_uri]
+            return provider
         elif id in self.concept_scheme_uri_map:
             id = self.concept_scheme_uri_map[id]
             return self.remove_provider(id)
@@ -177,12 +177,18 @@ class Registry:
         """
         if "ids" in kwargs:
             ids = [self.concept_scheme_uri_map.get(id, id) for id in kwargs["ids"]]
-            providers = [self.providers[k] for k in self.providers.keys() if k in ids]
+            providers = [
+                self.providers[provider_id]
+                for provider_id in self.providers.keys()
+                if provider_id in ids
+            ]
         else:
             providers = list(self.providers.values())
         if "subject" in kwargs:
             providers = [
-                p for p in providers if kwargs["subject"] in p.metadata["subject"]
+                provider
+                for provider in providers
+                if kwargs["subject"] in provider.metadata["subject"]
             ]
         return providers
 
@@ -244,17 +250,20 @@ class Registry:
         if "providers" not in kwargs:
             providers = self.get_providers()
         else:
-            pargs = kwargs["providers"]
-            if isinstance(pargs, list):
-                providers = self.get_providers(ids=pargs)
+            provider_args = kwargs["providers"]
+            if isinstance(provider_args, list):
+                providers = self.get_providers(ids=provider_args)
             else:
-                providers = self.get_providers(**pargs)
+                providers = self.get_providers(**provider_args)
         kwarguments = {}
         if "language" in kwargs:
             kwarguments["language"] = kwargs["language"]
         return [
-            {"id": p.get_vocabulary_id(), "concepts": p.find(query, **kwarguments)}
-            for p in providers
+            {
+                "id": provider.get_vocabulary_id(),
+                "concepts": provider.find(query, **kwarguments),
+            }
+            for provider in providers
         ]
 
     def get_all(self, **kwargs):
@@ -281,8 +290,11 @@ class Registry:
         if "language" in kwargs:
             kwarguments["language"] = kwargs["language"]
         return [
-            {"id": p.get_vocabulary_id(), "concepts": p.get_all(**kwarguments)}
-            for p in self.providers.values()
+            {
+                "id": provider.get_vocabulary_id(),
+                "concepts": provider.get_all(**kwarguments),
+            }
+            for provider in self.providers.values()
         ]
 
     def get_by_uri(self, uri):
@@ -299,18 +311,20 @@ class Registry:
         if not is_uri(uri):
             raise ValueError(f"{uri} is not a valid URI.")
         # Check if there's a provider that's more likely to have the URI
-        csuris = [
-            csuri
-            for csuri in self.concept_scheme_uri_map.keys()
-            if uri.startswith(csuri)
+        concept_scheme_uris = [
+            concept_scheme_uri
+            for concept_scheme_uri in self.concept_scheme_uri_map.keys()
+            if uri.startswith(concept_scheme_uri)
         ]
-        for csuri in csuris:
-            c = self.get_provider(csuri).get_by_uri(uri)
-            if c:
-                return c
+        for concept_scheme_uri in concept_scheme_uris:
+            concept_or_collection = self.get_provider(concept_scheme_uri).get_by_uri(
+                uri
+            )
+            if concept_or_collection:
+                return concept_or_collection
         # Check all providers
-        for p in self.providers.values():
-            c = p.get_by_uri(uri)
-            if c:
-                return c
+        for provider in self.providers.values():
+            concept_or_collection = provider.get_by_uri(uri)
+            if concept_or_collection:
+                return concept_or_collection
         return False

@@ -71,14 +71,14 @@ class TestRegistry:
         from skosprovider.skos import ConceptScheme
         from skosprovider.providers import DictionaryProvider
 
-        t = DictionaryProvider(
+        provider = DictionaryProvider(
             {"id": "TREES", "default_language": "nl"},
             [larch, chestnut, species],
             concept_scheme=ConceptScheme("urn:something"),
             allowed_instance_scopes=["threaded_thread"],
         )
         with pytest.raises(RegistryException):
-            registry.register_provider(t)
+            registry.register_provider(provider)
 
     def test_one_provider_removeProvider(self, registry, trees_provider):
         registry.register_provider(trees_provider)
@@ -140,28 +140,28 @@ class TestRegistry:
 
     def test_one_provider_getConceptByUri(self, registry, trees_provider):
         registry.register_provider(trees_provider)
-        c = registry.get_by_uri("http://id.trees.org/1")
-        assert c.id == "1"
-        assert c.uri == "http://id.trees.org/1"
+        concept_or_collection = registry.get_by_uri("http://id.trees.org/1")
+        assert concept_or_collection.id == "1"
+        assert concept_or_collection.uri == "http://id.trees.org/1"
 
     def test_one_provider_getConceptByUriDifferentFromConceptScheme(self, registry):
         from skosprovider.skos import ConceptScheme
         from skosprovider.providers import DictionaryProvider
 
-        t = DictionaryProvider(
+        provider = DictionaryProvider(
             {"id": "TREES", "default_language": "nl"},
             [larch, chestnut, species],
             concept_scheme=ConceptScheme("urn:something"),
         )
-        registry.register_provider(t)
-        c = registry.get_by_uri("http://id.trees.org/1")
-        assert c.id == "1"
-        assert c.uri == "http://id.trees.org/1"
+        registry.register_provider(provider)
+        concept_or_collection = registry.get_by_uri("http://id.trees.org/1")
+        assert concept_or_collection.id == "1"
+        assert concept_or_collection.uri == "http://id.trees.org/1"
 
     def test_one_provider_getConceptByUnexistingUri(self, registry, trees_provider):
         registry.register_provider(trees_provider)
-        c = registry.get_by_uri("http://id.thingy.com/123456")
-        assert not c
+        concept_or_collection = registry.get_by_uri("http://id.thingy.com/123456")
+        assert not concept_or_collection
 
     def test_get_by_invalid_uri(self, registry):
         with pytest.raises(ValueError):
@@ -264,25 +264,40 @@ class TestRegistry:
 
     def test_one_provider_findConceptsWithSubject(self, registry, trees_provider):
         registry.register_provider(trees_provider)
-        provs = registry.get_providers(subject="biology")
-        res = [{"id": p.get_vocabulary_id(), "concepts": p.find({})} for p in provs]
-        assert res == registry.find({}, subject="biology")
+        providers = registry.get_providers(subject="biology")
+        expected = [
+            {
+                "id": provider.get_vocabulary_id(),
+                "concepts": provider.find({}),
+            }
+            for provider in providers
+        ]
+        assert expected == registry.find({}, subject="biology")
 
     def test_one_provider_findConceptsWithSubject_language_en(
         self, registry, trees_provider
     ):
         registry.register_provider(trees_provider)
-        provs = registry.get_providers(subject="biology")
-        res = [
-            {"id": p.get_vocabulary_id(), "concepts": p.find({}, language="en")}
-            for p in provs
+        providers = registry.get_providers(subject="biology")
+        expected = [
+            {
+                "id": provider.get_vocabulary_id(),
+                "concepts": provider.find({}, language="en"),
+            }
+            for provider in providers
         ]
-        assert res == registry.find({}, subject="biology", language="en")
+        assert expected == registry.find({}, subject="biology", language="en")
 
     def test_one_provider_findConceptsWithSubject_language_nl(
         self, registry, trees_provider
     ):
         registry.register_provider(trees_provider)
-        provs = registry.get_providers(subject="biology")
-        res = [{"id": p.get_vocabulary_id(), "concepts": p.find({})} for p in provs]
-        assert res == registry.find({}, subject="biology", language="nl")
+        providers = registry.get_providers(subject="biology")
+        expected = [
+            {
+                "id": provider.get_vocabulary_id(),
+                "concepts": provider.find({}),
+            }
+            for provider in providers
+        ]
+        assert expected == registry.find({}, subject="biology", language="nl")
