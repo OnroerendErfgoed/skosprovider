@@ -94,7 +94,8 @@ class VocabularyProvider:
             "allowed_instance_scopes", ["single", "threaded_thread"]
         )
         self.concept_scheme.default_language = self.metadata.get(
-            "default_language", "en"
+            "default_language",
+            getattr(self.concept_scheme, "default_language", None) or "en",
         )
 
     def _get_language(self, **kwargs):
@@ -474,14 +475,14 @@ class MemoryProvider(VocabularyProvider):
             ]
         if "case_insensitive" in kwargs:
             self.case_insensitive = kwargs["case_insensitive"]
-        self._set_concepts(concepts_and_collections)
+        self.set_concepts(concepts_and_collections)
 
-    def _set_concepts(self, concepts):
-        """Register the list of concepts/collections with this provider."""
-        default_language = self.metadata.get("default_language", "en")
-        for item in concepts:
-            if item.default_language is None:
-                item.default_language = default_language
+    def set_concepts(self, concepts):
+        default_language = self.metadata.get("default_language")
+        if default_language is not None:
+            for item in concepts:
+                if item.default_language is None:
+                    item.default_language = default_language
         self.list = concepts
 
     def get_by_id(self, id):
@@ -755,7 +756,7 @@ class DictionaryProvider(MemoryProvider):
         # which are only populated once ``super().__init__`` has run. So we
         # initialise with an empty list, then register the built concepts.
         super().__init__(metadata, [], **kwargs)
-        self._set_concepts(
+        self.set_concepts(
             [
                 self._from_dict(concept_or_collection)
                 for concept_or_collection in concepts_and_collections
@@ -818,7 +819,7 @@ class SimpleCsvProvider(MemoryProvider):
         :param reader: A csv reader.
         """
         super().__init__(metadata, [], **kwargs)
-        self._set_concepts([self._from_row(row) for row in reader])
+        self.set_concepts([self._from_row(row) for row in reader])
 
     def _from_row(self, row):
         id = row[0]

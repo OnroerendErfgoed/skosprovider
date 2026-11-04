@@ -359,6 +359,20 @@ class TestTreesDictionaryProvider:
             "Trees by species",
         ]
 
+    def test_concept_scheme_default_language_is_kept(self):
+        cs = ConceptScheme("http://id.trees.org", default_language="nl")
+        lariks = Concept(1, labels=larch["labels"], concept_scheme=cs)
+        MemoryProvider({"id": "TREES"}, [lariks], concept_scheme=cs)
+        assert cs.default_language == "nl"
+        assert lariks.label().label == "De Lariks"
+
+    def test_concept_without_provider_default_uses_concept_scheme(self):
+        cs = ConceptScheme("http://id.trees.org", default_language="nl")
+        lariks = Concept(1, labels=larch["labels"], concept_scheme=cs)
+        MemoryProvider({"id": "TREES"}, [lariks])
+        assert lariks.default_language is None
+        assert lariks.label().label == "De Lariks"
+
     def test_concept_own_default_language_is_kept(self):
         lariks = Concept(1, labels=larch["labels"], default_language="nl")
         provider = MemoryProvider({"id": "TREES"}, [lariks])
@@ -838,7 +852,7 @@ class TestGeoDictionaryProvider:
 
     def test_concept_default_language_without_provider_default(self):
         con = geo.get_by_id(1)
-        assert con.default_language == "en"
+        assert con.default_language is None
         assert geo.concept_scheme.default_language == "en"
 
     def test_concept_has_scheme(self):

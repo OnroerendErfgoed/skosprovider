@@ -282,7 +282,7 @@ class ConceptScheme:
             available label.
         :rtype: :class:`skosprovider.skos.Label` or None if no labels were found.
         """
-        return label(self.labels, self._resolve_language(language))
+        return label(self.labels, self.resolve_language(language))
 
     def _sortkey(self, key="uri", language=None):
         """
@@ -297,12 +297,12 @@ class ConceptScheme:
         if key == "uri":
             return self.uri
         sortlabel = label(
-            self.labels, self._resolve_language(language), key == "sortlabel"
+            self.labels, self.resolve_language(language), key == "sortlabel"
         )
         return sortlabel.label.lower() if sortlabel else ""
 
-    def _resolve_language(self, language):
-        return _resolve_language(language, self.default_language)
+    def resolve_language(self, language):
+        return resolve_language(language, self.default_language)
 
     def __repr__(self):
         return f"ConceptScheme('{self.uri}')"
@@ -417,7 +417,7 @@ class Concept:
             available label.
         :rtype: :class:`skosprovider.skos.Label` or None if no labels were found.
         """
-        return label(self.labels, self._resolve_language(language))
+        return label(self.labels, self.resolve_language(language))
 
     def _sortkey(self, key="id", language=None):
         """
@@ -434,15 +434,15 @@ class Concept:
         elif key == "uri":
             return self.uri if self.uri else ""
         sortlabel = label(
-            self.labels, self._resolve_language(language), key == "sortlabel"
+            self.labels, self.resolve_language(language), key == "sortlabel"
         )
         return sortlabel.label.lower() if sortlabel else ""
 
-    def _resolve_language(self, language):
+    def resolve_language(self, language):
         default_language = self.default_language or getattr(
             self.concept_scheme, "default_language", None
         )
-        return _resolve_language(language, default_language)
+        return resolve_language(language, default_language)
 
     def __repr__(self):
         return f"Concept('{self.id}')"
@@ -529,7 +529,7 @@ class Collection:
             will be used, falling back to any available label.
         :rtype: :class:`skosprovider.skos.Label` or None if no labels were found.
         """
-        return label(self.labels, self._resolve_language(language), False)
+        return label(self.labels, self.resolve_language(language), False)
 
     def _sortkey(self, key="id", language=None):
         """
@@ -546,21 +546,21 @@ class Collection:
         elif key == "uri":
             return self.uri if self.uri else ""
         sortlabel = label(
-            self.labels, self._resolve_language(language), key == "sortlabel"
+            self.labels, self.resolve_language(language), key == "sortlabel"
         )
         return sortlabel.label.lower() if sortlabel else ""
 
-    def _resolve_language(self, language):
+    def resolve_language(self, language):
         default_language = self.default_language or getattr(
             self.concept_scheme, "default_language", None
         )
-        return _resolve_language(language, default_language)
+        return resolve_language(language, default_language)
 
     def __repr__(self):
         return f"Collection('{self.id}')"
 
 
-def _resolve_language(language, default_language):
+def resolve_language(language, default_language):
     """Combine an explicit language with the configured default.
 
     Always returns a list so callers have a single return type to handle.
@@ -594,7 +594,7 @@ def label(labels=None, language=None, sortLabel=False):
       any available label is returned.
     - Passing a specific IANA language tag such as `en-GB` will first look for
       an exact match on that tag, then progressively drop subtags
-      (e.g. `nl-BE-Latn` -> `nl-BE` -> `nl`). The literal tag `und` behaves
+      (e.g. `nl-Latn-BE` -> `nl-Latn` -> `nl`). The literal tag `und` behaves
       like any other tag and only matches labels explicitly tagged as `und`,
       i.e. labels without a language.
     - Passing a list of tags tries each in turn, applying the same subtag
@@ -626,7 +626,7 @@ def label(labels=None, language=None, sortLabel=False):
     labels = [dict_to_label(label) for label in labels]
 
     if language is None:
-        return _pick_best_label(labels, sortLabel)
+        return pick_best_label(labels, sortLabel)
 
     if isinstance(language, str):
         language = [language]
@@ -642,10 +642,10 @@ def label(labels=None, language=None, sortLabel=False):
             if found:
                 return found
 
-    return _pick_best_label(labels, sortLabel)
+    return pick_best_label(labels, sortLabel)
 
 
-def _language_fallback_chain(language):
+def language_fallback_chain(language):
     """Yield progressively less specific forms of an IANA language tag.
 
     The tag is canonicalised first, so grandfathered tags such as
@@ -660,12 +660,11 @@ def _language_fallback_chain(language):
         parts.pop()
 
 
-def _primary_language(language):
-    """Return the canonical primary subtag of an IANA language tag, or None."""
+def primary_language(language):
     return Language.get(language).language
 
 
-def _pick_best_label(labels, sortLabel):
+def pick_best_label(labels, sortLabel):
     """Pick the best-typed label from a list, disregarding language."""
     if not labels:
         return None
@@ -684,7 +683,7 @@ def find_best_label_for_type(labels, language, labeltype):
     Find the best label of a specific type in a given language.
 
     First tries an exact match on the language tag, then walks down the
-    subtag chain (e.g. `nl-BE-Latn` -> `nl-BE` -> `nl`). If still nothing
+    subtag chain (e.g. `nl-Latn-BE` -> `nl-Latn` -> `nl`). If still nothing
     matches, falls back to any label that shares the same primary language
     subtag (so `en-GB` will also match `en-US` once the more specific tries
     are exhausted). Returns `False` if nothing matches.
@@ -696,14 +695,14 @@ def find_best_label_for_type(labels, language, labeltype):
     typelabels = [lbl for lbl in labels if lbl.type == labeltype]
     if not typelabels:
         return False
-    for candidate in _language_fallback_chain(language):
+    for candidate in language_fallback_chain(language):
         matches = filter_labels_by_language(typelabels, candidate)
         if matches:
             return matches[0]
-    primary = _primary_language(language)
+    primary = primary_language(language)
     if primary:
         family = [
-            lbl for lbl in typelabels if _primary_language(lbl.language) == primary
+            lbl for lbl in typelabels if primary_language(lbl.language) == primary
         ]
         if family:
             return family[0]
@@ -716,7 +715,7 @@ def filter_labels_by_language(labels, language):
 
     Matches the IANA language tag exactly (canonicalised via
     :mod:`langcodes`). To walk the subtag chain, iterate with
-    :func:`_language_fallback_chain` yourself.
+    :func:`language_fallback_chain` yourself.
 
     .. versionchanged:: 2.0.0
         The `broader` parameter and the magic `"any"` value have been removed.

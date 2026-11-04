@@ -44,10 +44,12 @@ and for a few other things. Other than this required parameter, a `metadata`
 object can also set a `default_language` for the provider and register a number
 of `subjects` for the provider.
 
-The `default_language` defaults to `en`. The provider sets it on its concept
-scheme, and in-memory providers also set it on every concept and collection
-that doesn't have a `default_language` of its own. When a concept or collection
-is asked for a label, the language is resolved in this order:
+The provider sets the `default_language` on its concept scheme. If the metadata
+doesn't specify one, the default language of the concept scheme is kept, or
+`en` if it has none. In-memory providers also set an explicitly configured
+`default_language` on every concept and collection that doesn't have one of its
+own. When a concept or collection is asked for a label, the language is
+resolved in this order:
 
 1. The language explicitly asked for (including the subtag fallback, eg.
    `nl-BE` -> `nl`).
