@@ -13,13 +13,26 @@ collections from a single conceptscheme.
 import abc
 import copy
 import logging
+from collections.abc import Callable
+from collections.abc import Iterable
 from operator import methodcaller
+from typing import Any
 from typing import Literal
 from typing import TypedDict
 
+from .extra_data import ExtraDataLoader
+from .extra_data import exception_context
+from .extra_data import ignore
+from .extra_data import load_extra_data
 from .skos import Collection
 from .skos import Concept
 from .skos import ConceptScheme
+from .skos import Label
+from .skos import Note
+from .skos import Source
+from .skos import dict_to_label
+from .skos import dict_to_note
+from .skos import dict_to_source
 from .uri import DefaultConceptSchemeUrnGenerator
 from .uri import DefaultUrnGenerator
 
@@ -734,51 +747,89 @@ class DictionaryProvider(MemoryProvider):
     the concepts.
     """
 
-    def __init__(self, metadata, list, **kwargs):
+    def __init__(
+        self,
+        metadata: dict[str, Any],
+        list: list[dict[str, Any] | Concept | Collection],
+        *,
+        extra_data_loader: ExtraDataLoader = ignore,
+        **kwargs: Any,
+    ) -> None:
+        """
+        :param extra_data_loader: A callable that receives the dict of a
+            single concept, collection, label, note or source and returns a
+            :class:`rdflib.Graph` or `None`. See
+            :mod:`skosprovider.extra_data` for the available loaders. Defaults
+            to :func:`~skosprovider.extra_data.ignore`. Labels, notes and
+            sources passed as objects keep their own extra_data.
+        """
         super().__init__(metadata, [], **kwargs)
+        self.extra_data_loader = extra_data_loader
         self.list = [
             self._from_dict(concept_or_collection) for concept_or_collection in list
         ]
 
-    def _from_dict(self, data):
+    def _from_dict(
+        self, data: dict[str, Any] | Concept | Collection
+    ) -> Concept | Collection:
         if isinstance(data, (Concept, Collection)):
             return data
         if "type" in data and data["type"] == "collection":
             uri = data.get("uri") or self.uri_generator.generate(
                 type="collection", id=data["id"]
             )
-            return Collection(
-                id=data["id"],
-                uri=uri,
-                concept_scheme=self.concept_scheme,
-                labels=data.get("labels", []),
-                notes=data.get("notes", []),
-                sources=data.get("sources", []),
-                members=data.get("members", []),
-                member_of=data.get("member_of", []),
-                superordinates=data.get("superordinates", []),
-                infer_concept_relations=data.get("infer_concept_relations", True),
-                extra_data=data.get("extra_data"),
-            )
+            with exception_context(f"collection {data['id']!r}"):
+                return Collection(
+                    id=data["id"],
+                    uri=uri,
+                    concept_scheme=self.concept_scheme,
+                    labels=self._from_list(data.get("labels", []), dict_to_label),
+                    notes=self._from_list(data.get("notes", []), dict_to_note),
+                    sources=self._from_list(data.get("sources", []), dict_to_source),
+                    members=data.get("members", []),
+                    member_of=data.get("member_of", []),
+                    superordinates=data.get("superordinates", []),
+                    infer_concept_relations=data.get("infer_concept_relations", True),
+                    extra_data=load_extra_data(self.extra_data_loader, data),
+                )
         else:
             uri = data.get("uri") or self.uri_generator.generate(
                 type="concept", id=data["id"]
             )
-            return Concept(
-                id=data["id"],
-                uri=uri,
-                concept_scheme=self.concept_scheme,
-                labels=data.get("labels", []),
-                notes=data.get("notes", []),
-                sources=data.get("sources", []),
-                broader=data.get("broader", []),
-                narrower=data.get("narrower", []),
-                related=data.get("related", []),
-                member_of=data.get("member_of", []),
-                subordinate_arrays=data.get("subordinate_arrays", []),
-                matches=data.get("matches", {}),
-                extra_data=data.get("extra_data"),
-            )
+            with exception_context(f"concept {data['id']!r}"):
+                return Concept(
+                    id=data["id"],
+                    uri=uri,
+                    concept_scheme=self.concept_scheme,
+                    labels=self._from_list(data.get("labels", []), dict_to_label),
+                    notes=self._from_list(data.get("notes", []), dict_to_note),
+                    sources=self._from_list(data.get("sources", []), dict_to_source),
+                    broader=data.get("broader", []),
+                    narrower=data.get("narrower", []),
+                    related=data.get("related", []),
+                    member_of=data.get("member_of", []),
+                    subordinate_arrays=data.get("subordinate_arrays", []),
+                    matches=data.get("matches", {}),
+                    extra_data=load_extra_data(self.extra_data_loader, data),
+                )
+
+    def _from_list(
+        self,
+        items: list[dict[str, Any] | Label | Note | Source],
+        to_object: Callable[[Any], Label | Note | Source],
+    ) -> list[Label | Note | Source]:
+        """
+        Turn the dicts of labels, notes or sources into objects and load their
+        extra_data. Objects are left untouched.
+        """
+        ret = []
+        for item in items:
+            obj = to_object(item)
+            if isinstance(item, dict) and obj is not item:
+                with exception_context(repr(obj)):
+                    obj.extra_data = load_extra_data(self.extra_data_loader, item)
+            ret.append(obj)
+        return ret
 
 
 class SimpleCsvProvider(MemoryProvider):
@@ -794,29 +845,71 @@ class SimpleCsvProvider(MemoryProvider):
     .. versionadded:: 0.2.0
     """
 
-    def __init__(self, metadata, reader, **kwargs):
+    def __init__(
+        self,
+        metadata: dict[str, Any],
+        reader: Iterable[list[str]],
+        *,
+        extra_data_loader: ExtraDataLoader = ignore,
+        label_extra_data_loader: ExtraDataLoader = ignore,
+        note_extra_data_loader: ExtraDataLoader = ignore,
+        source_extra_data_loader: ExtraDataLoader = ignore,
+        **kwargs: Any,
+    ) -> None:
         """
+        Every extra_data loader receives the full csv row (a list) and returns
+        a :class:`rdflib.Graph` or `None`. They all default to
+        :func:`~skosprovider.extra_data.ignore`.
+
         :param metadata: A metadata dictionary.
         :param reader: A csv reader.
+        :param extra_data_loader: Loads the extra_data of the concept.
+        :param label_extra_data_loader: Loads the extra_data of the label.
+        :param note_extra_data_loader: Loads the extra_data of the note. Only
+            called when the row has a note.
+        :param source_extra_data_loader: Loads the extra_data of the source.
+            Only called when the row has a source.
         """
         super().__init__(metadata, [], **kwargs)
+        self.extra_data_loader = extra_data_loader
+        self.label_extra_data_loader = label_extra_data_loader
+        self.note_extra_data_loader = note_extra_data_loader
+        self.source_extra_data_loader = source_extra_data_loader
         self.list = [self._from_row(row) for row in reader]
 
-    def _from_row(self, row):
+    def _from_row(self, row: list[str]) -> Concept:
         id = row[0]
-        labels = [{"label": row[1], "type": "prefLabel"}]
-        if len(row) > 2 and row[2]:
-            notes = [{"note": row[2], "type": "note"}]
-        else:
-            notes = []
-        if len(row) > 3 and row[3]:
-            sources = [{"citation": row[3]}]
-        else:
-            sources = []
-        return Concept(
-            id=id,
-            uri=self.uri_generator.generate(type="concept", id=id),
-            labels=labels,
-            notes=notes,
-            sources=sources,
-        )
+        with exception_context(f"concept {id!r}"):
+            labels = [Label(row[1], "prefLabel")]
+            for label in labels:
+                with exception_context(repr(label)):
+                    label.extra_data = load_extra_data(
+                        self.label_extra_data_loader, row
+                    )
+
+            if len(row) > 2 and row[2]:
+                notes = [Note(row[2], "note")]
+            else:
+                notes = []
+            for note in notes:
+                with exception_context(repr(note)):
+                    note.extra_data = load_extra_data(self.note_extra_data_loader, row)
+
+            if len(row) > 3 and row[3]:
+                sources = [Source(row[3])]
+            else:
+                sources = []
+            for source in sources:
+                with exception_context(repr(source)):
+                    source.extra_data = load_extra_data(
+                        self.source_extra_data_loader, row
+                    )
+
+            return Concept(
+                id=id,
+                uri=self.uri_generator.generate(type="concept", id=id),
+                labels=labels,
+                notes=notes,
+                sources=sources,
+                extra_data=load_extra_data(self.extra_data_loader, row),
+            )

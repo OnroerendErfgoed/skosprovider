@@ -4,7 +4,13 @@
 '''
 
 
-class ProviderUnavailableException(Exception):
+class SkosproviderException(Exception):
+    '''
+    Base class for all exceptions raised by skosprovider.
+    '''
+
+
+class ProviderUnavailableException(SkosproviderException):
     '''
     This exception can be raised by a provider if it's unable to provide
     the thesaurus. This can occur when an underlying resource is unavailable
@@ -20,3 +26,19 @@ class ProviderUnavailableException(Exception):
 
     def __repr__(self):
         return self.message
+
+
+class ExtraDataException(SkosproviderException):
+    '''
+    Raised when loading or dumping the extra_data of a skos object fails.
+
+    The original error is available as `__cause__`.
+    '''
+
+    def __init__(self, message: str) -> None:
+        '''
+        :param message: Which object failed and whether it was loading or
+            dumping.
+        '''
+        super().__init__(message)
+        self.message = message

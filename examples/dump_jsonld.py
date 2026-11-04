@@ -11,6 +11,7 @@ from rdflib import Literal
 from rdflib import Namespace
 from rdflib import URIRef
 from rdflib.namespace import XSD
+from skosprovider.extra_data import from_graph
 from skosprovider.jsonld import CONTEXT
 from skosprovider.jsonld import to_jsonld
 from skosprovider.providers import DictionaryProvider
@@ -185,6 +186,7 @@ provider = DictionaryProvider(
         ],
         extra_data=_cs_graph,
     ),
+    extra_data_loader=from_graph,
 )
 
 # Generate a doc for a cs

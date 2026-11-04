@@ -10,6 +10,7 @@ from test_providers import trees
 from skosprovider.jsonld import CONTEXT
 from skosprovider.jsonld import DumpContext
 from skosprovider.jsonld import to_jsonld
+from skosprovider.extra_data import from_graph
 from skosprovider.providers import DictionaryProvider
 from skosprovider.skos import ConceptScheme
 from skosprovider.skos import Label
@@ -431,6 +432,7 @@ _trees_concept_extra = DictionaryProvider(
     {"id": "TREES_CONCEPT_EXTRA", "dataset": {"uri": "http://id.trees.org/dataset"}},
     [_larch_with_extra, _species_with_extra],
     concept_scheme=_cs_with_extra,
+    extra_data_loader=from_graph,
 )
 
 

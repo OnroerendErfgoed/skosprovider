@@ -70,3 +70,9 @@ content-type = "text/x-rst"
 fragments = [
     { path = "README.rst" },
 ]
+
+[tool.ruff.lint.isort]
+force-single-line = true
+case-sensitive = true
+order-by-type = false
+known-first-party = ["skosprovider", "tests"]

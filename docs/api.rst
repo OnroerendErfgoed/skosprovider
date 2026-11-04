@@ -33,6 +33,12 @@ JsonLd module
 .. automodule:: skosprovider.jsonld
    :members:
 
+Extra data module
+-----------------
+
+.. automodule:: skosprovider.extra_data
+   :members:
+
 Exceptions module
 -----------------
 
