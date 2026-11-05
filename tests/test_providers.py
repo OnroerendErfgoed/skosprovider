@@ -4,6 +4,7 @@ import os
 import pytest
 
 from skosprovider.providers import DictionaryProvider
+from skosprovider.providers import MemoryProvider
 from skosprovider.providers import SimpleCsvProvider
 from skosprovider.skos import Collection
 from skosprovider.skos import Concept
@@ -11,6 +12,7 @@ from skosprovider.skos import ConceptScheme
 from skosprovider.skos import Note
 from skosprovider.skos import dict_to_label
 from skosprovider.skos import dict_to_note
+from skosprovider.uri import UriPatternGenerator
 
 larch = {
     "id": "1",
@@ -329,6 +331,53 @@ class TestTreesDictionaryProvider:
         lariks = trees.get_by_id(1)
         assert isinstance(lariks.concept_scheme, ConceptScheme)
         assert "http://id.trees.org" == lariks.concept_scheme.uri
+
+    def test_concept_label_uses_default_language(self):
+        lariks = trees.get_by_id(1)
+        assert lariks.label().label == "De Lariks"
+
+    def test_collection_label_uses_default_language(self):
+        coll = trees.get_by_id(3)
+        assert coll.label().label == "Bomen per soort"
+
+    def test_concept_scheme_has_default_language(self):
+        assert trees.concept_scheme.default_language == "nl"
+
+    def test_get_all_without_default_language_uses_en(self):
+        provider = DictionaryProvider({"id": "TREES"}, [larch, chestnut, species])
+        assert [c["label"] for c in provider.get_all()] == [
+            "The Larch",
+            "The Chestnut",
+            "Trees by species",
+        ]
+
+    def test_concept_scheme_default_language_is_kept(self):
+        cs = ConceptScheme("http://id.trees.org", default_language="nl")
+        lariks = Concept(1, labels=larch["labels"], concept_scheme=cs)
+        MemoryProvider({"id": "TREES"}, [lariks], concept_scheme=cs)
+        assert cs.default_language == "nl"
+        assert lariks.label().label == "De Lariks"
+
+    def test_concept_own_concept_scheme_is_kept(self):
+        cs = ConceptScheme("http://id.trees.org", default_language="nl")
+        lariks = Concept(1, labels=larch["labels"], concept_scheme=cs)
+        MemoryProvider({"id": "TREES"}, [lariks])
+        assert lariks.concept_scheme is cs
+        assert lariks.label().label == "De Lariks"
+
+    def test_concept_without_concept_scheme_gets_provider_concept_scheme(self):
+        lariks = Concept(1, labels=larch["labels"])
+        provider = MemoryProvider({"id": "TREES", "default_language": "nl"}, [lariks])
+        assert lariks.concept_scheme is provider.concept_scheme
+        assert lariks.label().label == "De Lariks"
+
+    def test_concept_label_follows_concept_scheme_language_change(self):
+        provider = DictionaryProvider(
+            {"id": "TREES", "default_language": "nl"}, [larch, chestnut, species]
+        )
+        provider.concept_scheme.default_language = "en"
+        assert provider.get_by_id(1).label().label == "The Larch"
+        assert provider.get_by_id(3).label().label == "Trees by species"
 
     def test_collection_has_scheme(self):
         coll = trees.get_by_id(3)
@@ -801,6 +850,11 @@ class TestGeoDictionaryProvider:
     def test_get_metadata(self):
         assert {"id": "GEOGRAPHY", "subject": []} == geo.get_metadata()
 
+    def test_concept_default_language_without_provider_default(self):
+        con = geo.get_by_id(1)
+        assert con.concept_scheme.default_language == "en"
+        assert con.label().label == "World"
+
     def test_concept_has_scheme(self):
         con = geo.get_by_id(1)
         assert isinstance(con.concept_scheme, ConceptScheme)
@@ -1025,3 +1079,15 @@ class TestSimpleCsvProvider:
         csv_provider.case_insensitive = False
         sausages = csv_provider.find({"label": "Sausage"})
         assert 1 == len(sausages)
+
+    def test_default_language_propagated(self, csv_file):
+        reader = csv.reader(csv_file)
+        provider = SimpleCsvProvider(
+            {"id": "MENU", "default_language": "en"},
+            reader,
+            uri_generator=UriPatternGenerator("http://id.python.org/menu/%s"),
+            concept_scheme=ConceptScheme("http://id.python.org/menu"),
+        )
+        eb = provider.get_by_id(1)
+        assert eb.concept_scheme is provider.concept_scheme
+        assert provider.concept_scheme.default_language == "en"

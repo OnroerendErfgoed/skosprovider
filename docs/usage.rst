@@ -32,8 +32,9 @@ view of the :mod:`SKOS data model <skosprovider.skos>`.
 Because of this, the only part where the different providers are different is
 when instantiating the provider, since they need to be configured for their 
 data source. Eg., the :class:`skosprovider.providers.DictionaryProvider` is
-a very simple provider that requires a list of dictionaries to operate on.
-Apart from this one very specific data element, there are a few configuration
+a very simple provider that requires a list of concept and collection
+dictionaries as ``concepts_and_collections``. Apart from this one very
+specific data element, there are a few configuration
 :meth:`parameters <skosprovider.providers.VocabularyProvider.__init__>` that 
 are passed to every existing provider. Every provider requires that a 
 parameter `metadata` is passed to it. This is a dictionary that has one 
@@ -43,6 +44,22 @@ and for a few other things. Other than this required parameter, a `metadata`
 object can also set a `default_language` for the provider and register a number
 of `subjects` for the provider.
 
+The provider sets the `default_language` on its concept scheme. If the metadata
+doesn't specify one, the default language of the concept scheme is kept, or
+`en` if it has none. Concepts and collections don't have a default language of
+their own, they use the one of their concept scheme. In-memory providers assign
+their concept scheme to every concept and collection that doesn't have one.
+When a concept or collection is asked for a label, the language is resolved in
+this order:
+
+1. The language explicitly asked for (including the subtag fallback, eg.
+   `nl-BE` -> `nl`).
+2. The `default_language` of its concept scheme.
+3. Any available label.
+
+Providers that build their own concepts and collections only need to pass
+the provider's concept scheme to them to get this behaviour.
+
 Upon instantiation, a provider can also be passed a 
 :class:`skosprovider.uri.UriGenerator`. This is an object that allows the 
 provider to generate :term:`URI's <URI>` for it's concepts and collections. If
@@ -50,6 +67,10 @@ you do not pass in a uri generator, the provider will set one up for you.
 Finally, you can also pass in a :class:`skosprovider.skos.ConceptScheme`. This
 is the concept scheme the providers represents. Again, if you do no pass in a
 concept scheme, the provider will create a default scheme.
+
+For in-memory providers, the second constructor argument is named
+``concepts_and_collections`` to make it explicit that the list may contain both
+concepts and collections.
 
 .. code-block:: python
 

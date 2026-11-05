@@ -115,13 +115,17 @@ class VocabularyProvider:
         self.allowed_instance_scopes = kwargs.get(
             "allowed_instance_scopes", ["single", "threaded_thread"]
         )
+        self.concept_scheme.default_language = self.metadata.get(
+            "default_language",
+            getattr(self.concept_scheme, "default_language", None) or "en",
+        )
 
     def _get_language(self, **kwargs):
         """Determine what language to render labels in.
 
         Will first check if there's a language keyword specified in **kwargs.
-        If not, will check the default language of the provider. If there's no
-        default language, will fall back to 'en'.
+        If not, will check the default language of the provider, which
+        defaults to `en`.
 
         :rtype: str
         """
@@ -142,7 +146,7 @@ class VocabularyProvider:
         """
         return kwargs.get("sort_order", "asc")
 
-    def _sort(self, concepts, sort=None, language="any", reverse=False):
+    def _sort(self, concepts, sort=None, language=None, reverse=False):
         """
         Returns a sorted version of a list of concepts. Will leave the original
         list unsorted.
@@ -472,13 +476,19 @@ class MemoryProvider(VocabularyProvider):
     be triggered by providing a `case_insensitive` keyword to the constructor.
     """
 
-    def __init__(self, metadata, list, **kwargs):
+    def __init__(self, metadata, concepts_and_collections, **kwargs):
         """
         :param dict metadata: A dictionary with keywords like language.
-        :param list list: A list of :class:`skosprovider.skos.Concept` and
+        :param list concepts_and_collections: A list of
+            :class:`skosprovider.skos.Concept` and
             :class:`skosprovider.skos.Collection` instances.
         :param Boolean case_insensitive: Should searching for labels be done
             case-insensitive?
+
+        .. versionchanged:: 2.0.0
+            The second positional argument was renamed from ``list`` to
+            ``concepts_and_collections`` to avoid shadowing the builtin.
+            Callers that passed it as a keyword argument must be updated.
         """
         super().__init__(metadata, **kwargs)
         if "allowed_instance_scopes" not in kwargs:
@@ -487,9 +497,15 @@ class MemoryProvider(VocabularyProvider):
                 "threaded_thread",
                 "threaded_global",
             ]
-        self.list = list
         if "case_insensitive" in kwargs:
             self.case_insensitive = kwargs["case_insensitive"]
+        self.set_concepts(concepts_and_collections)
+
+    def set_concepts(self, concepts):
+        for item in concepts:
+            if item.concept_scheme is None:
+                item.concept_scheme = self.concept_scheme
+        self.list = concepts
 
     def get_by_id(self, id):
         id = str(id)
@@ -750,24 +766,38 @@ class DictionaryProvider(MemoryProvider):
     def __init__(
         self,
         metadata: dict[str, Any],
-        list: list[dict[str, Any] | Concept | Collection],
+        concepts_and_collections: list[dict[str, Any] | Concept | Collection],
         *,
         extra_data_loader: ExtraDataLoader = ignore,
         **kwargs: Any,
     ) -> None:
         """
+        :param dict metadata: A dictionary with keywords like language.
+        :param list concepts_and_collections: A list of dicts representing
+            concepts and collections.
         :param extra_data_loader: A callable that receives the dict of a
             single concept, collection, label, note or source and returns a
             :class:`rdflib.Graph` or `None`. See
             :mod:`skosprovider.extra_data` for the available loaders. Defaults
             to :func:`~skosprovider.extra_data.ignore`. Labels, notes and
             sources passed as objects keep their own extra_data.
+
+        .. versionchanged:: 2.0.0
+            The second positional argument was renamed from ``list`` to
+            ``concepts_and_collections`` to avoid shadowing the builtin.
+            Callers that passed it as a keyword argument must be updated.
         """
+        # ``_from_dict`` needs ``self.uri_generator`` / ``self.concept_scheme``,
+        # which are only populated once ``super().__init__`` has run. So we
+        # initialise with an empty list, then register the built concepts.
         super().__init__(metadata, [], **kwargs)
         self.extra_data_loader = extra_data_loader
-        self.list = [
-            self._from_dict(concept_or_collection) for concept_or_collection in list
-        ]
+        self.set_concepts(
+            [
+                self._from_dict(concept_or_collection)
+                for concept_or_collection in concepts_and_collections
+            ]
+        )
 
     def _from_dict(
         self, data: dict[str, Any] | Concept | Collection
@@ -875,7 +905,7 @@ class SimpleCsvProvider(MemoryProvider):
         self.label_extra_data_loader = label_extra_data_loader
         self.note_extra_data_loader = note_extra_data_loader
         self.source_extra_data_loader = source_extra_data_loader
-        self.list = [self._from_row(row) for row in reader]
+        self.set_concepts([self._from_row(row) for row in reader])
 
     def _from_row(self, row: list[str]) -> Concept:
         id = row[0]

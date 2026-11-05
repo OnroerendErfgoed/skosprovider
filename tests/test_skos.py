@@ -14,6 +14,10 @@ from skosprovider.skos import find_best_label_for_type
 from skosprovider.skos import label
 
 
+def scheme_with_language(language):
+    return ConceptScheme(uri="urn:x-skosprovider:gemeenten", default_language=language)
+
+
 class TestLabel:
 
     def test_constructor(self):
@@ -186,7 +190,12 @@ class TestNote:
         assert note.is_valid_type("definition")
 
     def test_constructor_with_uri(self):
-        note = Note("A note.", type="changeNote", language="en", uri="http://example.com/notes/1")
+        note = Note(
+            "A note.",
+            type="changeNote",
+            language="en",
+            uri="http://example.com/notes/1",
+        )
         assert note.uri == "http://example.com/notes/1"
         assert note.note == "A note."
 
@@ -210,7 +219,9 @@ class TestNote:
 
     def test_repr_object(self):
         note = Note("A note.", "note", "en", uri="http://example.com/notes/1")
-        assert repr(note) == "Note('A note.', 'note', 'en', 'http://example.com/notes/1')"
+        assert (
+            repr(note) == "Note('A note.', 'note', 'en', 'http://example.com/notes/1')"
+        )
 
     def test_equality_by_uri(self):
         note1 = Note("A note.", "changeNote", "en", uri="http://example.com/notes/1")
@@ -374,6 +385,32 @@ class TestConceptScheme:
         with pytest.raises(ValueError):
             ConceptScheme(uri=None)
 
+    def test_default_language(self):
+        cs = ConceptScheme(uri="urn:x-skosprovider:gemeenten")
+        assert cs.default_language is None
+
+    def test_default_language_set(self):
+        cs = ConceptScheme(uri="urn:x-skosprovider:gemeenten", default_language="nl")
+        assert cs.default_language == "nl"
+
+    def test_label_uses_default_language(self):
+        labels = self._get_labels()
+        cs = ConceptScheme(
+            uri="urn:x-skosprovider:gemeenten", labels=labels, default_language="en"
+        )
+        assert cs.label().label == "Communities"
+        cs_nl = ConceptScheme(
+            uri="urn:x-skosprovider:gemeenten", labels=labels, default_language="nl"
+        )
+        assert cs_nl.label().label == "Gemeenten"
+
+    def test_label_explicit_overrides_default(self):
+        labels = self._get_labels()
+        cs = ConceptScheme(
+            uri="urn:x-skosprovider:gemeenten", labels=labels, default_language="nl"
+        )
+        assert cs.label("en").label == "Communities"
+
 
 class TestConcept:
 
@@ -453,6 +490,56 @@ class TestConcept:
         assert 1 == len(concept.sources)
         assert "My citation" == concept.sources[0].citation
 
+    def test_label_uses_concept_scheme_default_language(self):
+        labels = self._get_labels()
+        c = Concept(1, labels=labels, concept_scheme=scheme_with_language("en"))
+        assert c.label().label == "Knocke-Heyst"
+        c_nl = Concept(1, labels=labels, concept_scheme=scheme_with_language("nl"))
+        assert c_nl.label().label == "Knokke-Heist"
+
+    def test_label_follows_concept_scheme_default_language_change(self):
+        cs = scheme_with_language("en")
+        c = Concept(1, labels=self._get_labels(), concept_scheme=cs)
+        cs.default_language = "nl"
+        assert c.label().label == "Knokke-Heist"
+
+    def test_label_explicit_overrides_default(self):
+        labels = self._get_labels()
+        c = Concept(1, labels=labels, concept_scheme=scheme_with_language("nl"))
+        assert c.label("en").label == "Knocke-Heyst"
+
+    def test_label_none_uses_default_language(self):
+        labels = self._get_labels()
+        c = Concept(1, labels=labels, concept_scheme=scheme_with_language("en"))
+        assert c.label(None).label == "Knocke-Heyst"
+        c_nl = Concept(1, labels=labels, concept_scheme=scheme_with_language("nl"))
+        assert c_nl.label(None).label == "Knokke-Heist"
+
+    def test_label_none_without_default_returns_any(self):
+        labels = self._get_labels()
+        c = Concept(1, labels=labels)
+        assert c.label(None) is not None
+
+    def test_label_und_prefers_label_without_language(self):
+        labels = self._get_labels() + [{"label": "nokke-eist"}]
+        c = Concept(1, labels=labels, concept_scheme=scheme_with_language("nl"))
+        assert c.label("und").label == "nokke-eist"
+        assert c.label("und").language == "und"
+
+    def test_label_und_falls_back_to_default_language(self):
+        labels = self._get_labels()
+        c = Concept(1, labels=labels, concept_scheme=scheme_with_language("en"))
+        assert c.label("und").label == "Knocke-Heyst"
+        c_nl = Concept(1, labels=labels, concept_scheme=scheme_with_language("nl"))
+        assert c_nl.label("und").label == "Knokke-Heist"
+
+    def test_sortkey_uses_default_language(self):
+        labels = self._get_labels()
+        c = Concept(1, labels=labels, concept_scheme=scheme_with_language("en"))
+        assert c._sortkey("label") == "knocke-heyst"
+        c_nl = Concept(1, labels=labels, concept_scheme=scheme_with_language("nl"))
+        assert c_nl._sortkey("label") == "knokke-heist"
+
 
 class TestCollection:
 
@@ -527,6 +614,34 @@ class TestCollection:
         coll = Collection(id=1, infer_concept_relations=False)
         assert not coll.infer_concept_relations
 
+    def _get_labels_with_en(self):
+        labels = self._get_labels()
+        labels.append(Label("Subcommunities", type="prefLabel", language="en"))
+        return labels
+
+    def test_label_uses_concept_scheme_default_language(self):
+        labels = self._get_labels_with_en()
+        coll = Collection(350, labels=labels, concept_scheme=scheme_with_language("en"))
+        assert coll.label().label == "Subcommunities"
+        coll_nl = Collection(
+            350, labels=labels, concept_scheme=scheme_with_language("nl")
+        )
+        assert coll_nl.label().label == "Deelgemeenten"
+
+    def test_label_explicit_overrides_default(self):
+        labels = self._get_labels_with_en()
+        coll = Collection(350, labels=labels, concept_scheme=scheme_with_language("nl"))
+        assert coll.label("en").label == "Subcommunities"
+
+    def test_sortkey_uses_default_language(self):
+        labels = self._get_labels_with_en()
+        coll = Collection(350, labels=labels, concept_scheme=scheme_with_language("en"))
+        assert coll._sortkey("label") == "subcommunities"
+        coll_nl = Collection(
+            350, labels=labels, concept_scheme=scheme_with_language("nl")
+        )
+        assert coll_nl._sortkey("label") == "deelgemeenten"
+
 
 class TestDictToNoteFunction:
 
@@ -543,7 +658,13 @@ class TestDictToNoteFunction:
         assert "und" == note.language
 
     def test_dict_to_note_with_uri(self):
-        note = dict_to_note({"note": "A note.", "type": "changeNote", "uri": "http://example.com/notes/1"})
+        note = dict_to_note(
+            {
+                "note": "A note.",
+                "type": "changeNote",
+                "uri": "http://example.com/notes/1",
+            }
+        )
         assert note.uri == "http://example.com/notes/1"
         assert note.is_object()
 
@@ -588,7 +709,9 @@ class TestDictToSourceFunction:
         assert citation == source.citation
 
     def test_dict_to_source_with_uri(self):
-        source = dict_to_source({"citation": "A citation.", "uri": "http://example.com/sources/1"})
+        source = dict_to_source(
+            {"citation": "A citation.", "uri": "http://example.com/sources/1"}
+        )
         assert source.uri == "http://example.com/sources/1"
         assert source.is_object()
 
@@ -637,9 +760,58 @@ class TestLabelFunction:
         assert und == label(labels, "en-GB")
         assert und == label(labels, "und")
         assert und == label(labels, ["und"])
-        assert und == label(labels, "any")
-        assert und == label(labels, ["any"])
         assert und == label(labels, None)
+
+    def test_label_und_matches_only_und(self):
+        kh = self._get_knokke_heist_nl()
+        khen = self._get_knokke_heist_en()
+        und = self._get_und()
+        labels = [kh, khen, und]
+        assert und == label(labels, "und")
+        assert und == label(labels, ["und"])
+        assert und == label(labels, ["fr", "und", "nl-BE"])
+        assert kh == label(labels, "nl-BE")
+        assert khen == label(labels, "en")
+
+    def test_label_und_without_und_label_returns_any(self):
+        kh = self._get_knokke_heist_nl()
+        khen = self._get_knokke_heist_en()
+        labels = [kh, khen]
+        assert label(labels, "und") in [kh, khen]
+        assert khen == label(labels, ["und", "en-GB"])
+
+    def test_label_grandfathered_tag_uses_canonical_fallback(self):
+        art = Label("artificial", type="prefLabel", language="art")
+        lojban = Label("lojban", type="altLabel", language="jbo")
+        assert lojban == label([art, lojban], "art-lojban")
+        sgn = Label("sign language", type="prefLabel", language="sgn")
+        vgt = Label("Vlaamse Gebarentaal", type="altLabel", language="vgt")
+        assert vgt == label([sgn, vgt], "sgn-BE-NL")
+
+    def test_label_prefers_closest_regional_variant(self):
+        en = Label("Knocke-Heyst", type="prefLabel", language="en")
+        enus = Label("Knocke-Heyst US", type="prefLabel", language="en-US")
+        engb = self._get_knokke_heist_en()
+        assert engb == label([en, enus, engb], "en-AU")
+
+    def test_label_does_not_match_related_language(self):
+        khen = self._get_knokke_heist_en()
+        sr = Label("Knoke-Hejst", type="prefLabel", language="sr-Latn")
+        de = Label("Knocke-Heist", type="prefLabel", language="de")
+        assert khen == label([khen, sr], "hr")
+        assert khen == label([khen, de], "gsw")
+
+    def test_label_does_not_match_other_script(self):
+        khen = self._get_knokke_heist_en()
+        zh = Label("克诺克-海斯特", type="prefLabel", language="zh")
+        assert khen == label([khen, zh], "zh-Hant")
+        assert zh == label([khen, zh], "zh-Hans")
+
+    def test_label_private_use_tag(self):
+        kh = self._get_knokke_heist_nl()
+        custom = Label("custom", type="prefLabel", language="x-custom")
+        assert custom == label([kh, custom], "x-custom")
+        assert kh == label([custom, kh], "nl-BE-x-foo")
 
     def test_label_pref_nl_and_en(self):
         kh = self._get_knokke_heist_nl()
@@ -744,8 +916,7 @@ class TestLabelFunction:
         labels = [kh, ch, khen]
         assert [kh, ch] == filter_labels_by_language(labels, "nl-BE")
         assert [] == filter_labels_by_language(labels, "nl")
-        assert [kh, ch] == filter_labels_by_language(labels, "nl", True)
-        assert labels == filter_labels_by_language(labels, "any")
+        assert [khen] == filter_labels_by_language(labels, "en-GB")
 
     def test_filter_labels_by_language_unexisting(self):
         kh = self._get_knokke_heist_nl()
