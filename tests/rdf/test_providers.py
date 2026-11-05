@@ -367,3 +367,26 @@ class TestMalformedHtml:
         assert note.note == note_text
         assert note.language == language
         assert note.markup == "HTML"
+
+
+class TestSources:
+    def test_source_uri(self):
+        graph = Graph().parse(
+            data="""
+            @prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+            @prefix dct: <http://purl.org/dc/terms/> .
+            <http://id.trees.org/1> a skos:Concept ;
+                dct:source <http://id.trees.org/source/1> , [
+                    dct:bibliographicCitation "Anonymous source."
+                ] .
+            <http://id.trees.org/source/1>
+                dct:bibliographicCitation "Source with a uri." .
+            """,
+            format="turtle",
+        )
+        provider = RDFProvider({"id": "TREES"}, graph)
+        sources = provider.get_by_id("http://id.trees.org/1").sources
+        assert sorted((s.citation, s.uri) for s in sources) == [
+            ("Anonymous source.", None),
+            ("Source with a uri.", "http://id.trees.org/source/1"),
+        ]

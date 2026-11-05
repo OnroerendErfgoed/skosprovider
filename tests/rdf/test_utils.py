@@ -353,3 +353,34 @@ class TestRDFDumperTrees:
             ),
         ) in graph_dump
         assert (cs, SKOS.prefLabel, Literal("Pythonic trees.", lang="en")) in graph_dump
+
+
+class TestRDFDumperSources:
+    def test_dump_source_uri(self):
+        provider = DictionaryProvider(
+            {"id": "TREES"},
+            [
+                {
+                    "id": "1",
+                    "uri": "http://id.trees.org/1",
+                    "sources": [
+                        {
+                            "citation": "Source with a uri.",
+                            "uri": "http://id.trees.org/source/1",
+                        },
+                        {"citation": "Anonymous source."},
+                    ],
+                }
+            ],
+        )
+        graph = utils.rdf_dumper(provider)
+        source_nodes = set(
+            graph.objects(URIRef("http://id.trees.org/1"), DCTERMS.source)
+        )
+        assert URIRef("http://id.trees.org/source/1") in source_nodes
+        assert len(source_nodes) == 2
+        assert (
+            URIRef("http://id.trees.org/source/1"),
+            DCTERMS.bibliographicCitation,
+            Literal("Source with a uri."),
+        ) in graph

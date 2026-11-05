@@ -289,7 +289,7 @@ def _add_sources(
     :param subject: The RDF subject to add the sources to.
     """
     for source in item.sources:
-        source_node = BNode()
+        source_node = URIRef(source.uri) if source.uri else BNode()
         graph.add((source_node, RDF.type, DCTERMS.BibliographicResource))
         if source.markup is None:
             citation = Literal(source.citation)

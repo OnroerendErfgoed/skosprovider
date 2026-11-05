@@ -16,7 +16,6 @@ from rdflib.namespace import DCTERMS
 from rdflib.namespace import RDF
 from rdflib.namespace import SKOS
 from rdflib.paths import AlternativePath
-from rdflib.paths import SequencePath
 from rdflib.term import Literal
 from rdflib.term import Node
 from rdflib.term import URIRef
@@ -344,10 +343,10 @@ class RDFProvider(MemoryProvider):
             Source(
                 self.to_text(citation),
                 "HTML" if citation.datatype == RDF.HTML else None,
+                uri=self.to_text(source) if isinstance(source, URIRef) else None,
             )
-            for citation in graph.objects(
-                subject, SequencePath(DCTERMS.source, DCTERMS.bibliographicCitation)
-            )
+            for source in graph.objects(subject, DCTERMS.source)
+            for citation in graph.objects(source, DCTERMS.bibliographicCitation)
         ]
 
     def _create_languages(self, graph: Graph, subject: Node) -> set[str]:
