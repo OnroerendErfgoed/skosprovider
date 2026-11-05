@@ -675,6 +675,25 @@ class TestLabelFunction:
         vgt = Label("Vlaamse Gebarentaal", type="altLabel", language="vgt")
         assert vgt == label([sgn, vgt], "sgn-BE-NL")
 
+    def test_label_prefers_closest_regional_variant(self):
+        en = Label("Knocke-Heyst", type="prefLabel", language="en")
+        enus = Label("Knocke-Heyst US", type="prefLabel", language="en-US")
+        engb = self._get_knokke_heist_en()
+        assert engb == label([en, enus, engb], "en-AU")
+
+    def test_label_does_not_match_related_language(self):
+        khen = self._get_knokke_heist_en()
+        sr = Label("Knoke-Hejst", type="prefLabel", language="sr-Latn")
+        de = Label("Knocke-Heist", type="prefLabel", language="de")
+        assert khen == label([khen, sr], "hr")
+        assert khen == label([khen, de], "gsw")
+
+    def test_label_does_not_match_other_script(self):
+        khen = self._get_knokke_heist_en()
+        zh = Label("克诺克-海斯特", type="prefLabel", language="zh")
+        assert khen == label([khen, zh], "zh-Hant")
+        assert zh == label([khen, zh], "zh-Hans")
+
     def test_label_private_use_tag(self):
         kh = self._get_knokke_heist_nl()
         custom = Label("custom", type="prefLabel", language="x-custom")

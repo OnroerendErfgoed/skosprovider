@@ -9,6 +9,7 @@ subordinate array).
 """
 
 from langcodes import Language
+from langcodes import closest_supported_match
 from langcodes import tag_is_valid
 
 from .uri import is_uri
@@ -579,13 +580,12 @@ def label(labels=None, language=None, sortLabel=False):
 
     - Passing `None` (or omitting the argument) means "no preference" --
       any available label is returned.
-    - Passing a specific IANA language tag such as `en-GB` will first look for
-      an exact match on that tag, then progressively drop subtags
-      (e.g. `nl-Latn-BE` -> `nl-Latn` -> `nl`). The literal tag `und` behaves
-      like any other tag and only matches labels explicitly tagged as `und`,
-      i.e. labels without a language.
-    - Passing a list of tags tries each in turn, applying the same subtag
-      fallback to each.
+    - Passing a specific IANA language tag such as `en-GB` will look for the
+      closest label in the same language (see
+      :func:`find_best_label_for_type`), e.g. `en-AU` prefers `en-GB` over
+      `en`. The literal tag `und` behaves like any other tag and only matches
+      labels explicitly tagged as `und`, i.e. labels without a language.
+    - Passing a list of tags tries each in turn.
     - If no language-specific label can be found, the function falls back to
       returning any available label, regardless of language. If the list of
       labels is empty (or only contains hidden labels), `None` is returned.
@@ -593,8 +593,9 @@ def label(labels=None, language=None, sortLabel=False):
     .. versionchanged:: 2.0.0
         The magic value `"any"` is no longer supported -- pass `None` instead.
         `None` no longer means "labels explicitly tagged as `und`"; use the
-        tag `"und"` for that. Language matching now walks down the subtag
-        chain rather than collapsing straight to the primary language.
+        tag `"und"` for that. Language matching now picks the closest
+        variant of the same language rather than collapsing straight to the
+        primary language.
 
     .. versionchanged:: 1.1
         It is now possible to pass a list of languages.
@@ -631,25 +632,6 @@ def label(labels=None, language=None, sortLabel=False):
     return pick_best_label(labels, type_order)
 
 
-def language_fallback_chain(language):
-    """Yield progressively less specific forms of an IANA language tag.
-
-    The tag is canonicalised first, so grandfathered tags such as
-    `art-lojban` become `jbo` instead of falling back to `art`.
-    For `nl-BE-x-foo` this yields `nl-BE-x-foo`, `nl-BE`, `nl`.
-    """
-    parts = Language.get(language).to_tag().split("-")
-    while parts:
-        candidate = "-".join(parts)
-        if tag_is_valid(candidate):
-            yield candidate
-        parts.pop()
-
-
-def primary_language(language):
-    return Language.get(language).language
-
-
 def pick_best_label(labels, type_order):
     """Pick the best-typed label from a list, disregarding language."""
     for ltype in type_order:
@@ -663,11 +645,10 @@ def find_best_label_for_type(labels, language, labeltype):
     """
     Find the best label of a specific type in a given language.
 
-    First tries an exact match on the language tag, then walks down the
-    subtag chain (e.g. `nl-Latn-BE` -> `nl-Latn` -> `nl`). If still nothing
-    matches, falls back to any label that shares the same primary language
-    subtag (so `en-GB` will also match `en-US` once the more specific tries
-    are exhausted). Returns `False` if nothing matches.
+    Uses :func:`langcodes.closest_supported_match` to find the closest
+    variant of the same language, e.g. `nl` matches `nl-BE` and `en-AU`
+    prefers `en-GB` over `en`. Related languages such as `hr` and `sr-Latn`
+    don't match. Returns `False` if nothing matches.
 
     :param list labels: A list of :class:`Label`.
     :param str language: An IANA language string, eg. `nl` or `nl-BE`.
@@ -676,18 +657,12 @@ def find_best_label_for_type(labels, language, labeltype):
     typelabels = [lbl for lbl in labels if lbl.type == labeltype]
     if not typelabels:
         return False
-    for candidate in language_fallback_chain(language):
-        matches = filter_labels_by_language(typelabels, candidate)
-        if matches:
-            return matches[0]
-    primary = primary_language(language)
-    if primary:
-        family = [
-            lbl for lbl in typelabels if primary_language(lbl.language) == primary
-        ]
-        if family:
-            return family[0]
-    return False
+    match = closest_supported_match(
+        language, [lbl.language for lbl in typelabels], max_distance=5
+    )
+    if match is None:
+        return False
+    return next(lbl for lbl in typelabels if lbl.language == match)
 
 
 def filter_labels_by_language(labels, language):
@@ -695,8 +670,7 @@ def filter_labels_by_language(labels, language):
     Filter a list of labels, leaving only labels of a certain language.
 
     Matches the IANA language tag exactly (canonicalised via
-    :mod:`langcodes`). To walk the subtag chain, iterate with
-    :func:`language_fallback_chain` yourself.
+    :mod:`langcodes`).
 
     .. versionchanged:: 2.0.0
         The `broader` parameter and the magic `"any"` value have been removed.
