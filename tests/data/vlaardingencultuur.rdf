@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF
+   xmlns:dcterms="http://purl.org/dc/terms/"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:skos="http://www.w3.org/2004/02/skos/core#"
+>
+  <rdf:Description rdf:about="https://id.erfgoed.net/thesauri/stijlen_en_culturen/113">
+    <dcterms:source>
+        <dcterms:BibliographicResource>
+            <dcterms:bibliographicCitation>
+                <![CDATA[1) Louwe Kooijmans L., van den Broecke P.W., Fokkens H. en van Gijn A. (eds.), 2005, Nederland in de prehistorie, Amsterdam. 2) Deeben J. e.a. (red.) 2005, De Steentijd van Nederland, Zutphen.]]>
+            </dcterms:bibliographicCitation>
+        </dcterms:BibliographicResource>
+    </dcterms:source>
+    <dcterms:identifier rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">113</dcterms:identifier>
+    <skos:definition rdf:datatype="http://www.w3.org/1999/02/22-rdf-syntax-ns#HTML">
+        <![CDATA[<p xml:lang="nl">Deze cultuur komt voornamelijk voor in <em>Nederland</em> (langsheen kust), maar kent ook enkele sites in België. Deze cultuur kent mogelijk zijn oorsprong in de hazendonkgroep en de swifterbantcultuur (technologische overeenkomsten). Ze heeft echter wel eigen aardewerkvormen en versiering ontbreekt. Deze traditie kan gedateerd worden tussen 3400 en 2500 v.Chr.</p>]]>
+    </skos:definition>
+    <skos:prefLabel xml:lang="nl">vlaardingencultuur</skos:prefLabel>
+    <skos:inScheme rdf:resource="https://id.erfgoed.net/thesauri/stijlen_en_culturen"/>
+    <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://id.erfgoed.net/thesauri/stijlen_en_culturen">
+    <skos:prefLabel xml:lang="nl">Stijlen en Culturen</skos:prefLabel>
+    <skos:prefLabel xml:lang="en">Styles and Cultures</skos:prefLabel>
+  </rdf:Description>
+</rdf:RDF>

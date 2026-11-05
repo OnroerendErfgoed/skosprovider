@@ -2,6 +2,8 @@ cachetools==7.0.5
     # via pyld
 frozendict==2.4.7
     # via pyld
+html5rdf==1.2.1
+    # via rdflib
 langcodes==3.5.1
     # via skosprovider (pyproject.toml)
 lxml==6.1.3

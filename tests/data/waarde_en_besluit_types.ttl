@@ -1,0 +1,447 @@
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix skos-thes: <http://purl.org/iso25964/skos-thes#> .
+@prefix void: <http://rdfs.org/ns/void#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<https://id.erfgoed.net/thesauri/besluittypes/11> a skos:Collection ;
+    dcterms:identifier 11 ;
+    void:inDataset <https://id.erfgoed.net/datasets/thesauri/besluittypes> ;
+    skos:inScheme <https://id.erfgoed.net/thesauri/besluittypes> ;
+    skos:member <https://id.erfgoed.net/thesauri/besluittypes/12>,
+        <https://id.erfgoed.net/thesauri/besluittypes/13>,
+        <https://id.erfgoed.net/thesauri/besluittypes/14>,
+        <https://id.erfgoed.net/thesauri/besluittypes/15>,
+        <https://id.erfgoed.net/thesauri/besluittypes/16>,
+        <https://id.erfgoed.net/thesauri/besluittypes/17>,
+        <https://id.erfgoed.net/thesauri/besluittypes/18>,
+        <https://id.erfgoed.net/thesauri/besluittypes/19>,
+        <https://id.erfgoed.net/thesauri/besluittypes/20>,
+        <https://id.erfgoed.net/thesauri/besluittypes/88>,
+        <https://id.erfgoed.net/thesauri/besluittypes/90> ;
+    skos:prefLabel "besluiten naar rechtsgevolg"@nl-BE .
+
+<https://id.erfgoed.net/thesauri/besluittypes/2> a skos:Collection ;
+    dcterms:identifier 2 ;
+    void:inDataset <https://id.erfgoed.net/datasets/thesauri/besluittypes> ;
+    skos:inScheme <https://id.erfgoed.net/thesauri/besluittypes> ;
+    skos:member <https://id.erfgoed.net/thesauri/besluittypes/10>,
+        <https://id.erfgoed.net/thesauri/besluittypes/3>,
+        <https://id.erfgoed.net/thesauri/besluittypes/4>,
+        <https://id.erfgoed.net/thesauri/besluittypes/5>,
+        <https://id.erfgoed.net/thesauri/besluittypes/6>,
+        <https://id.erfgoed.net/thesauri/besluittypes/7>,
+        <https://id.erfgoed.net/thesauri/besluittypes/8>,
+        <https://id.erfgoed.net/thesauri/besluittypes/89>,
+        <https://id.erfgoed.net/thesauri/besluittypes/9> ;
+    skos:prefLabel "besluiten naar uitvaardiger"@nl-BE .
+
+<https://id.erfgoed.net/thesauri/besluittypes/54> a skos:Concept ;
+    dcterms:identifier 54 ;
+    void:inDataset <https://id.erfgoed.net/datasets/thesauri/besluittypes> ;
+    skos:broader <https://id.erfgoed.net/thesauri/besluittypes/14> ;
+    skos:inScheme <https://id.erfgoed.net/thesauri/besluittypes> ;
+    skos:prefLabel "voorlopige wijzigingsbesluiten"@nl-BE .
+
+<https://id.erfgoed.net/thesauri/besluittypes/87> a skos:Concept ;
+    dcterms:identifier 87 ;
+    void:inDataset <https://id.erfgoed.net/datasets/thesauri/besluittypes> ;
+    skos:broader <https://id.erfgoed.net/thesauri/besluittypes/15> ;
+    skos:inScheme <https://id.erfgoed.net/thesauri/besluittypes> ;
+    skos:prefLabel "voorlopige opheffingsbesluiten"@nl-BE .
+
+<https://id.erfgoed.net/thesauri/besluittypes/10> a skos:Concept ;
+    dcterms:identifier 10 ;
+    void:inDataset <https://id.erfgoed.net/datasets/thesauri/besluittypes> ;
+    skos:inScheme <https://id.erfgoed.net/thesauri/besluittypes> ;
+    skos:prefLabel "arresten Raad van State"@nl-BE .
+
+<https://id.erfgoed.net/thesauri/besluittypes/12> a skos:Concept ;
+    dcterms:identifier 12 ;
+    void:inDataset <https://id.erfgoed.net/datasets/thesauri/besluittypes> ;
+    skos:altLabel "besluiten tot ontwerp van lijst"@nl-BE ;
+    skos:inScheme <https://id.erfgoed.net/thesauri/besluittypes> ;
+    skos:prefLabel "voorlopige beschermingsbesluiten"@nl-BE .
+
+<https://id.erfgoed.net/thesauri/besluittypes/13> a skos:Concept ;
+    dcterms:identifier 13 ;
+    void:inDataset <https://id.erfgoed.net/datasets/thesauri/besluittypes> ;
+    skos:inScheme <https://id.erfgoed.net/thesauri/besluittypes> ;
+    skos:prefLabel "definitieve beschermingsbesluiten"@nl-BE .
+
+<https://id.erfgoed.net/thesauri/besluittypes/16> a skos:Concept ;
+    dcterms:identifier 16 ;
+    void:inDataset <https://id.erfgoed.net/datasets/thesauri/besluittypes> ;
+    skos:inScheme <https://id.erfgoed.net/thesauri/besluittypes> ;
+    skos:prefLabel "intrekkingsbesluiten"@nl-BE .
+
+<https://id.erfgoed.net/thesauri/besluittypes/17> a skos:Concept ;
+    dcterms:identifier 17 ;
+    void:inDataset <https://id.erfgoed.net/datasets/thesauri/besluittypes> ;
+    skos:inScheme <https://id.erfgoed.net/thesauri/besluittypes> ;
+    skos:prefLabel "schrappingsbesluiten"@nl-BE .
+
+<https://id.erfgoed.net/thesauri/besluittypes/18> a skos:Concept ;
+    dcterms:identifier 18 ;
+    void:inDataset <https://id.erfgoed.net/datasets/thesauri/besluittypes> ;
+    skos:inScheme <https://id.erfgoed.net/thesauri/besluittypes> ;
+    skos:prefLabel "besluiten tot termijnverlenging"@nl-BE .
+
+<https://id.erfgoed.net/thesauri/besluittypes/19> a skos:Concept ;
+    dcterms:identifier 19 ;
+    void:inDataset <https://id.erfgoed.net/datasets/thesauri/besluittypes> ;
+    skos:inScheme <https://id.erfgoed.net/thesauri/besluittypes> ;
+    skos:prefLabel "verplaatsingsbesluiten"@nl-BE .
+
+<https://id.erfgoed.net/thesauri/besluittypes/20> a skos:Concept ;
+    dcterms:identifier 20 ;
+    void:inDataset <https://id.erfgoed.net/datasets/thesauri/besluittypes> ;
+    skos:inScheme <https://id.erfgoed.net/thesauri/besluittypes> ;
+    skos:prefLabel "nietigverklaringen"@nl-BE .
+
+<https://id.erfgoed.net/thesauri/besluittypes/3> a skos:Concept ;
+    dcterms:identifier 3 ;
+    void:inDataset <https://id.erfgoed.net/datasets/thesauri/besluittypes> ;
+    skos:inScheme <https://id.erfgoed.net/thesauri/besluittypes> ;
+    skos:prefLabel "koninklijke besluiten"@nl-BE .
+
+<https://id.erfgoed.net/thesauri/besluittypes/4> a skos:Concept ;
+    dcterms:identifier 4 ;
+    void:inDataset <https://id.erfgoed.net/datasets/thesauri/besluittypes> ;
+    skos:inScheme <https://id.erfgoed.net/thesauri/besluittypes> ;
+    skos:prefLabel "besluiten secretaris-generaal"@nl-BE .
+
+<https://id.erfgoed.net/thesauri/besluittypes/5> a skos:Concept ;
+    dcterms:identifier 5 ;
+    void:inDataset <https://id.erfgoed.net/datasets/thesauri/besluittypes> ;
+    skos:inScheme <https://id.erfgoed.net/thesauri/besluittypes> ;
+    skos:prefLabel "regentsbesluiten"@nl-BE .
+
+<https://id.erfgoed.net/thesauri/besluittypes/6> a skos:Concept ;
+    dcterms:identifier 6 ;
+    void:inDataset <https://id.erfgoed.net/datasets/thesauri/besluittypes> ;
+    skos:inScheme <https://id.erfgoed.net/thesauri/besluittypes> ;
+    skos:prefLabel "koninklijke prins-besluiten"@nl-BE .
+
+<https://id.erfgoed.net/thesauri/besluittypes/7> a skos:Concept ;
+    dcterms:identifier 7 ;
+    void:inDataset <https://id.erfgoed.net/datasets/thesauri/besluittypes> ;
+    skos:inScheme <https://id.erfgoed.net/thesauri/besluittypes> ;
+    skos:prefLabel "besluiten Vlaamse Executieve"@nl-BE .
+
+<https://id.erfgoed.net/thesauri/besluittypes/8> a skos:Concept ;
+    dcterms:identifier 8 ;
+    void:inDataset <https://id.erfgoed.net/datasets/thesauri/besluittypes> ;
+    skos:inScheme <https://id.erfgoed.net/thesauri/besluittypes> ;
+    skos:prefLabel "besluiten Vlaamse Regering"@nl-BE .
+
+<https://id.erfgoed.net/thesauri/besluittypes/88> a skos:Concept ;
+    dcterms:identifier 88 ;
+    void:inDataset <https://id.erfgoed.net/datasets/thesauri/besluittypes> ;
+    skos:inScheme <https://id.erfgoed.net/thesauri/besluittypes> ;
+    skos:prefLabel "vaststellingsbesluiten"@nl-BE .
+
+<https://id.erfgoed.net/thesauri/besluittypes/89> a skos:Concept ;
+    dcterms:identifier 89 ;
+    void:inDataset <https://id.erfgoed.net/datasets/thesauri/besluittypes> ;
+    skos:inScheme <https://id.erfgoed.net/thesauri/besluittypes> ;
+    skos:prefLabel "besluiten administrateur-generaal"@nl-BE .
+
+<https://id.erfgoed.net/thesauri/besluittypes/9> a skos:Concept ;
+    dcterms:identifier 9 ;
+    void:inDataset <https://id.erfgoed.net/datasets/thesauri/besluittypes> ;
+    skos:inScheme <https://id.erfgoed.net/thesauri/besluittypes> ;
+    skos:prefLabel "ministeriële besluiten"@nl-BE .
+
+<https://id.erfgoed.net/thesauri/besluittypes/90> a skos:Concept ;
+    dcterms:identifier 90 ;
+    void:inDataset <https://id.erfgoed.net/datasets/thesauri/besluittypes> ;
+    skos:inScheme <https://id.erfgoed.net/thesauri/besluittypes> ;
+    skos:prefLabel "besluiten tot goedkeuring beheersplan"@nl-BE .
+
+<https://id.erfgoed.net/thesauri/besluittypes/14> a skos:Concept ;
+    dcterms:identifier 14 ;
+    void:inDataset <https://id.erfgoed.net/datasets/thesauri/besluittypes> ;
+    skos:inScheme <https://id.erfgoed.net/thesauri/besluittypes> ;
+    skos:narrower <https://id.erfgoed.net/thesauri/besluittypes/54> ;
+    skos:prefLabel "wijzigingsbesluiten"@nl-BE .
+
+<https://id.erfgoed.net/thesauri/besluittypes/15> a skos:Concept ;
+    dcterms:identifier 15 ;
+    void:inDataset <https://id.erfgoed.net/datasets/thesauri/besluittypes> ;
+    skos:inScheme <https://id.erfgoed.net/thesauri/besluittypes> ;
+    skos:narrower <https://id.erfgoed.net/thesauri/besluittypes/87> ;
+    skos:prefLabel "opheffingsbesluiten"@nl-BE .
+
+<https://id.erfgoed.net/thesauri/besluittypes> a skos:ConceptScheme ;
+    dcterms:identifier "BESLUITTYPES" ;
+    void:inDataset <https://id.erfgoed.net/datasets/thesauri/besluittypes> ;
+    skos:hasTopConcept <https://id.erfgoed.net/thesauri/besluittypes/10>,
+        <https://id.erfgoed.net/thesauri/besluittypes/12>,
+        <https://id.erfgoed.net/thesauri/besluittypes/13>,
+        <https://id.erfgoed.net/thesauri/besluittypes/14>,
+        <https://id.erfgoed.net/thesauri/besluittypes/15>,
+        <https://id.erfgoed.net/thesauri/besluittypes/16>,
+        <https://id.erfgoed.net/thesauri/besluittypes/17>,
+        <https://id.erfgoed.net/thesauri/besluittypes/18>,
+        <https://id.erfgoed.net/thesauri/besluittypes/19>,
+        <https://id.erfgoed.net/thesauri/besluittypes/20>,
+        <https://id.erfgoed.net/thesauri/besluittypes/3>,
+        <https://id.erfgoed.net/thesauri/besluittypes/4>,
+        <https://id.erfgoed.net/thesauri/besluittypes/5>,
+        <https://id.erfgoed.net/thesauri/besluittypes/6>,
+        <https://id.erfgoed.net/thesauri/besluittypes/7>,
+        <https://id.erfgoed.net/thesauri/besluittypes/8>,
+        <https://id.erfgoed.net/thesauri/besluittypes/88>,
+        <https://id.erfgoed.net/thesauri/besluittypes/89>,
+        <https://id.erfgoed.net/thesauri/besluittypes/9>,
+        <https://id.erfgoed.net/thesauri/besluittypes/90> ;
+    skos:prefLabel "Decree types"@en,
+        "Besluit types"@nl .
+
+<https://id.erfgoed.net/thesauri/waardetypes/30> a skos:Collection ;
+    dcterms:identifier 30 ;
+    void:inDataset <https://id.erfgoed.net/datasets/thesauri/waardetypes> ;
+    skos:inScheme <https://id.erfgoed.net/thesauri/waardetypes> ;
+    skos:member <https://id.erfgoed.net/thesauri/waardetypes/31>,
+        <https://id.erfgoed.net/thesauri/waardetypes/32>,
+        <https://id.erfgoed.net/thesauri/waardetypes/33>,
+        <https://id.erfgoed.net/thesauri/waardetypes/34>,
+        <https://id.erfgoed.net/thesauri/waardetypes/35>,
+        <https://id.erfgoed.net/thesauri/waardetypes/36> ;
+    skos:prefLabel "waarden naar historisch gebruik"@nl-BE .
+
+<https://id.erfgoed.net/thesauri/waardetypes/37> a skos:Collection ;
+    dcterms:identifier 37 ;
+    void:inDataset <https://id.erfgoed.net/datasets/thesauri/waardetypes> ;
+    skos:inScheme <https://id.erfgoed.net/thesauri/waardetypes> ;
+    skos:member <https://id.erfgoed.net/thesauri/waardetypes/38>,
+        <https://id.erfgoed.net/thesauri/waardetypes/39>,
+        <https://id.erfgoed.net/thesauri/waardetypes/40>,
+        <https://id.erfgoed.net/thesauri/waardetypes/41>,
+        <https://id.erfgoed.net/thesauri/waardetypes/42>,
+        <https://id.erfgoed.net/thesauri/waardetypes/43>,
+        <https://id.erfgoed.net/thesauri/waardetypes/44>,
+        <https://id.erfgoed.net/thesauri/waardetypes/45>,
+        <https://id.erfgoed.net/thesauri/waardetypes/46>,
+        <https://id.erfgoed.net/thesauri/waardetypes/47>,
+        <https://id.erfgoed.net/thesauri/waardetypes/48>,
+        <https://id.erfgoed.net/thesauri/waardetypes/49>,
+        <https://id.erfgoed.net/thesauri/waardetypes/50> ;
+    skos:prefLabel "waarden naar actueel gebruik"@nl-BE .
+
+<https://id.erfgoed.net/thesauri/waardetypes/31> a skos:Concept ;
+    dcterms:identifier 31 ;
+    void:inDataset <https://id.erfgoed.net/datasets/thesauri/waardetypes> ;
+    skos:inScheme <https://id.erfgoed.net/thesauri/waardetypes> ;
+    skos:prefLabel "sociaal-culturele waarde"@nl-BE ;
+    skos:scopeNote "Bijkomend aspect van gevoelswaarde, bv. als herkenningspunt, symbool. De sociaal-culturele waarde beschrijft maatschappelijke aspecten van het gebied of van een element voor mensen (al dan niet uit de directe omgeving). Het gaat dan bijvoorbeeld om een belangrijke functie in het verleden voor de lokale bevolking, bijvoorbeeld bedevaartoorden (die nog steeds gebruikt worden), bepaalde grote ontginningen of speciale landbouwvormen en ambachten die een belangrijke stempel op het landschap gedrukt hebben. Ook het voorkomen van het gebouw of gebied in specifieke sagen en legendes wordt onder de sociaal-culturele waarde verstaan. Van bovenlokaal niveau zijn vaak de functies voor zorg (landloperskolonies, ziekenhuizen, etc.), de oorlog of voor de herinnering ervan, literatuur, film, etc. Onroerend erfgoed kan ook nu nog een belangrijke sociale- of culturele waarde hebben. Het gaat dan over educatieve (of recreatieve) functies. (bron: document Claartje &amp; interne handleiding Ankerplaatsen)"@nl-BE .
+
+<https://id.erfgoed.net/thesauri/waardetypes/32> a skos:Concept ;
+    dcterms:identifier 32 ;
+    void:inDataset <https://id.erfgoed.net/datasets/thesauri/waardetypes> ;
+    skos:inScheme <https://id.erfgoed.net/thesauri/waardetypes> ;
+    skos:prefLabel "natuurlijke waarde"@nl-BE .
+
+<https://id.erfgoed.net/thesauri/waardetypes/33> a skos:Concept ;
+    dcterms:identifier 33 ;
+    void:inDataset <https://id.erfgoed.net/datasets/thesauri/waardetypes> ;
+    skos:inScheme <https://id.erfgoed.net/thesauri/waardetypes> ;
+    skos:prefLabel "cultuurhistorische waarde"@nl-BE ;
+    skos:scopeNote "Cultuurhistorische waarden geven uiting aan de manier waarop de mens vroeger met het landschap omging. Het gaat dan vooral om de beschrijving van elementen en structuren die door mensen aangebracht en in stand gehouden werden in vroegere perioden en hun historische ontwikkeling. De referentiesituatie en –datum kunnen daarbij worden beschreven. In het huidige landschap wordt vooral gezocht naar de aanwezigheid van karakteristieken en getuigen van de vroegere referentiesituatie. Veranderingen en constantheid spelen daarbij een rol. (bron: interne handleiding Ankerplaatsen)"@nl-BE .
+
+<https://id.erfgoed.net/thesauri/waardetypes/34> a skos:Concept ;
+    dcterms:identifier 34 ;
+    void:inDataset <https://id.erfgoed.net/datasets/thesauri/waardetypes> ;
+    skos:inScheme <https://id.erfgoed.net/thesauri/waardetypes> ;
+    skos:prefLabel "functionele waarde"@nl-BE .
+
+<https://id.erfgoed.net/thesauri/waardetypes/35> a skos:Concept ;
+    dcterms:identifier 35 ;
+    void:inDataset <https://id.erfgoed.net/datasets/thesauri/waardetypes> ;
+    skos:inScheme <https://id.erfgoed.net/thesauri/waardetypes> ;
+    skos:prefLabel "visuele waarde"@nl-BE .
+
+<https://id.erfgoed.net/thesauri/waardetypes/36> a skos:Concept ;
+    dcterms:identifier 36 ;
+    void:inDataset <https://id.erfgoed.net/datasets/thesauri/waardetypes> ;
+    skos:inScheme <https://id.erfgoed.net/thesauri/waardetypes> ;
+    skos:prefLabel "natuurwetenschappelijke waarde"@nl-BE ;
+    skos:scopeNote "Onder de natuurwetenschappelijke waarde worden het bewaarde natuurlijke reliëf, de geologische opbouw en de typische begroeiing, fauna, flora begrepen."@nl-BE .
+
+<https://id.erfgoed.net/thesauri/waardetypes/38> a skos:Concept ;
+    dcterms:identifier 38 ;
+    dcterms:source [ a dcterms:BibliographicResource ;
+            dcterms:bibliographicCitation "Vlaamse overheid Ruimtelijke Ordening, Woonbeleid en Onroerend Erfgoed 17 JULI 2015. — Ministerieel besluit tot vaststelling van de inventarismethodologie voor de inventaris van archeologische zones, bl. 48924." ] ;
+    void:inDataset <https://id.erfgoed.net/datasets/thesauri/waardetypes> ;
+    skos:historyNote """23/03/2O16: SN toegevoegd bij afstemmen thesaurus met CGP.
+Versie 2015: De archeologische waarde is het gegeven dat een roerend of onroerend goed, als overblijfsel of ander spoor van menselijk bestaan en de menselijke bestaansomgeving in het verleden, door behoud of door bestudering bijdraagt tot de reconstructie van de bestaansgeschiedenis van de mensheid en haar relatie tot die omgeving. (Bron: Code Goede Praktijk)"""@nl-BE ;
+    skos:inScheme <https://id.erfgoed.net/thesauri/waardetypes> ;
+    skos:prefLabel "archeologische waarde"@nl-BE ;
+    skos:scopeNote "Een onroerend goed heeft archeologische waarde als het betekenisvol kan bijdragen tot de reconstructie van de bestaansgeschiedenis van de mensheid en haar relatie tot de omgeving door de daar aanwezige overblijfselen, voorwerpen of sporen van de mens en zijn omgeving te behouden of ze met archeologische en natuurwetenschappelijke methoden te onderzoeken."@nl-BE .
+
+<https://id.erfgoed.net/thesauri/waardetypes/39> a skos:Concept ;
+    dcterms:identifier 39 ;
+    dcterms:source [ a dcterms:BibliographicResource ;
+            dcterms:bibliographicCitation "Vlaamse overheid Ruimtelijke Ordening, Woonbeleid en Onroerend Erfgoed 17 JULI 2015. — Ministerieel besluit tot vaststelling van de inventarismethodologie voor de inventaris van bouwkundig erfgoed, bl. 48925." ] ;
+    void:inDataset <https://id.erfgoed.net/datasets/thesauri/waardetypes> ;
+    skos:inScheme <https://id.erfgoed.net/thesauri/waardetypes> ;
+    skos:note """Deze waarde kan worden gelijkgesteld aan de vroegere in-casu-waarde “architectuurhistorische waarde”. De discussie gaat over de interpretatie van de term ‘architecturaal’ als beperkt tot materiële zaken, objectgericht, bouwstijl (e.d.) versus ruimer met inbegrip van de immateriële elementen zoals wooncultuur, een historisch referentiekader (e.d.). En over het onderscheid tussen de ‘architecturale’ en de ‘culturele’ waarde. Waarbij de ‘culturele’ waarde eerder voor de duiding van grote tendensen/fenomenen (zoals de impact van WO) zou gebruikt worden. 
+De invalshoek op het te beschermen object zal bepalend zijn voor de waarden die men toekent en de opmaak van het dossier. 
+Consensus dat architecturale waarde meer de nadruk legt op het materiële, de (bouw)evolutie, typologie, de bouwstijl, oeuvre, materiaalgebruik."""@nl-BE ;
+    skos:prefLabel "architecturale waarde"@nl-BE ;
+    skos:scopeNote "Een onroerend goed heeft architecturale waarde als het getuigt van een fase of aspect van de (landschaps)architectuur of de bouwkunst in het verleden. Het kan gaan om typologie, stijl, oeuvre of materiaalgebruik."@nl-BE .
+
+<https://id.erfgoed.net/thesauri/waardetypes/40> a skos:Concept ;
+    dcterms:identifier 40 ;
+    dcterms:source [ a dcterms:BibliographicResource ;
+            dcterms:bibliographicCitation "Vlaamse overheid Ruimtelijke Ordening, Woonbeleid en Onroerend Erfgoed 17 JULI 2015. — Ministerieel besluit tot vaststelling van de inventarismethodologie voor de inventaris van bouwkundig erfgoed, bl. 48925." ] ;
+    void:inDataset <https://id.erfgoed.net/datasets/thesauri/waardetypes> ;
+    skos:historyNote """Versie 2015: een gebouw of ensemble heeft artistieke waarde wanneer het een originele creatie is die getuigt van het vakmanschap en de begaafdheid van de kunstenaar en waarvan de betekenis niet ligt in zijn praktische functie, maar besloten in de verschijningswijze zelf. Deze verschijningswijze gaat gepaard met de expressie van een emotie en de overdracht hiervan op de consument, waarvan een zekere ontvankelijkheid en geschooldheid wordt verwacht. (bron: document Claartje)
+Alternatieve SN (bron: handleiding inventariseren): bv. het oeuvre van een bepaalde architect (fig. 1); een 18de-eeuws hotel in verfijnde rococo; een standbeeld van de hand van een gerenommeerd kunstenaar. De artistieke waarde ligt ook in een
+verzorgde uitwerking van gevelornamentiek en interieurelementen of de betrokkenheid van bepaalde kunstenaars of ambachtslui."""@nl-BE ;
+    skos:inScheme <https://id.erfgoed.net/thesauri/waardetypes> ;
+    skos:note "De artistieke waarde omvat ook het vakmanschap; een bewuste handeling van de mens."@nl-BE ;
+    skos:prefLabel "artistieke waarde"@nl-BE ;
+    skos:scopeNote "Een onroerend goed heeft artistieke waarde als het getuigt van het kunstzinnige streven van de mens in het verleden."@nl-BE .
+
+<https://id.erfgoed.net/thesauri/waardetypes/41> a skos:Concept ;
+    dcterms:identifier 41 ;
+    dcterms:source [ a dcterms:BibliographicResource ;
+            dcterms:bibliographicCitation "Vlaamse overheid Ruimtelijke Ordening, Woonbeleid en Onroerend Erfgoed 17 JULI 2015. — Ministerieel besluit tot vaststelling van de inventarismethodologie voor de inventaris van bouwkundig erfgoed, bl. 48925." ] ;
+    void:inDataset <https://id.erfgoed.net/datasets/thesauri/waardetypes> ;
+    skos:inScheme <https://id.erfgoed.net/thesauri/waardetypes> ;
+    skos:prefLabel "culturele waarde"@nl-BE ;
+    skos:scopeNote "Een onroerend goed heeft culturele waarde als het getuigt van tijd- en regiogebonden menselijk gedrag."@nl-BE .
+
+<https://id.erfgoed.net/thesauri/waardetypes/42> a skos:Concept ;
+    dcterms:identifier 42 ;
+    dcterms:source [ a dcterms:BibliographicResource ;
+            dcterms:bibliographicCitation "Vlaamse overheid Ruimtelijke Ordening, Woonbeleid en Onroerend Erfgoed 17 JULI 2015. — Ministerieel besluit tot vaststelling van de inventarismethodologie voor de inventaris van bouwkundig erfgoed, bl. 48925." ] ;
+    void:inDataset <https://id.erfgoed.net/datasets/thesauri/waardetypes> ;
+    skos:historyNote "Versie 2015: De esthetische waarde heeft betrekking op het visuele aspect van het betreffend onroerend goed en gaat samen met kwaliteit en gebruikswaarde. Het visuele aspect bestaat uit diverse componenten. Zo speelt herkenbaarheid een belangrijke rol, dit wordt bepaald door mogelijkheid tot oriëntatie, identiteit en samenhang. Andere visuele aspecten zijn het beeldbepalende karakter en bepaalde elementen, de schaal, uitgestrektheid en uitzicht, etc. Ook de orde, zorg, netheid en gaafheid vergroten de esthetische waarde. Voor landschappen zal enige variatie in reliëf, landgebruik etc. de esthetische waarde tevens ten goede komen. (bron: interne handleiding Ankerplaatsen)"@nl-BE ;
+    skos:inScheme <https://id.erfgoed.net/thesauri/waardetypes> ;
+    skos:note "De zintuigelijke ervaring door de mens staat centraal bij de esthetische waarde. Het kan betrekking  hebben op bv. de esthetische ligging van een militaire begraafplaats in zijn omgeving; op bv. een mooi plein in een stad/gemeente dat organisch ontstaan is; bv een park dat in reisverslagen als ‘mooi park’ bejubeld wordt. Opmerking: zichtbare componenten spelen een belangrijke rol: combinaties kleur, vorm, harmonische verhoudingen, … (maar geur en stilte kunnen ook in geval van een landschap). Voor bouwkundig erfgoed is het moeilijker te definiëren en zal eerder de artistieke waarde gebruikt worden."@nl-BE ;
+    skos:prefLabel "esthetische waarde"@nl-BE ;
+    skos:scopeNote "Een onroerend goed heeft esthetische waarde als het de waarnemer zintuiglijke schoonheid laat ervaren."@nl-BE .
+
+<https://id.erfgoed.net/thesauri/waardetypes/43> a skos:Concept ;
+    dcterms:identifier 43 ;
+    dcterms:source [ a dcterms:BibliographicResource ;
+            dcterms:bibliographicCitation "Vlaamse overheid Ruimtelijke Ordening, Woonbeleid en Onroerend Erfgoed 17 JULI 2015. — Ministerieel besluit tot vaststelling van de inventarismethodologie voor de inventaris van bouwkundig erfgoed, bl. 48925." ] ;
+    void:inDataset <https://id.erfgoed.net/datasets/thesauri/waardetypes> ;
+    skos:historyNote """Versie 2015: Al dan niet met personen of instellingen verbonden historische reminiscenties of achtergronden die beschermd erfgoed kan bezitten. De historische waarde kan gevat worden in termen van politieke geschiedenis, architectuurgeschiedenis, cultuurhistorie, e.d. (bron: document Claartje)
+Alternatieve SN (handleiding inventariseren): bijvoorbeeld het belang van dit object binnen het ontstaan en de ontwikkeling van een regio, gemeente, wijk en straat. De historische waarde van een object kan ook ontleend zijn aan zijn militair-historische betekenis (bv. wereldoorlogerfgoed) of de link met een historisch belangrijke persoon."""@nl-BE ;
+    skos:inScheme <https://id.erfgoed.net/thesauri/waardetypes> ;
+    skos:prefLabel "historische waarde"@nl-BE ;
+    skos:scopeNote "Een onroerend goed heeft historische waarde als het getuigt van een (maatschappelijke) ontwikkeling, gebeurtenis, figuur, instelling of landgebruik uit het verleden van de mens."@nl-BE .
+
+<https://id.erfgoed.net/thesauri/waardetypes/44> a skos:Concept ;
+    dcterms:identifier 44 ;
+    dcterms:source [ a dcterms:BibliographicResource ;
+            dcterms:bibliographicCitation "Vlaamse overheid Ruimtelijke Ordening, Woonbeleid en Onroerend Erfgoed 17 JULI 2015. — Ministerieel besluit tot vaststelling van de inventarismethodologie voor de inventaris van bouwkundig erfgoed, bl. 48925." ] ;
+    void:inDataset <https://id.erfgoed.net/datasets/thesauri/waardetypes> ;
+    skos:historyNote "Versie 2015: de mate waarin een bescherming kan verantwoord worden omwille van zijn belang in de geschiedenis van de handel en industrie, de sociale geschiedenis van de geschiedenis van de techniek. bv. kasseiwegen, molens, steenovens, hopasten en fabrieken als getuigen van een ambachtelijk of industrieel verleden.(bron: document Claartje &amp; handleiding inventariseren)"@nl-BE ;
+    skos:inScheme <https://id.erfgoed.net/thesauri/waardetypes> ;
+    skos:note "De afleesbaarheid van het productieproces is erg belangrijk. Liefst inrichting bewaard. Volledig “leeggehaald” industrieel gebouw krijgt beter architecturale waarde."@nl-BE ;
+    skos:prefLabel "industrieel-archeologische waarde"@nl-BE ;
+    skos:scopeNote "Een onroerend goed heeft industrieel-archeologische waarde als het getuigt van een ambachtelijk of industrieel verleden."@nl-BE .
+
+<https://id.erfgoed.net/thesauri/waardetypes/45> a skos:Concept ;
+    dcterms:identifier 45 ;
+    dcterms:source [ a dcterms:BibliographicResource ;
+            dcterms:bibliographicCitation "Vlaamse overheid Ruimtelijke Ordening, Woonbeleid en Onroerend Erfgoed 17 JULI 2015. — Ministerieel besluit tot vaststelling van de inventarismethodologie voor de inventaris van bouwkundig erfgoed, bl. 48925." ] ;
+    void:inDataset <https://id.erfgoed.net/datasets/thesauri/waardetypes> ;
+    skos:inScheme <https://id.erfgoed.net/thesauri/waardetypes> ;
+    skos:note """Vroeger werd dit onder de wetenschappelijke of industrieel-archeologische waarde geplaatst. Bouwtechniek primeert bij deze waarde.
+Voorbeelden: Gebruik van gewapend beton; Specifieke vorm van overspanning bij een brug; Atoomcentrum Mol; Voorbeeld van een bepaalde vakwerktechniek; Sluizen en wateringen als voorbeeld van ontwikkeling in landbouw en waterbeheersing..."""@nl-BE ;
+    skos:prefLabel "technische waarde"@nl-BE ;
+    skos:scopeNote "Een onroerend goed heeft technische waarde als het de ontwikkeling van de (cultuur)techniek in het verleden illustreert. Het gaat om technische toepassingen als illustratie van zowel traditionele als innovatieve technieken en materialen."@nl-BE .
+
+<https://id.erfgoed.net/thesauri/waardetypes/46> a skos:Concept ;
+    dcterms:identifier 46 ;
+    dcterms:source [ a dcterms:BibliographicResource ;
+            dcterms:bibliographicCitation "Vlaamse overheid Ruimtelijke Ordening, Woonbeleid en Onroerend Erfgoed 17 JULI 2015. — Ministerieel besluit tot vaststelling van de inventarismethodologie voor de inventaris van bouwkundig erfgoed, bl. 48925." ] ;
+    void:inDataset <https://id.erfgoed.net/datasets/thesauri/waardetypes> ;
+    skos:historyNote "Versie 2015: De ruimtelijk-structurerende waarde heeft betrekking op de manier waarop het onroerend erfgoed ruimtelijk gestructureerd wordt door  bepaalde elementen. Het kunnen landschapskenmerken of bouwkundige elementen zijn die door hun aanwezigheid een invloed hebben of hadden op de ruimtelijke configuratie en/of organisatie van het (omliggende) landschap (vb. beken, valleien, abdijen, wegen, etc.). Het landschapskenmerk/bouwkundig element kan visueel dominant aanwezig zijn in het landschap en een bakenfunctie hebben (vb. bossen, kerken, kasteel, etc.). Tenslotte kan het element, of de cluster  van elementen, kenmerkend zijn voor de streek of het landschap (vb. vakwerkbouw, laagstamboomgaarden Sint-Truiden-Borgloon, etc.). (bron: interne handleiding Ankerplaatsen)"@nl-BE ;
+    skos:inScheme <https://id.erfgoed.net/thesauri/waardetypes> ;
+    skos:note """Het onderscheid tussen de ruimtelijk-structurerende (RS) en de stedenbouwkundige (S) waarde is niet altijd duidelijk. De RS-waarde is globaler en actueel nog zichtbaar. Vaak zal het om één object gaan, al is dit erg groot &lt;&gt; stedenbouwkundige waarde: gaat vaker over ensemble.
+Voorbeelden: Een kanaal door een stad; Iets wat visueel en ruimtelijk erg dominant is: een groenas, dreef, spoorweg; een dries in een dorp; een kerk als baken in het landschap/omgeving..."""@nl-BE ;
+    skos:prefLabel "ruimtelijk-structurerende waarde"@nl-BE ;
+    skos:scopeNote "Een onroerend goed heeft ruimtelijk-structurerende waarde als het de ruimte ordent, afbakent, structureert of de blik leidt."@nl-BE .
+
+<https://id.erfgoed.net/thesauri/waardetypes/47> a skos:Concept ;
+    dcterms:identifier 47 ;
+    dcterms:source [ a dcterms:BibliographicResource ;
+            dcterms:bibliographicCitation "Vlaamse overheid Ruimtelijke Ordening, Woonbeleid en Onroerend Erfgoed 17 JULI 2015. — Ministerieel besluit tot vaststelling van de inventarismethodologie voor de inventaris van bouwkundig erfgoed, bl. 48925." ] ;
+    void:inDataset <https://id.erfgoed.net/datasets/thesauri/waardetypes> ;
+    skos:topConceptOf <https://id.erfgoed.net/thesauri/waardetypes> ;
+    skos:note """De continuïteit van de sociale waarde is belangrijk. 
+Voorbeelden: Iets wat nog steeds fungeert als een ontmoetingsplek: gemeenschapscentra, dorpspleinen waar bevolking nog regelmatig samenkomt; herdenkingsmonument waarbij nog regelmatig wordt samengekomen (Menenpoort, Ieper, maar kan ook op lokaal vlak); bedevaartsoorden die nog worden bezocht..."""@nl-BE ;
+    skos:prefLabel "sociale waarde"@nl-BE ;
+    skos:scopeNote "Een onroerend goed heeft sociale waarde als het in de hedendaagse gemeenschap nog een actief, overgeleverd sociaal gebruik heeft of gemeenschapsvormend is blijven werken."@nl-BE .
+
+<https://id.erfgoed.net/thesauri/waardetypes/48> a skos:Concept ;
+    dcterms:identifier 48 ;
+    dcterms:source [ a dcterms:BibliographicResource ;
+            dcterms:bibliographicCitation "Vlaamse overheid Ruimtelijke Ordening, Woonbeleid en Onroerend Erfgoed 17 JULI 2015. — Ministerieel besluit tot vaststelling van de inventarismethodologie voor de inventaris van bouwkundig erfgoed, bl. 48925." ] ;
+    void:inDataset <https://id.erfgoed.net/datasets/thesauri/waardetypes> ;
+    skos:topConceptOf <https://id.erfgoed.net/thesauri/waardetypes> ;
+    skos:note """De nadruk bij de stedenbouwkundige waarde ligt meer op het verleden, een historisch kader. Bv. woning Dhanis als element in de ontwikkeling van de leien in de 19de eeuw. De waarde kan betrekking hebben op zowel een organisch gegroeide (bv. marktplein) als een planmatige (bv. sociale woonwijk) aanleg. Vaak speelt de ensemblewaarde een rol; de relatie tussen meerdere elementen.
+Er wordt voorgesteld de RS-waarde te gebruiken voor een iets beperktere omgeving en de S-waarde voor een grotere omgeving waaronder verschillende RS-elementen kunnen worden ondergebracht. 
+Voorbeelden: kerk, station samen met planmatig aangelegd stratenpatroon; Een kasteel dat focuspunt is van een ruimer assenpatroon in de omgevende bossen; Schikking gebouwen rond marktplein; Patroon sociale woonwijk…"""@nl-BE ;
+    skos:prefLabel "stedenbouwkundige waarde"@nl-BE ;
+    skos:scopeNote "Een onroerend goed heeft stedenbouwkundige waarde als het een rol speelt in de (planmatige) inrichting van de bebouwde ruimte in het verleden. Die inrichting omvat ook de wisselwerking tussen open en bebouwde ruimte en de samenhang tussen de verschillende schaalniveaus."@nl-BE .
+
+<https://id.erfgoed.net/thesauri/waardetypes/49> a skos:Concept ;
+    dcterms:identifier 49 ;
+    dcterms:source [ a dcterms:BibliographicResource ;
+            dcterms:bibliographicCitation "Vlaamse overheid Ruimtelijke Ordening, Woonbeleid en Onroerend Erfgoed 17 JULI 2015. — Ministerieel besluit tot vaststelling van de inventarismethodologie voor de inventaris van bouwkundig erfgoed, bl. 48925." ] ;
+    void:inDataset <https://id.erfgoed.net/datasets/thesauri/waardetypes> ;
+    skos:topConceptOf <https://id.erfgoed.net/thesauri/waardetypes> ;
+    skos:prefLabel "volkskundige waarde"@nl-BE ;
+    skos:scopeNote "Een onroerend goed heeft volkskundige waarde als het getuigt van gebruiken en gewoonten, voorstellingen en tradities van een specifieke bevolkingsgroep of gemeenschap in het verleden."@nl-BE .
+
+<https://id.erfgoed.net/thesauri/waardetypes/50> a skos:Concept ;
+    dcterms:identifier 50 ;
+    dcterms:source [ a dcterms:BibliographicResource ;
+            dcterms:bibliographicCitation "Vlaamse overheid Ruimtelijke Ordening, Woonbeleid en Onroerend Erfgoed 17 JULI 2015. — Ministerieel besluit tot vaststelling van de inventarismethodologie voor de inventaris van bouwkundig erfgoed, bl. 48925." ] ;
+    void:inDataset <https://id.erfgoed.net/datasets/thesauri/waardetypes> ;
+    skos:historyNote """Versie 2015: Onder wetenschappelijke waarde verstaat men verzamelingen instrumenten, machines of toestellen in situ bv. gebouwen en inrichtingen die de ontwikkeling van een bepaald productieproces illustreren; gebouwen of
+bouwwerken die de ontwikkeling van bepaalde technieken, het gebruik van nieuwe materialen, etc., illustreren (bv. vroeg gebruik van gewapend beton, specifieke vorm van overspanning bij een brug). (bron: document Claartje &amp; handleiding inventariseren)"""@nl-BE ;
+    skos:topConceptOf <https://id.erfgoed.net/thesauri/waardetypes> ;
+    skos:note """De wetenschappelijke waarde moet bewust, fundamenteel en zeker zijn.
+De formulering “Potentie voor kennisontwikkeling en winst” is ingegeven vanuit archeologie, maar kan ook voor bouwkundig erfgoed relevant zijn. Bv een kerkgebouw opgebouwd uit verschillende soorten natuursteen. Hierin schuilt de potentie van kennis die  uit de studie van deze materialen kan gehaald worden.  
+De formulering “Iets dat een bijzondere bijdrage geleverd heeft of een typevoorbeeld is” is ingegeven vanuit landschappen. Vb. dendrologisch waardevolle bomen.
+Voorbeelden: Archeologische site; site met aardkundige waarden (paleomeanders, paraboolduinen, bodemprofiel dat geologische gelaagdheid aan het licht brengt); Wetenschappelijke collectie; Referentiecollectie; Geodetisch punt (belangrijk voor ontwikkeling cartografie); gebouw met bijzondere rijke collectie steensoorten; Collectie genetisch (plant)materiaal; een universiteit met een klein museum bewust aangelegd met een referentiecollectie voor studenten of docenten."""@nl-BE ;
+    skos:prefLabel "wetenschappelijke waarde"@nl-BE ;
+    skos:scopeNote "Een onroerend goed heeft wetenschappelijke waarde als het potentie heeft voor kennisontwikkeling en kenniswinst over een bepaald thema, periode of fenomeen, als het een bijzondere bijdrage geleverd heeft op dat vlak of als het een typevoorbeeld is."@nl-BE .
+
+<https://id.erfgoed.net/thesauri/waardetypes> a skos:ConceptScheme ;
+    dcterms:identifier "WAARDETYPES" ;
+    void:inDataset <https://id.erfgoed.net/datasets/thesauri/waardetypes> ;
+    skos:hasTopConcept <https://id.erfgoed.net/thesauri/waardetypes/31>,
+        <https://id.erfgoed.net/thesauri/waardetypes/32>,
+        <https://id.erfgoed.net/thesauri/waardetypes/33>,
+        <https://id.erfgoed.net/thesauri/waardetypes/34>,
+        <https://id.erfgoed.net/thesauri/waardetypes/35>,
+        <https://id.erfgoed.net/thesauri/waardetypes/36>,
+        <https://id.erfgoed.net/thesauri/waardetypes/38>,
+        <https://id.erfgoed.net/thesauri/waardetypes/39>,
+        <https://id.erfgoed.net/thesauri/waardetypes/40>,
+        <https://id.erfgoed.net/thesauri/waardetypes/41>,
+        <https://id.erfgoed.net/thesauri/waardetypes/42>,
+        <https://id.erfgoed.net/thesauri/waardetypes/43>,
+        <https://id.erfgoed.net/thesauri/waardetypes/44>,
+        <https://id.erfgoed.net/thesauri/waardetypes/45>,
+        <https://id.erfgoed.net/thesauri/waardetypes/46>,
+        <https://id.erfgoed.net/thesauri/waardetypes/47>,
+        <https://id.erfgoed.net/thesauri/waardetypes/48>,
+        <https://id.erfgoed.net/thesauri/waardetypes/49>,
+        <https://id.erfgoed.net/thesauri/waardetypes/50> ;
+    skos:prefLabel "Value types"@en,
+        "Waarde types"@nl .
+
