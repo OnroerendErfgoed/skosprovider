@@ -6,14 +6,23 @@ This module contains an RDFProvider, an implementation of the
 
 import logging
 import re
+from typing import Any
 
 import rdflib
 from langcodes import tag_is_valid
+from rdflib import Graph
 from rdflib.namespace import DC
 from rdflib.namespace import DCTERMS
 from rdflib.namespace import RDF
 from rdflib.namespace import SKOS
+from rdflib.paths import AlternativePath
+from rdflib.paths import SequencePath
+from rdflib.term import Literal
+from rdflib.term import Node
 from rdflib.term import URIRef
+
+from skosprovider.exceptions import ConceptSchemeException
+from skosprovider.exceptions import InvalidDataException
 from skosprovider.providers import MemoryProvider
 from skosprovider.skos import Collection
 from skosprovider.skos import Concept
@@ -30,243 +39,269 @@ SKOS_THES = rdflib.Namespace("http://purl.org/iso25964/skos-thes#")
 
 class RDFProvider(MemoryProvider):
     """
-    Should the provider only take concepts into account explicitly linked
-    to the conceptscheme?
-    """
-
-    check_in_scheme = False
-
-    """
     A simple vocabulary provider that use an :class:`rdflib.graph.Graph`
     as input. The provider expects a RDF graph with elements that represent
     the SKOS concepts and collections.
 
     Please be aware that this provider needs to load the entire graph in memory.
+
+    When a concept scheme is passed or picked with `concept_scheme_uri`,
+    `check_in_scheme` is set and the provider only takes concepts and
+    collections into account that are explicitly linked to that concept scheme.
     """
 
-    def __init__(self, metadata, graph, **kwargs):
-        self.graph = graph
+    def __init__(self, metadata: dict[str, Any], graph: Graph, **kwargs: Any) -> None:
         self.check_in_scheme = False
         if "concept_scheme" not in kwargs:
-            kwargs["concept_scheme"] = self._cs_from_graph(metadata, **kwargs)
+            kwargs["concept_scheme"] = self._concept_scheme_from_graph(
+                graph, metadata, kwargs.get("concept_scheme_uri")
+            )
         else:
             self.check_in_scheme = True
         super().__init__(metadata, [], **kwargs)
-        self.list = self._from_graph()
+        self.list = self._from_graph(graph)
 
-    def _cs_from_graph(self, metadata, **kwargs):
-        cslist = []
-        for sub in self.graph.subjects(RDF.type, SKOS.ConceptScheme):
-            uri = self.to_text(sub)
-            cs = ConceptScheme(
-                uri=uri,
-                labels=self._create_from_subject_typelist(
-                    sub, self._scrub_label_types()
+    def _concept_scheme_from_graph(
+        self, graph: Graph, metadata: dict[str, Any], concept_scheme_uri: str | None
+    ) -> ConceptScheme:
+        concept_schemes = [
+            ConceptScheme(
+                uri=self.to_text(subject),
+                labels=self._create_from_subject_types(
+                    graph, subject, self._scrub_label_types()
                 ),
-                notes=self._create_from_subject_typelist(sub, Note.valid_types),
-                sources=self._create_sources(sub),
-                languages=self._create_languages(sub),
+                notes=self._create_from_subject_types(graph, subject, Note.valid_types),
+                sources=self._create_sources(graph, subject),
+                languages=self._create_languages(graph, subject),
             )
-            cslist.append(cs)
-        if len(cslist) == 0:
+            for subject in graph.subjects(RDF.type, SKOS.ConceptScheme)
+        ]
+        if not concept_schemes:
             return ConceptScheme(
                 uri=DefaultConceptSchemeUrnGenerator().generate(id=metadata.get("id"))
             )
-        elif len(cslist) == 1:
-            return cslist[0]
-        else:
-            if "concept_scheme_uri" not in kwargs:
-                raise RuntimeError(
-                    "This RDF file contains more than one ConceptScheme. \
-                    Please specify one. The following schemes were found: \
-                    %s" % (", ".join([str(cs.uri) for cs in cslist]))
-                )
-            else:
-                self.check_in_scheme = True
-                csuri = kwargs["concept_scheme_uri"]
-                filteredcslist = [cs for cs in cslist if cs.uri == csuri]
-                if len(filteredcslist) == 0:
-                    raise RuntimeError(
-                        "This RDF file contains more than one ConceptScheme. \
-                        You specified an unexisting one. The following schemes \
-                        were found: %s" % (", ".join([str(cs.uri) for cs in cslist]))
-                    )
-                else:
-                    return filteredcslist[0]
+        if len(concept_schemes) == 1:
+            return concept_schemes[0]
 
-    def _from_graph(self):
-        clist = []
-        for sub, pred, obj in self.graph.triples((None, RDF.type, SKOS.Concept)):
-            if (
-                self.check_in_scheme
-                and self._get_in_scheme(sub) != self.concept_scheme.uri
-            ):
-                continue
-            uri = self.to_text(sub)
-            matches = {}
-            for k in Concept.matchtypes:
-                matches[k] = self._create_from_subject_predicate(
-                    sub, URIRef(SKOS[k + "Match"])
-                )
-            con = Concept(
-                id=self._get_id_for_subject(sub, uri),
-                uri=uri,
-                concept_scheme=self.concept_scheme,
-                labels=self._create_from_subject_typelist(
-                    sub, self._scrub_label_types()
-                ),
-                notes=self._create_from_subject_typelist(sub, Note.valid_types),
-                sources=self._create_sources(sub),
-                broader=self._create_from_subject_predicate(sub, SKOS.broader),
-                narrower=self._create_from_subject_predicate(sub, SKOS.narrower),
-                related=self._create_from_subject_predicate(sub, SKOS.related),
-                member_of=[],
-                subordinate_arrays=self._create_from_subject_predicate(
-                    sub, SKOS_THES.subordinateArray
-                ),
-                matches=matches,
+        found_uris = ", ".join(
+            str(concept_scheme.uri) for concept_scheme in concept_schemes
+        )
+        if concept_scheme_uri is None:
+            raise ConceptSchemeException(
+                "This RDF file contains more than one ConceptScheme. "
+                f"Please specify one. The following schemes were found: {found_uris}"
             )
-            clist.append(con)
+        self.check_in_scheme = True
+        for concept_scheme in concept_schemes:
+            if concept_scheme.uri == concept_scheme_uri:
+                return concept_scheme
+        raise ConceptSchemeException(
+            "This RDF file contains more than one ConceptScheme. "
+            "You specified an unexisting one. "
+            f"The following schemes were found: {found_uris}"
+        )
 
-        for sub, pred, obj in self.graph.triples((None, RDF.type, SKOS.Collection)):
-            if (
-                self.check_in_scheme
-                and self._get_in_scheme(sub) != self.concept_scheme.uri
-            ):
-                continue
-            uri = self.to_text(sub)
-            col = Collection(
-                id=self._get_id_for_subject(sub, uri),
-                uri=uri,
-                concept_scheme=self.concept_scheme,
-                labels=self._create_from_subject_typelist(
-                    sub, self._scrub_label_types()
-                ),
-                notes=self._create_from_subject_typelist(sub, (Note.valid_types)),
-                sources=self._create_sources(sub),
-                members=self._create_from_subject_predicate(sub, SKOS.member),
-                member_of=[],
-                superordinates=self._create_from_subject_predicate(
-                    sub, SKOS_THES.superOrdinate
-                ),
-            )
-            clist.append(col)
-        self._fill_member_of(clist)
-        self._set_infer_concept_relations(clist)
-        return clist
+    def _from_graph(self, graph: Graph) -> list[Concept | Collection]:
+        concepts_and_collections: list[Concept | Collection] = [
+            self._create_concept(graph, subject)
+            for subject in self._subjects_of_type(graph, SKOS.Concept)
+        ]
+        concepts_and_collections.extend(
+            self._create_collection(graph, subject)
+            for subject in self._subjects_of_type(graph, SKOS.Collection)
+        )
+        by_id = {
+            concept_or_collection.id: concept_or_collection
+            for concept_or_collection in concepts_and_collections
+        }
+        collections = [
+            concept_or_collection
+            for concept_or_collection in concepts_and_collections
+            if isinstance(concept_or_collection, Collection)
+        ]
+        self._fill_member_of(collections, by_id)
+        self._set_infer_concept_relations(collections, by_id)
+        return concepts_and_collections
 
-    def _get_in_scheme(self, subject):
+    def _subjects_of_type(self, graph: Graph, rdf_type: URIRef) -> list[Node]:
+        """
+        Get all subjects of a type, limited to the concept scheme of this
+        provider if `check_in_scheme` is set.
+        """
+        return [
+            subject
+            for subject in graph.subjects(RDF.type, rdf_type)
+            if not self.check_in_scheme
+            or self._get_in_scheme(graph, subject) == self.concept_scheme.uri
+        ]
+
+    def _create_concept(self, graph: Graph, subject: Node) -> Concept:
+        uri = self.to_text(subject)
+        return Concept(
+            id=self._get_id_for_subject(graph, subject, uri),
+            uri=uri,
+            concept_scheme=self.concept_scheme,
+            labels=self._create_from_subject_types(
+                graph, subject, self._scrub_label_types()
+            ),
+            notes=self._create_from_subject_types(graph, subject, Note.valid_types),
+            sources=self._create_sources(graph, subject),
+            broader=self._create_from_subject_predicate(graph, subject, SKOS.broader),
+            narrower=self._create_from_subject_predicate(graph, subject, SKOS.narrower),
+            related=self._create_from_subject_predicate(graph, subject, SKOS.related),
+            member_of=[],
+            subordinate_arrays=self._create_from_subject_predicate(
+                graph, subject, SKOS_THES.subordinateArray
+            ),
+            matches={
+                match_type: self._create_from_subject_predicate(
+                    graph, subject, URIRef(SKOS[match_type + "Match"])
+                )
+                for match_type in Concept.matchtypes
+            },
+        )
+
+    def _create_collection(self, graph: Graph, subject: Node) -> Collection:
+        uri = self.to_text(subject)
+        return Collection(
+            id=self._get_id_for_subject(graph, subject, uri),
+            uri=uri,
+            concept_scheme=self.concept_scheme,
+            labels=self._create_from_subject_types(
+                graph, subject, self._scrub_label_types()
+            ),
+            notes=self._create_from_subject_types(graph, subject, Note.valid_types),
+            sources=self._create_sources(graph, subject),
+            members=self._create_from_subject_predicate(graph, subject, SKOS.member),
+            member_of=[],
+            superordinates=self._create_from_subject_predicate(
+                graph, subject, SKOS_THES.superOrdinate
+            ),
+        )
+
+    def _get_in_scheme(self, graph: Graph, subject: Node) -> str | None:
         """
         Determine if a subject is part of a scheme.
 
-        :param subject: Subject to get the sources for.
+        :param graph: Graph to look up the scheme in.
+        :param subject: Subject to get the scheme for.
         :returns: A URI for the scheme a subject is part of or None if
             it's not part of a scheme.
         """
-        scheme = None
-        scheme = self.graph.value(subject, SKOS.inScheme)
-        if not scheme:
-            scheme = self.graph.value(subject, SKOS.topConceptOf)
+        scheme = graph.value(subject, SKOS.inScheme) or graph.value(
+            subject, SKOS.topConceptOf
+        )
         return self.to_text(scheme) if scheme else None
 
-    def _fill_member_of(self, clist):
-        collections = list({c for c in clist if isinstance(c, Collection)})
-        for col in collections:
-            for c in clist:
-                if c.id in col.members:
-                    c.member_of.append(col.id)
-        return
+    @staticmethod
+    def _fill_member_of(
+        collections: list[Collection],
+        by_id: dict[str, Concept | Collection],
+    ) -> None:
+        for collection in collections:
+            for member_id in dict.fromkeys(collection.members):
+                member = by_id.get(member_id)
+                if member:
+                    member.member_of.append(collection.id)
 
-    def _set_infer_concept_relations(self, clist):
-        collections = list({c for c in clist if isinstance(c, Collection)})
-        for col in collections:
-            if not col.superordinates:
-                col.infer_concept_relations = False
-                continue
-
-            def _collect_broader(collection, clist):
-                """
-                Collect all broader concepts of members of a collection or
-                their (recursive) members.
-                """
-                members = list({c for c in clist if c.id in collection.members})
-                broader = []
-                for m in members:
-                    if m.type == "concept":
-                        broader.extend(m.broader)
-                    elif m.type == "collection":
-                        broader.extend(_collect_broader(m, clist))
-                return broader
-
-            broader = _collect_broader(col, clist)
-            col.infer_concept_relations = (
-                len(set(broader).intersection(col.superordinates)) > 0
-            )
-
-    def _create_from_subject_typelist(self, subject, typelist):
-        list = []
-        for p in typelist:
-            term = SKOS.__getitem__(p)
-            list.extend(self._create_from_subject_predicate(subject, term))
-        return list
-
-    def _get_id_for_subject(self, subject, uri):
-        if (subject, DCTERMS.identifier, None) in self.graph:
-            return self.to_text(
-                self.graph.value(
-                    subject=subject, predicate=DCTERMS.identifier, any=False
+    def _set_infer_concept_relations(
+        self,
+        collections: list[Collection],
+        by_id: dict[str, Concept | Collection],
+    ) -> None:
+        for collection in collections:
+            collection.infer_concept_relations = bool(
+                collection.superordinates
+                and self._collect_broader(collection, by_id).intersection(
+                    collection.superordinates
                 )
             )
-        elif (subject, DC.identifier, None) in self.graph:
-            return self.to_text(
-                self.graph.value(subject=subject, predicate=DC.identifier, any=False)
+
+    def _collect_broader(
+        self, collection: Collection, by_id: dict[str, Concept | Collection]
+    ) -> set[str]:
+        """
+        Collect all broader concepts of members of a collection or
+        their (recursive) members.
+        """
+        broader: set[str] = set()
+        for member_id in collection.members:
+            member = by_id.get(member_id)
+            if isinstance(member, Concept):
+                broader.update(member.broader)
+            elif isinstance(member, Collection):
+                broader.update(self._collect_broader(member, by_id))
+        return broader
+
+    def _create_from_subject_types(
+        self, graph: Graph, subject: Node, types: list[str]
+    ) -> list[Label | Note | str]:
+        return [
+            created
+            for type_ in types
+            for created in self._create_from_subject_predicate(
+                graph, subject, SKOS[type_]
             )
-        else:
-            return uri
+        ]
 
-    def _create_from_subject_predicate(self, subject, predicate):
-        list = []
-        for s, p, o in self.graph.triples((subject, predicate, None)):
-            type = predicate.split("#")[-1]
-            if Label.is_valid_type(type):
-                o = self._create_label(o, type)
-            elif Note.is_valid_type(type):
-                o = self._create_note(o, type)
-            else:
-                o = self._get_id_for_subject(o, self.to_text(o))
-            list.append(o)
-        return list
+    def _get_id_for_subject(self, graph: Graph, subject: Node, uri: str) -> str:
+        identifier = graph.value(subject, DCTERMS.identifier, any=False)
+        if identifier is None:
+            identifier = graph.value(subject, DC.identifier, any=False)
+        return uri if identifier is None else self.to_text(identifier)
 
-    def _create_label(self, literal, type):
-        if not Label.is_valid_type(type):
-            raise ValueError("Type of Label is not valid.")
+    def _create_from_subject_predicate(
+        self, graph: Graph, subject: Node, predicate: URIRef
+    ) -> list[Label] | list[Note] | list[str]:
+        type_ = predicate.split("#")[-1]
+        objects = graph.objects(subject, predicate)
+        if Label.is_valid_type(type_):
+            return [self._create_label(literal, type_) for literal in objects]
+        if Note.is_valid_type(type_):
+            return [self._create_note(literal, type_) for literal in objects]
+        return [
+            self._get_id_for_subject(graph, node, self.to_text(node))
+            for node in objects
+        ]
+
+    def _create_label(self, literal: Node, type_: str) -> Label:
+        if not Label.is_valid_type(type_):
+            raise InvalidDataException("Type of Label is not valid.")
         return Label(
-            self.to_text(literal), type, self._get_language_from_literal(literal)
+            self.to_text(literal), type_, self._get_language_from_literal(literal)
         )
 
-    def _read_markupped_literal(self, literal):
-        if literal.datatype == RDF.HTML:
-            if literal.value is None:
-                # Since rdflib 7, malformed HTML makes the literal ill-typed
-                # and leaves it without a value. Keep the raw text instead.
-                return self._read_ill_typed_html(str(literal))
-            df = literal.value.cloneNode(True)
-            if (
-                df.firstChild
-                and df.firstChild.attributes
-                and "xml:lang" in df.firstChild.attributes.keys()
-            ):
-                lang = self._scrub_language(
-                    df.firstChild.attributes.get("xml:lang").value
-                )
-                del df.firstChild.attributes["xml:lang"]
-            else:
-                lang = "und"
-            return ("".join(child.toxml() for child in df.childNodes), lang, "HTML")
-        else:
-            return (literal, self._get_language_from_literal(literal), None)
+    def _read_markupped_literal(
+        self, literal: Literal
+    ) -> tuple[str | Literal, str | None, str | None]:
+        """
+        Read the text, language and markup of a literal.
 
-    def _read_ill_typed_html(self, text):
+        :returns: A tuple of text, language and markup.
+        """
+        if literal.datatype != RDF.HTML:
+            return (literal, self._get_language_from_literal(literal), None)
+        if literal.value is None:
+            # Since rdflib 7, malformed HTML makes the literal ill-typed
+            # and leaves it without a value. Keep the raw text instead.
+            return self._read_ill_typed_html(str(literal))
+        fragment = literal.value.cloneNode(True)
+        first_child = fragment.firstChild
+        if (
+            first_child
+            and first_child.attributes
+            and "xml:lang" in first_child.attributes
+        ):
+            language = self._scrub_language(
+                first_child.attributes.get("xml:lang").value
+            )
+            del first_child.attributes["xml:lang"]
+        else:
+            language = "und"
+        html = "".join(child.toxml() for child in fragment.childNodes)
+        return (html, language, "HTML")
+
+    def _read_ill_typed_html(self, text: str) -> tuple[str, str, str]:
         """
         Read the language of a piece of HTML that could not be parsed.
 
@@ -283,77 +318,77 @@ class RDFProvider(MemoryProvider):
                 re.IGNORECASE,
             )
             if lang_attr:
-                lang = self._scrub_language(lang_attr.group(1) or lang_attr.group(2))
+                language = self._scrub_language(
+                    lang_attr.group(1) or lang_attr.group(2)
+                )
                 start = first_tag.start(1) + lang_attr.start()
                 end = first_tag.start(1) + lang_attr.end()
-                return (text[:start] + text[end:], lang, "HTML")
+                return (text[:start] + text[end:], language, "HTML")
         return (text, "und", "HTML")
 
-    def _create_note(self, literal, type):
-        if not Note.is_valid_type(type):
-            raise ValueError("Type of Note is not valid.")
-        markup_literal = self._read_markupped_literal(literal)
-        return Note(
-            self.to_text(markup_literal[0]), type, markup_literal[1], markup_literal[2]
-        )
+    def _create_note(self, literal: Literal, type_: str) -> Note:
+        if not Note.is_valid_type(type_):
+            raise InvalidDataException("Type of Note is not valid.")
+        text, language, markup = self._read_markupped_literal(literal)
+        return Note(self.to_text(text), type_, language, markup)
 
-    def _create_sources(self, subject):
+    def _create_sources(self, graph: Graph, subject: Node) -> list[Source]:
         """
         Create the sources for this subject.
 
+        :param graph: Graph to look up the sources in.
         :param subject: Subject to get the sources for.
         :returns: A :class:`list` of :class:`skosprovider.skos.Source` objects.
         """
-        ret = []
-        for s, p, o in self.graph.triples((subject, DCTERMS.source, None)):
-            for si, pi, oi in self.graph.triples(
-                (o, DCTERMS.bibliographicCitation, None)
-            ):
-                ret.append(
-                    Source(
-                        self.to_text(oi), "HTML" if oi.datatype == RDF.HTML else None
-                    )
-                )
-        return ret
+        return [
+            Source(
+                self.to_text(citation),
+                "HTML" if citation.datatype == RDF.HTML else None,
+            )
+            for citation in graph.objects(
+                subject, SequencePath(DCTERMS.source, DCTERMS.bibliographicCitation)
+            )
+        ]
 
-    def _create_languages(self, subject):
+    def _create_languages(self, graph: Graph, subject: Node) -> set[str]:
         """
         Create the languages for this subject.
 
-        :param subject: Subject to get the sources for.
-        :returns: A :class:`list` of IANA language tags.
+        :param graph: Graph to look up the languages in.
+        :param subject: Subject to get the languages for.
+        :returns: A :class:`set` of IANA language tags.
         """
-        ret = set()
-        for s, p, o in self.graph.triples((subject, DCTERMS.language, None)):
-            ret.add(self.to_text(self._scrub_language(o)))
-        for s, p, o in self.graph.triples((subject, DC.language, None)):
-            ret.add(self.to_text(self._scrub_language(o)))
-        return ret
+        return {
+            self._scrub_language(self.to_text(language))
+            for language in graph.objects(
+                subject, AlternativePath(DCTERMS.language, DC.language)
+            )
+        }
 
-    def _scrub_language(self, language):
+    @staticmethod
+    def _scrub_language(language: str) -> str:
         if tag_is_valid(language):
             return language
-        else:
-            log.warning(
-                'Encountered an invalid language %s. Falling back to "und".' % language
-            )
-            return "und"
+        log.warning(
+            'Encountered an invalid language %s. Falling back to "und".', language
+        )
+        return "und"
 
-    def _scrub_label_types(self):
-        valid_label_types = Label.valid_types[:]
-        if "sortLabel" in valid_label_types:
-            valid_label_types.remove("sortLabel")
-        return valid_label_types
+    @staticmethod
+    def _scrub_label_types() -> list[str]:
+        return [type_ for type_ in Label.valid_types if type_ != "sortLabel"]
 
-    def _get_language_from_literal(self, data):
-        if not hasattr(data, "language") or data.language is None:
+    def _get_language_from_literal(self, literal: Any) -> str | None:
+        language = getattr(literal, "language", None)
+        if language is None:
             return None
-        return self.to_text(self._scrub_language(data.language))
+        return self.to_text(self._scrub_language(language))
 
-    def to_text(self, data):
+    def to_text(self, data: Any) -> str:
         """
-        data of binary type or literal type that needs to be converted to text.
-        :param data
+        Convert data of binary type or literal type to text.
+
+        :param data: The data to convert.
         :return: text representation of the data
         """
         return str(data)

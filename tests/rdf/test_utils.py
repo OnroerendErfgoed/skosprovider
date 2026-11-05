@@ -9,6 +9,7 @@ from rdflib.namespace import RDF
 from rdflib.namespace import SKOS
 from rdflib.term import Literal
 from rdflib.term import URIRef
+from skosprovider.exceptions import NotFoundException
 from skosprovider.providers import DictionaryProvider
 from skosprovider.skos import ConceptScheme, Label, Note
 
@@ -187,7 +188,7 @@ class TestRDFDumperMaterials:
 
     def test_dump_concept_with_superordinates(self, materials_provider, caplog):
         caplog.set_level(logging.DEBUG)
-        graph_dump = utils.rdf_c_dumper(materials_provider, 44)
+        graph_dump = utils.rdf_concept_or_collection_dumper(materials_provider, 44)
 
         assert isinstance(graph_dump, Graph)
         assert (
@@ -251,7 +252,7 @@ class TestRDFDumperTrees:
         assert "<?xml" == xml[:5]
 
     def test_dump_larch_to_rdf(self, tree_provider):
-        graph_dump = utils.rdf_c_dumper(tree_provider, 1)
+        graph_dump = utils.rdf_concept_or_collection_dumper(tree_provider, 1)
         cs = URIRef("http://id.trees.org")
         assert (cs, RDF.type, SKOS.ConceptScheme) in graph_dump
         assert (
@@ -270,7 +271,7 @@ class TestRDFDumperTrees:
         assert "<?xml" == xml[:5]
 
     def test_dump_chestnut_to_rdf(self, tree_provider):
-        graph_dump = utils.rdf_c_dumper(tree_provider, 2)
+        graph_dump = utils.rdf_concept_or_collection_dumper(tree_provider, 2)
 
         chestnut = URIRef("http://id.trees.org/2")
         assert (chestnut, SKOS.hiddenLabel, Literal("aaa", lang="nl")) in graph_dump
@@ -303,19 +304,23 @@ class TestRDFDumperTrees:
         )
 
     def test_dump_oak_to_rdf(self, tree_provider):
-        graph_dump = utils.rdf_c_dumper(tree_provider, 4)
+        graph_dump = utils.rdf_concept_or_collection_dumper(tree_provider, 4)
         oak = URIRef("http://id.trees.org/4")
         eik = URIRef("https://id.erfgoed.net/thesauri/soorten/297")
         assert (oak, SKOS.exactMatch, eik) in graph_dump
 
+    def test_dump_unexisting_id(self, tree_provider):
+        with pytest.raises(NotFoundException):
+            utils.rdf_concept_or_collection_dumper(tree_provider, 404)
+
     def test_dump_one_id_to_rdf_and_reload(self, tree_provider, caplog):
         caplog.set_level(logging.DEBUG)
-        graph_dump1 = utils.rdf_c_dumper(tree_provider, 1)
+        graph_dump1 = utils.rdf_concept_or_collection_dumper(tree_provider, 1)
         provider = RDFProvider(
             {"id": "Number1", "dataset": {"uri": "http://id.trees.org/dataset"}},
             graph_dump1,
         )
-        graph_dump2 = utils.rdf_c_dumper(provider, 1)
+        graph_dump2 = utils.rdf_concept_or_collection_dumper(provider, 1)
         graph_full_dump2 = utils.rdf_dumper(provider)
         assert provider.get_by_id(1)
         assert provider.get_by_id(3)

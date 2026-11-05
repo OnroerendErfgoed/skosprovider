@@ -5,16 +5,16 @@ case, `n3` serialisation is used, other serialisations are available through
 :mod:`rdflib`.
 """
 
-import os
 import csv
+import os
 
 from skosprovider.providers import SimpleCsvProvider
-
-from skosprovider.uri import UriPatternGenerator
-
-from skosprovider.skos import ConceptScheme, Label, Note, Source
-
 from skosprovider.rdf.utils import rdf_dumper
+from skosprovider.skos import ConceptScheme
+from skosprovider.skos import Label
+from skosprovider.skos import Note
+from skosprovider.skos import Source
+from skosprovider.uri import UriPatternGenerator
 
 ifile = open(os.path.join(os.path.dirname(__file__), "data", "menu.csv"))
 

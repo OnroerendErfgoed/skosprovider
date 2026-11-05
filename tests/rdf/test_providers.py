@@ -6,6 +6,8 @@ from rdflib import Literal
 from rdflib import URIRef
 from rdflib.namespace import RDF
 from rdflib.namespace import SKOS
+from skosprovider.exceptions import ConceptSchemeException
+from skosprovider.exceptions import InvalidDataException
 from skosprovider.skos import Collection
 from skosprovider.skos import ConceptScheme
 from skosprovider.skos import Note
@@ -42,11 +44,11 @@ class TestRDFProviderProducts:
         assert not con
 
     def test_createLabel(self, products_provider):
-        with pytest.raises(ValueError):
+        with pytest.raises(InvalidDataException):
             products_provider._create_label("literal", "nonexistinglabeltype")
 
     def test_createNote(self, products_provider):
-        with pytest.raises(ValueError):
+        with pytest.raises(InvalidDataException):
             products_provider._create_note("literal", "nonexistingnotetype")
 
     def test_get_concept_by_uri_equals_id(self, products_provider):
@@ -198,7 +200,7 @@ class TestMultipleConceptschemes:
         wb_graph = Graph()
         abspath = os.path.abspath(TEST_DIR + "/data/waarde_en_besluit_types.ttl")
         wb_graph.parse(abspath, format="turtle")
-        with pytest.raises(RuntimeError) as exc:
+        with pytest.raises(ConceptSchemeException) as exc:
             RDFProvider(
                 {"id": "WAARTYPES"},
                 wb_graph,
@@ -211,7 +213,7 @@ class TestMultipleConceptschemes:
         toepassingen_graph = Graph()
         abspath = os.path.abspath(TEST_DIR + "/data/schemes.xml")
         toepassingen_graph.parse(abspath, format="application/rdf+xml")
-        with pytest.raises(RuntimeError) as exc:
+        with pytest.raises(ConceptSchemeException) as exc:
             RDFProvider({"id": "TOEPASSINGEN"}, toepassingen_graph)
         assert "https://id.erfgoed.net/toepassingen" in str(exc.value)
         assert "https://id.erfgoed.net/applicaties" in str(exc.value)
