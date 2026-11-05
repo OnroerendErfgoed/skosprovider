@@ -185,6 +185,43 @@ class TestNote:
         note = Note("A community in West-Flanders.", "definition", "en")
         assert note.is_valid_type("definition")
 
+    def test_constructor_with_uri(self):
+        note = Note("A note.", type="changeNote", language="en", uri="http://example.com/notes/1")
+        assert note.uri == "http://example.com/notes/1"
+        assert note.note == "A note."
+
+    def test_constructor_invalid_uri(self):
+        with pytest.raises(ValueError):
+            Note("A note.", uri="not-a-uri")
+
+    def test_is_literal(self):
+        note = Note("A note.")
+        assert note.is_literal()
+        assert not note.is_object()
+
+    def test_is_object(self):
+        note = Note("A note.", uri="http://example.com/notes/1")
+        assert note.is_object()
+        assert not note.is_literal()
+
+    def test_repr_literal(self):
+        note = Note("A note.", "note", "en")
+        assert repr(note) == "Note('A note.', 'note', 'en')"
+
+    def test_repr_object(self):
+        note = Note("A note.", "note", "en", uri="http://example.com/notes/1")
+        assert repr(note) == "Note('A note.', 'note', 'en', 'http://example.com/notes/1')"
+
+    def test_equality_by_uri(self):
+        note1 = Note("A note.", "changeNote", "en", uri="http://example.com/notes/1")
+        note2 = Note("Different text.", "note", "nl", uri="http://example.com/notes/1")
+        assert note1 == note2
+
+    def test_inequality_by_uri(self):
+        note1 = Note("A note.", "changeNote", "en", uri="http://example.com/notes/1")
+        note2 = Note("A note.", "changeNote", "en", uri="http://example.com/notes/2")
+        assert note1 != note2
+
     def test_is_valid_markup(self):
         assert Note.is_valid_markup("HTML")
         assert not Note.is_valid_markup("markdown")
@@ -224,6 +261,57 @@ class TestSource:
             "<em>Data-driven systems and system-driven data: the story of the "
             "Flanders Heritage Inventory (1995-2015)</em>"
             Source(citation, markup="markdown")
+
+    def test_constructor_with_uri(self):
+        source = Source("A citation.", uri="http://example.com/sources/1")
+        assert source.uri == "http://example.com/sources/1"
+        assert source.citation == "A citation."
+
+    def test_constructor_invalid_uri(self):
+        with pytest.raises(ValueError):
+            Source("A citation.", uri="not-a-uri")
+
+    def test_is_literal(self):
+        source = Source("A citation.")
+        assert source.is_literal()
+        assert not source.is_object()
+
+    def test_is_object(self):
+        source = Source("A citation.", uri="http://example.com/sources/1")
+        assert source.is_object()
+        assert not source.is_literal()
+
+    def test_repr_literal(self):
+        source = Source("A citation.")
+        assert repr(source) == "Source('A citation.')"
+
+    def test_repr_object(self):
+        source = Source("A citation.", uri="http://example.com/sources/1")
+        assert repr(source) == "Source('A citation.', 'http://example.com/sources/1')"
+
+    def test_equality(self):
+        source1 = Source("A citation.")
+        source2 = Source("A citation.")
+        assert source1 == source2
+
+    def test_inequality(self):
+        source1 = Source("A citation.")
+        source2 = Source("A different citation.")
+        assert source1 != source2
+
+    def test_equality_by_uri(self):
+        source1 = Source("A citation.", uri="http://example.com/sources/1")
+        source2 = Source("Different text.", uri="http://example.com/sources/1")
+        assert source1 == source2
+
+    def test_inequality_by_uri(self):
+        source1 = Source("A citation.", uri="http://example.com/sources/1")
+        source2 = Source("A citation.", uri="http://example.com/sources/2")
+        assert source1 != source2
+
+    def test_dict_inequality(self):
+        source = Source("A citation.")
+        assert source != {"citation": "A citation."}
 
 
 class TestConceptScheme:
@@ -454,6 +542,11 @@ class TestDictToNoteFunction:
         assert "note" == note.type
         assert "und" == note.language
 
+    def test_dict_to_note_with_uri(self):
+        note = dict_to_note({"note": "A note.", "type": "changeNote", "uri": "http://example.com/notes/1"})
+        assert note.uri == "http://example.com/notes/1"
+        assert note.is_object()
+
 
 class TestDictToLabelFunction:
 
@@ -493,6 +586,11 @@ class TestDictToSourceFunction:
         "Flanders Heritage Inventory (1995-2015)"
         source = dict_to_source(Source(citation))
         assert citation == source.citation
+
+    def test_dict_to_source_with_uri(self):
+        source = dict_to_source({"citation": "A citation.", "uri": "http://example.com/sources/1"})
+        assert source.uri == "http://example.com/sources/1"
+        assert source.is_object()
 
 
 class TestLabelFunction:
