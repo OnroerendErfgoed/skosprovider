@@ -260,6 +260,7 @@ class TestRDFDumperTrees:
             Literal(
                 '<div xml:lang="en"><p>Trees as used by Monthy Python.</p></div>',
                 datatype=RDF.HTML,
+                normalize=False,
             ),
         ) in graph_dump
         assert (cs, SKOS.prefLabel, Literal("Pythonic trees.", lang="en")) in graph_dump
@@ -321,6 +322,18 @@ class TestRDFDumperTrees:
         assert len(graph_dump1) == len(graph_dump2)
         assert len(graph_full_dump2) > len(graph_dump2)
 
+    def test_dump_html_keeps_text(self, tree_provider):
+        graph_dump = utils.rdf_conceptscheme_dumper(tree_provider)
+        definition = graph_dump.value(URIRef("http://id.trees.org"), SKOS.definition)
+        assert (
+            str(definition)
+            == '<div xml:lang="en"><p>Trees as used by Monthy Python.</p></div>'
+        )
+        assert (
+            '"<div xml:lang=\\"en\\"><p>Trees as used by Monthy Python.</p></div>"'
+            in graph_dump.serialize(format="turtle")
+        )
+
     def test_dump_conceptscheme_tree_to_rdf(self, tree_provider):
         graph_dump = utils.rdf_conceptscheme_dumper(tree_provider)
         cs = URIRef("http://id.trees.org")
@@ -331,6 +344,7 @@ class TestRDFDumperTrees:
             Literal(
                 '<div xml:lang="en"><p>Trees as used by Monthy Python.</p></div>',
                 datatype=RDF.HTML,
+                normalize=False,
             ),
         ) in graph_dump
         assert (cs, SKOS.prefLabel, Literal("Pythonic trees.", lang="en")) in graph_dump

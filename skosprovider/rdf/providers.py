@@ -5,6 +5,7 @@ This module contains an RDFProvider, an implementation of the
 """
 
 import logging
+import re
 
 import rdflib
 from langcodes import tag_is_valid
@@ -245,6 +246,10 @@ class RDFProvider(MemoryProvider):
 
     def _read_markupped_literal(self, literal):
         if literal.datatype == RDF.HTML:
+            if literal.value is None:
+                # Since rdflib 7, malformed HTML makes the literal ill-typed
+                # and leaves it without a value. Keep the raw text instead.
+                return self._read_ill_typed_html(str(literal))
             df = literal.value.cloneNode(True)
             if (
                 df.firstChild
@@ -260,6 +265,29 @@ class RDFProvider(MemoryProvider):
             return ("".join(child.toxml() for child in df.childNodes), lang, "HTML")
         else:
             return (literal, self._get_language_from_literal(literal), None)
+
+    def _read_ill_typed_html(self, text):
+        """
+        Read the language of a piece of HTML that could not be parsed.
+
+        Without a DOM, a regex looks for an `xml:lang` attribute on the
+        first tag, the same place :meth:`_read_markupped_literal` looks for
+        it in the DOM. The attribute is removed, the rest of the HTML is
+        kept as is.
+        """
+        first_tag = re.match(r"<[a-zA-Z][^\s>/]*([^>]*)>", text)
+        if first_tag:
+            lang_attr = re.search(
+                r"""\s+xml:lang\s*=\s*(?:"([^"]*)"|'([^']*)')""",
+                first_tag.group(1),
+                re.IGNORECASE,
+            )
+            if lang_attr:
+                lang = self._scrub_language(lang_attr.group(1) or lang_attr.group(2))
+                start = first_tag.start(1) + lang_attr.start()
+                end = first_tag.start(1) + lang_attr.end()
+                return (text[:start] + text[end:], lang, "HTML")
+        return (text, "und", "HTML")
 
     def _create_note(self, literal, type):
         if not Note.is_valid_type(type):

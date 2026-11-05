@@ -254,7 +254,11 @@ def _add_notes(graph, c, subject):
             graph.add((subject, predicate, Literal(n.note, lang=lang)))
         else:
             html = add_lang_to_html(n.note, lang)
-            graph.add((subject, predicate, Literal(html, datatype=RDF.HTML)))
+            # rdflib normalises HTML literals by reserializing them, which
+            # drops optional tags such as </p>. Keep our text as is.
+            graph.add(
+                (subject, predicate, Literal(html, datatype=RDF.HTML, normalize=False))
+            )
 
 
 def _add_sources(graph, c, subject):
@@ -276,7 +280,7 @@ def _add_sources(graph, c, subject):
                 (
                     source,
                     DCTERMS.bibliographicCitation,
-                    Literal(s.citation, datatype=RDF.HTML),
+                    Literal(s.citation, datatype=RDF.HTML, normalize=False),
                 )
             )
         graph.add((subject, DCTERMS.source, source))

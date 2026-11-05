@@ -2,6 +2,10 @@ import os
 
 import pytest
 from rdflib import Graph
+from rdflib import Literal
+from rdflib import URIRef
+from rdflib.namespace import RDF
+from rdflib.namespace import SKOS
 from skosprovider.skos import Collection
 from skosprovider.skos import ConceptScheme
 from skosprovider.skos import Note
@@ -327,3 +331,37 @@ class TestTreeProvider:
         )
         assert len(close_larches) == 1
 
+
+class TestMalformedHtml:
+    @pytest.mark.parametrize(
+        "html, note_text, language",
+        [
+            (
+                '<div xml:lang="nl"><p>Een <srong>b</strong>oom.</p></div>',
+                "<div><p>Een <srong>b</strong>oom.</p></div>",
+                "nl",
+            ),
+            (
+                "<p xml:lang='en' class='x'>A <srong>t</strong>ree.</p>",
+                "<p class='x'>A <srong>t</strong>ree.</p>",
+                "en",
+            ),
+            (
+                '<p class="x">Een <srong>b</strong>oom.</p>',
+                '<p class="x">Een <srong>b</strong>oom.</p>',
+                "und",
+            ),
+            ("<body>", "<body>", "und"),
+        ],
+    )
+    def test_malformed_html_note(self, html, note_text, language):
+        graph = Graph()
+        concept = URIRef("http://id.trees.org/1")
+        graph.add((concept, RDF.type, SKOS.Concept))
+        graph.add((concept, SKOS.definition, Literal(html, datatype=RDF.HTML)))
+        provider = RDFProvider({"id": "TREES"}, graph)
+
+        note = provider.get_by_uri("http://id.trees.org/1").notes[0]
+        assert note.note == note_text
+        assert note.language == language
+        assert note.markup == "HTML"
