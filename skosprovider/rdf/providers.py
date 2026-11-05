@@ -6,6 +6,8 @@ This module contains an RDFProvider, an implementation of the
 
 import logging
 import re
+from collections.abc import Callable
+from functools import partial
 from typing import Any
 
 import rdflib
@@ -22,6 +24,9 @@ from rdflib.term import URIRef
 
 from skosprovider.exceptions import ConceptSchemeException
 from skosprovider.exceptions import InvalidDataException
+from skosprovider.extra_data import exception_context
+from skosprovider.extra_data import ignore
+from skosprovider.extra_data import load_extra_data
 from skosprovider.providers import MemoryProvider
 from skosprovider.skos import Collection
 from skosprovider.skos import Concept
@@ -34,6 +39,8 @@ from skosprovider.uri import DefaultConceptSchemeUrnGenerator
 log = logging.getLogger(__name__)
 
 SKOS_THES = rdflib.Namespace("http://purl.org/iso25964/skos-thes#")
+
+RdfExtraDataLoader = Callable[[Graph, Node], Graph | None]
 
 
 class RDFProvider(MemoryProvider):
@@ -49,7 +56,23 @@ class RDFProvider(MemoryProvider):
     collections into account that are explicitly linked to that concept scheme.
     """
 
-    def __init__(self, metadata: dict[str, Any], graph: Graph, **kwargs: Any) -> None:
+    def __init__(
+        self,
+        metadata: dict[str, Any],
+        graph: Graph,
+        *,
+        extra_data_loader: RdfExtraDataLoader = ignore,
+        **kwargs: Any,
+    ) -> None:
+        """
+        :param extra_data_loader: A callable that receives the graph and the
+            node of a single concept scheme, concept, collection or source and
+            returns a :class:`rdflib.Graph` or `None`. See
+            :mod:`skosprovider.rdf.extra_data` for the available loaders.
+            Defaults to :func:`~skosprovider.extra_data.ignore`. A concept
+            scheme passed as `concept_scheme` keeps its own extra_data.
+        """
+        self.extra_data_loader = extra_data_loader
         self.check_in_scheme = False
         if "concept_scheme" not in kwargs:
             kwargs["concept_scheme"] = self._concept_scheme_from_graph(
@@ -64,15 +87,7 @@ class RDFProvider(MemoryProvider):
         self, graph: Graph, metadata: dict[str, Any], concept_scheme_uri: str | None
     ) -> ConceptScheme:
         concept_schemes = [
-            ConceptScheme(
-                uri=self.to_text(subject),
-                labels=self._create_from_subject_types(
-                    graph, subject, self._scrub_label_types()
-                ),
-                notes=self._create_from_subject_types(graph, subject, Note.valid_types),
-                sources=self._create_sources(graph, subject),
-                languages=self._create_languages(graph, subject),
-            )
+            self._create_concept_scheme(graph, subject)
             for subject in graph.subjects(RDF.type, SKOS.ConceptScheme)
         ]
         if not concept_schemes:
@@ -99,6 +114,23 @@ class RDFProvider(MemoryProvider):
             "You specified an unexisting one. "
             f"The following schemes were found: {found_uris}"
         )
+
+    def _create_concept_scheme(self, graph: Graph, subject: Node) -> ConceptScheme:
+        uri = self.to_text(subject)
+        with exception_context(f"concept scheme {uri!r}"):
+            return ConceptScheme(
+                uri=uri,
+                labels=self._create_from_subject_types(
+                    graph, subject, self._scrub_label_types()
+                ),
+                notes=self._create_from_subject_types(graph, subject, Note.valid_types),
+                sources=self._create_sources(graph, subject),
+                languages=self._create_languages(graph, subject),
+                extra_data=self._load_extra_data(graph, subject),
+            )
+
+    def _load_extra_data(self, graph: Graph, subject: Node) -> Graph | None:
+        return load_extra_data(partial(self.extra_data_loader, graph), subject)
 
     def _from_graph(self, graph: Graph) -> list[Concept | Collection]:
         concepts_and_collections: list[Concept | Collection] = [
@@ -136,47 +168,61 @@ class RDFProvider(MemoryProvider):
 
     def _create_concept(self, graph: Graph, subject: Node) -> Concept:
         uri = self.to_text(subject)
-        return Concept(
-            id=self._get_id_for_subject(graph, subject, uri),
-            uri=uri,
-            concept_scheme=self.concept_scheme,
-            labels=self._create_from_subject_types(
-                graph, subject, self._scrub_label_types()
-            ),
-            notes=self._create_from_subject_types(graph, subject, Note.valid_types),
-            sources=self._create_sources(graph, subject),
-            broader=self._create_from_subject_predicate(graph, subject, SKOS.broader),
-            narrower=self._create_from_subject_predicate(graph, subject, SKOS.narrower),
-            related=self._create_from_subject_predicate(graph, subject, SKOS.related),
-            member_of=[],
-            subordinate_arrays=self._create_from_subject_predicate(
-                graph, subject, SKOS_THES.subordinateArray
-            ),
-            matches={
-                match_type: self._create_from_subject_predicate(
-                    graph, subject, URIRef(SKOS[match_type + "Match"])
-                )
-                for match_type in Concept.matchtypes
-            },
-        )
+        id_ = self._get_id_for_subject(graph, subject, uri)
+        with exception_context(f"concept {id_!r}"):
+            return Concept(
+                id=id_,
+                uri=uri,
+                concept_scheme=self.concept_scheme,
+                labels=self._create_from_subject_types(
+                    graph, subject, self._scrub_label_types()
+                ),
+                notes=self._create_from_subject_types(graph, subject, Note.valid_types),
+                sources=self._create_sources(graph, subject),
+                broader=self._create_from_subject_predicate(
+                    graph, subject, SKOS.broader
+                ),
+                narrower=self._create_from_subject_predicate(
+                    graph, subject, SKOS.narrower
+                ),
+                related=self._create_from_subject_predicate(
+                    graph, subject, SKOS.related
+                ),
+                member_of=[],
+                subordinate_arrays=self._create_from_subject_predicate(
+                    graph, subject, SKOS_THES.subordinateArray
+                ),
+                matches={
+                    match_type: self._create_from_subject_predicate(
+                        graph, subject, URIRef(SKOS[match_type + "Match"])
+                    )
+                    for match_type in Concept.matchtypes
+                },
+                extra_data=self._load_extra_data(graph, subject),
+            )
 
     def _create_collection(self, graph: Graph, subject: Node) -> Collection:
         uri = self.to_text(subject)
-        return Collection(
-            id=self._get_id_for_subject(graph, subject, uri),
-            uri=uri,
-            concept_scheme=self.concept_scheme,
-            labels=self._create_from_subject_types(
-                graph, subject, self._scrub_label_types()
-            ),
-            notes=self._create_from_subject_types(graph, subject, Note.valid_types),
-            sources=self._create_sources(graph, subject),
-            members=self._create_from_subject_predicate(graph, subject, SKOS.member),
-            member_of=[],
-            superordinates=self._create_from_subject_predicate(
-                graph, subject, SKOS_THES.superOrdinate
-            ),
-        )
+        id_ = self._get_id_for_subject(graph, subject, uri)
+        with exception_context(f"collection {id_!r}"):
+            return Collection(
+                id=id_,
+                uri=uri,
+                concept_scheme=self.concept_scheme,
+                labels=self._create_from_subject_types(
+                    graph, subject, self._scrub_label_types()
+                ),
+                notes=self._create_from_subject_types(graph, subject, Note.valid_types),
+                sources=self._create_sources(graph, subject),
+                members=self._create_from_subject_predicate(
+                    graph, subject, SKOS.member
+                ),
+                member_of=[],
+                superordinates=self._create_from_subject_predicate(
+                    graph, subject, SKOS_THES.superOrdinate
+                ),
+                extra_data=self._load_extra_data(graph, subject),
+            )
 
     def _get_in_scheme(self, graph: Graph, subject: Node) -> str | None:
         """
@@ -339,15 +385,22 @@ class RDFProvider(MemoryProvider):
         :param subject: Subject to get the sources for.
         :returns: A :class:`list` of :class:`skosprovider.skos.Source` objects.
         """
-        return [
-            Source(
-                self.to_text(citation),
-                "HTML" if citation.datatype == RDF.HTML else None,
-                uri=self.to_text(source) if isinstance(source, URIRef) else None,
-            )
-            for source in graph.objects(subject, DCTERMS.source)
-            for citation in graph.objects(source, DCTERMS.bibliographicCitation)
-        ]
+        sources = []
+        for source_node in graph.objects(subject, DCTERMS.source):
+            for citation in graph.objects(source_node, DCTERMS.bibliographicCitation):
+                source = Source(
+                    self.to_text(citation),
+                    "HTML" if citation.datatype == RDF.HTML else None,
+                    uri=(
+                        self.to_text(source_node)
+                        if isinstance(source_node, URIRef)
+                        else None
+                    ),
+                )
+                with exception_context(repr(source)):
+                    source.extra_data = self._load_extra_data(graph, source_node)
+                sources.append(source)
+        return sources
 
     def _create_languages(self, graph: Graph, subject: Node) -> set[str]:
         """

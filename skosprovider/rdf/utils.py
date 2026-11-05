@@ -15,7 +15,12 @@ from rdflib.term import BNode
 from rdflib.term import Node
 from rdflib.term import URIRef
 from skosprovider.exceptions import NotFoundException
+from skosprovider.extra_data import SkosObject
+from skosprovider.extra_data import exception_context
+from skosprovider.extra_data import ignore
 from skosprovider.providers import VocabularyProvider
+from skosprovider.rdf.extra_data import RdfExtraDataDumper
+from skosprovider.rdf.extra_data import dump_extra_data_graph
 from skosprovider.rdf.providers import SKOS_THES
 from skosprovider.skos import Collection
 from skosprovider.skos import Concept
@@ -24,24 +29,36 @@ from skosprovider.utils import add_lang_to_html
 from skosprovider.utils import extract_language
 
 
-def rdf_dumper(provider: VocabularyProvider) -> Graph:
+def rdf_dumper(
+    provider: VocabularyProvider, *, extra_data_dumper: RdfExtraDataDumper = ignore
+) -> Graph:
     """
     Dump a provider to a format that can be passed to a
     :class:`skosprovider.rdf.providers.RDFProvider`.
 
     :param skosprovider.providers.VocabularyProvider provider: The provider
         that wil be turned into an :class:`rdflib.graph.Graph`.
+    :param extra_data_dumper: A callable that receives the concept scheme, a
+        concept, collection or source and returns a :class:`rdflib.Graph` or
+        `None`. The graph is merged into the dump. See
+        :mod:`skosprovider.rdf.extra_data` for the available dumpers. Defaults
+        to :func:`~skosprovider.extra_data.ignore`.
 
     :rtype: :class:`rdflib.graph.Graph`
     """
-    graph = rdf_conceptscheme_dumper(provider)
+    graph = rdf_conceptscheme_dumper(provider, extra_data_dumper=extra_data_dumper)
     for concept_or_collection in provider.get_all():
-        _add_concept_or_collection(graph, provider, concept_or_collection["id"])
+        _add_concept_or_collection(
+            graph, provider, concept_or_collection["id"], extra_data_dumper
+        )
     return graph
 
 
 def rdf_concept_or_collection_dumper(
-    provider: VocabularyProvider, id_: str | int
+    provider: VocabularyProvider,
+    id_: str | int,
+    *,
+    extra_data_dumper: RdfExtraDataDumper = ignore,
 ) -> Graph:
     """
     Dump one concept or collection from a provider to a format that can be passed to a
@@ -50,34 +67,55 @@ def rdf_concept_or_collection_dumper(
     :param skosprovider.providers.VocabularyProvider provider: The provider
         that contains the concept or collection.
     :param id_: The id of the concept or collection to dump.
+    :param extra_data_dumper: See :func:`rdf_dumper`.
 
     :raises skosprovider.exceptions.NotFoundException: If the provider
         has no concept or collection with this id.
     :rtype: :class:`rdflib.graph.Graph`
     """
-    graph = _create_concept_scheme_graph(provider)
-    _add_concept_or_collection(graph, provider, id_)
+    graph = _create_concept_scheme_graph(provider, extra_data_dumper)
+    _add_concept_or_collection(graph, provider, id_, extra_data_dumper)
     return graph
 
 
-def rdf_conceptscheme_dumper(provider: VocabularyProvider) -> Graph:
+def rdf_conceptscheme_dumper(
+    provider: VocabularyProvider, *, extra_data_dumper: RdfExtraDataDumper = ignore
+) -> Graph:
     """
     Dump all information of the conceptscheme of a provider to a format that can be passed to a
     :class:`skosprovider.rdf.providers.RDFProvider`.
 
     :param skosprovider.providers.VocabularyProvider provider: The provider
         that wil be turned into an :class:`rdflib.graph.Graph`.
+    :param extra_data_dumper: See :func:`rdf_dumper`.
 
     :rtype: :class:`rdflib.graph.Graph`
     """
-    graph = _create_concept_scheme_graph(provider)
+    graph = _create_concept_scheme_graph(provider, extra_data_dumper)
     concept_scheme = URIRef(provider.concept_scheme.uri)
     for top_concept in provider.get_top_concepts():
         graph.add((concept_scheme, SKOS.hasTopConcept, URIRef(top_concept["uri"])))
     return graph
 
 
-def _create_concept_scheme_graph(provider: VocabularyProvider) -> Graph:
+def _add_extra_data(
+    graph: Graph,
+    extra_data_dumper: RdfExtraDataDumper,
+    obj: SkosObject | ConceptScheme,
+    node: Node,
+) -> None:
+    """
+    Merge the extra_data that the dumper returns for an object into the graph.
+    """
+    extra_data = dump_extra_data_graph(extra_data_dumper, obj, node)
+    for prefix, namespace in extra_data.namespaces():
+        graph.namespace_manager.bind(prefix, namespace, override=False)
+    graph += extra_data
+
+
+def _create_concept_scheme_graph(
+    provider: VocabularyProvider, extra_data_dumper: RdfExtraDataDumper
+) -> Graph:
     """
     Create a graph with the conceptscheme of a provider, without its top concepts.
     """
@@ -91,10 +129,12 @@ def _create_concept_scheme_graph(provider: VocabularyProvider) -> Graph:
     _add_in_dataset(graph, subject, provider)
     graph.add((subject, RDF.type, SKOS.ConceptScheme))
     graph.add((subject, DCTERMS.identifier, Literal(provider.metadata["id"])))
-    _add_labels(graph, concept_scheme, subject)
-    _add_notes(graph, concept_scheme, subject)
-    _add_sources(graph, concept_scheme, subject)
-    _add_languages(graph, concept_scheme, subject)
+    with exception_context(f"concept scheme {concept_scheme.uri!r}"):
+        _add_labels(graph, concept_scheme, subject)
+        _add_notes(graph, concept_scheme, subject)
+        _add_sources(graph, concept_scheme, subject, extra_data_dumper)
+        _add_languages(graph, concept_scheme, subject)
+        _add_extra_data(graph, extra_data_dumper, concept_scheme, subject)
     return graph
 
 
@@ -152,7 +192,10 @@ def _add_relations(
 
 
 def _add_concept_or_collection(
-    graph: Graph, provider: VocabularyProvider, id_: str | int
+    graph: Graph,
+    provider: VocabularyProvider,
+    id_: str | int,
+    extra_data_dumper: RdfExtraDataDumper,
 ) -> None:
     """
     Adds a concept or collection to the graph.
@@ -160,6 +203,8 @@ def _add_concept_or_collection(
     :param rdflib.graph.Graph graph: The graph to add statements to.
     :param skosprovider.providers.VocabularyProvider provider: Provider
     :param id_: The id of a concept or collection.
+    :param extra_data_dumper: Dumps the extra_data of the concept or
+        collection and of its sources.
     """
     concept_or_collection = provider.get_by_id(id_)
     if not concept_or_collection:
@@ -172,7 +217,11 @@ def _add_concept_or_collection(
     graph.add((subject, SKOS.inScheme, concept_scheme))
     _add_labels(graph, concept_or_collection, subject)
     _add_notes(graph, concept_or_collection, subject)
-    _add_sources(graph, concept_or_collection, subject)
+    with exception_context(
+        f"{concept_or_collection.type} {concept_or_collection.id!r}"
+    ):
+        _add_sources(graph, concept_or_collection, subject, extra_data_dumper)
+        _add_extra_data(graph, extra_data_dumper, concept_or_collection, subject)
     if isinstance(concept_or_collection, Concept):
         concept = concept_or_collection
         graph.add((subject, RDF.type, SKOS.Concept))
@@ -278,7 +327,10 @@ def _add_notes(
 
 
 def _add_sources(
-    graph: Graph, item: ConceptScheme | Concept | Collection, subject: Node
+    graph: Graph,
+    item: ConceptScheme | Concept | Collection,
+    subject: Node,
+    extra_data_dumper: RdfExtraDataDumper,
 ) -> None:
     """
     Add sources to the RDF graph.
@@ -287,6 +339,7 @@ def _add_sources(
     :param item: A :class:`skosprovider.skos.ConceptScheme`,
         :class:`skosprovider.skos.Concept` or :class:`skosprovider.skos.Collection`
     :param subject: The RDF subject to add the sources to.
+    :param extra_data_dumper: Dumps the extra_data of every source.
     """
     for source in item.sources:
         source_node = URIRef(source.uri) if source.uri else BNode()
@@ -297,6 +350,8 @@ def _add_sources(
             citation = Literal(source.citation, datatype=RDF.HTML, normalize=False)
         graph.add((source_node, DCTERMS.bibliographicCitation, citation))
         graph.add((subject, DCTERMS.source, source_node))
+        with exception_context(repr(source)):
+            _add_extra_data(graph, extra_data_dumper, source, source_node)
 
 
 def _add_languages(graph: Graph, concept_scheme: ConceptScheme, subject: Node) -> None:
