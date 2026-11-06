@@ -89,9 +89,9 @@ class Registry:
 
     def register_provider(self, provider):
         """
-        Register a :class:`skosprovider.providers.VocabularyProvider`.
+        Register a :class:`skosprovider.provider.VocabularyProvider`.
 
-        :param skosprovider.providers.VocabularyProvider provider: The provider
+        :param skosprovider.provider.VocabularyProvider provider: The provider
             to register.
         :raises RegistryException: A provider with this id or uri has already
             been registered.
@@ -120,7 +120,7 @@ class Registry:
         Remove the provider with the given id or :term:`URI`.
 
         :param str id: The identifier for the provider.
-        :returns: A :class:`skosprovider.providers.VocabularyProvider` or
+        :returns: A :class:`skosprovider.provider.VocabularyProvider` or
             `False` if the id is unknown.
         """
         if id in self.providers:
@@ -142,7 +142,7 @@ class Registry:
         :param str id: The identifier for the provider. This can either be the
             id with which it was registered or the :term:`URI` of the conceptscheme
             that the provider services.
-        :returns: A :class:`skosprovider.providers.VocabularyProvider`
+        :returns: A :class:`skosprovider.provider.VocabularyProvider`
             or `False` if the id or uri is unknown.
         """
         if id in self.providers:
@@ -173,7 +173,7 @@ class Registry:
             or :term:`URIs <URI>`.
         :param str subject: Only return providers with this subject.
         :returns: A list of
-            :class:`providers <skosprovider.providers.VocabularyProvider>`
+            :class:`providers <skosprovider.provider.VocabularyProvider>`
         """
         if "ids" in kwargs:
             ids = [self.concept_scheme_uri_map.get(id, id) for id in kwargs["ids"]]
@@ -233,9 +233,9 @@ class Registry:
                 }}, language='nl')
 
         :param dict query: The query parameters that will be passed on to each
-            :meth:`~skosprovider.providers.VocabularyProvider.find` method of
+            :meth:`~skosprovider.provider.VocabularyProvider.find` method of
             the selected.
-            :class:`providers <skosprovider.providers.VocabularyProvider>`.
+            :class:`providers <skosprovider.provider.VocabularyProvider>`.
         :param dict providers: Optional. If present, it should be a dictionary.
             This dictionary can contain any of the keyword arguments available
             to the :meth:`get_providers` method. The query will then only

@@ -1,6 +1,6 @@
 """
 This script demonstrates dumping a
-:class:`skosprovider.providers.SimpleCsvProvider` as a RDF Graph. In this
+:class:`skosprovider.csv.provider.SimpleCsvProvider` as a RDF Graph. In this
 case, `n3` serialisation is used, other serialisations are available through
 :mod:`rdflib`.
 """
@@ -8,7 +8,7 @@ case, `n3` serialisation is used, other serialisations are available through
 import csv
 import os
 
-from skosprovider.providers import SimpleCsvProvider
+from skosprovider.csv.provider import SimpleCsvProvider
 from skosprovider.rdf.dumper import rdf_dumper
 from skosprovider.skos import ConceptScheme
 from skosprovider.skos import Label

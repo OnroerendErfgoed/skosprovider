@@ -6,14 +6,15 @@ from rdflib import Literal
 from rdflib import URIRef
 from rdflib.namespace import RDF
 from rdflib.namespace import SKOS
+
+from skosprovider.dictionary.dumper import dict_dumper
 from skosprovider.exceptions import ConceptSchemeException
 from skosprovider.exceptions import InvalidDataException
+from skosprovider.rdf.provider import RDFProvider
 from skosprovider.skos import Collection
 from skosprovider.skos import ConceptScheme
 from skosprovider.skos import Note
-from skosprovider.utils import dict_dumper
 
-from skosprovider.rdf.providers import RDFProvider
 from . import TEST_DIR
 
 
@@ -390,3 +391,97 @@ class TestSources:
             ("Anonymous source.", None),
             ("Source with a uri.", "http://id.trees.org/source/1"),
         ]
+
+    def test_source_with_rdf_value(self):
+        graph = Graph().parse(
+            data="""
+            @prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+            @prefix dct: <http://purl.org/dc/terms/> .
+            @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+            <http://id.trees.org/1> a skos:Concept ;
+                dct:source <http://id.trees.org/source/1> .
+            <http://id.trees.org/source/1> rdf:value "Source with a uri." .
+            """,
+            format="turtle",
+        )
+        provider = RDFProvider({"id": "TREES"}, graph)
+        source = provider.get_by_id("http://id.trees.org/1").sources[0]
+        assert (source.citation, source.uri) == (
+            "Source with a uri.",
+            "http://id.trees.org/source/1",
+        )
+
+
+NODES = """
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix skosxl: <http://www.w3.org/2008/05/skos-xl#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+
+<http://id.trees.org/1> a skos:Concept ;
+    skos:prefLabel "The Larch"@en , "De Lariks"@nl ;
+    skosxl:prefLabel <http://id.trees.org/labels/1> ;
+    skosxl:altLabel [ a skosxl:Label ; skosxl:literalForm "Lork"@nl ] ,
+        [ a skosxl:Label ] ;
+    skos:definition "A type of tree."@en ;
+    skos:note <http://id.trees.org/notes/1> , [ rdf:value "A blank note."@en ] ,
+        [ dct:creator "John Doe" ] .
+
+<http://id.trees.org/labels/1> a skosxl:Label ;
+    skosxl:literalForm "De Lariks"@nl ;
+    dct:type <http://example.org/label-type/standard> .
+
+<http://id.trees.org/notes/1>
+    rdf:value "<p>A note with a uri.</p>"^^rdf:HTML .
+"""
+
+
+class TestNodes:
+    @pytest.fixture
+    def larch(self):
+        graph = Graph().parse(data=NODES, format="turtle")
+        return RDFProvider({"id": "TREES"}, graph).get_by_id("http://id.trees.org/1")
+
+    def test_xl_labels(self, larch):
+        assert sorted(
+            (label.label, label.type, label.language, label.uri, label.label_types)
+            for label in larch.labels
+        ) == [
+            (
+                "De Lariks",
+                "prefLabel",
+                "nl",
+                "http://id.trees.org/labels/1",
+                ["http://example.org/label-type/standard"],
+            ),
+            ("Lork", "altLabel", "nl", None, []),
+            ("The Larch", "prefLabel", "en", None, []),
+        ]
+
+    def test_note_nodes(self, larch):
+        assert sorted(
+            (note.note, note.type, note.language, note.markup, note.uri)
+            for note in larch.notes
+        ) == [
+            (
+                "<p>A note with a uri.</p>",
+                "note",
+                "und",
+                "HTML",
+                "http://id.trees.org/notes/1",
+            ),
+            ("A blank note.", "note", "en", None, None),
+            ("A type of tree.", "definition", "en", None, None),
+        ]
+
+    def test_loader_receives_xl_label_and_note_nodes(self):
+        graph = Graph().parse(data=NODES, format="turtle")
+        nodes = []
+
+        def loader(_graph, node):
+            nodes.append(node)
+
+        RDFProvider({"id": "TREES"}, graph, extra_data_loader=loader)
+        assert URIRef("http://id.trees.org/labels/1") in nodes
+        assert URIRef("http://id.trees.org/notes/1") in nodes
+        assert len(nodes) == 5

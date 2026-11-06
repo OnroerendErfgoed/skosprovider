@@ -9,14 +9,16 @@ from rdflib.namespace import RDF
 from rdflib.namespace import SKOS
 from rdflib.term import Literal
 from rdflib.term import URIRef
-from skosprovider.exceptions import NotFoundException
-from skosprovider.providers import DictionaryProvider
-from skosprovider.skos import ConceptScheme, Label, Note
 
+from skosprovider.dictionary.provider import DictionaryProvider
+from skosprovider.exceptions import NotFoundException
 from skosprovider.rdf.dumper import rdf_concept_or_collection_dumper
 from skosprovider.rdf.dumper import rdf_conceptscheme_dumper
 from skosprovider.rdf.dumper import rdf_dumper
-from skosprovider.rdf.providers import RDFProvider
+from skosprovider.rdf.provider import RDFProvider
+from skosprovider.skos import ConceptScheme
+from skosprovider.skos import Label
+from skosprovider.skos import Note
 
 SKOS_THES = Namespace("http://purl.org/iso25964/skos-thes#")
 

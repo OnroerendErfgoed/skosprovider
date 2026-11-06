@@ -21,9 +21,9 @@ require different thesauri or would need to be able to talk to existing vocabula
 systems.
 
 Some sample providers are present in this package. The 
-:class:`skosprovider.providers.DictionaryProvider` uses a simple python dict 
+:class:`skosprovider.dictionary.provider.DictionaryProvider` uses a simple python dict 
 as the datastore. It can be considered the reference implementation for the 
-:class:`skosprovider.providers.VocabularyProvider` interface. Most likely you 
+:class:`skosprovider.provider.VocabularyProvider` interface. Most likely you 
 will want to implement a provider for your own SKOS, vocabulary or 
 thesaurus system.
 
@@ -34,29 +34,29 @@ Currently the following other providers exist:
  
 * `Skosprovider_sqlalchemy <http://skosprovider-sqlalchemy.readthedocs.org/en/latest/>`_: 
   An implementation of the 
-  :class:`VocabularyProvider <skosprovider.providers.VocabularyProvider>` 
+  :class:`VocabularyProvider <skosprovider.provider.VocabularyProvider>` 
   interface with a `SQLAlchemy <http://www.sqlalchemy.org>`_ backend. This allows
   using a RDBMS for reading, but also writing, :term:`SKOS` concepts.
 * :mod:`skosprovider.rdf`:
   An implementation of the
-  :class:`VocabularyProvider <skosprovider.providers.VocabularyProvider>`
+  :class:`VocabularyProvider <skosprovider.provider.VocabularyProvider>`
   interface with a `RDFLib <https://rdflib.readthedocs.org/en/latest/>`_
   backend. This allows using a SKOS RDF file as the source for a provider,
   but also dumping a skosprovider to a SKOS RDF file. This used to be the
   separate ``skosprovider_rdf`` package.
 * `Skosprovider_atramhasis <https://skosprovider-atramhasis.readthedocs.org>`_:
-  The :class:`AtramhasisProvider <skosprovider.providers.AtramhasisProvider>` 
+  The :class:`AtramhasisProvider <skosprovider.provider.AtramhasisProvider>` 
   lets you interact with an Atramhasis_ instance. 
 * `Skosprovider_getty <http://skosprovider-getty.readthedocs.org/en/latest/>`_:
   An implemenation of the 
-  :class:`VocabularyProvider <skosprovider.providers.VocabularyProvider>` 
+  :class:`VocabularyProvider <skosprovider.provider.VocabularyProvider>` 
   against the Linked Open Data vocabularies published by the Getty Research 
   Institute at `http://vocab.getty.edu <http://vocab.getty.edu>`_ such as the
   `Art and Architecture Thesaurus (AAT)` and the 
   `Thesaurus of Geographic Names (TGN)`.
 * `Skosprovider_heritagedata <http://skosprovider-heritagedata.readthedocs.org>`_:
   An implementation of the
-  :class:`VocabularyProvider <skosprovider.providers.VocabularyProvider>` against
+  :class:`VocabularyProvider <skosprovider.provider.VocabularyProvider>` against
   the vocabularies published by EH, RCAHMS and RCAHMW at 
   `heritagedata.org <http://heritagedata.org>`_.
 
@@ -91,7 +91,7 @@ In a few places we've deviated a bit from the :term:`SKOS` standard:
   by Skosprovider since version 0.4.0.
 * The :term:`SKOS` standard allows a `concept` that is marked as a `topConcept` 
   to have a broader `concept`. Skosprovider expects that the concepts returned
-  by the :meth:`skosprovider.providers.VocabularyProvider.get_top_concepts` do
+  by the :meth:`skosprovider.provider.VocabularyProvider.get_top_concepts` do
   not have any broader concepts.
 * The SKOS ontology only describes a SKOS:member predicate to indicate that a
   collection has certain members. There's an implicit reverse side to this 
@@ -112,7 +112,7 @@ In a few places we've deviated a bit from the :term:`SKOS` standard:
   default this is set to True. If you want to model a collection that does not
   contain narrower concepts of it's superordinate, set it to False. This will
   mainly stop search expansion using the
-  :meth:`skosprovider.providers.VocabularyProvider.expand` method.
+  :meth:`skosprovider.provider.VocabularyProvider.expand` method.
 
 Support
 -------

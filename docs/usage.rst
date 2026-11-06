@@ -22,7 +22,7 @@ format the data should be in when the provider receives it. So, while a client
 knows that each provider has a method to find a concept by an id and what this 
 method will return, the client does not need to know where the provider goes
 to find this concept. One provider might look this up in a 
-:class:`CSV file <skosprovider.providers.SimpleCsvProvider>`,
+:class:`CSV file <skosprovider.csv.provider.SimpleCsvProvider>`,
 another one in a :class:`database <skosprovider_sqlalchemy.providers.SQLAlchemyProvider>` 
 and yet another one through a 
 :class:`webservice <skosprovider_heritagedata.providers.HeritagedataProvider>`.
@@ -31,10 +31,10 @@ view of the :mod:`SKOS data model <skosprovider.skos>`.
 
 Because of this, the only part where the different providers are different is
 when instantiating the provider, since they need to be configured for their 
-data source. Eg., the :class:`skosprovider.providers.DictionaryProvider` is
+data source. Eg., the :class:`skosprovider.dictionary.provider.DictionaryProvider` is
 a very simple provider that requires a list of dictionaries to operate on.
 Apart from this one very specific data element, there are a few configuration
-:meth:`parameters <skosprovider.providers.VocabularyProvider.__init__>` that 
+:meth:`parameters <skosprovider.provider.VocabularyProvider.__init__>` that 
 are passed to every existing provider. Every provider requires that a 
 parameter `metadata` is passed to it. This is a dictionary that has one 
 required parameter, `id`. This is an id that is assigned to the provider. It's
@@ -73,13 +73,13 @@ First there are methods that return a single :class:`skosprovider.skos.Concept` 
 an individual item based on one of two possible identifiers.
 
 The first method, 
-:meth:`~skosprovider.providers.VocabularyProvider.get_by_id`, 
+:meth:`~skosprovider.provider.VocabularyProvider.get_by_id`, 
 retrieves an item based on an id that is known internally by the provider. This
 id is not necessarily globally unique. It's only required to be unique to a 
 certain provider.
 
 The second method, 
-:meth:`~skosprovider.providers.VocabularyProvider.get_by_uri`, 
+:meth:`~skosprovider.provider.VocabularyProvider.get_by_uri`, 
 retrieves an item based on it's :term:`URI`. Since a :term:`URI` is guaranteed
 to be globally unique. Quite often the :term:`URI` wil also contain the `id`,
 but this is not mandatory.
@@ -105,26 +105,26 @@ concepts and collections. This way, arbitrary sorting order can be created by
 the editor of a scheme. When sorting, the `sort_order` keyword can be used to
 set the sort order.
 
-One method, :meth:`~skosprovider.providers.VocabularyProvider.get_all`
+One method, :meth:`~skosprovider.provider.VocabularyProvider.get_all`
 returns all concept and collections in a certain provider. It's rarely used
 and might possibly not make sense in very large providers. It's mainly there
 as a convenience method for small providers and in testing situations. More
-useful is :meth:`~skosprovider.providers.VocabularyProvider.get_top_concepts`.
+useful is :meth:`~skosprovider.provider.VocabularyProvider.get_top_concepts`.
 This methods returns all top concepts (not collections) in the provider. These
 are the concepts that have no 
 :attr:`broader concepts <skosprovider.skos.Concept.broader>`.
 
 There are also two related methods that can help in building a display
-hierarchy. As opposed to :meth:`~skosprovider.providers.VocabularyProvider.get_top_concepts`,
+hierarchy. As opposed to :meth:`~skosprovider.provider.VocabularyProvider.get_top_concepts`,
 these do return both concepts and collections and can thus actually be used
 to create a sensible display hierarchy for a vocabulary. The first one,
-:meth:`~skosprovider.providers.VocabularyProvider.get_top_display`, returns
+:meth:`~skosprovider.provider.VocabularyProvider.get_top_display`, returns
 the top of a display hierarchy. These would be the concepts and collections
 that form the top of this hierarchy. To descend the hierachy, you would call
-:meth:`~skosprovider.providers.VocabularyProvider.get_children_display`.
+:meth:`~skosprovider.provider.VocabularyProvider.get_children_display`.
 
 A final method in this group of methods is actually the most important one
-in this group. By calling :meth:`skosprovider.providers.VocabularyProvider.find`,
+in this group. By calling :meth:`skosprovider.provider.VocabularyProvider.find`,
 you can search the provider for concepts or collections matching your criteria.
 You do this by passing in a ``query`` parameter to this method. This way you
 can ask the provider to search for certain labels (eg. `churches`), to only
@@ -158,7 +158,7 @@ languages labels should be returned using the ``language`` keyword.
 
 Apart from the two categories, there are a couple more miscellaneous methods. 
 The most interesting one of these is 
-:meth:`skosprovider.providers.VocabularyProvider.expand`. This methods take
+:meth:`skosprovider.provider.VocabularyProvider.expand`. This methods take
 a certain concept or collection id as argument and returns a list of all
 concept ids that are "underneath" this concept or collection. This is mainly
 intended to be used when querying datasets. It allows a client to broaden the

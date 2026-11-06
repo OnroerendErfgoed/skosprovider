@@ -3,7 +3,8 @@ import os
 import pytest
 from rdflib import Graph
 
-from skosprovider.rdf.providers import RDFProvider
+from skosprovider.rdf.provider import RDFProvider
+
 from . import TEST_DIR
 
 
@@ -35,7 +36,7 @@ def materials_provider():
     with open(path, "r") as f:
         materials_data = json.load(f)["materiaal"]
 
-    from skosprovider.providers import DictionaryProvider
+    from skosprovider.dictionary.provider import DictionaryProvider
     from skosprovider.skos import ConceptScheme
     from skosprovider.skos import Label
     from skosprovider.skos import Note

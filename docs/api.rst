@@ -8,12 +8,50 @@ Skos module
 .. automodule:: skosprovider.skos
    :members:
 
-Providers module
-----------------
+Provider module
+---------------
 
-.. automodule:: skosprovider.providers
-   :members: VocabularyProvider, MemoryProvider, DictionaryProvider, SimpleCsvProvider
+.. automodule:: skosprovider.provider
+   :members: VocabularyProvider, MemoryProvider
    :special-members: __init__
+
+Csv Provider module
+-------------------
+
+.. automodule:: skosprovider.csv.provider
+   :members:
+   :special-members: __init__
+
+Csv Extra data module
+---------------------
+
+.. automodule:: skosprovider.csv.extra_data
+   :members:
+
+Csv Dumper module
+-----------------
+
+.. automodule:: skosprovider.csv.dumper
+   :members:
+
+Dictionary Provider module
+--------------------------
+
+.. automodule:: skosprovider.dictionary.provider
+   :members:
+   :special-members: __init__
+
+Dictionary Extra data module
+----------------------------
+
+.. automodule:: skosprovider.dictionary.extra_data
+   :members:
+
+Dictionary Dumper module
+------------------------
+
+.. automodule:: skosprovider.dictionary.dumper
+   :members:
 
 Registry module
 ---------------
@@ -27,10 +65,23 @@ Uri module
 .. automodule:: skosprovider.uri
    :members:
 
-JsonLd module
--------------
+JsonLd Provider module
+----------------------
 
-.. automodule:: skosprovider.jsonld
+.. automodule:: skosprovider.jsonld.provider
+   :members:
+   :special-members: __init__
+
+JsonLd Extra data module
+------------------------
+
+.. automodule:: skosprovider.jsonld.extra_data
+   :members:
+
+JsonLd Dumper module
+--------------------
+
+.. automodule:: skosprovider.jsonld.dumper
    :members:
 
 Extra data module
@@ -51,12 +102,18 @@ Utils module
 .. automodule:: skosprovider.utils
    :members:
 
-RDF Providers module
---------------------
+RDF Provider module
+-------------------
 
-.. automodule:: skosprovider.rdf.providers
+.. automodule:: skosprovider.rdf.provider
    :members:
    :special-members: __init__
+
+RDF Extra data module
+---------------------
+
+.. automodule:: skosprovider.rdf.extra_data
+   :members:
 
 RDF Dumper module
 -----------------
