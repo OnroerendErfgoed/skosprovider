@@ -43,6 +43,8 @@ flake8-import-order==0.19.2
     # via skosprovider (pyproject.toml)
 frozendict==2.4.7
     # via pyld
+html5rdf==1.2.1
+    # via rdflib
 identify==2.6.18
     # via pre-commit
 idna==3.11

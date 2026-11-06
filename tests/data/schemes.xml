@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:skos="http://www.w3.org/2004/02/skos/core#"
+>
+  <rdf:Description rdf:about="https://id.erfgoed.net/toepassingen">
+    <skos:prefLabel xml:lang="nl">Toepassingen</skos:prefLabel>
+    <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#ConceptScheme"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://id.erfgoed.net/applicaties">
+    <skos:prefLabel xml:lang="nl">Applicaties</skos:prefLabel>
+    <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#ConceptScheme"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://id.erfgoed.net/toepassingen/3">
+    <skos:prefLabel xml:lang="nl">Premies</skos:prefLabel>
+	<rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+	<skos:inScheme>https://id.erfgoed.net/toepassingen</skos:inScheme>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://id.erfgoed.net/toepassingen/1">
+    <skos:prefLabel xml:lang="nl">Adviezen</skos:prefLabel>
+	<rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+	<skos:inScheme>https://id.erfgoed.net/toepassingen</skos:inScheme>
+  </rdf:Description>
+  <rdf:Description rdf:about="https://id.erfgoed.net/applicaties/2">
+    <rdf:type rdf:resource="http://www.w3.org/2004/02/skos/core#Concept"/>
+	<skos:prefLabel xml:lang="nl">Beschermingen</skos:prefLabel>
+	<skos:inScheme>https://id.erfgoed.net/applicaties</skos:inScheme>
+  </rdf:Description>
+</rdf:RDF>

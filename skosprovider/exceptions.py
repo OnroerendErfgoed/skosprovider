@@ -28,6 +28,28 @@ class ProviderUnavailableException(SkosproviderException):
         return self.message
 
 
+class InvalidDataException(SkosproviderException, ValueError):
+    '''
+    Raised when data passed to skosprovider is not valid.
+
+    Extends :class:`ValueError` for backwards compatibility.
+    '''
+
+
+class ConceptSchemeException(SkosproviderException, RuntimeError):
+    '''
+    Raised when a provider can not determine which conceptscheme to use.
+
+    Extends :class:`RuntimeError` for backwards compatibility.
+    '''
+
+
+class NotFoundException(SkosproviderException, LookupError):
+    '''
+    Raised when a concept or collection could not be found.
+    '''
+
+
 class ExtraDataException(SkosproviderException):
     '''
     Raised when loading or dumping the extra_data of a skos object fails.

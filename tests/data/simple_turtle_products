@@ -1,0 +1,52 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#>.
+@prefix ex: <http://www.products.com/>.
+@prefix owl: <http://www.w3.org/2002/07/owl#>.
+@prefix dct: <http://purl.org/dc/terms/>.
+@prefix dc: <http://purl.org/dc/elements/1.1/>.
+
+ex:Scheme rdf:type owl:Class;
+  a skos:ConceptScheme;
+  skos:prefLabel "Products"@en;
+  dct:language "en";
+  dct:language "nl";
+  dc:language "BE-nl-Latn".
+
+ex:Stuff rdf:type owl:Class;
+  a skos:Collection;
+  skos:inScheme ex:Scheme;
+  skos:prefLabel "Stuff people can buy"@en;
+  skos:altLabel "Things you can find in a store"@en;
+  skos:altLabel "Producten uit de winkel"@nl;
+  skos:member ex:Product;
+  skos:member ex:Perfume;
+  skos:member ex:Jewellery.
+
+ex:Product rdf:type owl:Class;
+  a skos:Concept;
+  skos:inScheme ex:Scheme;
+  skos:prefLabel "Product"@en;
+  skos:altLabel "Produkt"@nl;
+  skos:altLabel "Produkt"@nl;
+  skos:narrower ex:Jewellery;
+  skos:narrower ex:Perfume.
+
+ex:Jewellery rdf:type owl:Class;
+  a skos:Concept;
+  skos:inScheme ex:Scheme;
+  skos:prefLabel "Jewellery";
+  skos:altLabel "Jewelry"@en;
+  skos:altLabel "Jewelery"@en;
+  skos:broader ex:Product;
+  skos:related ex:Perfume;
+  skos:note "Everything on your body that reflects when the sun shines"@en;
+  skos:example "A watch".
+  
+ex:Perfume rdf:type owl:Class;
+  a skos:Concept;
+  skos:inScheme ex:Scheme;
+  skos:prefLabel "Perfume";
+  skos:altLabel "Parfum"@nl;
+  skos:altLabel "Reukwaar"@nl;
+  skos:broader ex:Product;
+  skos:related ex:Jewellery.
