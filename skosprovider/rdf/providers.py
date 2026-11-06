@@ -67,10 +67,9 @@ class RDFProvider(MemoryProvider):
         """
         :param extra_data_loader: A callable that receives the graph and the
             node of a single concept scheme, concept, collection or source and
-            returns a :class:`rdflib.Graph` or `None`. See
-            :mod:`skosprovider.rdf.extra_data` for the available loaders.
-            Defaults to :func:`~skosprovider.extra_data.ignore`. A concept
-            scheme passed as `concept_scheme` keeps its own extra_data.
+            returns a :class:`rdflib.Graph` or `None`. Defaults to
+            :func:`~skosprovider.extra_data.ignore`. A concept scheme passed as
+            `concept_scheme` keeps its own extra_data.
         """
         self.extra_data_loader = extra_data_loader
         self.check_in_scheme = False

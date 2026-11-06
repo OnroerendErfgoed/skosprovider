@@ -9,7 +9,7 @@ import csv
 import os
 
 from skosprovider.providers import SimpleCsvProvider
-from skosprovider.rdf.utils import rdf_dumper
+from skosprovider.rdf.dumper import rdf_dumper
 from skosprovider.skos import ConceptScheme
 from skosprovider.skos import Label
 from skosprovider.skos import Note

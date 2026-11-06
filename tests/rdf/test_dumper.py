@@ -13,7 +13,9 @@ from skosprovider.exceptions import NotFoundException
 from skosprovider.providers import DictionaryProvider
 from skosprovider.skos import ConceptScheme, Label, Note
 
-from skosprovider.rdf import utils
+from skosprovider.rdf.dumper import rdf_concept_or_collection_dumper
+from skosprovider.rdf.dumper import rdf_conceptscheme_dumper
+from skosprovider.rdf.dumper import rdf_dumper
 from skosprovider.rdf.providers import RDFProvider
 
 SKOS_THES = Namespace("http://purl.org/iso25964/skos-thes#")
@@ -143,7 +145,7 @@ def tree_provider():
 
 class TestRDFDumperMaterials:
     def test_dump_dictionary_to_rdf(self, materials_provider):
-        graph_dump = utils.rdf_dumper(materials_provider)
+        graph_dump = rdf_dumper(materials_provider)
         lith_mat = URIRef("https://id.erfgoed.net/thesauri/materialen/42")
         tienkwarts = URIRef("https://id.erfgoed.net/thesauri/materialen/44")
         womkwarts = URIRef("https://id.erfgoed.net/thesauri/materialen/45")
@@ -173,7 +175,7 @@ class TestRDFDumperMaterials:
 
     def test_dump_collections_roundtrip(self, materials_provider, caplog):
         caplog.set_level(logging.DEBUG)
-        graph_dump = utils.rdf_dumper(materials_provider)
+        graph_dump = rdf_dumper(materials_provider)
         provider = RDFProvider({"id": "ImportMateriaal"}, graph_dump)
         kwarts_mat = provider.get_by_id(43)
         assert kwarts_mat.type == "collection"
@@ -188,7 +190,7 @@ class TestRDFDumperMaterials:
 
     def test_dump_concept_with_superordinates(self, materials_provider, caplog):
         caplog.set_level(logging.DEBUG)
-        graph_dump = utils.rdf_concept_or_collection_dumper(materials_provider, 44)
+        graph_dump = rdf_concept_or_collection_dumper(materials_provider, 44)
 
         assert isinstance(graph_dump, Graph)
         assert (
@@ -205,7 +207,7 @@ class TestRDFDumperMaterials:
 
 class TestRDFDumperProducts:
     def test_dump_rdf_to_rdf(self, products_provider):
-        graph_dump = utils.rdf_dumper(products_provider)
+        graph_dump = rdf_dumper(products_provider)
         xml = graph_dump.serialize(format="xml", encoding="UTF-8")
         if isinstance(xml, bytes):
             xml = xml.decode("UTF-8")
@@ -218,12 +220,12 @@ class TestRDFDumperProducts:
         assert "http://www.products.com/Stuff" in xml
 
     def test_dump_rdf_compare_type(self, products_provider):
-        graph_dump = utils.rdf_dumper(products_provider)
+        graph_dump = rdf_dumper(products_provider)
         assert isinstance(graph_dump, Graph)
 
     def test_dump_rdf_no_uri_as_local_identifier(self, products_provider, caplog):
         caplog.set_level(logging.DEBUG)
-        graph_dump = utils.rdf_dumper(products_provider)
+        graph_dump = rdf_dumper(products_provider)
 
         prod_uri = "http://www.prodcuts.com/Product"
         jewel_uri = "http://www.products.com/Jewellery"
@@ -245,14 +247,14 @@ class TestRDFDumperProducts:
 
 class TestRDFDumperTrees:
     def test_dump_tree_to_rdf(self, tree_provider):
-        graph_dump = utils.rdf_dumper(tree_provider)
+        graph_dump = rdf_dumper(tree_provider)
         xml = graph_dump.serialize(format="xml", encoding="UTF-8")
         if isinstance(xml, bytes):
             xml = xml.decode("UTF-8")
         assert "<?xml" == xml[:5]
 
     def test_dump_larch_to_rdf(self, tree_provider):
-        graph_dump = utils.rdf_concept_or_collection_dumper(tree_provider, 1)
+        graph_dump = rdf_concept_or_collection_dumper(tree_provider, 1)
         cs = URIRef("http://id.trees.org")
         assert (cs, RDF.type, SKOS.ConceptScheme) in graph_dump
         assert (
@@ -271,7 +273,7 @@ class TestRDFDumperTrees:
         assert "<?xml" == xml[:5]
 
     def test_dump_chestnut_to_rdf(self, tree_provider):
-        graph_dump = utils.rdf_concept_or_collection_dumper(tree_provider, 2)
+        graph_dump = rdf_concept_or_collection_dumper(tree_provider, 2)
 
         chestnut = URIRef("http://id.trees.org/2")
         assert (chestnut, SKOS.hiddenLabel, Literal("aaa", lang="nl")) in graph_dump
@@ -304,31 +306,31 @@ class TestRDFDumperTrees:
         )
 
     def test_dump_oak_to_rdf(self, tree_provider):
-        graph_dump = utils.rdf_concept_or_collection_dumper(tree_provider, 4)
+        graph_dump = rdf_concept_or_collection_dumper(tree_provider, 4)
         oak = URIRef("http://id.trees.org/4")
         eik = URIRef("https://id.erfgoed.net/thesauri/soorten/297")
         assert (oak, SKOS.exactMatch, eik) in graph_dump
 
     def test_dump_unexisting_id(self, tree_provider):
         with pytest.raises(NotFoundException):
-            utils.rdf_concept_or_collection_dumper(tree_provider, 404)
+            rdf_concept_or_collection_dumper(tree_provider, 404)
 
     def test_dump_one_id_to_rdf_and_reload(self, tree_provider, caplog):
         caplog.set_level(logging.DEBUG)
-        graph_dump1 = utils.rdf_concept_or_collection_dumper(tree_provider, 1)
+        graph_dump1 = rdf_concept_or_collection_dumper(tree_provider, 1)
         provider = RDFProvider(
             {"id": "Number1", "dataset": {"uri": "http://id.trees.org/dataset"}},
             graph_dump1,
         )
-        graph_dump2 = utils.rdf_concept_or_collection_dumper(provider, 1)
-        graph_full_dump2 = utils.rdf_dumper(provider)
+        graph_dump2 = rdf_concept_or_collection_dumper(provider, 1)
+        graph_full_dump2 = rdf_dumper(provider)
         assert provider.get_by_id(1)
         assert provider.get_by_id(3)
         assert len(graph_dump1) == len(graph_dump2)
         assert len(graph_full_dump2) > len(graph_dump2)
 
     def test_dump_html_keeps_text(self, tree_provider):
-        graph_dump = utils.rdf_conceptscheme_dumper(tree_provider)
+        graph_dump = rdf_conceptscheme_dumper(tree_provider)
         definition = graph_dump.value(URIRef("http://id.trees.org"), SKOS.definition)
         assert (
             str(definition)
@@ -340,7 +342,7 @@ class TestRDFDumperTrees:
         )
 
     def test_dump_conceptscheme_tree_to_rdf(self, tree_provider):
-        graph_dump = utils.rdf_conceptscheme_dumper(tree_provider)
+        graph_dump = rdf_conceptscheme_dumper(tree_provider)
         cs = URIRef("http://id.trees.org")
         assert (cs, RDF.type, SKOS.ConceptScheme) in graph_dump
         assert (
@@ -373,7 +375,7 @@ class TestRDFDumperSources:
                 }
             ],
         )
-        graph = utils.rdf_dumper(provider)
+        graph = rdf_dumper(provider)
         source_nodes = set(
             graph.objects(URIRef("http://id.trees.org/1"), DCTERMS.source)
         )

@@ -1,7 +1,8 @@
 """
-This module contains utility functions for dealing with skos providers.
+This module dumps skos providers to an RDF graph.
 """
 
+from collections.abc import Callable
 from collections.abc import Iterable
 from collections.abc import Iterator
 
@@ -14,19 +15,21 @@ from rdflib.namespace import VOID
 from rdflib.term import BNode
 from rdflib.term import Node
 from rdflib.term import URIRef
+
+from skosprovider.exceptions import ExtraDataException
 from skosprovider.exceptions import NotFoundException
 from skosprovider.extra_data import SkosObject
 from skosprovider.extra_data import exception_context
 from skosprovider.extra_data import ignore
 from skosprovider.providers import VocabularyProvider
-from skosprovider.rdf.extra_data import RdfExtraDataDumper
-from skosprovider.rdf.extra_data import dump_extra_data_graph
 from skosprovider.rdf.providers import SKOS_THES
 from skosprovider.skos import Collection
 from skosprovider.skos import Concept
 from skosprovider.skos import ConceptScheme
 from skosprovider.utils import add_lang_to_html
 from skosprovider.utils import extract_language
+
+RdfExtraDataDumper = Callable[[SkosObject | ConceptScheme], Graph | None]
 
 
 def rdf_dumper(
@@ -40,9 +43,8 @@ def rdf_dumper(
         that wil be turned into an :class:`rdflib.graph.Graph`.
     :param extra_data_dumper: A callable that receives the concept scheme, a
         concept, collection or source and returns a :class:`rdflib.Graph` or
-        `None`. The graph is merged into the dump. See
-        :mod:`skosprovider.rdf.extra_data` for the available dumpers. Defaults
-        to :func:`~skosprovider.extra_data.ignore`.
+        `None`. The graph is merged into the dump. Defaults to
+        :func:`~skosprovider.extra_data.ignore`.
 
     :rtype: :class:`rdflib.graph.Graph`
     """
@@ -102,12 +104,16 @@ def _add_extra_data(
     graph: Graph,
     extra_data_dumper: RdfExtraDataDumper,
     obj: SkosObject | ConceptScheme,
-    node: Node,
 ) -> None:
     """
     Merge the extra_data that the dumper returns for an object into the graph.
     """
-    extra_data = dump_extra_data_graph(extra_data_dumper, obj, node)
+    try:
+        extra_data = extra_data_dumper(obj)
+    except Exception as err:
+        raise ExtraDataException(f"Failed to dump extra_data: {err}") from err
+    if extra_data is None:
+        return
     for prefix, namespace in extra_data.namespaces():
         graph.namespace_manager.bind(prefix, namespace, override=False)
     graph += extra_data
@@ -134,7 +140,7 @@ def _create_concept_scheme_graph(
         _add_notes(graph, concept_scheme, subject)
         _add_sources(graph, concept_scheme, subject, extra_data_dumper)
         _add_languages(graph, concept_scheme, subject)
-        _add_extra_data(graph, extra_data_dumper, concept_scheme, subject)
+        _add_extra_data(graph, extra_data_dumper, concept_scheme)
     return graph
 
 
@@ -221,7 +227,7 @@ def _add_concept_or_collection(
         f"{concept_or_collection.type} {concept_or_collection.id!r}"
     ):
         _add_sources(graph, concept_or_collection, subject, extra_data_dumper)
-        _add_extra_data(graph, extra_data_dumper, concept_or_collection, subject)
+        _add_extra_data(graph, extra_data_dumper, concept_or_collection)
     if isinstance(concept_or_collection, Concept):
         concept = concept_or_collection
         graph.add((subject, RDF.type, SKOS.Concept))
@@ -351,7 +357,7 @@ def _add_sources(
         graph.add((source_node, DCTERMS.bibliographicCitation, citation))
         graph.add((subject, DCTERMS.source, source_node))
         with exception_context(repr(source)):
-            _add_extra_data(graph, extra_data_dumper, source, source_node)
+            _add_extra_data(graph, extra_data_dumper, source)
 
 
 def _add_languages(graph: Graph, concept_scheme: ConceptScheme, subject: Node) -> None:

@@ -8,9 +8,9 @@ from rdflib.namespace import DCTERMS
 from rdflib.namespace import SKOS
 
 from skosprovider.exceptions import ExtraDataException
-from skosprovider.rdf import utils
-from skosprovider.rdf.extra_data import merge_graph
-from skosprovider.rdf.extra_data import unmapped_triples
+from skosprovider.rdf.dumper import rdf_concept_or_collection_dumper
+from skosprovider.rdf.dumper import rdf_conceptscheme_dumper
+from skosprovider.rdf.dumper import rdf_dumper
 from skosprovider.rdf.providers import RDFProvider
 
 TREES = """
@@ -57,7 +57,6 @@ TREES = """
 
 EX = "http://example.org/"
 LARCH = URIRef("http://id.trees.org/1")
-PLACEHOLDER = URIRef("urn:x-skosprovider:blank-node")
 
 
 @pytest.fixture
@@ -65,9 +64,25 @@ def graph():
     return Graph().parse(data=TREES, format="turtle")
 
 
+def loader(graph, node):
+    """Load the dct:creator, dct:date and skos:notation of a node with a uri."""
+    if isinstance(node, BNode):
+        return None
+    extra_data = Graph()
+    extra_data.bind("ex", EX)
+    for predicate in (DCTERMS.creator, DCTERMS.date, SKOS.notation):
+        for object_ in graph.objects(node, predicate):
+            extra_data.add((node, predicate, object_))
+    return extra_data if len(extra_data) else None
+
+
+def merge_graph(obj):
+    return obj.extra_data
+
+
 @pytest.fixture
 def provider(graph):
-    return RDFProvider({"id": "TREES"}, graph, extra_data_loader=unmapped_triples)
+    return RDFProvider({"id": "TREES"}, graph, extra_data_loader=loader)
 
 
 def _source(provider, uri):
@@ -86,41 +101,19 @@ class TestLoading:
             source.extra_data is None for source in provider.get_by_id("1").sources
         )
 
-    def test_concept_unmapped_triples(self, provider):
-        expected = Graph().parse(
-            data="""
-            @prefix skos: <http://www.w3.org/2004/02/skos/core#> .
-            @prefix ex: <http://example.org/> .
-            <http://id.trees.org/1> a ex:Tree ;
-                skos:notation "L" ;
-                ex:height [ ex:value 30 ; ex:unit [ ex:name "metre" ] ] .
-            """,
-            format="turtle",
-        )
-        assert isomorphic(provider.get_by_id("1").extra_data, expected)
-
-    def test_concept_without_unmapped_triples(self, provider):
+    def test_loader_result_is_extra_data(self, provider):
+        assert set(provider.get_by_id("1").extra_data) == {
+            (LARCH, SKOS.notation, Literal("L"))
+        }
         assert provider.get_by_id("2").extra_data is None
-
-    def test_collection_unmapped_triples(self, provider):
         assert set(provider.get_by_id("3").extra_data) == {
             (URIRef("http://id.trees.org/3"), DCTERMS.creator, Literal("Jane Doe"))
         }
-
-    def test_concept_scheme_unmapped_triples(self, provider):
         assert set(provider.concept_scheme.extra_data) == {
             (URIRef("http://id.trees.org"), DCTERMS.creator, Literal("Jane Doe"))
         }
-
-    def test_blank_node_source_uses_placeholder(self, provider):
-        source = _source(provider, None)
-        assert set(source.extra_data) == {
-            (PLACEHOLDER, DCTERMS.creator, Literal("John Doe"))
-        }
-
-    def test_uri_source(self, provider):
-        source = _source(provider, "http://id.trees.org/source/1")
-        assert set(source.extra_data) == {
+        assert _source(provider, None).extra_data is None
+        assert set(_source(provider, "http://id.trees.org/source/1").extra_data) == {
             (URIRef("http://id.trees.org/source/1"), DCTERMS.date, Literal("2024"))
         }
 
@@ -167,12 +160,12 @@ class TestLoading:
 
 class TestDumping:
     def test_ignore_by_default(self, provider, graph):
-        dump = utils.rdf_dumper(provider)
+        dump = rdf_dumper(provider)
         assert (LARCH, SKOS.notation, Literal("L")) not in dump
-        assert isomorphic(dump, utils.rdf_dumper(RDFProvider({"id": "TREES"}, graph)))
+        assert isomorphic(dump, rdf_dumper(RDFProvider({"id": "TREES"}, graph)))
 
     def test_merge_graph(self, provider):
-        dump = utils.rdf_dumper(provider, extra_data_dumper=merge_graph)
+        dump = rdf_dumper(provider, extra_data_dumper=merge_graph)
         assert (LARCH, SKOS.notation, Literal("L")) in dump
         assert (
             URIRef("http://id.trees.org"),
@@ -184,37 +177,9 @@ class TestDumping:
             DCTERMS.date,
             Literal("2024"),
         ) in dump
-        assert not any(PLACEHOLDER in triple for triple in dump)
-
-    def test_blank_node_source_is_linked(self, provider):
-        dump = utils.rdf_dumper(provider, extra_data_dumper=merge_graph)
-        source_node = dump.value(
-            predicate=DCTERMS.bibliographicCitation,
-            object=Literal("Anonymous source."),
-        )
-        assert isinstance(source_node, BNode)
-        assert (LARCH, DCTERMS.source, source_node) in dump
-        assert (source_node, DCTERMS.creator, Literal("John Doe")) in dump
-
-    def test_round_trip(self, provider):
-        dump = utils.rdf_dumper(provider, extra_data_dumper=merge_graph)
-        reloaded = RDFProvider(
-            {"id": "TREES"}, dump, extra_data_loader=unmapped_triples
-        )
-        for id_ in ("1", "3"):
-            assert isomorphic(
-                reloaded.get_by_id(id_).extra_data, provider.get_by_id(id_).extra_data
-            )
-        assert isomorphic(
-            reloaded.concept_scheme.extra_data, provider.concept_scheme.extra_data
-        )
-        for uri in (None, "http://id.trees.org/source/1"):
-            assert isomorphic(
-                _source(reloaded, uri).extra_data, _source(provider, uri).extra_data
-            )
 
     def test_concept_or_collection_dumper(self, provider):
-        dump = utils.rdf_concept_or_collection_dumper(
+        dump = rdf_concept_or_collection_dumper(
             provider, "1", extra_data_dumper=merge_graph
         )
         assert (LARCH, SKOS.notation, Literal("L")) in dump
@@ -225,7 +190,7 @@ class TestDumping:
         ) in dump
 
     def test_conceptscheme_dumper(self, provider):
-        dump = utils.rdf_conceptscheme_dumper(provider, extra_data_dumper=merge_graph)
+        dump = rdf_conceptscheme_dumper(provider, extra_data_dumper=merge_graph)
         assert (
             URIRef("http://id.trees.org"),
             DCTERMS.creator,
@@ -234,7 +199,7 @@ class TestDumping:
         assert (LARCH, SKOS.notation, Literal("L")) not in dump
 
     def test_dumper_keeps_prefixes(self, provider):
-        dump = utils.rdf_dumper(provider, extra_data_dumper=merge_graph)
+        dump = rdf_dumper(provider, extra_data_dumper=merge_graph)
         assert ("ex", URIRef(EX)) in set(dump.namespaces())
 
     def test_dumper_error(self, provider):
@@ -243,6 +208,6 @@ class TestDumping:
                 raise ValueError("boom")
 
         with pytest.raises(ExtraDataException) as excinfo:
-            utils.rdf_dumper(provider, extra_data_dumper=dumper)
+            rdf_dumper(provider, extra_data_dumper=dumper)
         assert excinfo.value.message == "Failed to dump extra_data: boom"
         assert excinfo.value.__notes__ == ["while processing concept '1'"]

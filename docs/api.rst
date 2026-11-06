@@ -58,14 +58,8 @@ RDF Providers module
    :members:
    :special-members: __init__
 
-RDF Extra data module
----------------------
+RDF Dumper module
+-----------------
 
-.. automodule:: skosprovider.rdf.extra_data
-   :members:
-
-RDF Utils module
-----------------
-
-.. automodule:: skosprovider.rdf.utils
+.. automodule:: skosprovider.rdf.dumper
    :members:
