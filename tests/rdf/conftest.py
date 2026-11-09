@@ -1,9 +1,16 @@
+import json
 import os
 
 import pytest
 from rdflib import Graph
 
+from skosprovider.providers import DictionaryProvider
 from skosprovider.rdf.providers import RDFProvider
+from skosprovider.skos import ConceptScheme
+from skosprovider.skos import Label
+from skosprovider.skos import Note
+from skosprovider.uri import UriPatternGenerator
+
 from . import TEST_DIR
 
 
@@ -29,17 +36,9 @@ def trees_provider():
 
 @pytest.fixture(scope="module")
 def materials_provider():
-    import json
-
     path = os.path.join(TEST_DIR, "data", "materiaal.txt")
     with open(path, "r") as f:
         materials_data = json.load(f)["materiaal"]
-
-    from skosprovider.providers import DictionaryProvider
-    from skosprovider.skos import ConceptScheme
-    from skosprovider.skos import Label
-    from skosprovider.skos import Note
-    from skosprovider.uri import UriPatternGenerator
 
     materials = DictionaryProvider(
         {"id": "Materials"},

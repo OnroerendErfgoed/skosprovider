@@ -16,28 +16,27 @@ from skosprovider.skos import Note
 from skosprovider.skos import Source
 from skosprovider.uri import UriPatternGenerator
 
-ifile = open(os.path.join(os.path.dirname(__file__), "data", "menu.csv"))
-
-reader = csv.reader(ifile)
-
-csvprovider = SimpleCsvProvider(
-    {"id": "MENU"},
-    reader,
-    uri_generator=UriPatternGenerator("http://id.python.org/menu/%s"),
-    concept_scheme=ConceptScheme(
-        uri="http://id.python.org/menu",
-        labels=[Label(type="prefLabel", language="en", label="A pythonesque menu.")],
-        notes=[
-            Note(
-                type="changeNote",
-                language="en",
-                note="<strong>We didn't need no change notes when I was younger.</strong>",
-                markup="HTML",
-            )
-        ],
-        sources=[Source("Monthy Python's Flying Circus, 1970. Spam.")],
-    ),
-)
+with open(os.path.join(os.path.dirname(__file__), "data", "menu.csv")) as ifile:
+    csvprovider = SimpleCsvProvider(
+        {"id": "MENU"},
+        csv.reader(ifile),
+        uri_generator=UriPatternGenerator("http://id.python.org/menu/%s"),
+        concept_scheme=ConceptScheme(
+            uri="http://id.python.org/menu",
+            labels=[
+                Label(type="prefLabel", language="en", label="A pythonesque menu.")
+            ],
+            notes=[
+                Note(
+                    type="changeNote",
+                    language="en",
+                    note="<strong>We didn't need no change notes when I was younger.</strong>",
+                    markup="HTML",
+                )
+            ],
+            sources=[Source("Monthy Python's Flying Circus, 1970. Spam.")],
+        ),
+    )
 
 graph = rdf_dumper(csvprovider)
 

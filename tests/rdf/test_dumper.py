@@ -1,26 +1,28 @@
-import logging
-
 import pytest
-from rdflib import Graph
 from rdflib import Namespace
+from rdflib.compare import isomorphic
 from rdflib.namespace import DC
 from rdflib.namespace import DCTERMS
 from rdflib.namespace import RDF
 from rdflib.namespace import SKOS
 from rdflib.term import Literal
 from rdflib.term import URIRef
+
 from skosprovider.exceptions import NotFoundException
 from skosprovider.providers import DictionaryProvider
-from skosprovider.skos import ConceptScheme, Label, Note
-
 from skosprovider.rdf.dumper import rdf_concept_or_collection_dumper
 from skosprovider.rdf.dumper import rdf_conceptscheme_dumper
 from skosprovider.rdf.dumper import rdf_dumper
 from skosprovider.rdf.providers import RDFProvider
+from skosprovider.skos import Collection
+from skosprovider.skos import Concept
+from skosprovider.skos import ConceptScheme
+from skosprovider.skos import Label
+from skosprovider.skos import Note
 
 SKOS_THES = Namespace("http://purl.org/iso25964/skos-thes#")
-
-log = logging.getLogger(__name__)
+SKOSXL = Namespace("http://www.w3.org/2008/05/skos-xl#")
+TREE_METADATA = {"id": "TREE", "dataset": {"uri": "https://id.trees.org/dataset"}}
 
 
 @pytest.fixture(scope="module")
@@ -121,7 +123,7 @@ def tree_provider():
     }
 
     tree_provider = DictionaryProvider(
-        {"id": "TREE", "dataset": {"uri": "https://id.trees.org/dataset"}},
+        TREE_METADATA,
         [larch, chestnut, oak, species],
         concept_scheme=ConceptScheme(
             uri="http://id.trees.org",
@@ -173,8 +175,7 @@ class TestRDFDumperMaterials:
         assert bont_skos_definition in xml
         assert dcterms_id_skos_definition in xml
 
-    def test_dump_collections_roundtrip(self, materials_provider, caplog):
-        caplog.set_level(logging.DEBUG)
+    def test_dump_collections_roundtrip(self, materials_provider):
         graph_dump = rdf_dumper(materials_provider)
         provider = RDFProvider({"id": "ImportMateriaal"}, graph_dump)
         kwarts_mat = provider.get_by_id(43)
@@ -188,11 +189,9 @@ class TestRDFDumperMaterials:
         assert bet_nr_vs.infer_concept_relations is True
         assert set(provider.expand(68)) == {"39", "70"}
 
-    def test_dump_concept_with_superordinates(self, materials_provider, caplog):
-        caplog.set_level(logging.DEBUG)
+    def test_dump_concept_with_superordinates(self, materials_provider):
         graph_dump = rdf_concept_or_collection_dumper(materials_provider, 44)
 
-        assert isinstance(graph_dump, Graph)
         assert (
             URIRef("https://id.erfgoed.net/thesauri/materialen/43"),
             SKOS.member,
@@ -219,39 +218,33 @@ class TestRDFDumperProducts:
         assert "http://www.products.com/Product" in xml
         assert "http://www.products.com/Stuff" in xml
 
-    def test_dump_rdf_compare_type(self, products_provider):
+    def test_dump_rdf_no_uri_as_local_identifier(self, products_provider):
         graph_dump = rdf_dumper(products_provider)
-        assert isinstance(graph_dump, Graph)
+        for uri in (
+            "http://www.products.com/Product",
+            "http://www.products.com/Jewellery",
+            "http://www.products.com/Perfume",
+        ):
+            assert (URIRef(uri), RDF.type, SKOS.Concept) in graph_dump
+            assert graph_dump.value(URIRef(uri), DCTERMS.identifier) is None
+            assert graph_dump.value(URIRef(uri), DC.identifier) is None
 
-    def test_dump_rdf_no_uri_as_local_identifier(self, products_provider, caplog):
-        caplog.set_level(logging.DEBUG)
-        graph_dump = rdf_dumper(products_provider)
-
-        prod_uri = "http://www.prodcuts.com/Product"
-        jewel_uri = "http://www.products.com/Jewellery"
-        perfume_uri = "http://www.products.com/Perfume"
-
-        prod = URIRef(prod_uri)
-        jewel = URIRef(jewel_uri)
-        perfume = URIRef(perfume_uri)
-
-        log.debug(graph_dump.serialize(format="turtle"))
-
-        assert (prod, DCTERMS.identifier, Literal(prod_uri)) not in graph_dump
-        assert (prod, DC.identifier, Literal(prod_uri)) not in graph_dump
-        assert (jewel, DCTERMS.identifier, Literal(jewel_uri)) not in graph_dump
-        assert (jewel, DC.identifier, Literal(jewel_uri)) not in graph_dump
-        assert (perfume, DCTERMS.identifier, Literal(perfume_uri)) not in graph_dump
-        assert (perfume, DC.identifier, Literal(perfume_uri)) not in graph_dump
+    def test_dump_rdf_and_reload(self, products_provider):
+        graph_dump1 = rdf_dumper(products_provider)
+        graph_dump2 = rdf_dumper(RDFProvider({"id": "PRODUCTS"}, graph_dump1))
+        assert isomorphic(graph_dump1, graph_dump2)
 
 
 class TestRDFDumperTrees:
-    def test_dump_tree_to_rdf(self, tree_provider):
-        graph_dump = rdf_dumper(tree_provider)
-        xml = graph_dump.serialize(format="xml", encoding="UTF-8")
-        if isinstance(xml, bytes):
-            xml = xml.decode("UTF-8")
-        assert "<?xml" == xml[:5]
+    def test_dump_tree_to_rdf_and_reload(self, tree_provider):
+        graph_dump1 = rdf_dumper(tree_provider)
+        graph_dump2 = rdf_dumper(RDFProvider(TREE_METADATA, graph_dump1))
+        # The tree provider has an integer id for the collection,
+        # RDFProvider reads it back as a string.
+        graph_dump1.set(
+            (URIRef("http://id.trees.org/3"), DCTERMS.identifier, Literal("3"))
+        )
+        assert isomorphic(graph_dump1, graph_dump2)
 
     def test_dump_larch_to_rdf(self, tree_provider):
         graph_dump = rdf_concept_or_collection_dumper(tree_provider, 1)
@@ -315,19 +308,18 @@ class TestRDFDumperTrees:
         with pytest.raises(NotFoundException):
             rdf_concept_or_collection_dumper(tree_provider, 404)
 
-    def test_dump_one_id_to_rdf_and_reload(self, tree_provider, caplog):
-        caplog.set_level(logging.DEBUG)
+    def test_dump_one_id_to_rdf_and_reload(self, tree_provider):
         graph_dump1 = rdf_concept_or_collection_dumper(tree_provider, 1)
-        provider = RDFProvider(
-            {"id": "Number1", "dataset": {"uri": "http://id.trees.org/dataset"}},
-            graph_dump1,
-        )
+        provider = RDFProvider(TREE_METADATA, graph_dump1)
         graph_dump2 = rdf_concept_or_collection_dumper(provider, 1)
-        graph_full_dump2 = rdf_dumper(provider)
         assert provider.get_by_id(1)
         assert provider.get_by_id(3)
-        assert len(graph_dump1) == len(graph_dump2)
-        assert len(graph_full_dump2) > len(graph_dump2)
+        # The tree provider has an integer id for the collection,
+        # RDFProvider reads it back as a string.
+        graph_dump1.set(
+            (URIRef("http://id.trees.org/3"), DCTERMS.identifier, Literal("3"))
+        )
+        assert isomorphic(graph_dump1, graph_dump2)
 
     def test_dump_html_keeps_text(self, tree_provider):
         graph_dump = rdf_conceptscheme_dumper(tree_provider)
@@ -386,3 +378,145 @@ class TestRDFDumperSources:
             DCTERMS.bibliographicCitation,
             Literal("Source with a uri."),
         ) in graph
+
+
+class TestRDFDumperLabelsAndNotes:
+    @pytest.fixture
+    def provider(self):
+        return DictionaryProvider(
+            {"id": "TREES"},
+            [
+                {
+                    "id": "1",
+                    "uri": "http://id.trees.org/1",
+                    "labels": [
+                        {"type": "prefLabel", "language": "en", "label": "The Larch"},
+                        {
+                            "type": "altLabel",
+                            "language": "nl",
+                            "label": "Lork",
+                            "uri": "http://id.trees.org/labels/1",
+                            "label_types": ["http://example.org/label-type"],
+                        },
+                    ],
+                    "notes": [
+                        {"type": "note", "language": "en", "note": "A literal note."},
+                        {
+                            "type": "definition",
+                            "language": "en",
+                            "note": "A note with a uri.",
+                            "uri": "http://id.trees.org/notes/1",
+                        },
+                    ],
+                }
+            ],
+        )
+
+    def test_plain_label_and_note_are_literals(self, provider):
+        graph = rdf_dumper(provider)
+        larch = URIRef("http://id.trees.org/1")
+        assert (larch, SKOS.prefLabel, Literal("The Larch", lang="en")) in graph
+        assert (larch, SKOS.note, Literal("A literal note.", lang="en")) in graph
+        assert graph.value(larch, SKOSXL.prefLabel) is None
+
+    def test_label_with_uri_is_xl_label(self, provider):
+        graph = rdf_dumper(provider)
+        larch = URIRef("http://id.trees.org/1")
+        label = URIRef("http://id.trees.org/labels/1")
+        lork = Literal("Lork", lang="nl")
+        assert (larch, SKOS.altLabel, lork) not in graph
+        assert (larch, SKOSXL.altLabel, label) in graph
+        assert (label, RDF.type, SKOSXL.Label) in graph
+        assert (label, SKOSXL.literalForm, lork) in graph
+        assert (label, DCTERMS.type, URIRef("http://example.org/label-type")) in graph
+
+    def test_note_with_uri_is_node(self, provider):
+        graph = rdf_dumper(provider)
+        larch = URIRef("http://id.trees.org/1")
+        note = URIRef("http://id.trees.org/notes/1")
+        assert (larch, SKOS.definition, note) in graph
+        assert (note, RDF.value, Literal("A note with a uri.", lang="en")) in graph
+
+    def test_extra_data_only_dumped_with_uri(self, provider):
+        calls = []
+
+        def dumper(obj):
+            calls.append(obj)
+
+        rdf_dumper(provider, extra_data_dumper=dumper)
+        assert Label("The Larch", "prefLabel", "en") not in calls
+        assert Label("Lork", "altLabel", "nl", uri="http://id.trees.org/labels/1") in (
+            calls
+        )
+        assert Note("A literal note.", "note", "en") not in calls
+        note = Note(
+            "A note with a uri.", "definition", "en", uri="http://id.trees.org/notes/1"
+        )
+        assert note in calls
+
+    def test_round_trip(self, provider):
+        reloaded = RDFProvider({"id": "TREES"}, rdf_dumper(provider))
+        larch = reloaded.get_by_uri("http://id.trees.org/1")
+        assert sorted(
+            (label.label, label.type, label.language, label.uri, label.label_types)
+            for label in larch.labels
+        ) == [
+            (
+                "Lork",
+                "altLabel",
+                "nl",
+                "http://id.trees.org/labels/1",
+                ["http://example.org/label-type"],
+            ),
+            ("The Larch", "prefLabel", "en", None, []),
+        ]
+        assert sorted(
+            (note.note, note.type, note.language, note.uri) for note in larch.notes
+        ) == [
+            ("A literal note.", "note", "en", None),
+            (
+                "A note with a uri.",
+                "definition",
+                "en",
+                "http://id.trees.org/notes/1",
+            ),
+        ]
+
+
+class TestRDFDumperCyclicCollections:
+    @pytest.fixture
+    def provider(self):
+        concept_scheme = ConceptScheme("http://id.trees.org")
+        provider = DictionaryProvider(
+            {"id": "TREES"}, [], concept_scheme=concept_scheme
+        )
+        provider.list = [
+            Concept("1", uri="http://id.trees.org/1", subordinate_arrays=["2"]),
+            Collection(
+                "2",
+                uri="http://id.trees.org/2",
+                members=["3", "4"],
+                member_of=["3"],
+                superordinates=["1"],
+                infer_concept_relations=True,
+            ),
+            Collection(
+                "3",
+                uri="http://id.trees.org/3",
+                members=["2"],
+                member_of=["2"],
+                infer_concept_relations=True,
+            ),
+            Concept("4", uri="http://id.trees.org/4", member_of=["2"]),
+        ]
+        return provider
+
+    def test_members_as_narrower(self, provider):
+        graph = rdf_concept_or_collection_dumper(provider, "1")
+        concept = URIRef("http://id.trees.org/1")
+        assert (concept, SKOS.narrower, URIRef("http://id.trees.org/4")) in graph
+
+    def test_superordinates_as_broader(self, provider):
+        graph = rdf_concept_or_collection_dumper(provider, "4")
+        concept = URIRef("http://id.trees.org/4")
+        assert (concept, SKOS.broader, URIRef("http://id.trees.org/1")) in graph

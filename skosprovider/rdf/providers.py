@@ -39,6 +39,7 @@ from skosprovider.uri import DefaultConceptSchemeUrnGenerator
 log = logging.getLogger(__name__)
 
 SKOS_THES = rdflib.Namespace("http://purl.org/iso25964/skos-thes#")
+SKOSXL = rdflib.Namespace("http://www.w3.org/2008/05/skos-xl#")
 
 RdfExtraDataLoader = Callable[[Graph, Node], Graph | None]
 
@@ -66,8 +67,10 @@ class RDFProvider(MemoryProvider):
     ) -> None:
         """
         :param extra_data_loader: A callable that receives the graph and the
-            node of a single concept scheme, concept, collection or source and
-            returns a :class:`rdflib.Graph` or `None`. Defaults to
+            node of a single concept scheme, concept or collection, or of a
+            source, SKOS-XL label or note with a uri, and returns a
+            :class:`rdflib.Graph` or `None`. A source, label or note that is a
+            blank node gets no extra_data. Defaults to
             :func:`~skosprovider.extra_data.ignore`. A concept scheme passed as
             `concept_scheme` keeps its own extra_data.
         """
@@ -85,44 +88,43 @@ class RDFProvider(MemoryProvider):
     def _concept_scheme_from_graph(
         self, graph: Graph, metadata: dict[str, Any], concept_scheme_uri: str | None
     ) -> ConceptScheme:
-        concept_schemes = [
-            self._create_concept_scheme(graph, subject)
-            for subject in graph.subjects(RDF.type, SKOS.ConceptScheme)
-        ]
-        if not concept_schemes:
+        """
+        Pick the concept scheme of the provider from the graph.
+
+        Only the picked concept scheme is created, so the extra_data loader
+        is not called for the others.
+        """
+        subjects = list(graph.subjects(RDF.type, SKOS.ConceptScheme))
+        found_uris = ", ".join(self.to_text(subject) for subject in subjects)
+        if concept_scheme_uri is not None:
+            for subject in subjects:
+                if self.to_text(subject) == concept_scheme_uri:
+                    self.check_in_scheme = True
+                    return self._create_concept_scheme(graph, subject)
+            raise ConceptSchemeException(
+                "This RDF file does not contain the ConceptScheme "
+                f"{concept_scheme_uri}. "
+                f"The following schemes were found: {found_uris or 'none'}"
+            )
+        if not subjects:
             return ConceptScheme(
                 uri=DefaultConceptSchemeUrnGenerator().generate(id=metadata.get("id"))
             )
-        if len(concept_schemes) == 1:
-            return concept_schemes[0]
-
-        found_uris = ", ".join(
-            str(concept_scheme.uri) for concept_scheme in concept_schemes
-        )
-        if concept_scheme_uri is None:
+        if len(subjects) > 1:
             raise ConceptSchemeException(
                 "This RDF file contains more than one ConceptScheme. "
-                f"Please specify one. The following schemes were found: {found_uris}"
+                "Please specify one. "
+                f"The following schemes were found: {found_uris}"
             )
-        self.check_in_scheme = True
-        for concept_scheme in concept_schemes:
-            if concept_scheme.uri == concept_scheme_uri:
-                return concept_scheme
-        raise ConceptSchemeException(
-            "This RDF file contains more than one ConceptScheme. "
-            "You specified an unexisting one. "
-            f"The following schemes were found: {found_uris}"
-        )
+        return self._create_concept_scheme(graph, subjects[0])
 
     def _create_concept_scheme(self, graph: Graph, subject: Node) -> ConceptScheme:
         uri = self.to_text(subject)
         with exception_context(f"concept scheme {uri!r}"):
             return ConceptScheme(
                 uri=uri,
-                labels=self._create_from_subject_types(
-                    graph, subject, self._scrub_label_types()
-                ),
-                notes=self._create_from_subject_types(graph, subject, Note.valid_types),
+                labels=self._create_labels(graph, subject),
+                notes=self._create_notes(graph, subject),
                 sources=self._create_sources(graph, subject),
                 languages=self._create_languages(graph, subject),
                 extra_data=self._load_extra_data(graph, subject),
@@ -173,10 +175,8 @@ class RDFProvider(MemoryProvider):
                 id=id_,
                 uri=uri,
                 concept_scheme=self.concept_scheme,
-                labels=self._create_from_subject_types(
-                    graph, subject, self._scrub_label_types()
-                ),
-                notes=self._create_from_subject_types(graph, subject, Note.valid_types),
+                labels=self._create_labels(graph, subject),
+                notes=self._create_notes(graph, subject),
                 sources=self._create_sources(graph, subject),
                 broader=self._create_from_subject_predicate(
                     graph, subject, SKOS.broader
@@ -208,10 +208,8 @@ class RDFProvider(MemoryProvider):
                 id=id_,
                 uri=uri,
                 concept_scheme=self.concept_scheme,
-                labels=self._create_from_subject_types(
-                    graph, subject, self._scrub_label_types()
-                ),
-                notes=self._create_from_subject_types(graph, subject, Note.valid_types),
+                labels=self._create_labels(graph, subject),
+                notes=self._create_notes(graph, subject),
                 sources=self._create_sources(graph, subject),
                 members=self._create_from_subject_predicate(
                     graph, subject, SKOS.member
@@ -262,31 +260,95 @@ class RDFProvider(MemoryProvider):
             )
 
     def _collect_broader(
-        self, collection: Collection, by_id: dict[str, Concept | Collection]
+        self,
+        collection: Collection,
+        by_id: dict[str, Concept | Collection],
+        seen: set[str] | None = None,
     ) -> set[str]:
         """
         Collect all broader concepts of members of a collection or
         their (recursive) members.
+
+        :param seen: The ids of the collections already visited, so cyclic
+            members are only visited once.
         """
+        seen = set() if seen is None else seen
+        seen.add(collection.id)
         broader: set[str] = set()
         for member_id in collection.members:
             member = by_id.get(member_id)
             if isinstance(member, Concept):
                 broader.update(member.broader)
-            elif isinstance(member, Collection):
-                broader.update(self._collect_broader(member, by_id))
+            elif isinstance(member, Collection) and member.id not in seen:
+                broader.update(self._collect_broader(member, by_id, seen))
         return broader
 
-    def _create_from_subject_types(
-        self, graph: Graph, subject: Node, types: list[str]
-    ) -> list[Label | Note | str]:
-        return [
-            created
-            for type_ in types
-            for created in self._create_from_subject_predicate(
-                graph, subject, SKOS[type_]
-            )
-        ]
+    def _create_labels(self, graph: Graph, subject: Node) -> list[Label]:
+        """
+        Create the labels of a subject, both plain SKOS labels and SKOS-XL
+        labels.
+
+        A plain label with the same text and language as a SKOS-XL label of the
+        same type is skipped, since it is the same label written twice.
+        """
+        labels = []
+        for type_ in self._scrub_label_types():
+            xl_labels = [
+                label
+                for node in graph.objects(subject, SKOSXL[type_])
+                if (label := self._create_xl_label(graph, node, type_))
+            ]
+            xl_texts = {(label.label, label.language) for label in xl_labels}
+            for literal in graph.objects(subject, SKOS[type_]):
+                label = self._create_label(literal, type_)
+                if (label.label, label.language) not in xl_texts:
+                    labels.append(label)
+            labels.extend(xl_labels)
+        return labels
+
+    def _create_xl_label(self, graph: Graph, node: Node, type_: str) -> Label | None:
+        """
+        Create a label from a skosxl:Label node.
+
+        A blank node becomes a plain label without a uri, so it gets no
+        extra_data.
+
+        :returns: A label, or `None` when the node has no skosxl:literalForm.
+        """
+        literal = graph.value(node, SKOSXL.literalForm)
+        if literal is None:
+            log.warning("Skipping a skosxl:Label without literalForm: %s", node)
+            return None
+        label = Label(
+            self.to_text(literal),
+            type_,
+            self._get_language_from_literal(literal),
+            uri=self.to_text(node) if isinstance(node, URIRef) else None,
+            label_types=[
+                self.to_text(label_type)
+                for label_type in graph.objects(node, DCTERMS.type)
+            ],
+        )
+        if label.is_xl():
+            with exception_context(repr(label)):
+                label.extra_data = self._load_extra_data(graph, node)
+        return label
+
+    def _create_notes(self, graph: Graph, subject: Node) -> list[Note]:
+        """
+        Create the notes of a subject.
+
+        A note is either a literal or a node with the text under rdf:value.
+        Only a note node with a uri can have extra_data.
+        """
+        notes = []
+        for type_ in Note.valid_types:
+            for object_ in graph.objects(subject, SKOS[type_]):
+                if isinstance(object_, Literal):
+                    notes.append(self._create_note(object_, type_))
+                elif note := self._create_note_from_node(graph, object_, type_):
+                    notes.append(note)
+        return notes
 
     def _get_id_for_subject(self, graph: Graph, subject: Node, uri: str) -> str:
         identifier = graph.value(subject, DCTERMS.identifier, any=False)
@@ -296,16 +358,13 @@ class RDFProvider(MemoryProvider):
 
     def _create_from_subject_predicate(
         self, graph: Graph, subject: Node, predicate: URIRef
-    ) -> list[Label] | list[Note] | list[str]:
-        type_ = predicate.split("#")[-1]
-        objects = graph.objects(subject, predicate)
-        if Label.is_valid_type(type_):
-            return [self._create_label(literal, type_) for literal in objects]
-        if Note.is_valid_type(type_):
-            return [self._create_note(literal, type_) for literal in objects]
+    ) -> list[str]:
+        """
+        Get the ids of the concepts or collections a subject points to.
+        """
         return [
             self._get_id_for_subject(graph, node, self.to_text(node))
-            for node in objects
+            for node in graph.objects(subject, predicate)
         ]
 
     def _create_label(self, literal: Node, type_: str) -> Label:
@@ -376,9 +435,38 @@ class RDFProvider(MemoryProvider):
         text, language, markup = self._read_markupped_literal(literal)
         return Note(self.to_text(text), type_, language, markup)
 
+    def _create_note_from_node(
+        self, graph: Graph, node: Node, type_: str
+    ) -> Note | None:
+        """
+        Create a note from a node with the text of the note under rdf:value.
+
+        A blank node becomes a note without a uri, so it gets no extra_data.
+
+        :returns: A note, or `None` when the node has no rdf:value.
+        """
+        literal = graph.value(node, RDF.value)
+        if not isinstance(literal, Literal):
+            log.warning("Skipping a note without rdf:value: %s", node)
+            return None
+        text, language, markup = self._read_markupped_literal(literal)
+        note = Note(
+            self.to_text(text),
+            type_,
+            language,
+            markup,
+            uri=self.to_text(node) if isinstance(node, URIRef) else None,
+        )
+        if note.is_object():
+            with exception_context(repr(note)):
+                note.extra_data = self._load_extra_data(graph, node)
+        return note
+
     def _create_sources(self, graph: Graph, subject: Node) -> list[Source]:
         """
         Create the sources for this subject.
+
+        Only a source with a uri gets extra_data.
 
         :param graph: Graph to look up the sources in.
         :param subject: Subject to get the sources for.
@@ -386,7 +474,10 @@ class RDFProvider(MemoryProvider):
         """
         sources = []
         for source_node in graph.objects(subject, DCTERMS.source):
-            for citation in graph.objects(source_node, DCTERMS.bibliographicCitation):
+            for citation in graph.objects(
+                source_node,
+                AlternativePath(DCTERMS.bibliographicCitation, RDF.value),
+            ):
                 source = Source(
                     self.to_text(citation),
                     "HTML" if citation.datatype == RDF.HTML else None,
@@ -396,8 +487,9 @@ class RDFProvider(MemoryProvider):
                         else None
                     ),
                 )
-                with exception_context(repr(source)):
-                    source.extra_data = self._load_extra_data(graph, source_node)
+                if source.is_object():
+                    with exception_context(repr(source)):
+                        source.extra_data = self._load_extra_data(graph, source_node)
                 sources.append(source)
         return sources
 

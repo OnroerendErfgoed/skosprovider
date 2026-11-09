@@ -22,6 +22,7 @@ from skosprovider.extra_data import SkosObject
 from skosprovider.extra_data import exception_context
 from skosprovider.extra_data import ignore
 from skosprovider.providers import VocabularyProvider
+from skosprovider.rdf.providers import SKOSXL
 from skosprovider.rdf.providers import SKOS_THES
 from skosprovider.skos import Collection
 from skosprovider.skos import Concept
@@ -42,8 +43,11 @@ def rdf_dumper(
     :param skosprovider.providers.VocabularyProvider provider: The provider
         that wil be turned into an :class:`rdflib.graph.Graph`.
     :param extra_data_dumper: A callable that receives the concept scheme, a
-        concept, collection or source and returns a :class:`rdflib.Graph` or
-        `None`. The graph is merged into the dump. Defaults to
+        concept or collection, or a source, label or note with a uri, and
+        returns a :class:`rdflib.Graph` or `None`. The graph is merged into
+        the dump. A label with a uri is dumped as a SKOS-XL label, a note with
+        a uri as a node with the text under rdf:value. The extra_data of a
+        source, label or note without a uri is not dumped. Defaults to
         :func:`~skosprovider.extra_data.ignore`.
 
     :rtype: :class:`rdflib.graph.Graph`
@@ -127,6 +131,7 @@ def _create_concept_scheme_graph(
     """
     graph = Graph()
     graph.namespace_manager.bind("skos", SKOS)
+    graph.namespace_manager.bind("skosxl", SKOSXL)
     graph.namespace_manager.bind("dcterms", DCTERMS)
     graph.namespace_manager.bind("skos-thes", SKOS_THES)
     graph.namespace_manager.bind("void", VOID)
@@ -136,8 +141,8 @@ def _create_concept_scheme_graph(
     graph.add((subject, RDF.type, SKOS.ConceptScheme))
     graph.add((subject, DCTERMS.identifier, Literal(provider.metadata["id"])))
     with exception_context(f"concept scheme {concept_scheme.uri!r}"):
-        _add_labels(graph, concept_scheme, subject)
-        _add_notes(graph, concept_scheme, subject)
+        _add_labels(graph, concept_scheme, subject, extra_data_dumper)
+        _add_notes(graph, concept_scheme, subject, extra_data_dumper)
         _add_sources(graph, concept_scheme, subject, extra_data_dumper)
         _add_languages(graph, concept_scheme, subject)
         _add_extra_data(graph, extra_data_dumper, concept_scheme)
@@ -210,7 +215,7 @@ def _add_concept_or_collection(
     :param skosprovider.providers.VocabularyProvider provider: Provider
     :param id_: The id of a concept or collection.
     :param extra_data_dumper: Dumps the extra_data of the concept or
-        collection and of its sources.
+        collection and of its labels, notes and sources.
     """
     concept_or_collection = provider.get_by_id(id_)
     if not concept_or_collection:
@@ -221,11 +226,11 @@ def _add_concept_or_collection(
         graph.add((subject, DCTERMS.identifier, Literal(concept_or_collection.id)))
     concept_scheme = URIRef(provider.concept_scheme.uri)
     graph.add((subject, SKOS.inScheme, concept_scheme))
-    _add_labels(graph, concept_or_collection, subject)
-    _add_notes(graph, concept_or_collection, subject)
     with exception_context(
         f"{concept_or_collection.type} {concept_or_collection.id!r}"
     ):
+        _add_labels(graph, concept_or_collection, subject, extra_data_dumper)
+        _add_notes(graph, concept_or_collection, subject, extra_data_dumper)
         _add_sources(graph, concept_or_collection, subject, extra_data_dumper)
         _add_extra_data(graph, extra_data_dumper, concept_or_collection)
     if isinstance(concept_or_collection, Concept):
@@ -269,18 +274,26 @@ def _add_members_as_narrower(
     provider: VocabularyProvider,
     superordinate: URIRef,
     member_ids: Iterable[str | int],
+    seen: set[str | int] | None = None,
 ) -> None:
     """
     Recursively create broader/narrower relations between
     collection members and the superordinate concept.
+
+    :param seen: The ids of the collections already visited, so cyclic
+        members are only visited once.
     """
+    seen = set() if seen is None else seen
     for member in _get_by_ids(provider, member_ids):
         if isinstance(member, Concept):
             member_uri = URIRef(member.uri)
             graph.add((superordinate, SKOS.narrower, member_uri))
             graph.add((member_uri, SKOS.broader, superordinate))
-        elif isinstance(member, Collection):
-            _add_members_as_narrower(graph, provider, superordinate, member.members)
+        elif isinstance(member, Collection) and member.id not in seen:
+            seen.add(member.id)
+            _add_members_as_narrower(
+                graph, provider, superordinate, member.members, seen
+            )
 
 
 def _add_superordinates_as_broader(
@@ -288,34 +301,73 @@ def _add_superordinates_as_broader(
     provider: VocabularyProvider,
     member: URIRef,
     collection: Collection,
+    seen: set[str | int] | None = None,
 ) -> None:
     """
     Recursively create broader relations between
     a collection member and the superordinate concepts.
+
+    :param seen: The ids of the collections already visited, so cyclic
+        memberships are only visited once.
     """
+    seen = set() if seen is None else seen
+    seen.add(collection.id)
     if not collection.infer_concept_relations:
         return
     _add_relations(graph, provider, member, SKOS.broader, collection.superordinates)
     for parent_collection in _get_collections_by_ids(provider, collection.member_of):
-        _add_superordinates_as_broader(graph, provider, member, parent_collection)
+        if parent_collection.id not in seen:
+            _add_superordinates_as_broader(
+                graph, provider, member, parent_collection, seen
+            )
 
 
 def _add_labels(
-    graph: Graph, item: ConceptScheme | Concept | Collection, subject: Node
+    graph: Graph,
+    item: ConceptScheme | Concept | Collection,
+    subject: Node,
+    extra_data_dumper: RdfExtraDataDumper,
 ) -> None:
+    """
+    Add labels to the RDF graph.
+
+    A SKOS-XL label, a label with a uri, is added as a skosxl:Label, which
+    carries its uri, label_types and extra_data. Any other label is added as a
+    plain SKOS label, which has no extra_data in RDF.
+    """
     for label in item.labels:
         label_type = (
             label.type
             if label.type in ("prefLabel", "altLabel", "hiddenLabel")
             else "hiddenLabel"
         )
-        language = extract_language(label.language)
-        graph.add((subject, SKOS[label_type], Literal(label.label, lang=language)))
+        literal = Literal(label.label, lang=extract_language(label.language))
+        if not label.is_xl():
+            graph.add((subject, SKOS[label_type], literal))
+            continue
+        label_node = URIRef(label.uri)
+        graph.add((subject, SKOSXL[label_type], label_node))
+        graph.add((label_node, RDF.type, SKOSXL.Label))
+        graph.add((label_node, SKOSXL.literalForm, literal))
+        for label_type_uri in label.label_types:
+            graph.add((label_node, DCTERMS.type, URIRef(label_type_uri)))
+        with exception_context(repr(label)):
+            _add_extra_data(graph, extra_data_dumper, label)
 
 
 def _add_notes(
-    graph: Graph, item: ConceptScheme | Concept | Collection, subject: Node
+    graph: Graph,
+    item: ConceptScheme | Concept | Collection,
+    subject: Node,
+    extra_data_dumper: RdfExtraDataDumper,
 ) -> None:
+    """
+    Add notes to the RDF graph.
+
+    A note with a uri is added as a node with the text under rdf:value, which
+    carries its extra_data. Any other note is added as a literal, which has no
+    extra_data in RDF.
+    """
     for note in item.notes:
         predicate = SKOS[note.type]
         language = extract_language(note.language)
@@ -329,7 +381,14 @@ def _add_notes(
                 datatype=RDF.HTML,
                 normalize=False,
             )
-        graph.add((subject, predicate, literal))
+        if not note.is_object():
+            graph.add((subject, predicate, literal))
+            continue
+        note_node = URIRef(note.uri)
+        graph.add((subject, predicate, note_node))
+        graph.add((note_node, RDF.value, literal))
+        with exception_context(repr(note)):
+            _add_extra_data(graph, extra_data_dumper, note)
 
 
 def _add_sources(
@@ -345,7 +404,7 @@ def _add_sources(
     :param item: A :class:`skosprovider.skos.ConceptScheme`,
         :class:`skosprovider.skos.Concept` or :class:`skosprovider.skos.Collection`
     :param subject: The RDF subject to add the sources to.
-    :param extra_data_dumper: Dumps the extra_data of every source.
+    :param extra_data_dumper: Dumps the extra_data of every source with a uri.
     """
     for source in item.sources:
         source_node = URIRef(source.uri) if source.uri else BNode()
@@ -356,8 +415,9 @@ def _add_sources(
             citation = Literal(source.citation, datatype=RDF.HTML, normalize=False)
         graph.add((source_node, DCTERMS.bibliographicCitation, citation))
         graph.add((subject, DCTERMS.source, source_node))
-        with exception_context(repr(source)):
-            _add_extra_data(graph, extra_data_dumper, source)
+        if source.is_object():
+            with exception_context(repr(source)):
+                _add_extra_data(graph, extra_data_dumper, source)
 
 
 def _add_languages(graph: Graph, concept_scheme: ConceptScheme, subject: Node) -> None:
