@@ -43,7 +43,8 @@ Currently the following other providers exist:
   interface with a `RDFLib <https://rdflib.readthedocs.org/en/latest/>`_
   backend. This allows using a SKOS RDF file as the source for a provider,
   but also dumping a skosprovider to a SKOS RDF file. This used to be the
-  separate ``skosprovider_rdf`` package.
+  separate ``skosprovider_rdf`` package and is included in this package. See
+  :ref:`rdf`.
 * `Skosprovider_atramhasis <https://skosprovider-atramhasis.readthedocs.org>`_:
   The :class:`AtramhasisProvider <skosprovider.providers.AtramhasisProvider>` 
   lets you interact with an Atramhasis_ instance. 
