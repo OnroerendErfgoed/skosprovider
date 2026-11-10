@@ -324,25 +324,27 @@ class TestDumperObjectNotes:
         assert history_note["rdf:value"]["@type"] == "rdf:HTML"
         assert "@language" not in history_note["rdf:value"]
 
-    def test_object_source_renders_uri_and_rdf_value(self):
+    def test_object_source_renders_uri_and_citation(self):
         doc = to_jsonld(
             _trees_object_notes.get_by_id("1"),
             DumpContext(provider=_trees_object_notes),
         )
         source = doc["dct:source"][0]
         assert source["@id"] == "http://id.trees.org/sources/larch-monograph"
-        assert source["rdf:value"] == {"@value": "The Larch: A Complete Monograph"}
-        assert "dct:bibliographicCitation" not in source
+        assert source["dct:bibliographicCitation"] == [
+            {"@value": "The Larch: A Complete Monograph"}
+        ]
+        assert "rdf:value" not in source
 
-    def test_object_source_with_markup_uses_type_in_rdf_value(self):
+    def test_object_source_with_markup_uses_type_in_citation(self):
         doc = to_jsonld(
             _trees_object_notes.get_by_id("1"),
             DumpContext(provider=_trees_object_notes),
         )
         source = doc["dct:source"][1]
         assert source["@id"] == "http://id.trees.org/sources/trees-vol1"
-        assert source["rdf:value"]["@type"] == "rdf:HTML"
-        assert "dct:bibliographicCitation" not in source
+        assert source["dct:bibliographicCitation"][0]["@type"] == "rdf:HTML"
+        assert "rdf:value" not in source
 
 
 class TestDumperExtraData:

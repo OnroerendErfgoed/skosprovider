@@ -336,24 +336,19 @@ def _(note: skos.Note, dump_context: DumpContext, **kwargs) -> dict:
 
 @to_jsonld.register(skos.Source)
 def _(source: skos.Source, dump_context: DumpContext, **kwargs) -> dict:
-    rdf_value = (
+    citation = (
         {"@value": source.citation, "@type": "rdf:HTML"}
         if source.markup is not None
         else {"@value": source.citation}
     )
+    rendered = {
+        "@type": "dct:BibliographicResource",
+        "dct:bibliographicCitation": [citation],
+    }
     if source.is_object():
-        rendered = {
-            "@type": "dct:BibliographicResource",
-            "@id": source.uri,
-            "rdf:value": rdf_value,
-        }
+        rendered["@id"] = source.uri
         if source.extra_data is not None:
             rendered.update(_extra_data_to_props(source.extra_data, source.uri))
-    else:
-        rendered = {
-            "@type": "dct:BibliographicResource",
-            "dct:bibliographicCitation": [rdf_value],
-        }
     return rendered
 
 
