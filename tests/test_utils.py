@@ -195,6 +195,51 @@ class TestDictDumper:
         dump2 = dict_dumper(self._get_tree_provider(dict_dumper(geo)))
         assert dump == dump2
 
+    def test_note_and_source_uri(self):
+        provider = DictionaryProvider(
+            {"id": "URIS"},
+            [
+                {
+                    "id": "1",
+                    "uri": "http://id.trees.org/1",
+                    "notes": [
+                        {
+                            "note": "A note.",
+                            "type": "note",
+                            "language": "en",
+                            "uri": "http://id.trees.org/notes/1",
+                        }
+                    ],
+                    "sources": [
+                        {
+                            "citation": "A source.",
+                            "uri": "http://id.trees.org/sources/1",
+                        }
+                    ],
+                }
+            ],
+        )
+        dump = dict_dumper(provider)
+        assert dump[0]["notes"] == [
+            {
+                "note": "A note.",
+                "type": "note",
+                "language": "en",
+                "markup": None,
+                "uri": "http://id.trees.org/notes/1",
+            }
+        ]
+        assert dump[0]["sources"] == [
+            {
+                "citation": "A source.",
+                "markup": None,
+                "uri": "http://id.trees.org/sources/1",
+            }
+        ]
+        reloaded = DictionaryProvider({"id": "URIS"}, dump).get_by_id("1")
+        assert reloaded.notes[0].uri == "http://id.trees.org/notes/1"
+        assert reloaded.sources[0].uri == "http://id.trees.org/sources/1"
+
 
 class TestExtractLanguage:
 

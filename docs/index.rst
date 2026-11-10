@@ -11,6 +11,7 @@ Content
 
    intro
    usage
+   rdf
    development
    api
    changes

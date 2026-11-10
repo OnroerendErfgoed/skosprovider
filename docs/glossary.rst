@@ -11,6 +11,11 @@ Glossary
     general specification for Knowledge Organisation Systems (thesauri, word 
     lists, authority files, ...) that is commonly serialised as :term:`RDF`.
 
+   SKOS-XL
+    The `SKOS eXtension for Labels <https://www.w3.org/TR/skos-reference/skos-xl.html>`__.
+    It turns labels into resources with their own :term:`URI`, so they can
+    be described further.
+
    SKOS-THES
     The `ISO 25964 SKOS extension <http://pub.tenforce.com/schemas/iso25964/skos-thes/>`_
     defines mappings between the ISO 25964 standard and the :term:`SKOS` 
