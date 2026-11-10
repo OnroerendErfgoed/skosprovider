@@ -527,3 +527,78 @@ class TestDumperConceptExtraData:
         assert xl_label[dct_created] == [
             {"@type": "http://www.w3.org/2001/XMLSchema#date", "@value": "2010-01-15"}
         ]
+
+
+_EXTRA_PREFIXES = """
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+"""
+_DCT_CREATOR = "http://purl.org/dc/terms/creator"
+_DCT_CONTRIBUTOR = "http://purl.org/dc/terms/contributor"
+_FOAF_NAME = "http://xmlns.com/foaf/0.1/name"
+_FOAF_KNOWS = "http://xmlns.com/foaf/0.1/knows"
+
+
+def _dump_with_extra_data(turtle):
+    """Dump a concept with the turtle as its extra_data."""
+    provider = DictionaryProvider(
+        {"id": "EXTRA"},
+        [
+            {
+                "id": "1",
+                "uri": "http://id.trees.org/1",
+                "labels": [
+                    {"type": "prefLabel", "language": "en", "label": "The Larch"}
+                ],
+                "extra_data": Graph().parse(
+                    data=f"{_EXTRA_PREFIXES} {turtle}", format="turtle"
+                ),
+            }
+        ],
+        concept_scheme=ConceptScheme("http://id.trees.org"),
+        extra_data_loader=from_graph,
+    )
+    return to_jsonld(provider.get_by_id("1"), DumpContext(provider=provider))
+
+
+class TestDumperExtraDataNodes:
+
+    def test_props_of_the_node_of_the_object(self):
+        doc = _dump_with_extra_data(
+            """
+            <http://id.trees.org/1> dct:creator [ foaf:name "Jan" ] ;
+                dct:contributor <http://example.org/piet> .
+            <http://example.org/piet> foaf:name "Piet" .
+            """
+        )
+        assert doc["@id"] == "http://id.trees.org/1"
+        assert _FOAF_NAME not in doc
+        [creator] = doc[_DCT_CREATOR]
+        assert creator[_FOAF_NAME] == [{"@value": "Jan"}]
+        assert doc[_DCT_CONTRIBUTOR] == [
+            {"@id": "http://example.org/piet", _FOAF_NAME: [{"@value": "Piet"}]}
+        ]
+
+    def test_unreachable_nodes_are_dropped(self):
+        doc = _dump_with_extra_data(
+            """
+            <http://id.trees.org/1> dct:creator "Jan" .
+            <http://example.org/piet> foaf:name "Piet" .
+            """
+        )
+        assert doc[_DCT_CREATOR] == [{"@value": "Jan"}]
+        assert "Piet" not in str(doc)
+
+    def test_cycle_stays_a_reference(self):
+        doc = _dump_with_extra_data(
+            """
+            <http://id.trees.org/1> dct:creator <http://example.org/jan> .
+            <http://example.org/jan> foaf:knows <http://id.trees.org/1> .
+            """
+        )
+        assert doc[_DCT_CREATOR] == [
+            {
+                "@id": "http://example.org/jan",
+                _FOAF_KNOWS: [{"@id": "http://id.trees.org/1"}],
+            }
+        ]
