@@ -59,24 +59,25 @@ def dict_dumper(
                         label_dict["label_types"] = label.label_types
                 label_dict.update(_dump_nested(extra_data_dumper, label))
                 labels.append(label_dict)
-            notes = [
-                {
+            notes = []
+            for note in concept_or_collection.notes:
+                note_dict = {
                     "note": note.note,
                     "type": note.type,
                     "language": note.language,
                     "markup": note.markup,
-                    **_dump_nested(extra_data_dumper, note),
                 }
-                for note in concept_or_collection.notes
-            ]
-            sources = [
-                {
-                    "citation": source.citation,
-                    "markup": source.markup,
-                    **_dump_nested(extra_data_dumper, source),
-                }
-                for source in concept_or_collection.sources
-            ]
+                if note.uri:
+                    note_dict["uri"] = note.uri
+                note_dict.update(_dump_nested(extra_data_dumper, note))
+                notes.append(note_dict)
+            sources = []
+            for source in concept_or_collection.sources:
+                source_dict = {"citation": source.citation, "markup": source.markup}
+                if source.uri:
+                    source_dict["uri"] = source.uri
+                source_dict.update(_dump_nested(extra_data_dumper, source))
+                sources.append(source_dict)
             extra = dump_extra_data(extra_data_dumper, concept_or_collection)
         if isinstance(concept_or_collection, Concept):
             ret.append(
