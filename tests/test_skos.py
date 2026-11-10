@@ -186,7 +186,12 @@ class TestNote:
         assert note.is_valid_type("definition")
 
     def test_constructor_with_uri(self):
-        note = Note("A note.", type="changeNote", language="en", uri="http://example.com/notes/1")
+        note = Note(
+            "A note.",
+            type="changeNote",
+            language="en",
+            uri="http://example.com/notes/1",
+        )
         assert note.uri == "http://example.com/notes/1"
         assert note.note == "A note."
 
@@ -210,7 +215,9 @@ class TestNote:
 
     def test_repr_object(self):
         note = Note("A note.", "note", "en", uri="http://example.com/notes/1")
-        assert repr(note) == "Note('A note.', 'note', 'en', 'http://example.com/notes/1')"
+        assert (
+            repr(note) == "Note('A note.', 'note', 'en', 'http://example.com/notes/1')"
+        )
 
     def test_equality_by_uri(self):
         note1 = Note("A note.", "changeNote", "en", uri="http://example.com/notes/1")
@@ -543,7 +550,13 @@ class TestDictToNoteFunction:
         assert "und" == note.language
 
     def test_dict_to_note_with_uri(self):
-        note = dict_to_note({"note": "A note.", "type": "changeNote", "uri": "http://example.com/notes/1"})
+        note = dict_to_note(
+            {
+                "note": "A note.",
+                "type": "changeNote",
+                "uri": "http://example.com/notes/1",
+            }
+        )
         assert note.uri == "http://example.com/notes/1"
         assert note.is_object()
 
@@ -588,7 +601,9 @@ class TestDictToSourceFunction:
         assert citation == source.citation
 
     def test_dict_to_source_with_uri(self):
-        source = dict_to_source({"citation": "A citation.", "uri": "http://example.com/sources/1"})
+        source = dict_to_source(
+            {"citation": "A citation.", "uri": "http://example.com/sources/1"}
+        )
         assert source.uri == "http://example.com/sources/1"
         assert source.is_object()
 
