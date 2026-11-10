@@ -50,7 +50,10 @@ def tree_provider():
         "member_of": ["3"],
         "sources": [
             {
-                "citation": "Monthy Python. Episode Three: How to recognise different types of trees from quite a long way away."
+                "citation": (
+                    "Monthy Python. Episode Three: How to recognise different "
+                    "types of trees from quite a long way away."
+                )
             }
         ],
     }
@@ -79,7 +82,11 @@ def tree_provider():
         "subordinate_arrays": [],
         "sources": [
             {
-                "citation": "<strong>Monthy Python.</strong> Episode Three: How to recognise different types of trees from quite a long way away.",
+                "citation": (
+                    "<strong>Monthy Python.</strong> Episode Three: How to "
+                    "recognise different types of trees from quite a long way "
+                    "away."
+                ),
                 "markup": "HTML",
             }
         ],
@@ -170,8 +177,16 @@ class TestRDFDumperMaterials:
         if isinstance(xml, bytes):
             xml = xml.decode("UTF-8")
         assert "<?xml" == xml[:5]
-        bont_skos_definition = '<skos:definition xml:lang="nl-BE">Bont is een gelooide dierlijke huid, dicht bezet met haren. Het wordt voornamelijk gebruikt voor het maken van kleding.</skos:definition>'
-        dcterms_id_skos_definition = '<dcterms:identifier rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">9</dcterms:identifier>'
+        bont_skos_definition = (
+            '<skos:definition xml:lang="nl-BE">Bont is een gelooide dierlijke '
+            "huid, dicht bezet met haren. Het wordt voornamelijk gebruikt voor "
+            "het maken van kleding.</skos:definition>"
+        )
+        dcterms_id_skos_definition = (
+            "<dcterms:identifier "
+            'rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">'
+            "9</dcterms:identifier>"
+        )
         assert bont_skos_definition in xml
         assert dcterms_id_skos_definition in xml
 
@@ -294,7 +309,8 @@ class TestRDFDumperTrees:
 
         citations = list(graph_dump.objects(predicate=DCTERMS.bibliographicCitation))
         assert citations[0] == Literal(
-            "<strong>Monthy Python.</strong> Episode Three: How to recognise different types of trees from quite a long way away.",
+            "<strong>Monthy Python.</strong> Episode Three: How to recognise "
+            "different types of trees from quite a long way away.",
             datatype=RDF.HTML,
         )
 

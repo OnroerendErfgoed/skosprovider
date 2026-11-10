@@ -30,7 +30,10 @@ with open(os.path.join(os.path.dirname(__file__), "data", "menu.csv")) as ifile:
                 Note(
                     type="changeNote",
                     language="en",
-                    note="<strong>We didn't need no change notes when I was younger.</strong>",
+                    note=(
+                        "<strong>We didn't need no change notes "
+                        "when I was younger.</strong>"
+                    ),
                     markup="HTML",
                 )
             ],

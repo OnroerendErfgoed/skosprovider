@@ -211,7 +211,10 @@ class TestDictDumper:
                         }
                     ],
                     "sources": [
-                        {"citation": "A source.", "uri": "http://id.trees.org/sources/1"}
+                        {
+                            "citation": "A source.",
+                            "uri": "http://id.trees.org/sources/1",
+                        }
                     ],
                 }
             ],

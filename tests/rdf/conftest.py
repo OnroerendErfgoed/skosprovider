@@ -10,7 +10,6 @@ from skosprovider.skos import ConceptScheme
 from skosprovider.skos import Label
 from skosprovider.skos import Note
 from skosprovider.uri import UriPatternGenerator
-
 from . import TEST_DIR
 
 
@@ -53,7 +52,10 @@ def materials_provider():
                 Note(
                     type="scopeNote",
                     language="nl",
-                    note="Materialen zijn grondstoffen of halfafgewerkte producten die vaak een rol spelen bij onroerend erfgoed.",
+                    note=(
+                        "Materialen zijn grondstoffen of halfafgewerkte producten "
+                        "die vaak een rol spelen bij onroerend erfgoed."
+                    ),
                 )
             ],
         ),

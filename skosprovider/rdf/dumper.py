@@ -88,8 +88,8 @@ def rdf_conceptscheme_dumper(
     provider: VocabularyProvider, *, extra_data_dumper: RdfExtraDataDumper = ignore
 ) -> Graph:
     """
-    Dump all information of the conceptscheme of a provider to a format that can be passed to a
-    :class:`skosprovider.rdf.providers.RDFProvider`.
+    Dump all information of the conceptscheme of a provider to a format that
+    can be passed to a :class:`skosprovider.rdf.providers.RDFProvider`.
 
     :param skosprovider.providers.VocabularyProvider provider: The provider
         that wil be turned into an :class:`rdflib.graph.Graph`.

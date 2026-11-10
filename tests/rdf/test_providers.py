@@ -15,7 +15,6 @@ from skosprovider.skos import Concept
 from skosprovider.skos import ConceptScheme
 from skosprovider.skos import Note
 from skosprovider.utils import dict_dumper
-
 from . import TEST_DIR
 
 
@@ -359,11 +358,17 @@ class TestTreeProvider:
         } in chestnut["notes"]
         assert {
             "markup": "HTML",
-            "citation": "<strong>Monthy Python.</strong> Episode Three: How to recognise different types of trees from quite a long way away.",
+            "citation": (
+                "<strong>Monthy Python.</strong> Episode Three: How to recognise "
+                "different types of trees from quite a long way away."
+            ),
         } in chestnut["sources"]
         larch = [item for item in dump if item["uri"] == "http://id.trees.org/1"][0]
         assert {
-            "citation": "Monthy Python. Episode Three: How to recognise different types of trees from quite a long way away.",
+            "citation": (
+                "Monthy Python. Episode Three: How to recognise different "
+                "types of trees from quite a long way away."
+            ),
             "markup": None,
         } in larch["sources"]
         assert {
