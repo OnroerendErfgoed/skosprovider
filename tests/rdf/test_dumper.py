@@ -8,12 +8,12 @@ from rdflib.namespace import SKOS
 from rdflib.term import Literal
 from rdflib.term import URIRef
 
+from skosprovider.dictionary.provider import DictionaryProvider
 from skosprovider.exceptions import NotFoundException
-from skosprovider.providers import DictionaryProvider
 from skosprovider.rdf.dumper import rdf_concept_or_collection_dumper
 from skosprovider.rdf.dumper import rdf_conceptscheme_dumper
 from skosprovider.rdf.dumper import rdf_dumper
-from skosprovider.rdf.providers import RDFProvider
+from skosprovider.rdf.provider import RDFProvider
 from skosprovider.skos import Collection
 from skosprovider.skos import Concept
 from skosprovider.skos import ConceptScheme

@@ -1,8 +1,9 @@
 """
 This example demonstrates a round trip of extra_data through an RDFProvider.
 
-Every object in the graph has a dct:creator. The loader keeps it as the
-extra_data of the object and the dumper writes it back. Extra data is only
+Every object in the graph has a dct:creator, a triple that RDFProvider does not
+turn into an attribute. The `from_unmapped` loader keeps it as the extra_data of
+the object and the `to_unmapped` dumper writes it back. Extra data is only
 supported for the concept scheme, concepts, collections and for SKOS-XL
 labels, notes and sources with a URI. A blank node has no identity outside the
 graph it was read from, so a blank label, note or source gets no extra_data.
@@ -10,10 +11,11 @@ graph it was read from, so a blank label, note or source gets no extra_data.
 
 from rdflib import Graph
 from rdflib.compare import isomorphic
-from rdflib.namespace import DCTERMS
 
 from skosprovider.rdf import RDFProvider
 from skosprovider.rdf import rdf_dumper
+from skosprovider.rdf.extra_data import from_unmapped
+from skosprovider.rdf.extra_data import to_unmapped
 
 TREES = """
 @prefix skos: <http://www.w3.org/2004/02/skos/core#> .
@@ -56,19 +58,6 @@ TREES = """
 """
 
 
-def loader(graph, node):
-    """Keep the dct:creator of a node as its extra_data."""
-    extra_data = Graph()
-    for creator in graph.objects(node, DCTERMS.creator):
-        extra_data.add((node, DCTERMS.creator, creator))
-    return extra_data if len(extra_data) else None
-
-
-def dumper(obj):
-    """Write the extra_data of an object back unchanged."""
-    return obj.extra_data
-
-
 def creators(obj):
     if obj.extra_data is None:
         return None
@@ -76,7 +65,7 @@ def creators(obj):
 
 
 graph = Graph().parse(data=TREES, format="turtle")
-provider = RDFProvider({"id": "TREES"}, graph, extra_data_loader=loader)
+provider = RDFProvider({"id": "TREES"}, graph, extra_data_loader=from_unmapped)
 larch = provider.get_by_id("1")
 
 print("Loaded extra_data")
@@ -87,13 +76,13 @@ for obj in [*larch.labels, *larch.notes, *larch.sources]:
     print(f"{obj!r}: {creators(obj)}")
 print("")
 
-dump = rdf_dumper(provider, extra_data_dumper=dumper)
+dump = rdf_dumper(provider, extra_data_dumper=to_unmapped)
 
 print("Dump")
 print("----")
 print(dump.serialize(format="turtle"))
 
-reloaded = RDFProvider({"id": "TREES"}, dump, extra_data_loader=loader)
+reloaded = RDFProvider({"id": "TREES"}, dump, extra_data_loader=from_unmapped)
 reloaded_larch = reloaded.get_by_id("1")
 
 copies = {

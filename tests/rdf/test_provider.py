@@ -7,14 +7,14 @@ from rdflib import URIRef
 from rdflib.namespace import RDF
 from rdflib.namespace import SKOS
 
+from skosprovider.dictionary.dumper import dict_dumper
 from skosprovider.exceptions import ConceptSchemeException
 from skosprovider.exceptions import InvalidDataException
-from skosprovider.rdf.providers import RDFProvider
+from skosprovider.rdf.provider import RDFProvider
 from skosprovider.skos import Collection
 from skosprovider.skos import Concept
 from skosprovider.skos import ConceptScheme
 from skosprovider.skos import Note
-from skosprovider.utils import dict_dumper
 from . import TEST_DIR
 
 

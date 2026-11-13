@@ -1,17 +1,20 @@
+import pytest
+from fixtures_data import geo
+from fixtures_data import larch
+from fixtures_data import trees
 from rdflib import Graph
 from rdflib import Literal
 from rdflib import Namespace
 from rdflib import URIRef
 from rdflib.namespace import XSD
-from test_providers import geo
-from test_providers import larch
-from test_providers import trees
 
-from skosprovider.extra_data import from_graph
-from skosprovider.jsonld import CONTEXT
-from skosprovider.jsonld import DumpContext
-from skosprovider.jsonld import to_jsonld
-from skosprovider.providers import DictionaryProvider
+from skosprovider.dictionary.extra_data import from_graph
+from skosprovider.dictionary.provider import DictionaryProvider
+from skosprovider.exceptions import ExtraDataException
+from skosprovider.jsonld.dumper import CONTEXT
+from skosprovider.jsonld.dumper import DumpContext
+from skosprovider.jsonld.dumper import to_jsonld
+from skosprovider.jsonld.extra_data import to_unmapped
 from skosprovider.skos import ConceptScheme
 from skosprovider.skos import Label
 from skosprovider.skos import Note
@@ -370,8 +373,16 @@ class TestDumperObjectNotes:
 
 class TestDumperExtraData:
 
-    def test_note_extra_data_includes_expanded_props(self):
+    def test_ignore_by_default(self):
         doc = to_jsonld(_trees_extra.get_by_id("1"), DumpContext(provider=_trees_extra))
+        assert set(doc["skos:changeNote"][0]) == {"@id", "rdf:value"}
+        assert "http://purl.org/dc/terms/creator" not in doc["dct:source"][0]
+
+    def test_note_extra_data_includes_expanded_props(self):
+        doc = to_jsonld(
+            _trees_extra.get_by_id("1"),
+            DumpContext(provider=_trees_extra, extra_data_dumper=to_unmapped),
+        )
         change_note = doc["skos:changeNote"][0]
         assert change_note["@id"] == str(_note_uri)
         dct_creator = "http://purl.org/dc/terms/creator"
@@ -386,12 +397,18 @@ class TestDumperExtraData:
         ]
 
     def test_note_extra_data_no_context_leak(self):
-        doc = to_jsonld(_trees_extra.get_by_id("1"), DumpContext(provider=_trees_extra))
+        doc = to_jsonld(
+            _trees_extra.get_by_id("1"),
+            DumpContext(provider=_trees_extra, extra_data_dumper=to_unmapped),
+        )
         change_note = doc["skos:changeNote"][0]
         assert "@context" not in change_note
 
     def test_source_extra_data_includes_expanded_props(self):
-        doc = to_jsonld(_trees_extra.get_by_id("1"), DumpContext(provider=_trees_extra))
+        doc = to_jsonld(
+            _trees_extra.get_by_id("1"),
+            DumpContext(provider=_trees_extra, extra_data_dumper=to_unmapped),
+        )
         source = doc["dct:source"][0]
         assert source["@id"] == str(_source_uri)
         dct_creator = "http://purl.org/dc/terms/creator"
@@ -404,7 +421,10 @@ class TestDumperExtraData:
         ]
 
     def test_source_extra_data_no_context_leak(self):
-        doc = to_jsonld(_trees_extra.get_by_id("1"), DumpContext(provider=_trees_extra))
+        doc = to_jsonld(
+            _trees_extra.get_by_id("1"),
+            DumpContext(provider=_trees_extra, extra_data_dumper=to_unmapped),
+        )
         source = doc["dct:source"][0]
         assert "@context" not in source
 
@@ -466,7 +486,7 @@ class TestDumperConceptExtraData:
     def test_concept_extra_data_includes_expanded_props(self):
         doc = to_jsonld(
             _trees_concept_extra.get_by_id("1"),
-            DumpContext(provider=_trees_concept_extra),
+            DumpContext(provider=_trees_concept_extra, extra_data_dumper=to_unmapped),
         )
         dct_created = "http://purl.org/dc/terms/created"
         dct_modified = "http://purl.org/dc/terms/modified"
@@ -482,14 +502,14 @@ class TestDumperConceptExtraData:
     def test_concept_extra_data_no_context_leak(self):
         doc = to_jsonld(
             _trees_concept_extra.get_by_id("1"),
-            DumpContext(provider=_trees_concept_extra),
+            DumpContext(provider=_trees_concept_extra, extra_data_dumper=to_unmapped),
         )
         assert "@context" not in doc
 
     def test_collection_extra_data_includes_expanded_props(self):
         doc = to_jsonld(
             _trees_concept_extra.get_by_id("3"),
-            DumpContext(provider=_trees_concept_extra),
+            DumpContext(provider=_trees_concept_extra, extra_data_dumper=to_unmapped),
         )
         dct_created = "http://purl.org/dc/terms/created"
         assert dct_created in doc
@@ -500,14 +520,14 @@ class TestDumperConceptExtraData:
     def test_collection_extra_data_no_context_leak(self):
         doc = to_jsonld(
             _trees_concept_extra.get_by_id("3"),
-            DumpContext(provider=_trees_concept_extra),
+            DumpContext(provider=_trees_concept_extra, extra_data_dumper=to_unmapped),
         )
         assert "@context" not in doc
 
     def test_conceptscheme_extra_data_includes_expanded_props(self):
         doc = to_jsonld(
             _trees_concept_extra.concept_scheme,
-            DumpContext(provider=_trees_concept_extra),
+            DumpContext(provider=_trees_concept_extra, extra_data_dumper=to_unmapped),
         )
         dct_created = "http://purl.org/dc/terms/created"
         assert dct_created in doc
@@ -518,7 +538,7 @@ class TestDumperConceptExtraData:
     def test_conceptscheme_extra_data_no_context_leak(self):
         doc = to_jsonld(
             _trees_concept_extra.concept_scheme,
-            DumpContext(provider=_trees_concept_extra),
+            DumpContext(provider=_trees_concept_extra, extra_data_dumper=to_unmapped),
         )
         assert "@context" not in doc
 
@@ -547,7 +567,10 @@ class TestDumperConceptExtraData:
             [larch_with_xl_extra],
             concept_scheme=ConceptScheme("http://id.trees.org"),
         )
-        doc = to_jsonld(provider.get_by_id("10"), DumpContext(provider=provider))
+        doc = to_jsonld(
+            provider.get_by_id("10"),
+            DumpContext(provider=provider, extra_data_dumper=to_unmapped),
+        )
         xl_label = doc["skosxl:prefLabel"][0]
         dct_created = "http://purl.org/dc/terms/created"
         assert dct_created in xl_label
@@ -556,76 +579,59 @@ class TestDumperConceptExtraData:
         ]
 
 
-_EXTRA_PREFIXES = """
-@prefix dct: <http://purl.org/dc/terms/> .
-@prefix foaf: <http://xmlns.com/foaf/0.1/> .
-"""
-_DCT_CREATOR = "http://purl.org/dc/terms/creator"
-_DCT_CONTRIBUTOR = "http://purl.org/dc/terms/contributor"
-_FOAF_NAME = "http://xmlns.com/foaf/0.1/name"
-_FOAF_KNOWS = "http://xmlns.com/foaf/0.1/knows"
+class TestDumperRelations:
+    def test_cached_relation_uses_uri(self):
+        doc = to_jsonld(trees)
+        species = next(item for item in doc["@graph"] if item["dct:identifier"] == 3)
+        assert {member["@id"] for member in species["skos:member"]} == {
+            "http://id.trees.org/1",
+            "http://id.trees.org/2",
+        }
 
-
-def _dump_with_extra_data(turtle):
-    """Dump a concept with the turtle as its extra_data."""
-    provider = DictionaryProvider(
-        {"id": "EXTRA"},
-        [
-            {
-                "id": "1",
-                "uri": "http://id.trees.org/1",
-                "labels": [
-                    {"type": "prefLabel", "language": "en", "label": "The Larch"}
-                ],
-                "extra_data": Graph().parse(
-                    data=f"{_EXTRA_PREFIXES} {turtle}", format="turtle"
-                ),
-            }
-        ],
-        concept_scheme=ConceptScheme("http://id.trees.org"),
-        extra_data_loader=from_graph,
-    )
-    return to_jsonld(provider.get_by_id("1"), DumpContext(provider=provider))
-
-
-class TestDumperExtraDataNodes:
-
-    def test_props_of_the_node_of_the_object(self):
-        doc = _dump_with_extra_data(
-            """
-            <http://id.trees.org/1> dct:creator [ foaf:name "Jan" ] ;
-                dct:contributor <http://example.org/piet> .
-            <http://example.org/piet> foaf:name "Piet" .
-            """
+    def test_collection_superordinates(self):
+        doc = to_jsonld(geo)
+        collection = next(
+            item for item in doc["@graph"] if item["dct:identifier"] == "358"
         )
-        assert doc["@id"] == "http://id.trees.org/1"
-        assert _FOAF_NAME not in doc
-        [creator] = doc[_DCT_CREATOR]
-        assert creator[_FOAF_NAME] == [{"@value": "Jan"}]
-        assert doc[_DCT_CONTRIBUTOR] == [
-            {"@id": "http://example.org/piet", _FOAF_NAME: [{"@value": "Piet"}]}
-        ]
+        assert [
+            superordinate["dct:identifier"]
+            for superordinate in collection["iso-thes:superOrdinate"]
+        ] == [4]
 
-    def test_unreachable_nodes_are_dropped(self):
-        doc = _dump_with_extra_data(
-            """
-            <http://id.trees.org/1> dct:creator "Jan" .
-            <http://example.org/piet> foaf:name "Piet" .
-            """
-        )
-        assert doc[_DCT_CREATOR] == [{"@value": "Jan"}]
-        assert "Piet" not in str(doc)
 
-    def test_cycle_stays_a_reference(self):
-        doc = _dump_with_extra_data(
-            """
-            <http://id.trees.org/1> dct:creator <http://example.org/jan> .
-            <http://example.org/jan> foaf:knows <http://id.trees.org/1> .
-            """
+class TestDumperExtraDataDumper:
+    def test_not_called_for_note_and_source_without_uri(self):
+        dumped = []
+
+        def dumper(obj):
+            dumped.append(obj)
+
+        provider = DictionaryProvider(
+            {"id": "TREES"},
+            [
+                {
+                    "id": "1",
+                    "uri": "http://id.trees.org/1",
+                    "notes": [Note("A tree.")],
+                    "sources": [Source("A book.")],
+                }
+            ],
         )
-        assert doc[_DCT_CREATOR] == [
-            {
-                "@id": "http://example.org/jan",
-                _FOAF_KNOWS: [{"@id": "http://id.trees.org/1"}],
-            }
+        to_jsonld(provider, extra_data_dumper=dumper)
+        assert not any(isinstance(obj, (Note, Source)) for obj in dumped)
+
+    def test_dumper_error(self):
+        def dumper(obj):
+            if getattr(obj, "label", None) == "De Lariks":
+                raise ValueError("boom")
+
+        with pytest.raises(ExtraDataException) as excinfo:
+            to_jsonld(trees, extra_data_dumper=dumper)
+        assert excinfo.value.message == "Failed to dump extra_data: boom"
+        assert excinfo.value.__notes__ == [
+            (
+                "while processing Label('De Lariks', 'prefLabel', 'nl', "
+                "'http://id.trees.org/labels/lariks-nl')"
+            ),
+            "while processing concept '1'",
         ]

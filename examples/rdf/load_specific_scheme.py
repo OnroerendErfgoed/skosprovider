@@ -6,7 +6,7 @@ import os
 
 from rdflib import Graph
 
-from skosprovider.rdf.providers import RDFProvider
+from skosprovider.rdf.provider import RDFProvider
 
 graph = Graph()
 

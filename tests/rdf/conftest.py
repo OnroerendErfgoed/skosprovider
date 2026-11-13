@@ -4,8 +4,8 @@ import os
 import pytest
 from rdflib import Graph
 
-from skosprovider.providers import DictionaryProvider
-from skosprovider.rdf.providers import RDFProvider
+from skosprovider.dictionary.provider import DictionaryProvider
+from skosprovider.rdf.provider import RDFProvider
 from skosprovider.skos import ConceptScheme
 from skosprovider.skos import Label
 from skosprovider.skos import Note

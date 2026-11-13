@@ -1,27 +1,22 @@
 """
-This module contains functions dealing with jsonld reading and writing.
-
-The extra_data of an object is merged into the dict of that object. Only the
-node with the uri of the object is merged, with the nodes it refers to
-embedded. Other nodes in the extra_data have no place in the dict and are
-dropped, so unlike an RDF dump, a JSON-LD dump can lose part of the
-extra_data.
+This module dumps skos providers and objects to JSON-LD.
 
 .. versionadded:: 0.7.0
 """
 
-import json
 import logging
 from functools import singledispatch
 from typing import Any
 
 from attr import dataclass
-from pyld import jsonld as pyld_jsonld
-from rdflib import Graph
 
 from skosprovider import skos
-from skosprovider.providers import SkosRef
-from skosprovider.providers import VocabularyProvider
+from skosprovider.exceptions import ExtraDataException
+from skosprovider.extra_data import exception_context
+from skosprovider.extra_data import ignore
+from skosprovider.jsonld.extra_data import JsonLdExtraDataDumper
+from skosprovider.provider import SkosRef
+from skosprovider.provider import VocabularyProvider
 from skosprovider.utils import add_lang_to_html
 from skosprovider.utils import extract_language
 
@@ -58,6 +53,13 @@ class DumpContext:
     """
     language: str = "en"
     context: dict | str | None = CONTEXT
+    extra_data_dumper: JsonLdExtraDataDumper = ignore
+    """
+    A callable that receives the concept scheme, a concept or collection, or a
+    source, SKOS-XL label or note with a uri, and returns a dict of JSON-LD
+    properties or `None`. The properties are merged into the node of that object. See
+    :mod:`skosprovider.jsonld.extra_data` for the available dumpers.
+    """
 
 
 def _plain_label(lbl: "skos.Label") -> dict:
@@ -76,15 +78,22 @@ def to_jsonld(obj, dump_context: DumpContext, **kwargs) -> dict[str, Any]:
 
 @to_jsonld.register(VocabularyProvider)
 def _(
-    provider: VocabularyProvider, dump_context: DumpContext | None = None, **kwargs
+    provider: VocabularyProvider,
+    dump_context: DumpContext | None = None,
+    *,
+    extra_data_dumper: JsonLdExtraDataDumper = ignore,
+    **kwargs,
 ) -> dict[str, Any]:
     """
     Dump a provider to a JSON-LD serialisable dictionary.
 
-    :param skosprovider.providers.VocabularyProvider provider: The provider
+    :param skosprovider.provider.VocabularyProvider provider: The provider
         that wil be turned into a JSON-LD `dict`.
     :param DumpContext dump_context: Context for the dump operation. If None,
         a default DumpContext will be created from the provider's metadata.
+    :param extra_data_dumper: Used for the default DumpContext, see
+        :attr:`DumpContext.extra_data_dumper`. Defaults to
+        :func:`~skosprovider.extra_data.ignore`.
 
     :rtype: A `dict`
     """
@@ -95,18 +104,21 @@ def _(
             provider=provider,
             language=language,
             all_data_by_id={item["id"]: item for item in all_data},
+            extra_data_dumper=extra_data_dumper,
         )
     if not dump_context.context:
         dump_context.context = CONTEXT
 
-    doc: dict[str, Any] = {
-        "@graph": [to_jsonld(provider.concept_scheme, dump_context)],
-        "@context": dump_context.context,
-    }
+    with exception_context(f"concept scheme {provider.concept_scheme.uri!r}"):
+        doc: dict[str, Any] = {
+            "@graph": [to_jsonld(provider.concept_scheme, dump_context)],
+            "@context": dump_context.context,
+        }
     for concept_or_collection in all_data:
         obj = provider.get_by_id(concept_or_collection["id"])
         if obj is not False:
-            doc["@graph"].append(to_jsonld(obj, dump_context))
+            with exception_context(f"{obj.type} {obj.id!r}"):
+                doc["@graph"].append(to_jsonld(obj, dump_context))
     return doc
 
 
@@ -122,8 +134,7 @@ def _(label: skos.Label, dump_context: DumpContext, **kwargs) -> dict:
         }
         if label.label_types:
             rendered["dct:type"] = [{"@id": lt} for lt in label.label_types]
-        if label.extra_data is not None:
-            rendered.update(_extra_data_to_props(label.extra_data, label.uri))
+        rendered.update(_dump_nested_extra_data(label, dump_context))
         return rendered
     else:
         return {"@language": lang, "@value": label.label}
@@ -193,8 +204,7 @@ def _(concept: skos.Concept, dump_context: DumpContext, **kwargs):
         "skos:relatedMatch": [{"@id": m} for m in concept.matches.get("related", [])],
     }
     concept_jsonld = _filter_optional_keys(concept_jsonld)
-    if concept.extra_data is not None:
-        concept_jsonld.update(_extra_data_to_props(concept.extra_data, concept.uri))
+    concept_jsonld.update(_dump_extra_data(concept, dump_context))
     return concept_jsonld
 
 
@@ -252,10 +262,7 @@ def _(conceptscheme: skos.ConceptScheme, dump_context: DumpContext, **kwargs):
         "dct:language": [{"@value": lang} for lang in conceptscheme.languages],
     }
     concept_scheme_jsonld = _filter_optional_keys(concept_scheme_jsonld)
-    if conceptscheme.extra_data is not None:
-        concept_scheme_jsonld.update(
-            _extra_data_to_props(conceptscheme.extra_data, conceptscheme.uri)
-        )
+    concept_scheme_jsonld.update(_dump_extra_data(conceptscheme, dump_context))
     return concept_scheme_jsonld
 
 
@@ -304,6 +311,7 @@ def _(collection: skos.Collection, dump_context: DumpContext, **kwargs):
         "dct:source": render_list(collection.sources),
         # members
         "skos:member": [relation(r) for r in collection.members],
+        "iso-thes:superOrdinate": [relation(r) for r in collection.superordinates],
         "@reverse": (
             {"skos:member": [relation(r) for r in collection.member_of]}
             if collection.member_of
@@ -311,10 +319,7 @@ def _(collection: skos.Collection, dump_context: DumpContext, **kwargs):
         ),
     }
     collection_jsonld = _filter_optional_keys(collection_jsonld)
-    if collection.extra_data is not None:
-        collection_jsonld.update(
-            _extra_data_to_props(collection.extra_data, collection.uri)
-        )
+    collection_jsonld.update(_dump_extra_data(collection, dump_context))
     return collection_jsonld
 
 
@@ -329,8 +334,7 @@ def _(note: skos.Note, dump_context: DumpContext, **kwargs) -> dict:
     rendered = {"rdf:value": rdf_value}
     if note.is_object():
         rendered["@id"] = note.uri
-        if note.extra_data is not None:
-            rendered.update(_extra_data_to_props(note.extra_data, note.uri))
+        rendered.update(_dump_nested_extra_data(note, dump_context))
     return rendered
 
 
@@ -347,8 +351,7 @@ def _(source: skos.Source, dump_context: DumpContext, **kwargs) -> dict:
     }
     if source.is_object():
         rendered["@id"] = source.uri
-        if source.extra_data is not None:
-            rendered.update(_extra_data_to_props(source.extra_data, source.uri))
+        rendered.update(_dump_nested_extra_data(source, dump_context))
     return rendered
 
 
@@ -389,46 +392,29 @@ def _filter_optional_keys(full_jsonld: dict) -> dict:
         "dct:language",
         # collection
         "skos:member",
+        "iso-thes:superOrdinate",
     }
     return {k: v for k, v in full_jsonld.items() if k not in optional or v}
 
 
-def _extra_data_to_props(extra_data: Graph, uri: str) -> dict:
+def _dump_extra_data(obj, dump_context: DumpContext) -> dict[str, Any]:
     """
-    Extract the properties of an object from its extra_data, for merging into
-    the rendered dict of that object.
+    Call the extra_data dumper of the dump context and wrap any error in an
+    :class:`~skosprovider.exceptions.ExtraDataException`.
 
-    The properties are those of the node with the uri of the object. Nodes
-    that it refers to are embedded. Nodes that can't be reached from it have
-    no place in the dict of the object and are dropped.
+    :returns: A dict, empty when the dumper returned `None`.
     """
-    serialized = json.loads(extra_data.serialize(format="json-ld"))
-    nodes = {node["@id"]: node for node in pyld_jsonld.expand(serialized)}
-    if uri not in nodes:
-        return {}
-    return {
-        key: _embed_nodes(value, nodes, {uri})
-        for key, value in nodes[uri].items()
-        if key != "@id"
-    }
+    try:
+        return dump_context.extra_data_dumper(obj) or {}
+    except Exception as err:
+        raise ExtraDataException(f"Failed to dump extra_data: {err}") from err
 
 
-def _embed_nodes(value: Any, nodes: dict[str, dict], embedded: set[str]) -> Any:
-    """
-    Replace every reference to one of the nodes by the node itself.
-
-    A node that is already being embedded higher up stays a reference, to
-    break cycles.
-    """
-    if isinstance(value, list):
-        return [_embed_nodes(item, nodes, embedded) for item in value]
-    if not isinstance(value, dict):
-        return value
-    node_id = value.get("@id")
-    if value.keys() == {"@id"} and node_id in nodes and node_id not in embedded:
-        value = nodes[node_id]
-        embedded = embedded | {node_id}
-    return {key: _embed_nodes(item, nodes, embedded) for key, item in value.items()}
+def _dump_nested_extra_data(
+    obj: "skos.Label | skos.Note | skos.Source", dump_context: DumpContext
+) -> dict[str, Any]:
+    with exception_context(repr(obj)):
+        return _dump_extra_data(obj, dump_context)
 
 
 def id_to_relation_jsonld(skos_id: str, dump_context: DumpContext):
@@ -436,7 +422,7 @@ def id_to_relation_jsonld(skos_id: str, dump_context: DumpContext):
         relation_data = dump_context.all_data_by_id.get(skos_id)
         if relation_data:
             return {
-                "@id": relation_data["id"],
+                "@id": relation_data["uri"],
                 "@type": TYPE_TO_SKOS[relation_data["type"]],
                 "dct:identifier": relation_data["id"],
                 "rdfs:label": relation_data["label"],

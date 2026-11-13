@@ -12,12 +12,12 @@ import json
 
 from rdflib.compare import isomorphic
 
-from skosprovider.extra_data import from_jsonld
-from skosprovider.extra_data import from_turtle
-from skosprovider.extra_data import to_jsonld
-from skosprovider.providers import DictionaryProvider
+from skosprovider.dictionary.dumper import dict_dumper
+from skosprovider.dictionary.extra_data import from_jsonld
+from skosprovider.dictionary.extra_data import from_turtle
+from skosprovider.dictionary.extra_data import to_jsonld
+from skosprovider.dictionary.provider import DictionaryProvider
 from skosprovider.uri import UriPatternGenerator
-from skosprovider.utils import dict_dumper
 
 PREFIXES = """
 @prefix dct: <http://purl.org/dc/terms/> .

@@ -1,6 +1,6 @@
 """
 This module contains an RDFProvider, an implementation of the
-:class:`skosprovider.providers.VocabularyProvider` interface that uses a
+:class:`skosprovider.provider.VocabularyProvider` interface that uses a
 :class:`rdflib.graph.Graph` as input.
 """
 
@@ -27,7 +27,7 @@ from skosprovider.exceptions import InvalidDataException
 from skosprovider.extra_data import exception_context
 from skosprovider.extra_data import ignore
 from skosprovider.extra_data import load_extra_data
-from skosprovider.providers import MemoryProvider
+from skosprovider.provider import MemoryProvider
 from skosprovider.skos import Collection
 from skosprovider.skos import Concept
 from skosprovider.skos import ConceptScheme
@@ -70,7 +70,8 @@ class RDFProvider(MemoryProvider):
             node of a single concept scheme, concept or collection, or of a
             source, SKOS-XL label or note with a uri, and returns a
             :class:`rdflib.Graph` or `None`. A source, label or note that is a
-            blank node gets no extra_data. Defaults to
+            blank node gets no extra_data. See :mod:`skosprovider.rdf.extra_data`
+            for the available loaders. Defaults to
             :func:`~skosprovider.extra_data.ignore`. A concept scheme passed as
             `concept_scheme` keeps its own extra_data.
         """

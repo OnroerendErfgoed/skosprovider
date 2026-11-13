@@ -11,8 +11,8 @@ that package.
 Loading a graph
 ---------------
 
-The :class:`~skosprovider.rdf.providers.RDFProvider` is an implementation of
-the :class:`~skosprovider.providers.VocabularyProvider` interface that uses an
+The :class:`~skosprovider.rdf.provider.RDFProvider` is an implementation of
+the :class:`~skosprovider.provider.VocabularyProvider` interface that uses an
 :class:`rdflib.graph.Graph` as input. This provider can be used to add a
 :term:`SKOS` vocabulary contained in an :term:`RDF` file to your application.
 The provider itself does not read the file, but expects to be passed a
@@ -81,7 +81,7 @@ Dumping a provider
 ------------------
 
 The :mod:`skosprovider.rdf.dumper` module dumps any implementation of
-:class:`~skosprovider.providers.VocabularyProvider` to an
+:class:`~skosprovider.provider.VocabularyProvider` to an
 :class:`rdflib.graph.Graph`. Since only the
 :class:`~rdflib.graph.Graph` is dealt with, a provider can be serialised to
 any :term:`RDF` serialisation :mod:`rdflib` supports.
@@ -110,7 +110,7 @@ narrower concepts of its superordinates, the dumpers add the inferred
 Extra data
 ----------
 
-:class:`~skosprovider.rdf.providers.RDFProvider` takes an optional
+:class:`~skosprovider.rdf.provider.RDFProvider` takes an optional
 ``extra_data_loader`` and the dumpers take an optional
 ``extra_data_dumper``. They default to
 :func:`~skosprovider.extra_data.ignore`.
@@ -121,6 +121,12 @@ The loader receives the graph and the node of an object and returns an
 receives an object and returns an :class:`rdflib.Graph` or `None`, which is
 merged into the dump together with its namespace bindings.
 
+:mod:`skosprovider.rdf.extra_data` has a ready-made loader and dumper:
+:func:`~skosprovider.rdf.extra_data.from_unmapped` keeps the triples that
+:class:`~skosprovider.rdf.provider.RDFProvider` does not turn into attributes,
+eg. a ``skos:notation`` or a ``dct:creator``, and
+:func:`~skosprovider.rdf.extra_data.to_unmapped` writes them to the dump again.
+
 Extra data is supported for the concept scheme, concepts and collections, and
 for sources, labels and notes with a :term:`URI`. A blank node has no identity
 outside the graph it was read from, so a source, label or note without a
@@ -129,27 +135,13 @@ it.
 
 .. code-block:: python
 
-    from rdflib import Graph
-    from rdflib.namespace import DCTERMS
-
     from skosprovider.rdf.dumper import rdf_dumper
-    from skosprovider.rdf.providers import RDFProvider
+    from skosprovider.rdf.extra_data import from_unmapped
+    from skosprovider.rdf.extra_data import to_unmapped
+    from skosprovider.rdf.provider import RDFProvider
 
-
-    def loader(graph, node):
-        """Keep the creator of a node as its extra data."""
-        extra_data = Graph()
-        for creator in graph.objects(node, DCTERMS.creator):
-            extra_data.add((node, DCTERMS.creator, creator))
-        return extra_data if len(extra_data) else None
-
-
-    def dumper(obj):
-        return obj.extra_data
-
-
-    provider = RDFProvider({"id": "TREES"}, graph, extra_data_loader=loader)
-    dump = rdf_dumper(provider, extra_data_dumper=dumper)
+    provider = RDFProvider({"id": "TREES"}, graph, extra_data_loader=from_unmapped)
+    dump = rdf_dumper(provider, extra_data_dumper=to_unmapped)
 
 Errors raised by a loader or dumper are wrapped in an
 :class:`~skosprovider.exceptions.ExtraDataException`, with notes describing
@@ -165,8 +157,8 @@ The ``skosprovider_rdf`` package has been merged into skosprovider 2.0.0 as
 ``skosprovider < 2.0.0``, but is no longer maintained.
 
 * Imports move from ``skosprovider_rdf.providers`` to
-  :mod:`skosprovider.rdf.providers` and from ``skosprovider_rdf.utils`` to
-  :mod:`skosprovider.rdf.dumper`. :class:`~skosprovider.rdf.providers.RDFProvider`
+  :mod:`skosprovider.rdf.provider` and from ``skosprovider_rdf.utils`` to
+  :mod:`skosprovider.rdf.dumper`. :class:`~skosprovider.rdf.provider.RDFProvider`
   and the dumpers can also be imported from :mod:`skosprovider.rdf` directly.
 * ``rdf_c_dumper(provider, c)`` is renamed to
   :func:`rdf_concept_or_collection_dumper(provider, id_)
@@ -176,7 +168,7 @@ The ``skosprovider_rdf`` package has been merged into skosprovider 2.0.0 as
 * When dumping, unknown ids in relations and ids that point to the wrong type
   (eg. a concept in the ``member_of`` of a concept) are skipped instead of
   raising an :class:`AttributeError`.
-* :class:`~skosprovider.rdf.providers.RDFProvider` raises a
+* :class:`~skosprovider.rdf.provider.RDFProvider` raises a
   :class:`~skosprovider.exceptions.ConceptSchemeException` instead of a
   :class:`RuntimeError` when it can not pick a concept scheme, and an
   :class:`~skosprovider.exceptions.InvalidDataException` instead of a
@@ -187,7 +179,7 @@ The ``skosprovider_rdf`` package has been merged into skosprovider 2.0.0 as
   now raises a :class:`~skosprovider.exceptions.ConceptSchemeException`, also
   when the graph contains one or no concept scheme. It used to be ignored in
   those cases.
-* :class:`~skosprovider.rdf.providers.RDFProvider` no longer keeps the graph
+* :class:`~skosprovider.rdf.provider.RDFProvider` no longer keeps the graph
   it is built from: the ``graph`` attribute is removed. The
   ``check_in_scheme`` class attribute is removed, the instance attribute is
   unchanged.

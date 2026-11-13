@@ -3,7 +3,7 @@ This example demonstrates the skosprovider API with a simple
 DictionaryProvider containing just three items.
 """
 
-from skosprovider.providers import DictionaryProvider
+from skosprovider.dictionary.provider import DictionaryProvider
 from skosprovider.skos import ConceptScheme
 from skosprovider.uri import UriPatternGenerator
 
