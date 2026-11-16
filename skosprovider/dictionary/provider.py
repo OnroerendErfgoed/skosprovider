@@ -37,8 +37,9 @@ class DictionaryProvider(MemoryProvider):
     ) -> None:
         """
         :param extra_data_loader: A callable that receives the dict of a
-            single concept, collection, label, note or source and returns a
-            :class:`rdflib.Graph` or `None`. See
+            single concept, collection, label, note or source and the skos
+            object built from it, and returns a :class:`rdflib.Graph` or
+            `None`. See
             :mod:`skosprovider.dictionary.extra_data` for the available
             loaders. Defaults to :func:`~skosprovider.extra_data.ignore`.
             Labels, notes and sources passed as objects keep their own
@@ -60,7 +61,7 @@ class DictionaryProvider(MemoryProvider):
                 type="collection", id=data["id"]
             )
             with exception_context(f"collection {data['id']!r}"):
-                return Collection(
+                obj = Collection(
                     id=data["id"],
                     uri=uri,
                     concept_scheme=self.concept_scheme,
@@ -71,14 +72,15 @@ class DictionaryProvider(MemoryProvider):
                     member_of=data.get("member_of", []),
                     superordinates=data.get("superordinates", []),
                     infer_concept_relations=data.get("infer_concept_relations", True),
-                    extra_data=load_extra_data(self.extra_data_loader, data),
                 )
+                obj.extra_data = load_extra_data(self.extra_data_loader, data, obj)
+                return obj
         else:
             uri = data.get("uri") or self.uri_generator.generate(
                 type="concept", id=data["id"]
             )
             with exception_context(f"concept {data['id']!r}"):
-                return Concept(
+                obj = Concept(
                     id=data["id"],
                     uri=uri,
                     concept_scheme=self.concept_scheme,
@@ -91,8 +93,9 @@ class DictionaryProvider(MemoryProvider):
                     member_of=data.get("member_of", []),
                     subordinate_arrays=data.get("subordinate_arrays", []),
                     matches=data.get("matches", {}),
-                    extra_data=load_extra_data(self.extra_data_loader, data),
                 )
+                obj.extra_data = load_extra_data(self.extra_data_loader, data, obj)
+                return obj
 
     def _from_list(
         self,
@@ -108,6 +111,6 @@ class DictionaryProvider(MemoryProvider):
             obj = to_object(item)
             if isinstance(item, dict) and obj is not item:
                 with exception_context(repr(obj)):
-                    obj.extra_data = load_extra_data(self.extra_data_loader, item)
+                    obj.extra_data = load_extra_data(self.extra_data_loader, item, obj)
             ret.append(obj)
         return ret

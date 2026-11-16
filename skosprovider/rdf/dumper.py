@@ -30,7 +30,7 @@ from skosprovider.skos import ConceptScheme
 from skosprovider.utils import add_lang_to_html
 from skosprovider.utils import extract_language
 
-RdfExtraDataDumper = Callable[[SkosObject | ConceptScheme], Graph | None]
+RdfExtraDataDumper = Callable[[SkosObject], Graph | None]
 
 
 def rdf_dumper(
@@ -108,7 +108,7 @@ def rdf_conceptscheme_dumper(
 def _add_extra_data(
     graph: Graph,
     extra_data_dumper: RdfExtraDataDumper,
-    obj: SkosObject | ConceptScheme,
+    obj: SkosObject,
 ) -> None:
     """
     Merge the extra_data that the dumper returns for an object into the graph.

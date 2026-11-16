@@ -4,7 +4,8 @@ SimpleCsvProvider.
 
 The rows carry the extra_data of the concept, label, note and source as turtle
 strings in the fifth to eighth column. They are loaded with the
-`*_from_turtle` loaders, dumped with `csv_dumper` and the `to_turtle` dumper,
+`from_turtle` loader, which picks the column from the type of the skos object
+it loads, dumped with `csv_dumper` and the `to_turtle` dumper,
 written to csv and read again, and finally compared with the original graphs.
 """
 
@@ -14,10 +15,7 @@ import io
 from rdflib.compare import isomorphic
 
 from skosprovider.csv.dumper import csv_dumper
-from skosprovider.csv.extra_data import concept_from_turtle
-from skosprovider.csv.extra_data import label_from_turtle
-from skosprovider.csv.extra_data import note_from_turtle
-from skosprovider.csv.extra_data import source_from_turtle
+from skosprovider.csv.extra_data import from_turtle
 from skosprovider.csv.extra_data import to_turtle
 from skosprovider.csv.provider import SimpleCsvProvider
 
@@ -37,16 +35,10 @@ rows = [
     ["2", "Egg and Spam"],
 ]
 
-loaders = {
-    "concept_extra_data_loader": concept_from_turtle,
-    "label_extra_data_loader": label_from_turtle,
-    "note_extra_data_loader": note_from_turtle,
-    "source_extra_data_loader": source_from_turtle,
-}
 metadata = {"id": "MENU"}
 
 # 1. Load the rows, turning the turtle strings into rdflib graphs.
-original = SimpleCsvProvider(metadata, rows, **loaders)
+original = SimpleCsvProvider(metadata, rows, extra_data_loader=from_turtle)
 
 # 2. Dump the provider to rows, turning the graphs into turtle strings again,
 #    and write them as csv.
@@ -56,7 +48,7 @@ print(file.getvalue())
 
 # 3. Read the csv and load it again.
 file.seek(0)
-reloaded = SimpleCsvProvider(metadata, csv.reader(file), **loaders)
+reloaded = SimpleCsvProvider(metadata, csv.reader(file), extra_data_loader=from_turtle)
 
 
 # 4. Compare the extra_data of every object. Blank nodes get new ids on every

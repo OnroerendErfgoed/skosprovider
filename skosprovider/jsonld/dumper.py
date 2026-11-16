@@ -5,16 +5,18 @@ This module dumps skos providers and objects to JSON-LD.
 """
 
 import logging
+from collections.abc import Callable
 from functools import singledispatch
 from typing import Any
 
 from attr import dataclass
+from pyld import jsonld as pyld_jsonld
 
 from skosprovider import skos
 from skosprovider.exceptions import ExtraDataException
+from skosprovider.extra_data import SkosObject
 from skosprovider.extra_data import exception_context
 from skosprovider.extra_data import ignore
-from skosprovider.jsonld.extra_data import JsonLdExtraDataDumper
 from skosprovider.provider import SkosRef
 from skosprovider.provider import VocabularyProvider
 from skosprovider.utils import add_lang_to_html
@@ -40,6 +42,8 @@ CONTEXT = {
     "void": "http://rdfs.org/ns/void#",
 }
 
+JsonLdExtraDataDumper = Callable[[SkosObject], dict[str, Any] | None]
+
 
 @dataclass
 class DumpContext:
@@ -57,7 +61,10 @@ class DumpContext:
     """
     A callable that receives the concept scheme, a concept or collection, or a
     source, SKOS-XL label or note with a uri, and returns a dict of JSON-LD
-    properties or `None`. The properties are merged into the node of that object. See
+    properties or `None`. The dict may have its own `@context`; keys without
+    one are read with :attr:`context`. The properties are compacted with
+    :attr:`context` and merged into the node of that object, so a full IRI
+    becomes a prefixed name when :attr:`context` has a prefix for it. See
     :mod:`skosprovider.jsonld.extra_data` for the available dumpers.
     """
 
@@ -134,7 +141,7 @@ def _(label: skos.Label, dump_context: DumpContext, **kwargs) -> dict:
         }
         if label.label_types:
             rendered["dct:type"] = [{"@id": lt} for lt in label.label_types]
-        rendered.update(_dump_nested_extra_data(label, dump_context))
+        _merge_properties(rendered, _dump_nested_extra_data(label, dump_context))
         return rendered
     else:
         return {"@language": lang, "@value": label.label}
@@ -204,7 +211,7 @@ def _(concept: skos.Concept, dump_context: DumpContext, **kwargs):
         "skos:relatedMatch": [{"@id": m} for m in concept.matches.get("related", [])],
     }
     concept_jsonld = _filter_optional_keys(concept_jsonld)
-    concept_jsonld.update(_dump_extra_data(concept, dump_context))
+    _merge_properties(concept_jsonld, _dump_extra_data(concept, dump_context))
     return concept_jsonld
 
 
@@ -262,7 +269,9 @@ def _(conceptscheme: skos.ConceptScheme, dump_context: DumpContext, **kwargs):
         "dct:language": [{"@value": lang} for lang in conceptscheme.languages],
     }
     concept_scheme_jsonld = _filter_optional_keys(concept_scheme_jsonld)
-    concept_scheme_jsonld.update(_dump_extra_data(conceptscheme, dump_context))
+    _merge_properties(
+        concept_scheme_jsonld, _dump_extra_data(conceptscheme, dump_context)
+    )
     return concept_scheme_jsonld
 
 
@@ -319,7 +328,7 @@ def _(collection: skos.Collection, dump_context: DumpContext, **kwargs):
         ),
     }
     collection_jsonld = _filter_optional_keys(collection_jsonld)
-    collection_jsonld.update(_dump_extra_data(collection, dump_context))
+    _merge_properties(collection_jsonld, _dump_extra_data(collection, dump_context))
     return collection_jsonld
 
 
@@ -334,7 +343,7 @@ def _(note: skos.Note, dump_context: DumpContext, **kwargs) -> dict:
     rendered = {"rdf:value": rdf_value}
     if note.is_object():
         rendered["@id"] = note.uri
-        rendered.update(_dump_nested_extra_data(note, dump_context))
+        _merge_properties(rendered, _dump_nested_extra_data(note, dump_context))
     return rendered
 
 
@@ -351,7 +360,7 @@ def _(source: skos.Source, dump_context: DumpContext, **kwargs) -> dict:
     }
     if source.is_object():
         rendered["@id"] = source.uri
-        rendered.update(_dump_nested_extra_data(source, dump_context))
+        _merge_properties(rendered, _dump_nested_extra_data(source, dump_context))
     return rendered
 
 
@@ -402,12 +411,31 @@ def _dump_extra_data(obj, dump_context: DumpContext) -> dict[str, Any]:
     Call the extra_data dumper of the dump context and wrap any error in an
     :class:`~skosprovider.exceptions.ExtraDataException`.
 
+    The properties are expanded with the context of the dump and their own
+    `@context`, then compacted with the context of the dump only. So they fit
+    in the dump without a `@context` of their own.
+
     :returns: A dict, empty when the dumper returned `None`.
     """
     try:
-        return dump_context.extra_data_dumper(obj) or {}
+        properties = dump_context.extra_data_dumper(obj)
+        if not properties:
+            return {}
+        properties = dict(properties)
+        properties.pop("@id", None)
+        own_context = properties.pop("@context", None)
+        context = dump_context.context or {}
+        expanded = pyld_jsonld.expand(
+            {
+                "@context": [context, own_context] if own_context else context,
+                **properties,
+            }
+        )
+        compacted = pyld_jsonld.compact(expanded, context)
     except Exception as err:
         raise ExtraDataException(f"Failed to dump extra_data: {err}") from err
+    compacted.pop("@context", None)
+    return compacted
 
 
 def _dump_nested_extra_data(
@@ -415,6 +443,26 @@ def _dump_nested_extra_data(
 ) -> dict[str, Any]:
     with exception_context(repr(obj)):
         return _dump_extra_data(obj, dump_context)
+
+
+def _merge_properties(rendered: dict[str, Any], extra: dict[str, Any]) -> None:
+    """
+    Merge the properties dumped from extra_data into a rendered node.
+
+    A property the node already has keeps its values and gets the new ones
+    added, eg. an extra `@type` next to `skos:Concept`.
+    """
+    for key, value in extra.items():
+        if key not in rendered:
+            rendered[key] = value
+            continue
+        values = _as_list(rendered[key])
+        values.extend(v for v in _as_list(value) if v not in values)
+        rendered[key] = values[0] if len(values) == 1 else values
+
+
+def _as_list(value: Any) -> list:
+    return list(value) if isinstance(value, list) else [value]
 
 
 def id_to_relation_jsonld(skos_id: str, dump_context: DumpContext):

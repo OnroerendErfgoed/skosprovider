@@ -11,10 +11,11 @@ from rdflib.namespace import XSD
 from skosprovider.dictionary.extra_data import from_graph
 from skosprovider.dictionary.provider import DictionaryProvider
 from skosprovider.exceptions import ExtraDataException
+from skosprovider.jsonld import extra_data
 from skosprovider.jsonld.dumper import CONTEXT
 from skosprovider.jsonld.dumper import DumpContext
 from skosprovider.jsonld.dumper import to_jsonld
-from skosprovider.jsonld.extra_data import to_unmapped
+from skosprovider.skos import Concept
 from skosprovider.skos import ConceptScheme
 from skosprovider.skos import Label
 from skosprovider.skos import Note
@@ -378,52 +379,46 @@ class TestDumperExtraData:
         assert set(doc["skos:changeNote"][0]) == {"@id", "rdf:value"}
         assert "http://purl.org/dc/terms/creator" not in doc["dct:source"][0]
 
-    def test_note_extra_data_includes_expanded_props(self):
+    def test_note_extra_data_includes_compact_props(self):
         doc = to_jsonld(
             _trees_extra.get_by_id("1"),
-            DumpContext(provider=_trees_extra, extra_data_dumper=to_unmapped),
+            DumpContext(provider=_trees_extra, extra_data_dumper=extra_data.to_jsonld),
         )
         change_note = doc["skos:changeNote"][0]
         assert change_note["@id"] == str(_note_uri)
-        dct_creator = "http://purl.org/dc/terms/creator"
-        dct_date = "http://purl.org/dc/terms/date"
-        assert dct_creator in change_note
-        assert change_note[dct_creator] == [
-            {"@id": "http://id.trees.org/persons/HoraceGray"}
-        ]
-        assert dct_date in change_note
-        assert change_note[dct_date] == [
-            {"@type": "http://www.w3.org/2001/XMLSchema#date", "@value": "1999-01-23"}
-        ]
+        assert change_note["dct:creator"] == {
+            "@id": "http://id.trees.org/persons/HoraceGray"
+        }
+        assert change_note["dct:date"] == {
+            "@type": "http://www.w3.org/2001/XMLSchema#date",
+            "@value": "1999-01-23",
+        }
 
     def test_note_extra_data_no_context_leak(self):
         doc = to_jsonld(
             _trees_extra.get_by_id("1"),
-            DumpContext(provider=_trees_extra, extra_data_dumper=to_unmapped),
+            DumpContext(provider=_trees_extra, extra_data_dumper=extra_data.to_jsonld),
         )
         change_note = doc["skos:changeNote"][0]
         assert "@context" not in change_note
 
-    def test_source_extra_data_includes_expanded_props(self):
+    def test_source_extra_data_includes_compact_props(self):
         doc = to_jsonld(
             _trees_extra.get_by_id("1"),
-            DumpContext(provider=_trees_extra, extra_data_dumper=to_unmapped),
+            DumpContext(provider=_trees_extra, extra_data_dumper=extra_data.to_jsonld),
         )
         source = doc["dct:source"][0]
         assert source["@id"] == str(_source_uri)
-        dct_creator = "http://purl.org/dc/terms/creator"
-        dct_date = "http://purl.org/dc/terms/date"
-        assert dct_creator in source
-        assert source[dct_creator] == [{"@id": "http://id.trees.org/persons/JohnDoe"}]
-        assert dct_date in source
-        assert source[dct_date] == [
-            {"@type": "http://www.w3.org/2001/XMLSchema#gYear", "@value": "2005"}
-        ]
+        assert source["dct:creator"] == {"@id": "http://id.trees.org/persons/JohnDoe"}
+        assert source["dct:date"] == {
+            "@type": "http://www.w3.org/2001/XMLSchema#gYear",
+            "@value": "2005",
+        }
 
     def test_source_extra_data_no_context_leak(self):
         doc = to_jsonld(
             _trees_extra.get_by_id("1"),
-            DumpContext(provider=_trees_extra, extra_data_dumper=to_unmapped),
+            DumpContext(provider=_trees_extra, extra_data_dumper=extra_data.to_jsonld),
         )
         source = doc["dct:source"][0]
         assert "@context" not in source
@@ -483,66 +478,74 @@ _trees_concept_extra = DictionaryProvider(
 
 class TestDumperConceptExtraData:
 
-    def test_concept_extra_data_includes_expanded_props(self):
+    def test_concept_extra_data_includes_compact_props(self):
         doc = to_jsonld(
             _trees_concept_extra.get_by_id("1"),
-            DumpContext(provider=_trees_concept_extra, extra_data_dumper=to_unmapped),
+            DumpContext(
+                provider=_trees_concept_extra, extra_data_dumper=extra_data.to_jsonld
+            ),
         )
-        dct_created = "http://purl.org/dc/terms/created"
-        dct_modified = "http://purl.org/dc/terms/modified"
-        assert dct_created in doc
-        assert doc[dct_created] == [
-            {"@type": "http://www.w3.org/2001/XMLSchema#date", "@value": "2010-01-15"}
-        ]
-        assert dct_modified in doc
-        assert doc[dct_modified] == [
-            {"@type": "http://www.w3.org/2001/XMLSchema#date", "@value": "2020-06-01"}
-        ]
+        assert doc["dct:created"] == {
+            "@type": "http://www.w3.org/2001/XMLSchema#date",
+            "@value": "2010-01-15",
+        }
+        assert doc["dct:modified"] == {
+            "@type": "http://www.w3.org/2001/XMLSchema#date",
+            "@value": "2020-06-01",
+        }
 
     def test_concept_extra_data_no_context_leak(self):
         doc = to_jsonld(
             _trees_concept_extra.get_by_id("1"),
-            DumpContext(provider=_trees_concept_extra, extra_data_dumper=to_unmapped),
+            DumpContext(
+                provider=_trees_concept_extra, extra_data_dumper=extra_data.to_jsonld
+            ),
         )
         assert "@context" not in doc
 
-    def test_collection_extra_data_includes_expanded_props(self):
+    def test_collection_extra_data_includes_compact_props(self):
         doc = to_jsonld(
             _trees_concept_extra.get_by_id("3"),
-            DumpContext(provider=_trees_concept_extra, extra_data_dumper=to_unmapped),
+            DumpContext(
+                provider=_trees_concept_extra, extra_data_dumper=extra_data.to_jsonld
+            ),
         )
-        dct_created = "http://purl.org/dc/terms/created"
-        assert dct_created in doc
-        assert doc[dct_created] == [
-            {"@type": "http://www.w3.org/2001/XMLSchema#date", "@value": "2010-01-15"}
-        ]
+        assert doc["dct:created"] == {
+            "@type": "http://www.w3.org/2001/XMLSchema#date",
+            "@value": "2010-01-15",
+        }
 
     def test_collection_extra_data_no_context_leak(self):
         doc = to_jsonld(
             _trees_concept_extra.get_by_id("3"),
-            DumpContext(provider=_trees_concept_extra, extra_data_dumper=to_unmapped),
+            DumpContext(
+                provider=_trees_concept_extra, extra_data_dumper=extra_data.to_jsonld
+            ),
         )
         assert "@context" not in doc
 
-    def test_conceptscheme_extra_data_includes_expanded_props(self):
+    def test_conceptscheme_extra_data_includes_compact_props(self):
         doc = to_jsonld(
             _trees_concept_extra.concept_scheme,
-            DumpContext(provider=_trees_concept_extra, extra_data_dumper=to_unmapped),
+            DumpContext(
+                provider=_trees_concept_extra, extra_data_dumper=extra_data.to_jsonld
+            ),
         )
-        dct_created = "http://purl.org/dc/terms/created"
-        assert dct_created in doc
-        assert doc[dct_created] == [
-            {"@type": "http://www.w3.org/2001/XMLSchema#date", "@value": "2009-12-01"}
-        ]
+        assert doc["dct:created"] == {
+            "@type": "http://www.w3.org/2001/XMLSchema#date",
+            "@value": "2009-12-01",
+        }
 
     def test_conceptscheme_extra_data_no_context_leak(self):
         doc = to_jsonld(
             _trees_concept_extra.concept_scheme,
-            DumpContext(provider=_trees_concept_extra, extra_data_dumper=to_unmapped),
+            DumpContext(
+                provider=_trees_concept_extra, extra_data_dumper=extra_data.to_jsonld
+            ),
         )
         assert "@context" not in doc
 
-    def test_label_extra_data_includes_expanded_props(self):
+    def test_label_extra_data_includes_compact_props(self):
         _label_uri = URIRef("http://id.trees.org/labels/larch-en")
         _label_graph = Graph()
         _label_graph.add(
@@ -569,14 +572,13 @@ class TestDumperConceptExtraData:
         )
         doc = to_jsonld(
             provider.get_by_id("10"),
-            DumpContext(provider=provider, extra_data_dumper=to_unmapped),
+            DumpContext(provider=provider, extra_data_dumper=extra_data.to_jsonld),
         )
         xl_label = doc["skosxl:prefLabel"][0]
-        dct_created = "http://purl.org/dc/terms/created"
-        assert dct_created in xl_label
-        assert xl_label[dct_created] == [
-            {"@type": "http://www.w3.org/2001/XMLSchema#date", "@value": "2010-01-15"}
-        ]
+        assert xl_label["dct:created"] == {
+            "@type": "http://www.w3.org/2001/XMLSchema#date",
+            "@value": "2010-01-15",
+        }
 
 
 class TestDumperRelations:
@@ -619,6 +621,52 @@ class TestDumperExtraDataDumper:
         )
         to_jsonld(provider, extra_data_dumper=dumper)
         assert not any(isinstance(obj, (Note, Source)) for obj in dumped)
+
+    def test_properties_are_compacted_with_the_dump_context(self):
+        def dumper(obj):
+            if isinstance(obj, Concept):
+                return {
+                    "@context": {"terms": "http://purl.org/dc/terms/"},
+                    "terms:created": "2020",
+                    "http://purl.org/dc/terms/modified": "2021",
+                    "skos:notation": "L",
+                    "http://example.org/height": 30,
+                }
+
+        provider = DictionaryProvider(
+            {"id": "TREES"}, [{"id": "1", "uri": "http://id.trees.org/1"}]
+        )
+        doc = to_jsonld(
+            provider.get_by_id("1"),
+            DumpContext(provider=provider, extra_data_dumper=dumper),
+        )
+        assert "@context" not in doc
+        assert "terms:created" not in doc
+        assert doc["dct:created"] == "2020"
+        assert doc["dct:modified"] == "2021"
+        assert doc["skos:notation"] == "L"
+        assert doc["http://example.org/height"] == 30
+
+    def test_extra_type_is_added(self):
+        def dumper(obj):
+            if isinstance(obj, Concept):
+                return {"@type": "http://example.org/Tree"}
+
+        provider = DictionaryProvider(
+            {"id": "TREES"}, [{"id": "1", "uri": "http://id.trees.org/1"}]
+        )
+        doc = to_jsonld(
+            provider.get_by_id("1"),
+            DumpContext(
+                provider=provider,
+                context={
+                    "skos": "http://www.w3.org/2004/02/skos/core#",
+                    "ex": "http://example.org/",
+                },
+                extra_data_dumper=dumper,
+            ),
+        )
+        assert doc["@type"] == ["skos:Concept", "ex:Tree"]
 
     def test_dumper_error(self):
         def dumper(obj):

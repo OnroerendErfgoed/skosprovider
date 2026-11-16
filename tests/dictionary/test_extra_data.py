@@ -17,6 +17,7 @@ from skosprovider.dictionary.extra_data import to_turtle
 from skosprovider.dictionary.provider import DictionaryProvider
 from skosprovider.exceptions import ExtraDataException
 from skosprovider.extra_data import ignore
+from skosprovider.skos import Concept
 from skosprovider.skos import Label
 from skosprovider.skos import Note
 
@@ -119,19 +120,19 @@ class TestDictionaryProviderExtraData:
         for actual, graph in zip(_all_extra_data(provider), expected):
             assert isomorphic(actual, graph)
 
-    def test_loader_receives_full_dict(self):
+    def test_loader_receives_full_dict_and_skos_object(self):
         received = []
 
-        def loader(data):
-            received.append(data)
+        def loader(data, skos_object):
+            received.append((data, skos_object))
 
         concept = _concept_dict(lambda *_: None)
-        _provider([concept], extra_data_loader=loader)
+        loaded = _provider([concept], extra_data_loader=loader).get_by_id("1")
         assert received == [
-            concept["labels"][0],
-            concept["notes"][0],
-            concept["sources"][0],
-            concept,
+            (concept["labels"][0], loaded.labels[0]),
+            (concept["notes"][0], loaded.notes[0]),
+            (concept["sources"][0], loaded.sources[0]),
+            (concept, loaded),
         ]
 
     def test_objects_keep_their_extra_data(self):
@@ -152,7 +153,7 @@ class TestDictionaryProviderExtraData:
         assert concept.notes[0].extra_data is graph
 
     def test_custom_keys(self):
-        def loader(data):
+        def loader(data, skos_object):
             if "extra1" not in data:
                 return None
             graph = Graph()
@@ -180,7 +181,7 @@ class TestDictionaryProviderExtraData:
     def test_failing_custom_loader_raises(self):
         error = ValueError("boom")
 
-        def loader(data):
+        def loader(data, skos_object):
             raise error
 
         with pytest.raises(ExtraDataException) as excinfo:
@@ -241,7 +242,7 @@ class TestLoadersAndDumpers:
     @pytest.mark.parametrize("loader", [from_turtle, from_jsonld, from_graph])
     @pytest.mark.parametrize("data", [{}, {"extra_data": None}])
     def test_loader_without_extra_data(self, loader, data):
-        assert loader(data) is None
+        assert loader(data, Concept(1)) is None
 
     @pytest.mark.parametrize("dumper", [to_turtle, to_jsonld, to_graph, ignore])
     def test_dumper_without_extra_data(self, dumper):

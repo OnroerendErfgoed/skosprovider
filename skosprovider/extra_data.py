@@ -4,7 +4,9 @@ Shared building blocks for the extra_data of skos objects.
 In the skos model, extra_data is always a :class:`rdflib.Graph` or `None`.
 
 A loader receives the input of a single object, eg. a dict, a csv row or an RDF
-node, and returns a :class:`rdflib.Graph` or `None`. The loaders and dumpers
+node, and the skos object being loaded, and returns a :class:`rdflib.Graph` or
+`None`. The skos object is fully built, except for its extra_data, so the
+loader can tell what kind of object it loads. The loaders and dumpers
 for a specific input format live next to the provider that reads it, eg.
 :mod:`skosprovider.dictionary.extra_data` and :mod:`skosprovider.rdf.extra_data`.
 
@@ -22,12 +24,13 @@ from rdflib import Graph
 from skosprovider.exceptions import ExtraDataException
 from skosprovider.skos import Collection
 from skosprovider.skos import Concept
+from skosprovider.skos import ConceptScheme
 from skosprovider.skos import Label
 from skosprovider.skos import Note
 from skosprovider.skos import Source
 
-SkosObject = Concept | Collection | Label | Note | Source
-ExtraDataLoader = Callable[[Any], Graph | None]
+SkosObject = ConceptScheme | Concept | Collection | Label | Note | Source
+ExtraDataLoader = Callable[[Any, SkosObject], Graph | None]
 
 
 def ignore(*_: object) -> None:
@@ -39,16 +42,20 @@ def ignore(*_: object) -> None:
     return None
 
 
-def load_extra_data(loader: ExtraDataLoader, data: Any) -> Graph | None:
+def load_extra_data(
+    loader: ExtraDataLoader, data: Any, skos_object: SkosObject
+) -> Graph | None:
     """
     Call a loader and wrap any error in an :class:`ExtraDataException`.
 
     Use :func:`exception_context` to describe which object was being loaded.
 
+    :param data: The input of the object, passed to the loader.
+    :param skos_object: The object being loaded, passed to the loader.
     :returns: A :class:`rdflib.Graph` or `None`.
     """
     try:
-        return loader(data)
+        return loader(data, skos_object)
     except Exception as err:
         raise ExtraDataException(f"Failed to load extra_data: {err}") from err
 

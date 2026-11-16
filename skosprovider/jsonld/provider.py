@@ -5,17 +5,17 @@ JSON-LD document as input.
 """
 
 import json
+from collections.abc import Callable
 from typing import Any
 
 from rdflib import Graph
-from rdflib.term import Node
 
+from skosprovider.extra_data import SkosObject
 from skosprovider.extra_data import ignore
-from skosprovider.jsonld.dumper import CONTEXT
-from skosprovider.jsonld.extra_data import JsonLdExtraDataLoader
-from skosprovider.jsonld.extra_data import node_to_jsonld
-from skosprovider.rdf.extra_data import from_unmapped
+from skosprovider.jsonld.extra_data import graph_to_jsonld
 from skosprovider.rdf.provider import RDFProvider
+
+JsonLdExtraDataLoader = Callable[[dict[str, Any], SkosObject], Graph | None]
 
 
 class JsonLdProvider(RDFProvider):
@@ -37,13 +37,14 @@ class JsonLdProvider(RDFProvider):
     ) -> None:
         """
         :param document: A JSON-LD document, as returned by :func:`json.load`.
-        :param extra_data_loader: A callable that receives a JSON-LD dict with
-            the properties of a single concept scheme, concept, collection,
-            source, SKOS-XL label or note node that are not turned into
-            attributes, and returns a :class:`rdflib.Graph` or `None`. It is
-            only called when there are such properties. See
-            :mod:`skosprovider.jsonld.extra_data` for the available loaders.
-            Defaults to :func:`~skosprovider.extra_data.ignore`.
+        :param extra_data_loader: A callable that receives the node of a
+            single concept scheme, concept or collection, or of a source,
+            SKOS-XL label or note with a uri, as an expanded JSON-LD dict, and
+            the skos object built from it, and returns a :class:`rdflib.Graph`
+            or `None`.
+            See :mod:`skosprovider.jsonld.extra_data` for what the node holds
+            and for the available loaders. Defaults to
+            :func:`~skosprovider.extra_data.ignore`.
         """
         self.jsonld_extra_data_loader = extra_data_loader
         graph = Graph().parse(data=json.dumps(document), format="json-ld")
@@ -51,10 +52,12 @@ class JsonLdProvider(RDFProvider):
             metadata, graph, extra_data_loader=self._load_jsonld_extra_data, **kwargs
         )
 
-    def _load_jsonld_extra_data(self, graph: Graph, node: Node) -> Graph | None:
+    def _load_jsonld_extra_data(
+        self, graph: Graph, skos_object: SkosObject
+    ) -> Graph | None:
         if self.jsonld_extra_data_loader is ignore:
             return None
-        unmapped = from_unmapped(graph, node)
-        if unmapped is None:
+        node = graph_to_jsonld(graph, skos_object.uri)
+        if not node:
             return None
-        return self.jsonld_extra_data_loader(node_to_jsonld(unmapped, node, CONTEXT))
+        return self.jsonld_extra_data_loader(node, skos_object)

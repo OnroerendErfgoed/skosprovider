@@ -224,8 +224,8 @@ class TestMultipleConceptschemes:
         wb_graph.parse(abspath, format="turtle")
         nodes = []
 
-        def loader(_graph, node):
-            nodes.append(node)
+        def loader(_graph, skos_object):
+            nodes.append(URIRef(skos_object.uri))
 
         RDFProvider(
             {"id": "WAARDETYPES"},
@@ -556,8 +556,8 @@ class TestNodes:
         graph = Graph().parse(data=NODES, format="turtle")
         nodes = []
 
-        def loader(_graph, node):
-            nodes.append(node)
+        def loader(_graph, skos_object):
+            nodes.append(URIRef(skos_object.uri))
 
         RDFProvider({"id": "TREES"}, graph, extra_data_loader=loader)
         assert URIRef("http://id.trees.org/labels/1") in nodes

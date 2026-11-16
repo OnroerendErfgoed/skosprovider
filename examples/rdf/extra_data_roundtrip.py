@@ -3,7 +3,7 @@ This example demonstrates a round trip of extra_data through an RDFProvider.
 
 Every object in the graph has a dct:creator, a triple that RDFProvider does not
 turn into an attribute. The `from_unmapped` loader keeps it as the extra_data of
-the object and the `to_unmapped` dumper writes it back. Extra data is only
+the object and the `to_graph` dumper writes it back. Extra data is only
 supported for the concept scheme, concepts, collections and for SKOS-XL
 labels, notes and sources with a URI. A blank node has no identity outside the
 graph it was read from, so a blank label, note or source gets no extra_data.
@@ -15,7 +15,7 @@ from rdflib.compare import isomorphic
 from skosprovider.rdf import RDFProvider
 from skosprovider.rdf import rdf_dumper
 from skosprovider.rdf.extra_data import from_unmapped
-from skosprovider.rdf.extra_data import to_unmapped
+from skosprovider.rdf.extra_data import to_graph
 
 TREES = """
 @prefix skos: <http://www.w3.org/2004/02/skos/core#> .
@@ -76,7 +76,7 @@ for obj in [*larch.labels, *larch.notes, *larch.sources]:
     print(f"{obj!r}: {creators(obj)}")
 print("")
 
-dump = rdf_dumper(provider, extra_data_dumper=to_unmapped)
+dump = rdf_dumper(provider, extra_data_dumper=to_graph)
 
 print("Dump")
 print("----")

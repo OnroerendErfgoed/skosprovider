@@ -38,32 +38,21 @@ class SimpleCsvProvider(MemoryProvider):
         metadata: dict[str, Any],
         reader: Iterable[list[str]],
         *,
-        concept_extra_data_loader: ExtraDataLoader = ignore,
-        label_extra_data_loader: ExtraDataLoader = ignore,
-        note_extra_data_loader: ExtraDataLoader = ignore,
-        source_extra_data_loader: ExtraDataLoader = ignore,
+        extra_data_loader: ExtraDataLoader = ignore,
         **kwargs: Any,
     ) -> None:
         """
-        Every extra_data loader receives the full csv row (a list) and returns
-        a :class:`rdflib.Graph` or `None`. See :mod:`skosprovider.csv.extra_data`
-        for the available loaders. They all default to
-        :func:`~skosprovider.extra_data.ignore`.
-
         :param metadata: A metadata dictionary.
         :param reader: A csv reader.
-        :param concept_extra_data_loader: Loads the extra_data of the concept.
-        :param label_extra_data_loader: Loads the extra_data of the label.
-        :param note_extra_data_loader: Loads the extra_data of the note. Only
-            called when the row has a note.
-        :param source_extra_data_loader: Loads the extra_data of the source.
-            Only called when the row has a source.
+        :param extra_data_loader: A callable that receives the full csv row (a
+            list) and the concept, label, note or source built from it, and
+            returns a :class:`rdflib.Graph` or `None`. It is called for the
+            note and the source only when the row has one. See
+            :mod:`skosprovider.csv.extra_data` for the available loaders.
+            Defaults to :func:`~skosprovider.extra_data.ignore`.
         """
         super().__init__(metadata, [], **kwargs)
-        self.concept_extra_data_loader = concept_extra_data_loader
-        self.label_extra_data_loader = label_extra_data_loader
-        self.note_extra_data_loader = note_extra_data_loader
-        self.source_extra_data_loader = source_extra_data_loader
+        self.extra_data_loader = extra_data_loader
         self.list = [self._from_row(row) for row in reader]
 
     def _from_row(self, row: list[str]) -> Concept:
@@ -73,7 +62,7 @@ class SimpleCsvProvider(MemoryProvider):
             for label in labels:
                 with exception_context(repr(label)):
                     label.extra_data = load_extra_data(
-                        self.label_extra_data_loader, row
+                        self.extra_data_loader, row, label
                     )
 
             if len(row) > 2 and row[2]:
@@ -82,7 +71,7 @@ class SimpleCsvProvider(MemoryProvider):
                 notes = []
             for note in notes:
                 with exception_context(repr(note)):
-                    note.extra_data = load_extra_data(self.note_extra_data_loader, row)
+                    note.extra_data = load_extra_data(self.extra_data_loader, row, note)
 
             if len(row) > 3 and row[3]:
                 sources = [Source(row[3])]
@@ -91,14 +80,15 @@ class SimpleCsvProvider(MemoryProvider):
             for source in sources:
                 with exception_context(repr(source)):
                     source.extra_data = load_extra_data(
-                        self.source_extra_data_loader, row
+                        self.extra_data_loader, row, source
                     )
 
-            return Concept(
+            concept = Concept(
                 id=id,
                 uri=self.uri_generator.generate(type="concept", id=id),
                 labels=labels,
                 notes=notes,
                 sources=sources,
-                extra_data=load_extra_data(self.concept_extra_data_loader, row),
             )
+            concept.extra_data = load_extra_data(self.extra_data_loader, row, concept)
+            return concept

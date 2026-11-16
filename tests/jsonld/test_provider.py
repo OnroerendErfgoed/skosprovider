@@ -3,12 +3,16 @@ import json
 import pytest
 from fixtures_data import geo
 from fixtures_data import trees
+from rdflib import Graph
 from rdflib.compare import isomorphic
 
+from skosprovider.jsonld import extra_data
+from skosprovider.jsonld.dumper import DumpContext
 from skosprovider.jsonld.dumper import to_jsonld
 from skosprovider.jsonld.extra_data import from_unmapped
-from skosprovider.jsonld.extra_data import to_unmapped
+from skosprovider.jsonld.extra_data import jsonld_to_graph
 from skosprovider.jsonld.provider import JsonLdProvider
+from skosprovider.skos import Source
 
 CONTEXT = {
     "skos": "http://www.w3.org/2004/02/skos/core#",
@@ -113,32 +117,114 @@ class TestExtraData:
         provider = JsonLdProvider({"id": "TREES"}, DOCUMENT)
         assert _all_extra_data(provider) == [None] * 5
 
-    def test_loader_receives_compact_jsonld(self):
+    def test_loader_receives_the_whole_node(self):
         received = []
 
-        def loader(data):
+        def loader(data, skos_object):
             received.append(data)
 
         JsonLdProvider({"id": "TREES"}, DOCUMENT, extra_data_loader=loader)
         larch = next(data for data in received if data["@id"] == LARCH["@id"])
-        assert "@context" in larch
-        assert set(larch) - {"@context", "@id"} == {
+        assert set(larch) - {"@id", "@included"} == {
             "@type",
-            "skos:notation",
+            "http://www.w3.org/2004/02/skos/core#inScheme",
+            "http://purl.org/dc/terms/identifier",
+            "http://www.w3.org/2004/02/skos/core#notation",
             "http://example.org/height",
+            "http://www.w3.org/2004/02/skos/core#prefLabel",
+            "http://www.w3.org/2008/05/skos-xl#altLabel",
+            "http://www.w3.org/2004/02/skos/core#definition",
+            "http://purl.org/dc/terms/source",
         }
-        assert larch["@type"] == "http://example.org/Tree"
+        assert sorted(larch["@type"]) == [
+            "http://example.org/Tree",
+            "http://www.w3.org/2004/02/skos/core#Concept",
+        ]
+        assert larch["http://www.w3.org/2008/05/skos-xl#altLabel"] == [
+            {"@id": "http://id.trees.org/labels/1"}
+        ]
+        # The blank nodes behind ex:height are in @included.
+        [height] = larch["http://example.org/height"]
+        included = {node["@id"]: node for node in larch["@included"]}
+        assert included[height["@id"]]["http://example.org/value"] == [
+            {"@type": "http://www.w3.org/2001/XMLSchema#integer", "@value": 30}
+        ]
 
-    def test_loader_not_called_without_unmapped_properties(self):
+    def test_loader_receives_the_node_of_a_label(self):
+        received = []
+
+        def loader(data, skos_object):
+            received.append(data)
+
+        JsonLdProvider({"id": "TREES"}, DOCUMENT, extra_data_loader=loader)
+        label = next(
+            data for data in received if data["@id"] == "http://id.trees.org/labels/1"
+        )
+        assert set(label) - {"@id"} == {
+            "@type",
+            "http://www.w3.org/2008/05/skos-xl#literalForm",
+            "http://purl.org/dc/terms/created",
+        }
+
+    def test_loader_result_becomes_extra_data(self):
+        def loader(node, skos_object):
+            if isinstance(skos_object, Source):
+                date = "http://purl.org/dc/terms/date"
+                return jsonld_to_graph({"@id": node["@id"], date: node[date]})
+
+        provider = JsonLdProvider({"id": "TREES"}, DOCUMENT, extra_data_loader=loader)
+        larch = provider.get_by_id("1")
+        expected = Graph().parse(
+            data="""
+            @prefix dct: <http://purl.org/dc/terms/> .
+            <http://id.trees.org/sources/1> dct:date "1970" .
+            """,
+            format="turtle",
+        )
+        assert isomorphic(larch.sources[0].extra_data, expected)
+        assert larch.extra_data is None
+
+    def test_loader_called_without_unmapped_properties(self):
+        received = []
         document = {
             "@context": CONTEXT,
             "@graph": [{"@id": "http://id.trees.org", "@type": "skos:ConceptScheme"}],
         }
-        JsonLdProvider(
+        provider = JsonLdProvider(
             {"id": "TREES"},
             document,
-            extra_data_loader=lambda data: pytest.fail("loader called"),
+            extra_data_loader=lambda data, skos_object: received.append(data),
         )
+        assert [data["@type"] for data in received] == [
+            ["http://www.w3.org/2004/02/skos/core#ConceptScheme"]
+        ]
+        assert provider.concept_scheme.extra_data is None
+
+    def test_from_unmapped_without_unmapped_properties(self):
+        document = {
+            "@context": CONTEXT,
+            "@graph": [{"@id": "http://id.trees.org", "@type": "skos:ConceptScheme"}],
+        }
+        provider = JsonLdProvider(
+            {"id": "TREES"}, document, extra_data_loader=from_unmapped
+        )
+        assert provider.concept_scheme.extra_data is None
+
+    def test_from_unmapped_skips_mapped_properties(self):
+        provider = JsonLdProvider(
+            {"id": "TREES"}, DOCUMENT, extra_data_loader=from_unmapped
+        )
+        expected = Graph().parse(
+            data="""
+            @prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+            @prefix ex: <http://example.org/> .
+            <http://id.trees.org/1> a ex:Tree ;
+                skos:notation "L" ;
+                ex:height [ ex:value 30 ; ex:unit [ ex:name "metre" ] ] .
+            """,
+            format="turtle",
+        )
+        assert isomorphic(provider.get_by_id("1").extra_data, expected)
 
     def test_blank_note_and_source_get_no_extra_data(self):
         larch = {
@@ -164,7 +250,7 @@ class TestExtraData:
         )
         reloaded = JsonLdProvider(
             {"id": "TREES"},
-            _dump(original, extra_data_dumper=to_unmapped),
+            _dump(original, extra_data_dumper=extra_data.to_jsonld),
             extra_data_loader=from_unmapped,
         )
         for actual, expected in zip(
@@ -172,6 +258,34 @@ class TestExtraData:
         ):
             assert expected is not None
             assert isomorphic(actual, expected)
+
+    def test_round_trip_keeps_the_prefixes_of_the_input(self):
+        original = JsonLdProvider(
+            {"id": "TREES"}, DOCUMENT, extra_data_loader=from_unmapped
+        )
+        context = {
+            "@version": 1.1,
+            "dct": "http://purl.org/dc/terms/",
+            "skos": "http://www.w3.org/2004/02/skos/core#",
+            "skosxl": "http://www.w3.org/2008/05/skos-xl#",
+            "rdf": "http://www.w3.org/1999/02/22-rdf-syntax-ns#",
+            "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+            "void": "http://rdfs.org/ns/void#",
+            "ex": "http://example.org/",
+        }
+        dumped = _dump(
+            original,
+            dump_context=DumpContext(
+                provider=original,
+                context=context,
+                extra_data_dumper=extra_data.to_jsonld,
+            ),
+        )
+        larch = next(node for node in dumped["@graph"] if node["@id"] == LARCH["@id"])
+        assert sorted(larch["@type"]) == ["ex:Tree", "skos:Concept"]
+        assert larch["skos:notation"] == "L"
+        assert set(larch["ex:height"]) == {"@id"}
+        assert larch["dct:source"][0]["dct:date"] == "1970"
 
     def test_dump_ignores_extra_data_by_default(self):
         original = JsonLdProvider(

@@ -2,8 +2,8 @@
 Loaders and dumpers for the extra_data of skos objects in a csv row.
 
 A csv loader receives the full csv row passed to a
-:class:`~skosprovider.csv.provider.SimpleCsvProvider` and returns a
-:class:`rdflib.Graph` or `None`.
+:class:`~skosprovider.csv.provider.SimpleCsvProvider` and the concept, label,
+note or source built from it, and returns a :class:`rdflib.Graph` or `None`.
 
 A csv dumper receives a concept, label, note or source and returns the text of
 its extra_data cell, or `None`.
@@ -27,6 +27,7 @@ from skosprovider.dictionary.extra_data import from_jsonld as dict_from_jsonld
 from skosprovider.dictionary.extra_data import from_turtle as dict_from_turtle
 from skosprovider.dictionary.extra_data import to_jsonld as dict_to_jsonld
 from skosprovider.dictionary.extra_data import to_turtle as dict_to_turtle
+from skosprovider.extra_data import SkosObject
 from skosprovider.skos import Concept
 from skosprovider.skos import Label
 from skosprovider.skos import Note
@@ -41,59 +42,33 @@ fifth to eighth column, after `<id>,<preflabel>,<note>,<source>`.
 """
 
 
-def _cell(row: list[str], type_: type) -> str | None:
-    index = EXTRA_DATA_COLUMNS[type_]
+def _cell(row: list[str], skos_object: SkosObject) -> str | None:
+    index = EXTRA_DATA_COLUMNS[type(skos_object)]
     return row[index] if len(row) > index and row[index] else None
 
 
-def _from_turtle(row: list[str], type_: type) -> Graph | None:
-    cell = _cell(row, type_)
-    return None if cell is None else dict_from_turtle({"extra_data": cell})
+def from_turtle(row: list[str], skos_object: SkosObject) -> Graph | None:
+    """
+    Load the turtle string in the extra_data column of the type of the skos
+    object, see :data:`EXTRA_DATA_COLUMNS`.
+
+    :returns: A graph, or `None` when the cell is empty or missing.
+    """
+    cell = _cell(row, skos_object)
+    return None if cell is None else dict_from_turtle({"extra_data": cell}, skos_object)
 
 
-def _from_jsonld(row: list[str], type_: type) -> Graph | None:
-    cell = _cell(row, type_)
-    return None if cell is None else dict_from_jsonld({"extra_data": json.loads(cell)})
+def from_jsonld(row: list[str], skos_object: SkosObject) -> Graph | None:
+    """
+    Load the JSON-LD string in the extra_data column of the type of the skos
+    object, see :data:`EXTRA_DATA_COLUMNS`.
 
-
-def concept_from_turtle(row: list[str]) -> Graph | None:
-    """Load the turtle string in the fifth column as extra_data of the concept."""
-    return _from_turtle(row, Concept)
-
-
-def label_from_turtle(row: list[str]) -> Graph | None:
-    """Load the turtle string in the sixth column as extra_data of the label."""
-    return _from_turtle(row, Label)
-
-
-def note_from_turtle(row: list[str]) -> Graph | None:
-    """Load the turtle string in the seventh column as extra_data of the note."""
-    return _from_turtle(row, Note)
-
-
-def source_from_turtle(row: list[str]) -> Graph | None:
-    """Load the turtle string in the eighth column as extra_data of the source."""
-    return _from_turtle(row, Source)
-
-
-def concept_from_jsonld(row: list[str]) -> Graph | None:
-    """Load the JSON-LD string in the fifth column as extra_data of the concept."""
-    return _from_jsonld(row, Concept)
-
-
-def label_from_jsonld(row: list[str]) -> Graph | None:
-    """Load the JSON-LD string in the sixth column as extra_data of the label."""
-    return _from_jsonld(row, Label)
-
-
-def note_from_jsonld(row: list[str]) -> Graph | None:
-    """Load the JSON-LD string in the seventh column as extra_data of the note."""
-    return _from_jsonld(row, Note)
-
-
-def source_from_jsonld(row: list[str]) -> Graph | None:
-    """Load the JSON-LD string in the eighth column as extra_data of the source."""
-    return _from_jsonld(row, Source)
+    :returns: A graph, or `None` when the cell is empty or missing.
+    """
+    cell = _cell(row, skos_object)
+    if cell is None:
+        return None
+    return dict_from_jsonld({"extra_data": json.loads(cell)}, skos_object)
 
 
 def to_turtle(obj: Concept | Label | Note | Source) -> str | None:

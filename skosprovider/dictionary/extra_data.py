@@ -2,8 +2,9 @@
 Loaders and dumpers for the extra_data of skos objects in dicts.
 
 A loader receives the dict of a single concept, collection, label, note or
-source passed to a :class:`~skosprovider.dictionary.provider.DictionaryProvider`
-and returns a :class:`rdflib.Graph` or `None`.
+source passed to a :class:`~skosprovider.dictionary.provider.DictionaryProvider`,
+and the skos object built from it, and returns a :class:`rdflib.Graph` or
+`None`.
 
 A dumper receives a skos object and returns a dict that
 :func:`~skosprovider.dictionary.dumper.dict_dumper` merges into the dump of that
@@ -29,7 +30,7 @@ from skosprovider.extra_data import SkosObject
 ExtraDataDumper = Callable[[SkosObject], dict[str, Any] | None]
 
 
-def from_turtle(data: dict[str, Any]) -> Graph | None:
+def from_turtle(data: dict[str, Any], skos_object: SkosObject) -> Graph | None:
     """
     Load a turtle string under `extra_data` into a :class:`rdflib.Graph`.
 
@@ -41,7 +42,7 @@ def from_turtle(data: dict[str, Any]) -> Graph | None:
     return Graph().parse(data=value, format="turtle")
 
 
-def from_jsonld(data: dict[str, Any]) -> Graph | None:
+def from_jsonld(data: dict[str, Any], skos_object: SkosObject) -> Graph | None:
     """
     Load a JSON-LD dict under `extra_data` into a :class:`rdflib.Graph`.
 
@@ -56,7 +57,7 @@ def from_jsonld(data: dict[str, Any]) -> Graph | None:
     return Graph().parse(data=json.dumps(value), format="json-ld")
 
 
-def from_graph(data: dict[str, Any]) -> Graph | None:
+def from_graph(data: dict[str, Any], skos_object: SkosObject) -> Graph | None:
     """
     Pass a :class:`rdflib.Graph` under `extra_data` through unchanged.
 

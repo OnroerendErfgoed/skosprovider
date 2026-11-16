@@ -14,7 +14,7 @@ from skosprovider.rdf.dumper import rdf_concept_or_collection_dumper
 from skosprovider.rdf.dumper import rdf_conceptscheme_dumper
 from skosprovider.rdf.dumper import rdf_dumper
 from skosprovider.rdf.extra_data import from_unmapped
-from skosprovider.rdf.extra_data import to_unmapped
+from skosprovider.rdf.extra_data import to_graph
 from skosprovider.rdf.provider import RDFProvider
 
 TREES = """
@@ -181,6 +181,59 @@ class TestLoading:
         }
         assert larch.notes[0].extra_data is None
 
+    def test_mapped_predicates_depend_on_the_kind_of_object(self):
+        graph = Graph().parse(
+            data="""
+            @prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+            @prefix skosxl: <http://www.w3.org/2008/05/skos-xl#> .
+            @prefix dct: <http://purl.org/dc/terms/> .
+            @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+            <http://id.trees.org> a skos:ConceptScheme ;
+                dct:language "en" .
+            <http://id.trees.org/1> a skos:Concept ;
+                skos:inScheme <http://id.trees.org> ;
+                dct:identifier "1" ;
+                dct:language "en" ;
+                skos:member <http://id.trees.org/2> ;
+                skosxl:prefLabel <http://id.trees.org/labels/1> ;
+                skos:note <http://id.trees.org/notes/1> ;
+                dct:source <http://id.trees.org/sources/1> .
+            <http://id.trees.org/labels/1>
+                skosxl:literalForm "The Larch"@en ;
+                dct:language "en" .
+            <http://id.trees.org/notes/1>
+                rdf:value "A note."@en ;
+                dct:identifier "n1" ;
+                dct:language "en" .
+            <http://id.trees.org/sources/1>
+                dct:bibliographicCitation "A book." ;
+                dct:identifier "s1" ;
+                dct:language "en" .
+            """,
+            format="turtle",
+        )
+        provider = RDFProvider({"id": "TREES"}, graph, extra_data_loader=from_unmapped)
+        larch = provider.get_by_id("1")
+        assert provider.concept_scheme.extra_data is None
+        assert set(larch.extra_data) == {
+            (LARCH, DCTERMS.language, Literal("en")),
+            (LARCH, SKOS.member, URIRef("http://id.trees.org/2")),
+        }
+        label_uri = URIRef("http://id.trees.org/labels/1")
+        assert set(larch.labels[-1].extra_data) == {
+            (label_uri, DCTERMS.language, Literal("en"))
+        }
+        note_uri = URIRef("http://id.trees.org/notes/1")
+        assert set(larch.notes[0].extra_data) == {
+            (note_uri, DCTERMS.identifier, Literal("n1")),
+            (note_uri, DCTERMS.language, Literal("en")),
+        }
+        source_uri = URIRef("http://id.trees.org/sources/1")
+        assert set(larch.sources[0].extra_data) == {
+            (source_uri, DCTERMS.identifier, Literal("s1")),
+            (source_uri, DCTERMS.language, Literal("en")),
+        }
+
     def test_source_label_and_note_with_uri(self, provider):
         assert set(_source(provider, "http://id.trees.org/source/1").extra_data) == {
             (URIRef("http://id.trees.org/source/1"), DCTERMS.date, Literal("2024"))
@@ -205,15 +258,24 @@ class TestLoading:
         assert note.uri is None
         assert note.extra_data is None
 
-    def test_loader_receives_graph_and_node(self, graph):
+    def test_loader_receives_graph_and_skos_object(self, graph):
         calls = []
 
-        def loader(loader_graph, node):
-            calls.append((loader_graph, node))
+        def loader(object_graph, skos_object):
+            calls.append((object_graph, skos_object))
 
         RDFProvider({"id": "TREES"}, graph, extra_data_loader=loader)
-        assert all(loader_graph is graph for loader_graph, _ in calls)
-        nodes = [node for _, node in calls]
+        types = {obj.uri: type(obj).__name__ for _, obj in calls}
+        assert types == {
+            "http://id.trees.org": "ConceptScheme",
+            "http://id.trees.org/1": "Concept",
+            "http://id.trees.org/2": "Concept",
+            "http://id.trees.org/3": "Collection",
+            "http://id.trees.org/source/1": "Source",
+            "http://id.trees.org/labels/1": "Label",
+            "http://id.trees.org/notes/1": "Note",
+        }
+        nodes = [URIRef(obj.uri) for _, obj in calls]
         assert URIRef("http://id.trees.org") in nodes
         assert LARCH in nodes
         assert URIRef("http://id.trees.org/3") in nodes
@@ -222,9 +284,28 @@ class TestLoading:
         assert URIRef("http://id.trees.org/notes/1") in nodes
         assert not any(isinstance(node, BNode) for node in nodes)
 
+    def test_graph_is_the_concise_bounded_description(self, graph):
+        object_graphs = {}
+
+        def loader(object_graph, skos_object):
+            object_graphs[skos_object.uri] = object_graph
+
+        RDFProvider({"id": "TREES"}, graph, extra_data_loader=loader)
+        larch = object_graphs[str(LARCH)]
+        # The blank nodes behind the concept are in it, recursively.
+        assert (None, URIRef(EX + "name"), Literal("metre")) in larch
+        # A node with a uri is only referred to, its own triples are not in it.
+        source = URIRef("http://id.trees.org/source/1")
+        assert (LARCH, DCTERMS.source, source) in larch
+        assert (source, None, None) not in larch
+        # Nor are the triples that point to the concept.
+        assert (None, SKOS.narrower, LARCH) not in larch
+        # The prefixes of the graph are kept.
+        assert ("ex", URIRef(EX)) in set(larch.namespaces())
+
     def test_loader_error(self, graph):
-        def loader(_graph, node):
-            if node == LARCH:
+        def loader(_graph, skos_object):
+            if skos_object.uri == str(LARCH):
                 raise ValueError("boom")
 
         with pytest.raises(ExtraDataException) as excinfo:
@@ -233,8 +314,8 @@ class TestLoading:
         assert excinfo.value.__notes__ == ["while processing concept '1'"]
 
     def test_source_loader_error(self, graph):
-        def loader(_graph, node):
-            if node == URIRef("http://id.trees.org/source/1"):
+        def loader(_graph, skos_object):
+            if skos_object.uri == "http://id.trees.org/source/1":
                 raise ValueError("boom")
 
         with pytest.raises(ExtraDataException) as excinfo:
@@ -255,18 +336,18 @@ class TestDumping:
         assert isomorphic(dump, rdf_dumper(RDFProvider({"id": "TREES"}, graph)))
 
     def test_blank_xl_label_is_dumped_as_plain_label(self, provider):
-        dump = rdf_dumper(provider, extra_data_dumper=to_unmapped)
+        dump = rdf_dumper(provider, extra_data_dumper=to_graph)
         bomen = Literal("Bomen", lang="nl")
         assert (TREE, SKOS.altLabel, bomen) in dump
         assert dump.value(predicate=SKOSXL.literalForm, object=bomen) is None
 
     def test_blank_note_node_is_dumped_as_literal(self, provider):
-        dump = rdf_dumper(provider, extra_data_dumper=to_unmapped)
+        dump = rdf_dumper(provider, extra_data_dumper=to_graph)
         assert (TREE, SKOS.note, Literal("A blank note.", lang="en")) in dump
         assert (None, DCTERMS.creator, Literal("Piet")) not in dump
 
-    def test_to_unmapped(self, provider):
-        dump = rdf_dumper(provider, extra_data_dumper=to_unmapped)
+    def test_to_graph(self, provider):
+        dump = rdf_dumper(provider, extra_data_dumper=to_graph)
         assert (LARCH, SKOS.notation, Literal("L")) in dump
         assert (
             URIRef("http://id.trees.org"),
@@ -280,7 +361,7 @@ class TestDumping:
         ) in dump
 
     def test_blank_source_is_dumped_without_extra_data(self, provider):
-        dump = rdf_dumper(provider, extra_data_dumper=to_unmapped)
+        dump = rdf_dumper(provider, extra_data_dumper=to_graph)
         source = dump.value(
             predicate=DCTERMS.bibliographicCitation, object=Literal("Anonymous source.")
         )
@@ -289,14 +370,14 @@ class TestDumping:
         assert (None, DCTERMS.creator, Literal("John Doe")) not in dump
 
     def test_note_with_uri(self, provider):
-        dump = rdf_dumper(provider, extra_data_dumper=to_unmapped)
+        dump = rdf_dumper(provider, extra_data_dumper=to_graph)
         note = URIRef("http://id.trees.org/notes/1")
         assert (TREE, SKOS.note, note) in dump
         assert (note, RDF.value, Literal("A note with a uri.", lang="en")) in dump
         assert (note, DCTERMS.date, Literal("2026")) in dump
 
     def test_round_trip(self, provider):
-        dump = rdf_dumper(provider, extra_data_dumper=to_unmapped)
+        dump = rdf_dumper(provider, extra_data_dumper=to_graph)
         reloaded = RDFProvider({"id": "TREES"}, dump, extra_data_loader=from_unmapped)
         for get_object in (
             lambda provider: provider.concept_scheme,
@@ -312,7 +393,7 @@ class TestDumping:
 
     def test_concept_or_collection_dumper(self, provider):
         dump = rdf_concept_or_collection_dumper(
-            provider, "1", extra_data_dumper=to_unmapped
+            provider, "1", extra_data_dumper=to_graph
         )
         assert (LARCH, SKOS.notation, Literal("L")) in dump
         assert (
@@ -322,7 +403,7 @@ class TestDumping:
         ) in dump
 
     def test_conceptscheme_dumper(self, provider):
-        dump = rdf_conceptscheme_dumper(provider, extra_data_dumper=to_unmapped)
+        dump = rdf_conceptscheme_dumper(provider, extra_data_dumper=to_graph)
         assert (
             URIRef("http://id.trees.org"),
             DCTERMS.creator,
@@ -331,7 +412,7 @@ class TestDumping:
         assert (LARCH, SKOS.notation, Literal("L")) not in dump
 
     def test_dumper_keeps_prefixes(self, provider):
-        dump = rdf_dumper(provider, extra_data_dumper=to_unmapped)
+        dump = rdf_dumper(provider, extra_data_dumper=to_graph)
         assert ("ex", URIRef(EX)) in set(dump.namespaces())
 
     def test_dumper_error(self, provider):

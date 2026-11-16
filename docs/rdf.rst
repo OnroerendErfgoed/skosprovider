@@ -115,9 +115,14 @@ Extra data
 ``extra_data_dumper``. They default to
 :func:`~skosprovider.extra_data.ignore`.
 
-The loader receives the graph and the node of an object and returns an
-:class:`rdflib.Graph` or `None`, which becomes the
-:attr:`~skosprovider.skos.Concept.extra_data` of that object. The dumper
+The loader receives the graph of an object and the skos object built from it,
+and returns an :class:`rdflib.Graph` or `None`, which becomes the
+:attr:`~skosprovider.skos.Concept.extra_data` of that object. The graph of an
+object is the Concise Bounded Description of its node: the triples about the
+node and, recursively, about the blank nodes it points to, with the prefixes
+of the full graph. Other nodes with a :term:`URI`, and triples that point to
+the node, are not in it. The skos object is built before its extra data is loaded, so the
+loader can tell what kind of object it loads. The dumper
 receives an object and returns an :class:`rdflib.Graph` or `None`, which is
 merged into the dump together with its namespace bindings.
 
@@ -125,7 +130,7 @@ merged into the dump together with its namespace bindings.
 :func:`~skosprovider.rdf.extra_data.from_unmapped` keeps the triples that
 :class:`~skosprovider.rdf.provider.RDFProvider` does not turn into attributes,
 eg. a ``skos:notation`` or a ``dct:creator``, and
-:func:`~skosprovider.rdf.extra_data.to_unmapped` writes them to the dump again.
+:func:`~skosprovider.rdf.extra_data.to_graph` writes them to the dump again.
 
 Extra data is supported for the concept scheme, concepts and collections, and
 for sources, labels and notes with a :term:`URI`. A blank node has no identity
@@ -137,11 +142,11 @@ it.
 
     from skosprovider.rdf.dumper import rdf_dumper
     from skosprovider.rdf.extra_data import from_unmapped
-    from skosprovider.rdf.extra_data import to_unmapped
+    from skosprovider.rdf.extra_data import to_graph
     from skosprovider.rdf.provider import RDFProvider
 
     provider = RDFProvider({"id": "TREES"}, graph, extra_data_loader=from_unmapped)
-    dump = rdf_dumper(provider, extra_data_dumper=to_unmapped)
+    dump = rdf_dumper(provider, extra_data_dumper=to_graph)
 
 Errors raised by a loader or dumper are wrapped in an
 :class:`~skosprovider.exceptions.ExtraDataException`, with notes describing

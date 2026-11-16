@@ -5,19 +5,16 @@ from rdflib import Graph
 from rdflib import Literal
 from rdflib import URIRef
 
-from skosprovider.csv.extra_data import concept_from_jsonld
-from skosprovider.csv.extra_data import concept_from_turtle
-from skosprovider.csv.extra_data import label_from_jsonld
-from skosprovider.csv.extra_data import label_from_turtle
-from skosprovider.csv.extra_data import note_from_jsonld
-from skosprovider.csv.extra_data import note_from_turtle
-from skosprovider.csv.extra_data import source_from_jsonld
-from skosprovider.csv.extra_data import source_from_turtle
+from skosprovider.csv.extra_data import from_jsonld
+from skosprovider.csv.extra_data import from_turtle
 from skosprovider.csv.extra_data import to_jsonld
 from skosprovider.csv.extra_data import to_turtle
 from skosprovider.csv.provider import SimpleCsvProvider
 from skosprovider.exceptions import ExtraDataException
+from skosprovider.skos import Concept
 from skosprovider.skos import Label
+from skosprovider.skos import Note
+from skosprovider.skos import Source
 
 
 class TestSimpleCsvProviderExtraData:
@@ -25,28 +22,32 @@ class TestSimpleCsvProviderExtraData:
         provider = SimpleCsvProvider({"id": "CSV"}, [["1", "Larch"]])
         assert provider.get_by_id("1").extra_data is None
 
-    def test_loader_receives_row(self):
+    def test_loader_receives_row_and_skos_object(self):
         graph = Graph()
         received = []
 
-        def loader(row):
-            received.append(row)
-            return graph
+        def loader(row, skos_object):
+            received.append((row, skos_object))
+            return graph if isinstance(skos_object, Concept) else None
 
         provider = SimpleCsvProvider(
-            {"id": "CSV"}, [["1", "Larch", "A tree."]], concept_extra_data_loader=loader
+            {"id": "CSV"}, [["1", "Larch", "A tree."]], extra_data_loader=loader
         )
-        assert received == [["1", "Larch", "A tree."]]
-        assert provider.get_by_id("1").extra_data is graph
+        concept = provider.get_by_id("1")
+        assert received == [
+            (["1", "Larch", "A tree."], concept.labels[0]),
+            (["1", "Larch", "A tree."], concept.notes[0]),
+            (["1", "Larch", "A tree."], concept),
+        ]
+        assert concept.extra_data is graph
 
     def test_failing_loader_raises(self):
-        def loader(row):
-            raise ValueError("boom")
+        def loader(row, skos_object):
+            if isinstance(skos_object, Concept):
+                raise ValueError("boom")
 
         with pytest.raises(ExtraDataException) as excinfo:
-            SimpleCsvProvider(
-                {"id": "CSV"}, [["1", "Larch"]], concept_extra_data_loader=loader
-            )
+            SimpleCsvProvider({"id": "CSV"}, [["1", "Larch"]], extra_data_loader=loader)
         assert str(excinfo.value) == "Failed to load extra_data: boom"
         assert excinfo.value.__notes__ == ["while processing concept '1'"]
 
@@ -62,18 +63,12 @@ class TestSimpleCsvProviderExtraData:
     def test_loader_per_object_type(self):
         row = ["1", "Larch", "A tree.", "A book.", "c", "l", "n", "s"]
         graphs = {column: Graph() for column in "clns"}
+        columns = {Concept: 4, Label: 5, Note: 6, Source: 7}
 
-        def column_loader(index):
-            return lambda row: graphs[row[index]]
+        def loader(row, skos_object):
+            return graphs[row[columns[type(skos_object)]]]
 
-        provider = SimpleCsvProvider(
-            {"id": "CSV"},
-            [row],
-            concept_extra_data_loader=column_loader(4),
-            label_extra_data_loader=column_loader(5),
-            note_extra_data_loader=column_loader(6),
-            source_extra_data_loader=column_loader(7),
-        )
+        provider = SimpleCsvProvider({"id": "CSV"}, [row], extra_data_loader=loader)
         concept = provider.get_by_id("1")
         assert concept.extra_data is graphs["c"]
         assert concept.labels[0].extra_data is graphs["l"]
@@ -81,25 +76,27 @@ class TestSimpleCsvProviderExtraData:
         assert concept.sources[0].extra_data is graphs["s"]
 
     def test_nested_loader_not_called_without_object(self):
+        def loader(row, skos_object):
+            if isinstance(skos_object, (Note, Source)):
+                pytest.fail(f"loader called for {skos_object!r}")
+
         provider = SimpleCsvProvider(
-            {"id": "CSV"},
-            [["1", "Larch", ""]],
-            note_extra_data_loader=lambda row: pytest.fail("note loader called"),
-            source_extra_data_loader=lambda row: pytest.fail("source loader called"),
+            {"id": "CSV"}, [["1", "Larch", ""]], extra_data_loader=loader
         )
         concept = provider.get_by_id("1")
         assert concept.notes == []
         assert concept.sources == []
 
     def test_failing_nested_loader_raises(self):
-        def loader(row):
-            raise ValueError("boom")
+        def loader(row, skos_object):
+            if isinstance(skos_object, Source):
+                raise ValueError("boom")
 
         with pytest.raises(ExtraDataException) as excinfo:
             SimpleCsvProvider(
                 {"id": "CSV"},
                 [["1", "Larch", "", "A book."]],
-                source_extra_data_loader=loader,
+                extra_data_loader=loader,
             )
         assert str(excinfo.value) == "Failed to load extra_data: boom"
         assert excinfo.value.__notes__ == [
@@ -126,39 +123,28 @@ EXPECTED = {
 
 class TestLoaders:
     @pytest.mark.parametrize(
-        "loader, index",
+        "skos_object, index",
         [
-            (concept_from_turtle, 4),
-            (label_from_turtle, 5),
-            (note_from_turtle, 6),
-            (source_from_turtle, 7),
+            (Concept(1), 4),
+            (Label("Larch"), 5),
+            (Note("A tree."), 6),
+            (Source("A book."), 7),
         ],
     )
-    def test_turtle_column(self, loader, index):
-        row = ["1", "Larch", "", "", "", "", "", ""]
-        row[index] = TURTLE
-        assert set(loader(row)) == EXPECTED
-
     @pytest.mark.parametrize(
-        "loader, index",
-        [
-            (concept_from_jsonld, 4),
-            (label_from_jsonld, 5),
-            (note_from_jsonld, 6),
-            (source_from_jsonld, 7),
-        ],
+        "loader, cell", [(from_turtle, TURTLE), (from_jsonld, JSONLD)]
     )
-    def test_jsonld_column(self, loader, index):
+    def test_column_of_the_type_of_object(self, loader, cell, skos_object, index):
         row = ["1", "Larch", "", "", "", "", "", ""]
-        row[index] = JSONLD
-        assert set(loader(row)) == EXPECTED
+        row[index] = cell
+        assert set(loader(row, skos_object)) == EXPECTED
 
-    @pytest.mark.parametrize("loader", [concept_from_turtle, source_from_jsonld])
+    @pytest.mark.parametrize("loader", [from_turtle, from_jsonld])
     @pytest.mark.parametrize(
         "row", [["1", "Larch"], ["1", "Larch", "", "", "", "", "", ""]]
     )
     def test_missing_or_empty_column(self, loader, row):
-        assert loader(row) is None
+        assert loader(row, Concept(1)) is None
 
 
 class TestDumpers:
@@ -170,8 +156,9 @@ class TestDumpers:
         graph = Graph().parse(data=TURTLE, format="turtle")
         assert (
             set(
-                concept_from_turtle(
-                    ["1", "", "", "", to_turtle(Label("Larch", extra_data=graph))]
+                from_turtle(
+                    ["1", "", "", "", to_turtle(Label("Larch", extra_data=graph))],
+                    Concept(1),
                 )
             )
             == EXPECTED
@@ -181,4 +168,4 @@ class TestDumpers:
         graph = Graph().parse(data=TURTLE, format="turtle")
         dumped = to_jsonld(Label("Larch", extra_data=graph))
         assert isinstance(dumped, str)
-        assert set(concept_from_jsonld(["1", "", "", "", dumped])) == EXPECTED
+        assert set(from_jsonld(["1", "", "", "", dumped], Concept(1))) == EXPECTED

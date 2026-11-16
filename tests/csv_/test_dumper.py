@@ -7,14 +7,8 @@ from rdflib import Graph
 from rdflib.compare import isomorphic
 
 from skosprovider.csv.dumper import csv_dumper
-from skosprovider.csv.extra_data import concept_from_jsonld
-from skosprovider.csv.extra_data import concept_from_turtle
-from skosprovider.csv.extra_data import label_from_jsonld
-from skosprovider.csv.extra_data import label_from_turtle
-from skosprovider.csv.extra_data import note_from_jsonld
-from skosprovider.csv.extra_data import note_from_turtle
-from skosprovider.csv.extra_data import source_from_jsonld
-from skosprovider.csv.extra_data import source_from_turtle
+from skosprovider.csv.extra_data import from_jsonld
+from skosprovider.csv.extra_data import from_turtle
 from skosprovider.csv.extra_data import to_jsonld
 from skosprovider.csv.extra_data import to_turtle
 from skosprovider.csv.provider import SimpleCsvProvider
@@ -105,38 +99,12 @@ class TestCsvDumper:
             )
 
     @pytest.mark.parametrize(
-        "dumper, loaders",
-        [
-            (
-                to_turtle,
-                (
-                    concept_from_turtle,
-                    label_from_turtle,
-                    note_from_turtle,
-                    source_from_turtle,
-                ),
-            ),
-            (
-                to_jsonld,
-                (
-                    concept_from_jsonld,
-                    label_from_jsonld,
-                    note_from_jsonld,
-                    source_from_jsonld,
-                ),
-            ),
-        ],
+        "dumper, loader", [(to_turtle, from_turtle), (to_jsonld, from_jsonld)]
     )
-    def test_extra_data_round_trip(self, larch, dumper, loaders):
+    def test_extra_data_round_trip(self, larch, dumper, loader):
         rows = _write_and_read(csv_dumper(larch, extra_data_dumper=dumper))
-        concept_loader, label_loader, note_loader, source_loader = loaders
         reloaded = SimpleCsvProvider(
-            {"id": "TREES"},
-            rows,
-            concept_extra_data_loader=concept_loader,
-            label_extra_data_loader=label_loader,
-            note_extra_data_loader=note_loader,
-            source_extra_data_loader=source_loader,
+            {"id": "TREES"}, rows, extra_data_loader=loader
         ).get_by_id("1")
         assert isomorphic(reloaded.extra_data, _graph("http://id.trees.org/1"))
         assert isomorphic(reloaded.labels[0].extra_data, _graph("urn:l"))

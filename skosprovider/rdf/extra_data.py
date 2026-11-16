@@ -1,10 +1,12 @@
 """
 Loaders and dumpers for the extra_data of skos objects in RDF.
 
-An RDF loader receives the graph passed to a
-:class:`~skosprovider.rdf.provider.RDFProvider` and the node of a single
-concept scheme, concept or collection, or of a source, SKOS-XL label or note
-with a uri, and returns a :class:`rdflib.Graph` or `None`.
+An RDF loader receives the graph of a single concept scheme, concept or
+collection, or of a source, SKOS-XL label or note with a uri, and the skos
+object built from it, and returns a :class:`rdflib.Graph` or `None`. The graph
+of an object is the Concise Bounded Description of its node in the graph passed
+to a :class:`~skosprovider.rdf.provider.RDFProvider`: the triples about the
+node and, recursively, about the blank nodes it points to.
 
 An RDF dumper receives a skos object and returns a :class:`rdflib.Graph` that
 the dumpers in :mod:`skosprovider.rdf.dumper` merge into the dump, or `None`.
@@ -14,7 +16,7 @@ SKOS-XL label and a note written as a node with rdf:value do, when they have a
 uri. A source, label or note that is a blank node has no identity outside the
 graph it was read from, so it gets no extra_data either.
 
-Together, :func:`from_unmapped` and :func:`to_unmapped` let the triples that
+Together, :func:`from_unmapped` and :func:`to_graph` let the triples that
 RDFProvider does not turn into attributes survive a round trip through
 RDFProvider and :func:`~skosprovider.rdf.dumper.rdf_dumper`.
 
@@ -30,68 +32,83 @@ from rdflib.namespace import RDFS
 from rdflib.namespace import SKOS
 from rdflib.namespace import VOID
 from rdflib.term import BNode
-from rdflib.term import Node
+from rdflib.term import URIRef
 
 from skosprovider.extra_data import SkosObject
 from skosprovider.rdf.provider import SKOSXL
 from skosprovider.rdf.provider import SKOS_THES
+from skosprovider.skos import Collection
 from skosprovider.skos import Concept
 from skosprovider.skos import ConceptScheme
+from skosprovider.skos import Label
 from skosprovider.skos import Note
+from skosprovider.skos import Source
 
-_MAPPED_PREDICATES = frozenset(
+_DESCRIBED = frozenset(
     [
-        SKOS.prefLabel,
-        SKOS.altLabel,
-        SKOS.hiddenLabel,
-        SKOSXL.prefLabel,
-        SKOSXL.altLabel,
-        SKOSXL.hiddenLabel,
-        SKOSXL.literalForm,
+        *(SKOS[type_] for type_ in ("prefLabel", "altLabel", "hiddenLabel")),
+        *(SKOSXL[type_] for type_ in ("prefLabel", "altLabel", "hiddenLabel")),
         *(SKOS[type_] for type_ in Note.valid_types),
-        RDF.value,
-        SKOS.broader,
-        SKOS.narrower,
-        SKOS.related,
-        SKOS.member,
-        *(SKOS[match_type + "Match"] for match_type in Concept.matchtypes),
-        SKOS.inScheme,
-        SKOS.topConceptOf,
-        SKOS.hasTopConcept,
-        SKOS_THES.subordinateArray,
-        SKOS_THES.superOrdinate,
-        DCTERMS.identifier,
-        DC.identifier,
         DCTERMS.source,
-        DCTERMS.bibliographicCitation,
-        DCTERMS.language,
-        DC.language,
         # Derived by the dumpers from the label and the metadata of the provider.
         RDFS.label,
         VOID.inDataset,
     ]
 )
-"""
-Predicates of an object that RDFProvider turns into attributes, or that the
-dumpers derive from them.
-"""
+"""Predicates of a concept scheme, concept and collection alike."""
 
-_MAPPED_TYPES = frozenset(
-    [
-        SKOS.ConceptScheme,
-        SKOS.Concept,
-        SKOS.Collection,
-        DCTERMS.BibliographicResource,
-        SKOSXL.Label,
-    ]
+_IN_SCHEME = frozenset(
+    [SKOS.inScheme, SKOS.topConceptOf, DCTERMS.identifier, DC.identifier]
 )
-"""Values of rdf:type of an object that RDFProvider turns into an object."""
+"""Predicates of a concept and a collection alike."""
+
+# which properties we store for each object
+# this is important so we can store the remainder as extra_data
+_MAPPED = {
+    ConceptScheme: _DESCRIBED
+    | {
+        DCTERMS.language,
+        DC.language,
+        # Derived by the dumpers from the provider.
+        DCTERMS.identifier,
+        SKOS.hasTopConcept,
+    },
+    Concept: _DESCRIBED
+    | _IN_SCHEME
+    | {
+        SKOS.broader,
+        SKOS.narrower,
+        SKOS.related,
+        SKOS_THES.subordinateArray,
+        *(SKOS[match_type + "Match"] for match_type in Concept.matchtypes),
+    },
+    Collection: _DESCRIBED | _IN_SCHEME | {SKOS.member, SKOS_THES.superOrdinate},
+    Label: frozenset([SKOSXL.literalForm, DCTERMS.type]),
+    Note: frozenset([RDF.value]),
+    Source: frozenset([DCTERMS.bibliographicCitation, RDF.value]),
+}
+"""
+Predicates that RDFProvider turns into attributes, or that the dumpers derive
+from them, per type of skos object.
+"""
+
+_RDF_TYPES = {
+    ConceptScheme: SKOS.ConceptScheme,
+    Concept: SKOS.Concept,
+    Collection: SKOS.Collection,
+    Label: SKOSXL.Label,
+    Source: DCTERMS.BibliographicResource,
+}
+"""The rdf:type that RDFProvider reads or the dumpers write, per type of object."""
 
 
-def from_unmapped(graph: Graph, subject: Node) -> Graph | None:
+def from_unmapped(graph: Graph, skos_object: SkosObject) -> Graph | None:
     """
     Load the triples about an object that RDFProvider does not turn into
     attributes, eg. a skos:notation or a dct:creator.
+
+    Which predicates are mapped depends on the type of the skos object, eg. a
+    dct:language is mapped for a concept scheme, but not for a source.
 
     The triples of the object itself are filtered on their predicate. Blank
     nodes they point to are followed and copied entirely, like in a
@@ -99,18 +116,15 @@ def from_unmapped(graph: Graph, subject: Node) -> Graph | None:
 
     :returns: A graph, or `None` when there are no such triples.
     """
+    subject = URIRef(skos_object.uri)
+    mapped = _MAPPED[type(skos_object)]
+    rdf_type = _RDF_TYPES.get(type(skos_object))
     extra_data = Graph()
     for prefix, namespace in graph.namespaces():
         extra_data.bind(prefix, namespace, override=False)
     blank_nodes = []
-    is_xl_label = (subject, RDF.type, SKOSXL.Label) in graph
     for predicate, object_ in graph.predicate_objects(subject):
-        if (
-            predicate in _MAPPED_PREDICATES
-            or (predicate == RDF.type and object_ in _MAPPED_TYPES)
-            # The dct:type of a SKOS-XL label holds its label_types.
-            or (is_xl_label and predicate == DCTERMS.type)
-        ):
+        if predicate in mapped or (predicate == RDF.type and object_ == rdf_type):
             continue
         extra_data.add((subject, predicate, object_))
         if isinstance(object_, BNode):
@@ -128,10 +142,10 @@ def from_unmapped(graph: Graph, subject: Node) -> Graph | None:
     return extra_data if len(extra_data) else None
 
 
-def to_unmapped(obj: SkosObject | ConceptScheme) -> Graph | None:
+def to_graph(obj: SkosObject) -> Graph | None:
     """
     Dump the extra_data of a skos object unchanged, so it is merged into the
-    RDF dump. The counterpart of :func:`from_unmapped`.
+    RDF dump.
 
     :returns: The extra_data of the object.
     """

@@ -1,121 +1,110 @@
 """
 Loaders and dumpers for the extra_data of skos objects in JSON-LD.
 
-A JSON-LD loader receives a JSON-LD dict with the properties of a single
-concept scheme, concept or collection, or of a source, SKOS-XL label or note
-with a uri, that :class:`~skosprovider.jsonld.provider.JsonLdProvider` does
-not turn into attributes, and returns a :class:`rdflib.Graph` or `None`. The
-dict is built by :func:`node_to_jsonld`. It is only called when there are such
-properties.
+In the skos model, extra_data is a :class:`rdflib.Graph`. Loaders for JSON-LD
+read a JSON-LD dict and return a graph, dumpers for JSON-LD turn the graph into
+a JSON-LD dict.
+
+A JSON-LD loader receives the node of a single concept scheme, concept or
+collection, or of a source, SKOS-XL label or note with a uri, as an expanded
+JSON-LD dict: keys and types are full IRIs and every value is a list. Use a
+JSON-LD library to read it, eg. compact it with a context of your own with
+:func:`pyld.jsonld.compact` to get fixed keys, whatever prefixes the document
+used. The node holds all triples about the object, including the ones that
+:class:`~skosprovider.jsonld.provider.JsonLdProvider` turns into attributes,
+gathered from wherever the document describes the object. The blank nodes
+behind them are in `@included`, other nodes are references by their `@id`.
+
+The loader receives triples, not the text of the document: how the document
+wrote them, eg. its prefixes, nesting or `@included`, is not kept. A node in
+`@included` is not part of the object it is written in, it is part of the
+document, so the loader does not receive it.
+
+The loader also receives the skos object built from the node, so it can
+tell what kind of object it loads. Like every extra_data loader, it returns a
+:class:`rdflib.Graph` or `None`. :func:`jsonld_to_graph` reads a JSON-LD dict
+into a graph.
 
 A JSON-LD dumper receives the concept scheme, a concept or collection, or a
 source, SKOS-XL label or note with a uri, and returns a dict of JSON-LD
 properties that :func:`~skosprovider.jsonld.dumper.to_jsonld` merges into the
-node of that object, or `None`. The properties are expanded, so they do not
-depend on the context of the dump.
+node of that object, or `None`. The dict may have its own `@context`, use the
+prefixes of the context of the dump or use full IRIs: the properties are
+compacted with the context of the dump before they are merged, see
+:attr:`~skosprovider.jsonld.dumper.DumpContext.extra_data_dumper`.
 
-Together, :func:`from_unmapped` and :func:`to_unmapped` let the properties
-that JsonLdProvider does not turn into attributes survive a round trip
-through JsonLdProvider and :func:`~skosprovider.jsonld.dumper.to_jsonld`.
+Together, :func:`from_unmapped` and :func:`to_jsonld` let the properties that
+JsonLdProvider does not turn into attributes survive a round trip through
+JsonLdProvider and :func:`skosprovider.jsonld.dumper.to_jsonld`.
 
 :func:`skosprovider.extra_data.ignore` can be used as both a loader and a
 dumper and is the default everywhere.
 """
 
 import json
-from collections.abc import Callable
 from typing import Any
 
-from pyld import jsonld as pyld_jsonld
 from rdflib import Graph
-from rdflib.term import Node
-from rdflib.term import URIRef
 
 from skosprovider.extra_data import SkosObject
-from skosprovider.skos import ConceptScheme
+from skosprovider.rdf.extra_data import from_unmapped as rdf_from_unmapped
 
-JsonLdExtraDataLoader = Callable[[dict[str, Any]], Graph | None]
-JsonLdExtraDataDumper = Callable[[SkosObject | ConceptScheme], dict[str, Any] | None]
+# ---- Default extra_data loader and dumper
 
 
-def node_to_jsonld(
-    graph: Graph, node: Node, context: dict[str, Any] | None = None
-) -> dict[str, Any]:
+def from_unmapped(node: dict[str, Any], skos_object: SkosObject) -> Graph | None:
     """
-    Describe a node of a graph as a single JSON-LD node object.
+    Load the properties of a JSON-LD node that JsonLdProvider does not turn
+    into attributes, eg. a skos:notation or a dct:creator.
 
-    The blank nodes the node points to are embedded, so the result holds all
-    triples of the node and its blank nodes.
+    The properties are filtered like
+    :func:`skosprovider.rdf.extra_data.from_unmapped` does: blank nodes
+    behind an unmapped property are kept entirely.
 
-    :param context: When given, the node is compacted with this context and
-        the result contains it as `@context`. Otherwise the node is expanded.
-    :returns: A JSON-LD node object, `{}` when the graph says nothing about
-        the node.
+    :returns: A graph, or `None` when there are no such properties.
     """
-    by_id = {
-        item["@id"]: item
-        for item in json.loads(graph.serialize(format="json-ld"))
-        if "@id" in item
-    }
-    expanded = _embed(by_id, by_id.get(str(node), {}), set())
-    if context is None or not expanded:
-        return expanded
-    return pyld_jsonld.compact(expanded, context)
+    return rdf_from_unmapped(jsonld_to_graph(node), skos_object)
 
 
-def _embed(
-    by_id: dict[str, dict[str, Any]], item: dict[str, Any], seen: set[str]
-) -> dict[str, Any]:
+def to_jsonld(obj: SkosObject) -> dict[str, Any] | None:
     """
-    Replace the references to blank nodes in a node object by the blank nodes
-    themselves.
-    """
-    embedded = {}
-    for key, values in item.items():
-        if not isinstance(values, list):
-            embedded[key] = values
-            continue
-        embedded[key] = [
-            _embed_value(by_id, value, seen) if isinstance(value, dict) else value
-            for value in values
-        ]
-    return embedded
+    Dump the whole extra_data of a skos object as expanded JSON-LD properties
+    of its node. All other nodes of the extra_data, eg. blank nodes or nodes
+    that are not linked to the object, are put in `@included`, so no triple
+    is lost. :func:`~skosprovider.jsonld.dumper.to_jsonld` compacts the
+    properties with the context of the dump.
 
-
-def _embed_value(
-    by_id: dict[str, dict[str, Any]], value: dict[str, Any], seen: set[str]
-) -> dict[str, Any]:
-    id_ = value.get("@id")
-    if set(value) != {"@id"} or not id_.startswith("_:") or id_ in seen:
-        return value
-    blank_node = _embed(by_id, by_id.get(id_, {}), seen | {id_})
-    blank_node.pop("@id", None)
-    return blank_node
-
-
-def from_unmapped(data: dict[str, Any]) -> Graph | None:
-    """
-    Load the JSON-LD dict built by :func:`node_to_jsonld` into a
-    :class:`rdflib.Graph`.
-
-    :returns: A graph, or `None` when the dict holds no triples.
-    """
-    graph = Graph().parse(data=json.dumps(data), format="json-ld")
-    return graph if len(graph) else None
-
-
-def to_unmapped(obj: SkosObject | ConceptScheme) -> dict[str, Any] | None:
-    """
-    Dump the extra_data of a skos object as expanded JSON-LD properties of its
-    node. The counterpart of :func:`from_unmapped`.
-
-    Only the triples with the uri of the object as subject are dumped. Blank
-    nodes they point to are embedded.
-
-    :returns: A dict, or `None` when the object has no such extra_data.
+    :returns: A dict, or `None` when the object has no uri or no extra_data.
     """
     if obj.extra_data is None or not obj.uri:
         return None
-    properties = node_to_jsonld(obj.extra_data, URIRef(obj.uri))
+    properties = graph_to_jsonld(obj.extra_data, obj.uri)
     properties.pop("@id", None)
     return properties or None
+
+
+# ---- utils
+
+
+def graph_to_jsonld(graph: Graph, uri: str) -> dict[str, Any]:
+    """
+    Describe a graph as the expanded JSON-LD node with the given uri, with all
+    other nodes of the graph in `@included`.
+
+    :returns: A JSON-LD node object, `{}` when the graph is empty.
+    """
+    if not len(graph):
+        return {}
+    nodes = json.loads(graph.serialize(format="json-ld"))
+    root = next((node for node in nodes if node["@id"] == uri), {"@id": uri})
+    included = [node for node in nodes if node is not root]
+    if included:
+        root["@included"] = included
+    return root
+
+
+def jsonld_to_graph(node: dict[str, Any]) -> Graph:
+    """
+    Read a JSON-LD node object into a :class:`rdflib.Graph`.
+    """
+    return Graph().parse(data=json.dumps(node), format="json-ld")
