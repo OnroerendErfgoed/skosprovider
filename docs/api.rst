@@ -50,3 +50,16 @@ Utils module
 
 .. automodule:: skosprovider.utils
    :members:
+
+RDF Providers module
+--------------------
+
+.. automodule:: skosprovider.rdf.providers
+   :members:
+   :special-members: __init__
+
+RDF Dumper module
+-----------------
+
+.. automodule:: skosprovider.rdf.dumper
+   :members:

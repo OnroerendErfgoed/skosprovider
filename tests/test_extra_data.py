@@ -44,16 +44,26 @@ def _concept_dict(extra_data):
         "id": "1",
         "uri": "http://id.trees.org/1",
         "labels": [
-            {"label": "Larch", "type": "prefLabel", "language": "en",
-             "extra_data": extra_data("http://id.trees.org/1/label", "label")},
+            {
+                "label": "Larch",
+                "type": "prefLabel",
+                "language": "en",
+                "extra_data": extra_data("http://id.trees.org/1/label", "label"),
+            },
         ],
         "notes": [
-            {"note": "A tree.", "type": "note", "language": "en",
-             "extra_data": extra_data("http://id.trees.org/1/note", "note")},
+            {
+                "note": "A tree.",
+                "type": "note",
+                "language": "en",
+                "extra_data": extra_data("http://id.trees.org/1/note", "note"),
+            },
         ],
         "sources": [
-            {"citation": "A book.",
-             "extra_data": extra_data("http://id.trees.org/1/source", "source")},
+            {
+                "citation": "A book.",
+                "extra_data": extra_data("http://id.trees.org/1/source", "source"),
+            },
         ],
         "extra_data": extra_data("http://id.trees.org/1", "concept"),
     }
@@ -65,8 +75,12 @@ def _collection_dict(extra_data):
         "uri": "http://id.trees.org/2",
         "type": "collection",
         "labels": [
-            {"label": "Trees", "type": "prefLabel", "language": "en",
-             "extra_data": extra_data("http://id.trees.org/2/label", "label")},
+            {
+                "label": "Trees",
+                "type": "prefLabel",
+                "language": "en",
+                "extra_data": extra_data("http://id.trees.org/2/label", "label"),
+            },
         ],
         "members": ["1"],
         "extra_data": extra_data("http://id.trees.org/2", "collection"),

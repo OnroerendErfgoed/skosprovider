@@ -7,10 +7,10 @@ from test_providers import geo
 from test_providers import larch
 from test_providers import trees
 
+from skosprovider.extra_data import from_graph
 from skosprovider.jsonld import CONTEXT
 from skosprovider.jsonld import DumpContext
 from skosprovider.jsonld import to_jsonld
-from skosprovider.extra_data import from_graph
 from skosprovider.providers import DictionaryProvider
 from skosprovider.skos import ConceptScheme
 from skosprovider.skos import Label
@@ -29,9 +29,9 @@ class TestDumperTrees:
         assert len(doc["skos:prefLabel"]) == 2
         assert {"@language": "en", "@value": "The Larch"} in doc["skos:prefLabel"]
         assert len(doc["skos:definition"]) == 1
-        assert {
-            "rdf:value": {"@value": "A type of tree.", "@language": "en"}
-        } in doc["skos:definition"]
+        assert {"rdf:value": {"@value": "A type of tree.", "@language": "en"}} in doc[
+            "skos:definition"
+        ]
         assert len(doc["dct:source"]) == len(larch["sources"])
         assert {
             "@type": "dct:BibliographicResource",
@@ -43,9 +43,9 @@ class TestDumperTrees:
             ],
         } in doc["dct:source"]
         assert len(doc["@reverse"]["skos:member"]) == 1
-        assert {"@id": "http://id.python.org/different/types/of/trees/nr/1/the/larch"} in doc[
-            "skos:exactMatch"
-        ]
+        assert {
+            "@id": "http://id.python.org/different/types/of/trees/nr/1/the/larch"
+        } in doc["skos:exactMatch"]
         assert doc["skos:inScheme"] == {
             "@id": "http://id.trees.org",
             "@type": "skos:ConceptScheme",
@@ -55,13 +55,20 @@ class TestDumperTrees:
         assert "skosxl:prefLabel" in doc
         assert len(doc["skosxl:prefLabel"]) == 1
         assert doc["skosxl:prefLabel"][0]["@type"] == "skosxl:Label"
-        assert doc["skosxl:prefLabel"][0]["@id"] == "http://id.trees.org/labels/lariks-nl"
+        assert (
+            doc["skosxl:prefLabel"][0]["@id"] == "http://id.trees.org/labels/lariks-nl"
+        )
         assert doc["skosxl:prefLabel"][0]["skosxl:literalForm"] == {
             "@language": "nl",
             "@value": "De Lariks",
         }
         assert doc["skosxl:prefLabel"][0]["dct:type"] == [
-            {"@id": "http://publications.europa.eu/resource/authority/label-type/STANDARDLABEL"}
+            {
+                "@id": (
+                    "http://publications.europa.eu/resource/authority/"
+                    "label-type/STANDARDLABEL"
+                )
+            }
         ]
 
     def test_dump_larch_label_en(self):
@@ -118,7 +125,9 @@ class TestDumperTrees:
         assert doc["@type"] == "skos:Collection"
         assert doc["rdfs:label"] == "Trees by species"
         assert len(doc["skos:prefLabel"]) == 2
-        assert {"@language": "en", "@value": "Trees by species"} in doc["skos:prefLabel"]
+        assert {"@language": "en", "@value": "Trees by species"} in doc[
+            "skos:prefLabel"
+        ]
         assert len(doc["skos:hiddenLabel"]) == 1
         assert "skosxl:prefLabel" not in doc
         assert len(doc["skos:editorialNote"]) == 1
@@ -146,7 +155,9 @@ class TestDumperTrees:
         assert doc["void:inDataset"] == {"@id": "http://id.trees.org/dataset"}
 
     def test_dump_trees_cs_nl(self):
-        doc = to_jsonld(trees.concept_scheme, DumpContext(provider=trees, language="nl"))
+        doc = to_jsonld(
+            trees.concept_scheme, DumpContext(provider=trees, language="nl")
+        )
         assert doc["@id"] == "http://id.trees.org"
         assert doc["@type"] == "skos:ConceptScheme"
         assert doc["dct:identifier"] == "TREES"
@@ -159,7 +170,9 @@ class TestDumperTrees:
         assert doc["void:inDataset"] == {"@id": "http://id.trees.org/dataset"}
 
     def test_dump_trees_cs_top_concepts_partial(self):
-        doc = to_jsonld(trees.concept_scheme, DumpContext(provider=trees, language="nl"))
+        doc = to_jsonld(
+            trees.concept_scheme, DumpContext(provider=trees, language="nl")
+        )
         assert len(doc["skos:hasTopConcept"]) == 2
         assert {
             "dct:identifier": "2",
@@ -169,12 +182,16 @@ class TestDumperTrees:
         } in doc["skos:hasTopConcept"]
 
     def test_dump_trees_cs_xllabel(self):
-        doc = to_jsonld(trees.concept_scheme, DumpContext(provider=trees, language="en"))
+        doc = to_jsonld(
+            trees.concept_scheme, DumpContext(provider=trees, language="en")
+        )
         assert doc["rdfs:label"] == "Species"
         assert "skosxl:prefLabel" in doc
         assert len(doc["skosxl:prefLabel"]) == 1
         assert doc["skosxl:prefLabel"][0]["@type"] == "skosxl:Label"
-        assert doc["skosxl:prefLabel"][0]["@id"] == "http://id.trees.org/labels/soorten-nl"
+        assert (
+            doc["skosxl:prefLabel"][0]["@id"] == "http://id.trees.org/labels/soorten-nl"
+        )
         assert doc["skosxl:prefLabel"][0]["skosxl:literalForm"] == {
             "@language": "nl",
             "@value": "Soorten",
@@ -221,12 +238,16 @@ DCT = Namespace("http://purl.org/dc/terms/")
 
 _note_uri = URIRef("http://id.trees.org/notes/larch-change-1999")
 _note_graph = Graph()
-_note_graph.add((_note_uri, DCT.creator, URIRef("http://id.trees.org/persons/HoraceGray")))
+_note_graph.add(
+    (_note_uri, DCT.creator, URIRef("http://id.trees.org/persons/HoraceGray"))
+)
 _note_graph.add((_note_uri, DCT.date, Literal("1999-01-23", datatype=XSD.date)))
 
 _source_uri = URIRef("http://id.trees.org/sources/larch-monograph")
 _source_graph = Graph()
-_source_graph.add((_source_uri, DCT.creator, URIRef("http://id.trees.org/persons/JohnDoe")))
+_source_graph.add(
+    (_source_uri, DCT.creator, URIRef("http://id.trees.org/persons/JohnDoe"))
+)
 _source_graph.add((_source_uri, DCT.date, Literal("2005", datatype=XSD.gYear)))
 
 _larch_extra = {
@@ -324,55 +345,53 @@ class TestDumperObjectNotes:
         assert history_note["rdf:value"]["@type"] == "rdf:HTML"
         assert "@language" not in history_note["rdf:value"]
 
-    def test_object_source_renders_uri_and_rdf_value(self):
+    def test_object_source_renders_uri_and_citation(self):
         doc = to_jsonld(
             _trees_object_notes.get_by_id("1"),
             DumpContext(provider=_trees_object_notes),
         )
         source = doc["dct:source"][0]
         assert source["@id"] == "http://id.trees.org/sources/larch-monograph"
-        assert source["rdf:value"] == {"@value": "The Larch: A Complete Monograph"}
-        assert "dct:bibliographicCitation" not in source
+        assert source["dct:bibliographicCitation"] == [
+            {"@value": "The Larch: A Complete Monograph"}
+        ]
+        assert "rdf:value" not in source
 
-    def test_object_source_with_markup_uses_type_in_rdf_value(self):
+    def test_object_source_with_markup_uses_type_in_citation(self):
         doc = to_jsonld(
             _trees_object_notes.get_by_id("1"),
             DumpContext(provider=_trees_object_notes),
         )
         source = doc["dct:source"][1]
         assert source["@id"] == "http://id.trees.org/sources/trees-vol1"
-        assert source["rdf:value"]["@type"] == "rdf:HTML"
-        assert "dct:bibliographicCitation" not in source
+        assert source["dct:bibliographicCitation"][0]["@type"] == "rdf:HTML"
+        assert "rdf:value" not in source
 
 
 class TestDumperExtraData:
 
     def test_note_extra_data_includes_expanded_props(self):
-        doc = to_jsonld(
-            _trees_extra.get_by_id("1"), DumpContext(provider=_trees_extra)
-        )
+        doc = to_jsonld(_trees_extra.get_by_id("1"), DumpContext(provider=_trees_extra))
         change_note = doc["skos:changeNote"][0]
         assert change_note["@id"] == str(_note_uri)
         dct_creator = "http://purl.org/dc/terms/creator"
         dct_date = "http://purl.org/dc/terms/date"
         assert dct_creator in change_note
-        assert change_note[dct_creator] == [{"@id": "http://id.trees.org/persons/HoraceGray"}]
+        assert change_note[dct_creator] == [
+            {"@id": "http://id.trees.org/persons/HoraceGray"}
+        ]
         assert dct_date in change_note
         assert change_note[dct_date] == [
             {"@type": "http://www.w3.org/2001/XMLSchema#date", "@value": "1999-01-23"}
         ]
 
     def test_note_extra_data_no_context_leak(self):
-        doc = to_jsonld(
-            _trees_extra.get_by_id("1"), DumpContext(provider=_trees_extra)
-        )
+        doc = to_jsonld(_trees_extra.get_by_id("1"), DumpContext(provider=_trees_extra))
         change_note = doc["skos:changeNote"][0]
         assert "@context" not in change_note
 
     def test_source_extra_data_includes_expanded_props(self):
-        doc = to_jsonld(
-            _trees_extra.get_by_id("1"), DumpContext(provider=_trees_extra)
-        )
+        doc = to_jsonld(_trees_extra.get_by_id("1"), DumpContext(provider=_trees_extra))
         source = doc["dct:source"][0]
         assert source["@id"] == str(_source_uri)
         dct_creator = "http://purl.org/dc/terms/creator"
@@ -385,9 +404,7 @@ class TestDumperExtraData:
         ]
 
     def test_source_extra_data_no_context_leak(self):
-        doc = to_jsonld(
-            _trees_extra.get_by_id("1"), DumpContext(provider=_trees_extra)
-        )
+        doc = to_jsonld(_trees_extra.get_by_id("1"), DumpContext(provider=_trees_extra))
         source = doc["dct:source"][0]
         assert "@context" not in source
 
@@ -396,16 +413,24 @@ DCT2 = Namespace("http://purl.org/dc/terms/")
 
 _concept_uri = URIRef("http://id.trees.org/1")
 _concept_graph = Graph()
-_concept_graph.add((_concept_uri, DCT2.created, Literal("2010-01-15", datatype=XSD.date)))
-_concept_graph.add((_concept_uri, DCT2.modified, Literal("2020-06-01", datatype=XSD.date)))
+_concept_graph.add(
+    (_concept_uri, DCT2.created, Literal("2010-01-15", datatype=XSD.date))
+)
+_concept_graph.add(
+    (_concept_uri, DCT2.modified, Literal("2020-06-01", datatype=XSD.date))
+)
 
 _collection_uri = URIRef("http://id.trees.org/3")
 _collection_graph = Graph()
-_collection_graph.add((_collection_uri, DCT2.created, Literal("2010-01-15", datatype=XSD.date)))
+_collection_graph.add(
+    (_collection_uri, DCT2.created, Literal("2010-01-15", datatype=XSD.date))
+)
 
 _cs_uri_extra = URIRef("http://id.trees.org")
 _cs_graph_extra = Graph()
-_cs_graph_extra.add((_cs_uri_extra, DCT2.created, Literal("2009-12-01", datatype=XSD.date)))
+_cs_graph_extra.add(
+    (_cs_uri_extra, DCT2.created, Literal("2009-12-01", datatype=XSD.date))
+)
 
 _cs_with_extra = ConceptScheme("http://id.trees.org", extra_data=_cs_graph_extra)
 
@@ -500,7 +525,9 @@ class TestDumperConceptExtraData:
     def test_label_extra_data_includes_expanded_props(self):
         _label_uri = URIRef("http://id.trees.org/labels/larch-en")
         _label_graph = Graph()
-        _label_graph.add((_label_uri, DCT2.created, Literal("2010-01-15", datatype=XSD.date)))
+        _label_graph.add(
+            (_label_uri, DCT2.created, Literal("2010-01-15", datatype=XSD.date))
+        )
         larch_with_xl_extra = {
             "id": "10",
             "uri": "http://id.trees.org/10",
@@ -526,4 +553,79 @@ class TestDumperConceptExtraData:
         assert dct_created in xl_label
         assert xl_label[dct_created] == [
             {"@type": "http://www.w3.org/2001/XMLSchema#date", "@value": "2010-01-15"}
+        ]
+
+
+_EXTRA_PREFIXES = """
+@prefix dct: <http://purl.org/dc/terms/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+"""
+_DCT_CREATOR = "http://purl.org/dc/terms/creator"
+_DCT_CONTRIBUTOR = "http://purl.org/dc/terms/contributor"
+_FOAF_NAME = "http://xmlns.com/foaf/0.1/name"
+_FOAF_KNOWS = "http://xmlns.com/foaf/0.1/knows"
+
+
+def _dump_with_extra_data(turtle):
+    """Dump a concept with the turtle as its extra_data."""
+    provider = DictionaryProvider(
+        {"id": "EXTRA"},
+        [
+            {
+                "id": "1",
+                "uri": "http://id.trees.org/1",
+                "labels": [
+                    {"type": "prefLabel", "language": "en", "label": "The Larch"}
+                ],
+                "extra_data": Graph().parse(
+                    data=f"{_EXTRA_PREFIXES} {turtle}", format="turtle"
+                ),
+            }
+        ],
+        concept_scheme=ConceptScheme("http://id.trees.org"),
+        extra_data_loader=from_graph,
+    )
+    return to_jsonld(provider.get_by_id("1"), DumpContext(provider=provider))
+
+
+class TestDumperExtraDataNodes:
+
+    def test_props_of_the_node_of_the_object(self):
+        doc = _dump_with_extra_data(
+            """
+            <http://id.trees.org/1> dct:creator [ foaf:name "Jan" ] ;
+                dct:contributor <http://example.org/piet> .
+            <http://example.org/piet> foaf:name "Piet" .
+            """
+        )
+        assert doc["@id"] == "http://id.trees.org/1"
+        assert _FOAF_NAME not in doc
+        [creator] = doc[_DCT_CREATOR]
+        assert creator[_FOAF_NAME] == [{"@value": "Jan"}]
+        assert doc[_DCT_CONTRIBUTOR] == [
+            {"@id": "http://example.org/piet", _FOAF_NAME: [{"@value": "Piet"}]}
+        ]
+
+    def test_unreachable_nodes_are_dropped(self):
+        doc = _dump_with_extra_data(
+            """
+            <http://id.trees.org/1> dct:creator "Jan" .
+            <http://example.org/piet> foaf:name "Piet" .
+            """
+        )
+        assert doc[_DCT_CREATOR] == [{"@value": "Jan"}]
+        assert "Piet" not in str(doc)
+
+    def test_cycle_stays_a_reference(self):
+        doc = _dump_with_extra_data(
+            """
+            <http://id.trees.org/1> dct:creator <http://example.org/jan> .
+            <http://example.org/jan> foaf:knows <http://id.trees.org/1> .
+            """
+        )
+        assert doc[_DCT_CREATOR] == [
+            {
+                "@id": "http://example.org/jan",
+                _FOAF_KNOWS: [{"@id": "http://id.trees.org/1"}],
+            }
         ]

@@ -39,7 +39,7 @@ ExtraDataLoader = Callable[[Any], Graph | None]
 ExtraDataDumper = Callable[[SkosObject], dict[str, Any] | None]
 
 
-def ignore(_: object) -> None:
+def ignore(*_: object) -> None:
     """
     An extra_data loader or dumper that ignores all extra_data.
 

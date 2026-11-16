@@ -1,0 +1,1716 @@
+{
+    "materiaal": [
+        {
+            "subordinate_arrays": [],
+            "concept_scheme": {
+                "notes": [],
+                "labels": [],
+                "uri": "urn:x-skosprovider:materials"
+            },
+            "member_of": [
+                0
+            ],
+            "notes": [
+                {
+                    "note": "Aardewerk of keramiek is gebakken klei. Aardewerk wordt gebruikt voor het vervaardigen van vaatwerk, bouwmaterialen, beeldjes, enz…",
+                    "type": "definition",
+                    "language": "nl-BE"
+                },
+                {
+                    "note": "Nederlandse Art &amp; Architecture Thesaurus, <a href=\"http://browser.aat-ned.nl/\">http://browser.aat-ned.nl/</a>",
+                    "type": "note",
+                    "language": "nl-BE"
+                }
+            ],
+            "labels": [
+                {
+                    "type": "prefLabel",
+                    "language": "nl-BE",
+                    "label": "aardewerk"
+                },
+                {
+                    "type": "altLabel",
+                    "language": "nl-BE",
+                    "label": "ceramiek"
+                },
+                {
+                    "type": "altLabel",
+                    "language": "nl-BE",
+                    "label": "keramiek"
+                }
+            ],
+            "narrower": [
+                2,
+                5,
+                6
+            ],
+            "uri": "https://id.erfgoed.net/thesauri/materialen/1",
+            "related": [],
+            "broader": [],
+            "type": "concept",
+            "id": 1
+        },
+        {
+            "subordinate_arrays": [],
+            "concept_scheme": {
+                "notes": [],
+                "labels": [],
+                "uri": "urn:x-skosprovider:materials"
+            },
+            "member_of": [],
+            "notes": [
+                {
+                    "note": "Aluminium is een metaal uit de derde groep van het periodiek systeem (chemisch element Al). Het is dof zilverachtig van kleur en zeer licht.",
+                    "type": "definition",
+                    "language": "nl-BE"
+                },
+                {
+                    "note": "Van Dale groot woordenboek van de Nederlandse taal. 14de editie, Utrecht/Antwerpen, 2005",
+                    "type": "note",
+                    "language": "nl-BE"
+                }
+            ],
+            "labels": [
+                {
+                    "type": "prefLabel",
+                    "language": "nl-BE",
+                    "label": "aluminium"
+                }
+            ],
+            "narrower": [],
+            "uri": "https://id.erfgoed.net/thesauri/materialen/48",
+            "related": [],
+            "broader": [
+                8
+            ],
+            "type": "concept",
+            "id": 48
+        },
+        {
+            "subordinate_arrays": [],
+            "concept_scheme": {
+                "notes": [],
+                "labels": [],
+                "uri": "urn:x-skosprovider:materials"
+            },
+            "member_of": [],
+            "notes": [
+                {
+                    "note": "Amber is een fossiele hars afkomstig uit naaldbomen en wordt gebruikt voor het maken van kralen, hangers, knopen en dergelijke meer.",
+                    "type": "definition",
+                    "language": "nl-BE"
+                },
+                {
+                    "note": "VIOE",
+                    "type": "note",
+                    "language": "nl-BE"
+                }
+            ],
+            "labels": [
+                {
+                    "type": "prefLabel",
+                    "language": "nl-BE",
+                    "label": "amber"
+                },
+                {
+                    "type": "altLabel",
+                    "language": "nl-BE",
+                    "label": "barnsteen"
+                }
+            ],
+            "narrower": [],
+            "uri": "https://id.erfgoed.net/thesauri/materialen/33",
+            "related": [],
+            "broader": [
+                32
+            ],
+            "type": "concept",
+            "id": 33
+        },
+        {
+            "subordinate_arrays": [68],
+            "concept_scheme": {
+                "notes": [],
+                "labels": [],
+                "uri": "urn:x-skosprovider:materials"
+            },
+            "member_of": [
+                0
+            ],
+            "notes": [
+                {
+                    "note": "Beton is een kunstmatig materiaal dat lijkt op steen en als bouwmateriaal gebruikt wordt. Het bestaat uit cement of kalk waaraan zand, grind of steenslag wordt toegevoegd.",
+                    "type": "definition",
+                    "language": "nl-BE"
+                },
+                {
+                    "note": "VIOE",
+                    "type": "note",
+                    "language": "nl-BE"
+                }
+            ],
+            "labels": [
+                {
+                    "type": "prefLabel",
+                    "language": "nl-BE",
+                    "label": "beton"
+                }
+            ],
+            "narrower": [],
+            "uri": "https://id.erfgoed.net/thesauri/materialen/38",
+            "related": [],
+            "broader": [],
+            "type": "concept",
+            "id": 38
+        },
+        {
+            "subordinate_arrays": [],
+            "concept_scheme": {
+                "notes": [],
+                "labels": [],
+                "uri": "urn:x-skosprovider:materials"
+            },
+            "member_of": [],
+            "notes": [
+                {
+                    "note": "Bladgoud is een term die verwijst naar platen goud die tot een zeer geringe dikte (meestal circa 0,1 micrometer) zijn gehamerd of gewalst.",
+                    "type": "definition",
+                    "language": "nl-BE"
+                },
+                {
+                    "note": "Nederlandse Art &amp; Architecture Thesaurus, <a href=\"http://browser.aat-ned.nl/\">http://browser.aat-ned.nl/</a>",
+                    "type": "note",
+                    "language": "nl-BE"
+                }
+            ],
+            "labels": [
+                {
+                    "type": "prefLabel",
+                    "language": "nl-BE",
+                    "label": "bladgoud"
+                }
+            ],
+            "narrower": [],
+            "uri": "https://id.erfgoed.net/thesauri/materialen/10",
+            "related": [],
+            "broader": [
+                9
+            ],
+            "type": "concept",
+            "id": 10
+        },
+        {
+            "subordinate_arrays": [],
+            "concept_scheme": {
+                "notes": [],
+                "labels": [],
+                "uri": "urn:x-skosprovider:materials"
+            },
+            "member_of": [],
+            "notes": [
+                {
+                    "note": "Bont is een gelooide dierlijke huid, dicht bezet met haren. Het wordt voornamelijk gebruikt voor het maken van kleding.",
+                    "type": "definition",
+                    "language": "nl-BE"
+                },
+                {
+                    "note": "Nederlandse Art &amp; Architecture Thesaurus, <a href=\"http://browser.aat-ned.nl/\">http://browser.aat-ned.nl/</a>",
+                    "type": "note",
+                    "language": "nl-BE"
+                }
+            ],
+            "labels": [
+                {
+                    "type": "prefLabel",
+                    "language": "nl-BE",
+                    "label": "bont"
+                }
+            ],
+            "narrower": [],
+            "uri": "https://id.erfgoed.net/thesauri/materialen/23",
+            "related": [],
+            "broader": [
+                21
+            ],
+            "type": "concept",
+            "id": 23
+        },
+        {
+            "subordinate_arrays": [],
+            "concept_scheme": {
+                "notes": [],
+                "labels": [],
+                "uri": "urn:x-skosprovider:materials"
+            },
+            "member_of": [],
+            "notes": [
+                {
+                    "note": "Botmateriaal of been is een combinatie van organisch en anorganisch materiaal die hoofdzakelijk bestaat uit collageen en calciumfosfaat.",
+                    "type": "definition",
+                    "language": "nl-BE"
+                },
+                {
+                    "note": "Nederlandse Art &amp; Architecture Thesaurus, <a href=\"http://browser.aat-ned.nl/\">http://browser.aat-ned.nl/</a>",
+                    "type": "note",
+                    "language": "nl-BE"
+                }
+            ],
+            "labels": [
+                {
+                    "type": "prefLabel",
+                    "language": "nl-BE",
+                    "label": "botmateriaal"
+                }
+            ],
+            "narrower": [
+                25,
+                26
+            ],
+            "uri": "https://id.erfgoed.net/thesauri/materialen/24",
+            "related": [],
+            "broader": [
+                21
+            ],
+            "type": "concept",
+            "id": 24
+        },
+        {
+            "subordinate_arrays": [],
+            "concept_scheme": {
+                "notes": [],
+                "labels": [],
+                "uri": "urn:x-skosprovider:materials"
+            },
+            "member_of": [13],
+            "notes": [
+                {
+                    "note": "Brons is een legering van koper en tin.",
+                    "type": "definition",
+                    "language": "nl-BE"
+                }
+            ],
+            "labels": [
+                {
+                    "type": "prefLabel",
+                    "language": "nl-BE",
+                    "label": "brons"
+                }
+            ],
+            "narrower": [],
+            "uri": "https://id.erfgoed.net/thesauri/materialen/14",
+            "related": [],
+            "broader": [],
+            "type": "concept",
+            "id": 14
+        },
+        {
+            "subordinate_arrays": [],
+            "concept_scheme": {
+                "notes": [],
+                "labels": [],
+                "uri": "urn:x-skosprovider:materials"
+            },
+            "member_of": [
+                0
+            ],
+            "notes": [
+                {
+                    "note": "Cement is de benaming voor verschillende stoffen die een snel verhardend bindmiddel voor bouwwerken (mortel) opleveren.",
+                    "type": "definition",
+                    "language": "nl-BE"
+                },
+                {
+                    "note": "Van Dale groot woordenboek van de Nederlandse taal. 14de editie, Utrecht/Antwerpen, 2005",
+                    "type": "note",
+                    "language": "nl-BE"
+                }
+            ],
+            "labels": [
+                {
+                    "type": "prefLabel",
+                    "language": "nl-BE",
+                    "label": "cement"
+                }
+            ],
+            "narrower": [],
+            "uri": "https://id.erfgoed.net/thesauri/materialen/49",
+            "related": [],
+            "broader": [],
+            "type": "concept",
+            "id": 49
+        },
+        {
+            "subordinate_arrays": [],
+            "concept_scheme": {
+                "notes": [],
+                "labels": [],
+                "uri": "urn:x-skosprovider:materials"
+            },
+            "member_of": [],
+            "notes": [
+                {
+                    "note": "Botmateriaal of been is een combinatie van organisch en anorganisch materiaal die hoofdzakelijk bestaat uit collageen en calciumfosfaat; het vormt het geraamte van de meeste gewervelde dieren.",
+                    "type": "definition",
+                    "language": "nl-BE"
+                },
+                {
+                    "note": "Nederlandse Art &amp; Architecture Thesaurus, <a href=\"http://browser.aat-ned.nl/\">http://browser.aat-ned.nl/</a>",
+                    "type": "note",
+                    "language": "nl-BE"
+                }
+            ],
+            "labels": [
+                {
+                    "type": "prefLabel",
+                    "language": "nl-BE",
+                    "label": "dierlijk botmateriaal"
+                }
+            ],
+            "narrower": [],
+            "uri": "https://id.erfgoed.net/thesauri/materialen/25",
+            "related": [],
+            "broader": [
+                24
+            ],
+            "type": "concept",
+            "id": 25
+        },
+        {
+            "subordinate_arrays": [],
+            "concept_scheme": {
+                "notes": [],
+                "labels": [],
+                "uri": "urn:x-skosprovider:materials"
+            },
+            "member_of": [],
+            "notes": [
+                {
+                    "note": "Gewapend beton is een combinatie van beton en staal.",
+                    "type": "definition",
+                    "language": "nl-BE"
+                }
+            ],
+            "labels": [
+                {
+                    "type": "prefLabel",
+                    "language": "nl-BE",
+                    "label": "gewapend beton"
+                }
+            ],
+            "narrower": [],
+            "uri": "https://id.erfgoed.net/thesauri/materialen/39",
+            "related": [],
+            "broader": [
+                38
+            ],
+            "type": "concept",
+            "id": 39
+        },
+        {
+            "subordinate_arrays": [],
+            "concept_scheme": {
+                "notes": [],
+                "labels": [],
+                "uri": "urn:x-skosprovider:materials"
+            },
+            "member_of": [],
+            "notes": [
+                {
+                    "note": "Gewei wordt gevormd door enkele uitstulpingen van been op de voorhoofdsbeenderen van gehoefde dieren die behoren tot de hertenfamilie. Het wordt jaarlijks afgeworpen. Gewei wordt door de mens gebruikt als grondstof voor het maken van artefacten.",
+                    "type": "definition",
+                    "language": "nl-BE"
+                },
+                {
+                    "note": "Nederlandse Art &amp; Architecture Thesaurus, <a href=\"http://browser.aat-ned.nl/\">http://browser.aat-ned.nl/</a>",
+                    "type": "note",
+                    "language": "nl-BE"
+                }
+            ],
+            "labels": [
+                {
+                    "type": "prefLabel",
+                    "language": "nl-BE",
+                    "label": "gewei"
+                }
+            ],
+            "narrower": [],
+            "uri": "https://id.erfgoed.net/thesauri/materialen/27",
+            "related": [],
+            "broader": [
+                21
+            ],
+            "type": "concept",
+            "id": 27
+        },
+        {
+            "subordinate_arrays": [],
+            "concept_scheme": {
+                "notes": [],
+                "labels": [],
+                "uri": "urn:x-skosprovider:materials"
+            },
+            "member_of": [
+                0
+            ],
+            "notes": [
+                {
+                    "note": "Glas is een amorfe, anorganische substantie die wordt gemaakt door silica (siliciumdioxide) te fuseren met een basisoxide, meestal transparant maar vaak ook doorzichtig of ondoorschijnend.",
+                    "type": "definition",
+                    "language": "nl-BE"
+                },
+                {
+                    "note": "Nederlandse Art &amp; Architecture Thesaurus, <a href=\"http://browser.aat-ned.nl/\">http://browser.aat-ned.nl/</a>",
+                    "type": "note",
+                    "language": "nl-BE"
+                }
+            ],
+            "labels": [
+                {
+                    "type": "prefLabel",
+                    "language": "nl-BE",
+                    "label": "glas"
+                }
+            ],
+            "narrower": [],
+            "uri": "https://id.erfgoed.net/thesauri/materialen/7",
+            "related": [],
+            "broader": [],
+            "type": "concept",
+            "id": 7
+        },
+        {
+            "subordinate_arrays": [],
+            "concept_scheme": {
+                "notes": [],
+                "labels": [],
+                "uri": "urn:x-skosprovider:materials"
+            },
+            "member_of": [],
+            "notes": [
+                {
+                    "note": "Te gebruiken voor het zuivere metaalelement met het symbool Au. Het is een zacht, zwaar, chemisch inactief en geel metaal en wordt al sinds de oudheid als edel beschouwd. Het dient in vele culturen als de basis voor materiële handelswaarden. Ook te gebruiken voor het metaal wanneer het wordt bewerkt en vervormd om, meestal in combinatie met andere stoffen, verschillende voorwerpen en materialen te maken.",
+                    "type": "definition",
+                    "language": "nl-BE"
+                },
+                {
+                    "note": "Nederlandse Art &amp; Architecture Thesaurus, <a href=\"http://browser.aat-ned.nl/\">http://browser.aat-ned.nl/</a>",
+                    "type": "note",
+                    "language": "nl-BE"
+                }
+            ],
+            "labels": [
+                {
+                    "type": "prefLabel",
+                    "language": "nl-BE",
+                    "label": "goud"
+                }
+            ],
+            "narrower": [
+                10
+            ],
+            "uri": "https://id.erfgoed.net/thesauri/materialen/9",
+            "related": [],
+            "broader": [
+                8
+            ],
+            "type": "concept",
+            "id": 9
+        },
+        {
+            "subordinate_arrays": [],
+            "concept_scheme": {
+                "notes": [],
+                "labels": [],
+                "uri": "urn:x-skosprovider:materials"
+            },
+            "member_of": [],
+            "notes": [
+                {
+                    "note": "Hoorn is een uitgroei van aangepaste huid of zeer compact haar, vaak in paren die uitsteken vanaf de voorhoofdsbotten aan beide zijden van de schedel en bestaat uit een permanente opperhuid van keratine. De benen kern van een hoorn wordt hoornpit genoemd.",
+                    "type": "definition",
+                    "language": "nl-BE"
+                },
+                {
+                    "note": "Nederlandse Art &amp; Architecture Thesaurus, <a href=\"http://browser.aat-ned.nl/\">http://browser.aat-ned.nl/</a>",
+                    "type": "note",
+                    "language": "nl-BE"
+                },
+                {
+                    "note": "Te onderscheiden van 'gewei', dat bestaat uit aangepast been.",
+                    "type": "scopeNote",
+                    "language": "nl-BE"
+                }
+            ],
+            "labels": [
+                {
+                    "type": "prefLabel",
+                    "language": "nl-BE",
+                    "label": "hoorn/hoornpitten"
+                }
+            ],
+            "narrower": [],
+            "uri": "https://id.erfgoed.net/thesauri/materialen/28",
+            "related": [],
+            "broader": [
+                21
+            ],
+            "type": "concept",
+            "id": 28
+        },
+        {
+            "subordinate_arrays": [],
+            "concept_scheme": {
+                "notes": [],
+                "labels": [],
+                "uri": "urn:x-skosprovider:materials"
+            },
+            "member_of": [],
+            "notes": [
+                {
+                    "note": "Hout is het voornaamste bestanddeel van bomen en struiken. Hout is een belangrijke grondstof en wordt voor allerlei toepassingen gebruikt, zoals voor bouwconstructies, als brandstof, voor het maken van papier, enz…",
+                    "type": "definition",
+                    "language": "nl-BE"
+                },
+                {
+                    "note": "Nederlandse Art &amp; Architecture Thesaurus, <a href=\"http://browser.aat-ned.nl/\">http://browser.aat-ned.nl/</a>",
+                    "type": "note",
+                    "language": "nl-BE"
+                }
+            ],
+            "labels": [
+                {
+                    "type": "prefLabel",
+                    "language": "nl-BE",
+                    "label": "hout"
+                }
+            ],
+            "narrower": [],
+            "uri": "https://id.erfgoed.net/thesauri/materialen/35",
+            "related": [],
+            "broader": [
+                32
+            ],
+            "type": "concept",
+            "id": 35
+        },
+        {
+            "subordinate_arrays": [],
+            "concept_scheme": {
+                "notes": [],
+                "labels": [],
+                "uri": "urn:x-skosprovider:materials"
+            },
+            "member_of": [],
+            "notes": [
+                {
+                    "note": "Houtskool is een onzuivere vorm van grafietkoolstof die ontstaat als reststof bij de gedeeltelijke verbranding van koolstofhoudend materiaal, of bij verhitting van dit materiaal waarbij zuurstof in beperkte hoeveelheid aanwezig is.",
+                    "type": "definition",
+                    "language": "nl-BE"
+                },
+                {
+                    "note": "Nederlandse Art &amp; Architecture Thesaurus, <a href=\"http://browser.aat-ned.nl/\">http://browser.aat-ned.nl/</a>",
+                    "type": "note",
+                    "language": "nl-BE"
+                }
+            ],
+            "labels": [
+                {
+                    "type": "prefLabel",
+                    "language": "nl-BE",
+                    "label": "houtskool"
+                }
+            ],
+            "narrower": [],
+            "uri": "https://id.erfgoed.net/thesauri/materialen/36",
+            "related": [],
+            "broader": [
+                32
+            ],
+            "type": "concept",
+            "id": 36
+        },
+        {
+            "subordinate_arrays": [],
+            "concept_scheme": {
+                "notes": [],
+                "labels": [],
+                "uri": "urn:x-skosprovider:materials"
+            },
+            "member_of": [],
+            "notes": [],
+            "labels": [
+                {
+                    "type": "prefLabel",
+                    "language": "nl-BE",
+                    "label": "huid"
+                }
+            ],
+            "narrower": [
+                30
+            ],
+            "uri": "https://id.erfgoed.net/thesauri/materialen/29",
+            "related": [],
+            "broader": [
+                21
+            ],
+            "type": "concept",
+            "id": 29
+        },
+        {
+            "subordinate_arrays": [],
+            "concept_scheme": {
+                "notes": [],
+                "labels": [],
+                "uri": "urn:x-skosprovider:materials"
+            },
+            "member_of": [],
+            "notes": [
+                {
+                    "note": "Te gebruiken voor het zuivere metaalelement met het symbool Fe. Het is een glimmend, zilverachtig zacht metaal dat roest wanneer het aan vochtige lucht wordt blootgesteld. Gebruik ook voor dit metaal als het wordt verwerkt en gevormd, meestal in combinatie met andere stoffen, om diverse objecten en materialen te maken.",
+                    "type": "definition",
+                    "language": "nl-BE"
+                },
+                {
+                    "note": "Nederlandse Art &amp; Architecture Thesaurus, <a href=\"http://browser.aat-ned.nl/\">http://browser.aat-ned.nl/</a>",
+                    "type": "note",
+                    "language": "nl-BE"
+                }
+            ],
+            "labels": [
+                {
+                    "type": "prefLabel",
+                    "language": "nl-BE",
+                    "label": "ijzer"
+                }
+            ],
+            "narrower": [],
+            "uri": "https://id.erfgoed.net/thesauri/materialen/11",
+            "related": [],
+            "broader": [
+                8
+            ],
+            "type": "concept",
+            "id": 11
+        },
+        {
+            "subordinate_arrays": [13],
+            "concept_scheme": {
+                "notes": [],
+                "labels": [],
+                "uri": "urn:x-skosprovider:materials"
+            },
+            "member_of": [],
+            "notes": [
+                {
+                    "note": "Te gebruiken voor het zuivere metaalelement met het symbool Cu. Het is roodachtig van kleur en is zeer smeedbaar en kneedbaar. Ook te gebruiken voor het metaal wanneer het wordt bewerkt en gevormd om, meestal in combinatie met andere stoffen, verschillende voorwerpen en materialen te maken.",
+                    "type": "definition",
+                    "language": "nl-BE"
+                },
+                {
+                    "note": "Nederlandse Art &amp; Architecture Thesaurus, <a href=\"http://browser.aat-ned.nl/\">http://browser.aat-ned.nl/</a>",
+                    "type": "note",
+                    "language": "nl-BE"
+                }
+            ],
+            "labels": [
+                {
+                    "type": "prefLabel",
+                    "language": "nl-BE",
+                    "label": "koper"
+                }
+            ],
+            "narrower": [],
+            "uri": "https://id.erfgoed.net/thesauri/materialen/12",
+            "related": [],
+            "broader": [
+                8
+            ],
+            "type": "concept",
+            "id": 12
+        },
+        {
+            "concept_scheme": {
+                "notes": [],
+                "labels": [],
+                "uri": "urn:x-skosprovider:materials"
+            },
+            "member_of": [],
+            "notes": [
+                {
+                    "note": "Een koperlegering is een vast mengsel van koper met andere metalen.",
+                    "type": "definition",
+                    "language": "nl-BE"
+                },
+                {
+                    "note": "VIOE",
+                    "type": "note",
+                    "language": "nl-BE"
+                }
+            ],
+            "labels": [
+                {
+                    "type": "prefLabel",
+                    "language": "nl-BE",
+                    "label": "koperlegeringen"
+                }
+            ],
+            "members": [
+                14,
+                15
+            ],
+            "uri": "https://id.erfgoed.net/thesauri/materialen/13",
+            "superordinates": [
+                12
+            ],
+            "infer_concept_relations": false,
+            "type": "collection",
+            "id": 13
+        },
+        {
+            "subordinate_arrays": [],
+            "concept_scheme": {
+                "notes": [],
+                "labels": [],
+                "uri": "urn:x-skosprovider:materials"
+            },
+            "member_of": [
+                0
+            ],
+            "notes": [
+                {
+                    "note": "Een kunststof is een langs chemische weg gemaakte stof die gebruikt wordt voor de vervaardiging van de meest verschillende zaken. In de scheepsbouw gaat het om een composiet van glasvezel (of andere meer moderne vezels) met polyester of epoxy, al dan niet in combinatie met een core-materiaal.",
+                    "type": "definition",
+                    "language": "nl-BE"
+                },
+                {
+                    "note": "1) Van Dale groot woordenboek van de Nederlandse taal. 14de editie, Utrecht/Antwerpen, 2005\n2) Onroerend Erfgoed",
+                    "type": "note",
+                    "language": "nl-BE"
+                }
+            ],
+            "labels": [
+                {
+                    "type": "prefLabel",
+                    "language": "nl-BE",
+                    "label": "kunststof"
+                }
+            ],
+            "narrower": [],
+            "uri": "https://id.erfgoed.net/thesauri/materialen/20",
+            "related": [],
+            "broader": [],
+            "type": "concept",
+            "id": 20
+        },
+        {
+            "subordinate_arrays": [],
+            "concept_scheme": {
+                "notes": [],
+                "labels": [],
+                "uri": "urn:x-skosprovider:materials"
+            },
+            "member_of": [43],
+            "notes": [
+                {
+                    "note": "Het kwartsiet van Tienen is een metamorf gesteente waarbij de oorspronkelijke sedimentaire kwartskorrels door secundaire aangroei met elkaar zijn vergroeid. Dit verklaart de geringe porositeit en sterke cohesie van dit gesteente.",
+                    "type": "definition",
+                    "language": "nl-BE"
+                },
+                {
+                    "note": "Gullentops F. &amp; Wouters L., Delfstoffen in Vlaanderen, Ministerie van de Vlaamse gemeenschap, Departement EWBL.",
+                    "type": "note",
+                    "language": "nl-BE"
+                }
+            ],
+            "labels": [
+                {
+                    "type": "prefLabel",
+                    "language": "nl-BE",
+                    "label": "kwartsiet van Tienen"
+                }
+            ],
+            "narrower": [],
+            "uri": "https://id.erfgoed.net/thesauri/materialen/44",
+            "related": [],
+            "broader": [],
+            "type": "concept",
+            "id": 44
+        },
+        {
+            "concept_scheme": {
+                "notes": [],
+                "labels": [],
+                "uri": "urn:x-skosprovider:materials"
+            },
+            "member_of": [],
+            "notes": [],
+            "labels": [
+                {
+                    "type": "prefLabel",
+                    "language": "nl-BE",
+                    "label": "kwartsitisch lithisch materiaal volgens herkomst"
+                }
+            ],
+            "members": [
+                44,
+                45
+            ],
+            "uri": "https://id.erfgoed.net/thesauri/materialen/43",
+            "superordinates": [
+                42
+            ],
+            "infer_concept_relations": true,
+            "type": "collection",
+            "id": 43
+        },
+        {
+            "subordinate_arrays": [],
+            "concept_scheme": {
+                "notes": [],
+                "labels": [],
+                "uri": "urn:x-skosprovider:materials"
+            },
+            "member_of": [],
+            "notes": [
+                {
+                    "note": "Leer is de huid of het vel van een dier, die is gelooid om tegen bederf te beschermen en in droge toestand relatief zacht en soepel te maken.",
+                    "type": "definition",
+                    "language": "nl-BE"
+                },
+                {
+                    "note": "Nederlandse Art &amp; Architecture Thesaurus, <a href=\"http://browser.aat-ned.nl/\">http://browser.aat-ned.nl/</a>",
+                    "type": "note",
+                    "language": "nl-BE"
+                }
+            ],
+            "labels": [
+                {
+                    "type": "prefLabel",
+                    "language": "nl-BE",
+                    "label": "leer"
+                }
+            ],
+            "narrower": [],
+            "uri": "https://id.erfgoed.net/thesauri/materialen/30",
+            "related": [],
+            "broader": [
+                29
+            ],
+            "type": "concept",
+            "id": 30
+        },
+        {
+            "subordinate_arrays": [43],
+            "concept_scheme": {
+                "notes": [],
+                "labels": [],
+                "uri": "urn:x-skosprovider:materials"
+            },
+            "member_of": [],
+            "notes": [],
+            "labels": [
+                {
+                    "type": "prefLabel",
+                    "language": "nl-BE",
+                    "label": "lithisch materiaal"
+                }
+            ],
+            "narrower": [
+                46
+            ],
+            "uri": "https://id.erfgoed.net/thesauri/materialen/42",
+            "related": [],
+            "broader": [
+                40
+            ],
+            "type": "concept",
+            "id": 42
+        },
+        {
+            "subordinate_arrays": [],
+            "concept_scheme": {
+                "notes": [],
+                "labels": [],
+                "uri": "urn:x-skosprovider:materials"
+            },
+            "member_of": [],
+            "notes": [
+                {
+                    "note": "Te gebruiken voor het zuivere metaalelement met het symbool Pb. Het metaal is zacht, kneedbaar en vaalgrijs van kleur. Ook te gebruiken voor het metaal wanneer het wordt bewerkt en gevormd om, meestal in combinatie met andere stoffen, verscheidene voorwerpen en materialen te maken.",
+                    "type": "definition",
+                    "language": "nl-BE"
+                },
+                {
+                    "note": "Nederlandse Art &amp; Architecture Thesaurus, <a href=\"http://browser.aat-ned.nl/\">http://browser.aat-ned.nl/</a>",
+                    "type": "note",
+                    "language": "nl-BE"
+                }
+            ],
+            "labels": [
+                {
+                    "type": "prefLabel",
+                    "language": "nl-BE",
+                    "label": "lood"
+                }
+            ],
+            "narrower": [],
+            "uri": "https://id.erfgoed.net/thesauri/materialen/16",
+            "related": [],
+            "broader": [
+                8
+            ],
+            "type": "concept",
+            "id": 16
+        },
+        {
+            "subordinate_arrays": [],
+            "concept_scheme": {
+                "notes": [],
+                "labels": [],
+                "uri": "urn:x-skosprovider:materials"
+            },
+            "member_of": [],
+            "notes": [
+                {
+                    "note": "Botmateriaal of been is een combinatie van organisch en/of anorganisch materiaal die hoofdzakelijk bestaat uit collageen en calciumfosfaat; het vormt het geraamte van de meeste gewervelden, waaronder de mens.",
+                    "type": "definition",
+                    "language": "nl-BE"
+                },
+                {
+                    "note": "Nederlandse Art &amp; Architecture Thesaurus, <a href=\"http://browser.aat-ned.nl/\">http://browser.aat-ned.nl/</a>",
+                    "type": "note",
+                    "language": "nl-BE"
+                }
+            ],
+            "labels": [
+                {
+                    "type": "prefLabel",
+                    "language": "nl-BE",
+                    "label": "menselijk botmateriaal"
+                }
+            ],
+            "narrower": [],
+            "uri": "https://id.erfgoed.net/thesauri/materialen/26",
+            "related": [],
+            "broader": [
+                24
+            ],
+            "type": "concept",
+            "id": 26
+        },
+        {
+            "subordinate_arrays": [],
+            "concept_scheme": {
+                "notes": [],
+                "labels": [],
+                "uri": "urn:x-skosprovider:materials"
+            },
+            "member_of": [13],
+            "notes": [
+                {
+                    "note": "Messing is een legering van koper en zink, meestal met koper als het voornaamste element en met zink als maximaal 40% van het gewicht.",
+                    "type": "definition",
+                    "language": "nl-BE"
+                },
+                {
+                    "note": "Nederlandse Art &amp; Architecture Thesaurus, <a href=\"http://browser.aat-ned.nl/\">http://browser.aat-ned.nl/</a>",
+                    "type": "note",
+                    "language": "nl-BE"
+                }
+            ],
+            "labels": [
+                {
+                    "type": "prefLabel",
+                    "language": "nl-BE",
+                    "label": "messing"
+                }
+            ],
+            "narrower": [],
+            "uri": "https://id.erfgoed.net/thesauri/materialen/15",
+            "related": [],
+            "broader": [],
+            "type": "concept",
+            "id": 15
+        },
+        {
+            "subordinate_arrays": [],
+            "concept_scheme": {
+                "notes": [],
+                "labels": [],
+                "uri": "urn:x-skosprovider:materials"
+            },
+            "member_of": [
+                0
+            ],
+            "notes": [
+                {
+                    "note": "Metaal omvat een grote groep stoffen die meestal een kenmerkende glans vertonen. Het zijn goede geleiders van elektriciteit en warmte, ze zijn ondoorschijnend, kunnen smelten en zijn meestal pletbaar of kneedbaar.",
+                    "type": "definition",
+                    "language": "nl-BE"
+                },
+                {
+                    "note": "Nederlandse Art &amp; Architecture Thesaurus, <a href=\"http://browser.aat-ned.nl/\">http://browser.aat-ned.nl/</a>",
+                    "type": "note",
+                    "language": "nl-BE"
+                }
+            ],
+            "labels": [
+                {
+                    "type": "prefLabel",
+                    "language": "nl-BE",
+                    "label": "metaal"
+                }
+            ],
+            "narrower": [
+                9,
+                11,
+                12,
+                16,
+                17,
+                18,
+                19,
+                48
+            ],
+            "uri": "https://id.erfgoed.net/thesauri/materialen/8",
+            "related": [],
+            "broader": [],
+            "type": "concept",
+            "id": 8
+        },
+        {
+            "subordinate_arrays": [],
+            "concept_scheme": {
+                "notes": [],
+                "labels": [],
+                "uri": "urn:x-skosprovider:materials"
+            },
+            "member_of": [],
+            "notes": [
+                {
+                    "note": "Natuursteen is een term die wordt gebruik voor gesteenten die in de natuur worden aangetroffen en die, na eventuele bewerking, kunnen dienen als bouwmateriaal. Hieronder vallen steensoorten zoals graniet, tefriet, Doornikse kalksteen, zandsteen, Balegemse kalkzandsteen, Gobertangesteen, arduin (blauwe hardsteen), ijzerzandsteen, veldsteen, Ypresiaanse nummilietenkalksteen, Avendersteen, schieffer, enz...",
+                    "type": "definition",
+                    "language": "nl-BE"
+                },
+                {
+                    "note": "1) Nederlandse Art &amp; Architecture Thesaurus, <a href=\"http://browser.aat-ned.nl/\">http://browser.aat-ned.nl/</a> 2) VIOE",
+                    "type": "note",
+                    "language": "nl-BE"
+                }
+            ],
+            "labels": [
+                {
+                    "type": "prefLabel",
+                    "language": "nl-BE",
+                    "label": "natuursteen"
+                }
+            ],
+            "narrower": [],
+            "uri": "https://id.erfgoed.net/thesauri/materialen/41",
+            "related": [],
+            "broader": [
+                40
+            ],
+            "type": "concept",
+            "id": 41
+        },
+        {
+            "subordinate_arrays": [],
+            "concept_scheme": {
+                "notes": [],
+                "labels": [],
+                "uri": "urn:x-skosprovider:materials"
+            },
+            "member_of": [
+                0
+            ],
+            "notes": [
+                {
+                    "note": "Organisch materiaal is materiaal dat koolstof bevat, inclusief de materialen die afkomstig zijn van levende organismen.",
+                    "type": "definition",
+                    "language": "nl-BE"
+                },
+                {
+                    "note": "Nederlandse Art &amp; Architecture Thesaurus, <a href=\"http://browser.aat-ned.nl/\">http://browser.aat-ned.nl/</a>",
+                    "type": "note",
+                    "language": "nl-BE"
+                }
+            ],
+            "labels": [
+                {
+                    "type": "prefLabel",
+                    "language": "nl-BE",
+                    "label": "organisch materiaal"
+                }
+            ],
+            "narrower": [
+                23,
+                24,
+                27,
+                28,
+                29,
+                32
+            ],
+            "uri": "https://id.erfgoed.net/thesauri/materialen/21",
+            "related": [],
+            "broader": [],
+            "type": "concept",
+            "id": 21
+        },
+        {
+            "subordinate_arrays": [],
+            "concept_scheme": {
+                "notes": [],
+                "labels": [],
+                "uri": "urn:x-skosprovider:materials"
+            },
+            "member_of": [],
+            "notes": [
+                {
+                    "note": "Pijpaarde is een bepaalde soort fijne, witbakkende klei die gebruikt werd voor het maken van pijpen, beeldjes, fijn aardewerk enz...",
+                    "type": "definition",
+                    "language": "nl-BE"
+                },
+                {
+                    "note": "VIOE",
+                    "type": "note",
+                    "language": "nl-BE"
+                }
+            ],
+            "labels": [
+                {
+                    "type": "prefLabel",
+                    "language": "nl-BE",
+                    "label": "pijpaarde"
+                }
+            ],
+            "narrower": [],
+            "uri": "https://id.erfgoed.net/thesauri/materialen/2",
+            "related": [],
+            "broader": [
+                1
+            ],
+            "type": "concept",
+            "id": 2
+        },
+        {
+            "subordinate_arrays": [],
+            "concept_scheme": {
+                "notes": [],
+                "labels": [],
+                "uri": "urn:x-skosprovider:materials"
+            },
+            "member_of": [],
+            "notes": [],
+            "labels": [
+                {
+                    "type": "prefLabel",
+                    "language": "nl-BE",
+                    "label": "plantaardig materiaal"
+                }
+            ],
+            "narrower": [
+                33,
+                35,
+                36,
+                37
+            ],
+            "uri": "https://id.erfgoed.net/thesauri/materialen/32",
+            "related": [],
+            "broader": [
+                21
+            ],
+            "type": "concept",
+            "id": 32
+        },
+        {
+            "subordinate_arrays": [],
+            "concept_scheme": {
+                "notes": [],
+                "labels": [],
+                "uri": "urn:x-skosprovider:materials"
+            },
+            "member_of": [
+                0
+            ],
+            "notes": [
+                {
+                    "note": "Pleister verwijst naar zacht, plastisch materiaal dat kan worden uitgerold of uitgestreken op een muur, plafond of ander oppervlak waarop het vervolgens verhardt. In de context van kunst en architectuur verwijst het meestal specifiek naar een mengsel van water, kalk en zand, vaak in combinatie met andere materialen zoals dierenhaar, waardoor het materiaal meer kracht, textuur en - als het oppervlak daarna wordt geschilderd - poreusheid krijgt.",
+                    "type": "definition",
+                    "language": "nl-BE"
+                },
+                {
+                    "note": "Art &amp; Architecture Thesaurus",
+                    "type": "note",
+                    "language": "nl-BE"
+                }
+            ],
+            "labels": [
+                {
+                    "type": "prefLabel",
+                    "language": "nl-BE",
+                    "label": "pleister"
+                }
+            ],
+            "narrower": [],
+            "uri": "https://id.erfgoed.net/thesauri/materialen/50",
+            "related": [],
+            "broader": [],
+            "type": "concept",
+            "id": 50
+        },
+        {
+            "subordinate_arrays": [],
+            "concept_scheme": {
+                "notes": [],
+                "labels": [],
+                "uri": "urn:x-skosprovider:materials"
+            },
+            "member_of": [],
+            "notes": [
+                {
+                    "note": "Porselein verwijst naar een bepaald soort hardgebakken aardewerk van vuurbestendige witte klei, kaolien, waaraan veldspaat en kwarts worden toegevoegd.",
+                    "type": "definition",
+                    "language": "nl-BE"
+                },
+                {
+                    "note": "VIOE",
+                    "type": "note",
+                    "language": "nl-BE"
+                }
+            ],
+            "labels": [
+                {
+                    "type": "prefLabel",
+                    "language": "nl-BE",
+                    "label": "porselein"
+                }
+            ],
+            "narrower": [],
+            "uri": "https://id.erfgoed.net/thesauri/materialen/5",
+            "related": [],
+            "broader": [
+                1
+            ],
+            "type": "concept",
+            "id": 5
+        },
+        {
+            "subordinate_arrays": [],
+            "concept_scheme": {
+                "notes": [],
+                "labels": [],
+                "uri": "urn:x-skosprovider:materials"
+            },
+            "member_of": [
+                0
+            ],
+            "notes": [
+                {
+                    "note": "De het uitwendig skelet van een weekdier samengesteld uit kalk of andere mineralen.",
+                    "type": "definition",
+                    "language": "nl-BE"
+                }
+            ],
+            "labels": [
+                {
+                    "type": "prefLabel",
+                    "language": "nl-BE",
+                    "label": "schelp"
+                }
+            ],
+            "narrower": [],
+            "uri": "https://id.erfgoed.net/thesauri/materialen/31",
+            "related": [],
+            "broader": [],
+            "type": "concept",
+            "id": 31
+        },
+        {
+            "subordinate_arrays": [],
+            "concept_scheme": {
+                "notes": [],
+                "labels": [],
+                "uri": "urn:x-skosprovider:materials"
+            },
+            "member_of": [],
+            "notes": [
+                {
+                    "note": "Een fijnkorrelig, compact sedimentair gesteente dat bestaat uit kwartskristallen.",
+                    "type": "definition",
+                    "language": "nl-BE"
+                },
+                {
+                    "note": "Nederlandse Art &amp; Architecture Thesaurus, <a href=\"http://browser.aat-ned.nl/\">http://browser.aat-ned.nl/</a>",
+                    "type": "note",
+                    "language": "nl-BE"
+                }
+            ],
+            "labels": [
+                {
+                    "type": "prefLabel",
+                    "language": "nl-BE",
+                    "label": "silex"
+                },
+                {
+                    "type": "altLabel",
+                    "language": "nl-BE",
+                    "label": "vuursteen"
+                }
+            ],
+            "narrower": [],
+            "uri": "https://id.erfgoed.net/thesauri/materialen/46",
+            "related": [],
+            "broader": [
+                42
+            ],
+            "type": "concept",
+            "id": 46
+        },
+        {
+            "subordinate_arrays": [],
+            "concept_scheme": {
+                "notes": [],
+                "labels": [],
+                "uri": "urn:x-skosprovider:materials"
+            },
+            "member_of": [],
+            "notes": [
+                {
+                    "note": "Staal is een legering van ijzer en koolstof.",
+                    "type": "definition",
+                    "language": "nl-BE"
+                }
+            ],
+            "labels": [
+                {
+                    "type": "prefLabel",
+                    "language": "nl-BE",
+                    "label": "staal"
+                }
+            ],
+            "narrower": [],
+            "uri": "https://id.erfgoed.net/thesauri/materialen/17",
+            "related": [],
+            "broader": [
+                8
+            ],
+            "type": "concept",
+            "id": 17
+        },
+        {
+            "subordinate_arrays": [],
+            "concept_scheme": {
+                "notes": [],
+                "labels": [],
+                "uri": "urn:x-skosprovider:materials"
+            },
+            "member_of": [
+                0
+            ],
+            "notes": [
+                {
+                    "note": "Steen is een harde stof met een minerale samenstelling.",
+                    "type": "definition",
+                    "language": "nl-BE"
+                }
+            ],
+            "labels": [
+                {
+                    "type": "prefLabel",
+                    "language": "nl-BE",
+                    "label": "steen"
+                }
+            ],
+            "narrower": [
+                41,
+                42
+            ],
+            "uri": "https://id.erfgoed.net/thesauri/materialen/40",
+            "related": [],
+            "broader": [],
+            "type": "concept",
+            "id": 40
+        },
+        {
+            "subordinate_arrays": [],
+            "concept_scheme": {
+                "notes": [],
+                "labels": [],
+                "uri": "urn:x-skosprovider:materials"
+            },
+            "member_of": [],
+            "notes": [
+                {
+                    "note": "Steengoed is een soort aardewerk dat gemaakt is van klei en smeltbaar gesteente. Het materiaal wordt zolang gebakken tot er gedeeltelijke verglazing optreedt, waardoor het materiaal waterdicht wordt.",
+                    "type": "definition",
+                    "language": "nl-BE"
+                },
+                {
+                    "note": "Nederlandse Art &amp; Architecture Thesaurus, <a href=\"http://browser.aat-ned.nl/\">http://browser.aat-ned.nl/</a>",
+                    "type": "note",
+                    "language": "nl-BE"
+                }
+            ],
+            "labels": [
+                {
+                    "type": "prefLabel",
+                    "language": "nl-BE",
+                    "label": "steengoed"
+                }
+            ],
+            "narrower": [],
+            "uri": "https://id.erfgoed.net/thesauri/materialen/6",
+            "related": [],
+            "broader": [
+                1
+            ],
+            "type": "concept",
+            "id": 6
+        },
+        {
+            "subordinate_arrays": [],
+            "concept_scheme": {
+                "notes": [],
+                "labels": [],
+                "uri": "urn:x-skosprovider:materials"
+            },
+            "member_of": [],
+            "notes": [
+                {
+                    "note": "Textiel is een materiaal dat tot stand is gekomen door middel van weven, vervilten, knopen, twijnen of andersoortige bewerking van natuurlijke of synthetische vezels zodanig dat zij bijeenblijven.",
+                    "type": "definition",
+                    "language": "nl-BE"
+                },
+                {
+                    "note": "Nederlandse Art &amp; Architecture Thesaurus, <a href=\"http://browser.aat-ned.nl/\">http://browser.aat-ned.nl/</a>",
+                    "type": "note",
+                    "language": "nl-BE"
+                }
+            ],
+            "labels": [
+                {
+                    "type": "prefLabel",
+                    "language": "nl-BE",
+                    "label": "textiel"
+                }
+            ],
+            "narrower": [],
+            "uri": "https://id.erfgoed.net/thesauri/materialen/37",
+            "related": [],
+            "broader": [
+                32
+            ],
+            "type": "concept",
+            "id": 37
+        },
+        {
+            "subordinate_arrays": [],
+            "concept_scheme": {
+                "notes": [],
+                "labels": [],
+                "uri": "urn:x-skosprovider:materials"
+            },
+            "member_of": [],
+            "notes": [
+                {
+                    "note": "Te gebruiken voor het zuivere metaalelement met het symbool Sn. Het zilverachtig witte metaal is zacht en buigzaam. Ook te gebruiken voor dit metaal wanneer het wordt bewerkt en gevormd om, meestal in combinatie met andere stoffen, diverse voorwerpen en materialen te maken.",
+                    "type": "definition",
+                    "language": "nl-BE"
+                },
+                {
+                    "note": "Nederlandse Art &amp; Architecture Thesaurus, <a href=\"http://browser.aat-ned.nl/\">http://browser.aat-ned.nl/</a>",
+                    "type": "note",
+                    "language": "nl-BE"
+                }
+            ],
+            "labels": [
+                {
+                    "type": "prefLabel",
+                    "language": "nl-BE",
+                    "label": "tin"
+                }
+            ],
+            "narrower": [],
+            "uri": "https://id.erfgoed.net/thesauri/materialen/18",
+            "related": [],
+            "broader": [
+                8
+            ],
+            "type": "concept",
+            "id": 18
+        },
+        {
+            "subordinate_arrays": [],
+            "concept_scheme": {
+                "notes": [],
+                "labels": [],
+                "uri": "urn:x-skosprovider:materials"
+            },
+            "member_of": [43],
+            "notes": [
+                {
+                    "note": "Wommersomkwartsiet vertoont een textuur van hoekige kwartskorrels in een fijnkorrelig kwartscement ingebed. Deze gesteentesoort komt schijnbaar alleen voor in Wommersom, nabij Tienen. Het vertoont enige gelijkenis met silex en werd alsdusdanig ook gebruikt om prehistorische werktuigen te maken.",
+                    "type": "definition",
+                    "language": "nl-BE"
+                },
+                {
+                    "note": "Gullentops F. &amp; Wouters L., Delfstoffen in Vlaanderen, Ministerie van de Vlaamse gemeenschap, Departement EWBL.",
+                    "type": "note",
+                    "language": "nl-BE"
+                }
+            ],
+            "labels": [
+                {
+                    "type": "prefLabel",
+                    "language": "nl-BE",
+                    "label": "wommersomkwartsiet"
+                }
+            ],
+            "narrower": [],
+            "uri": "https://id.erfgoed.net/thesauri/materialen/45",
+            "related": [],
+            "broader": [],
+            "type": "concept",
+            "id": 45
+        },
+        {
+            "subordinate_arrays": [],
+            "concept_scheme": {
+                "notes": [],
+                "labels": [],
+                "uri": "urn:x-skosprovider:materials"
+            },
+            "member_of": [],
+            "notes": [
+                {
+                    "note": "Te gebruiken voor het zuivere metaalelement met het symbool Ag. Het metaal is smeedbaar, vervormbaar en wit van kleur met een kenmerkende glans en wordt als edel beschouwd. Ook te gebruiken voor dit metaal wanneer het wordt bewerkt en gevormd om, meestal in combinatie met andere stoffen, diverse voorwerpen en materialen te maken.",
+                    "type": "definition",
+                    "language": "nl-BE"
+                },
+                {
+                    "note": "Nederlandse Art &amp; Architecture Thesaurus, <a href=\"http://browser.aat-ned.nl/\">http://browser.aat-ned.nl/</a>",
+                    "type": "note",
+                    "language": "nl-BE"
+                }
+            ],
+            "labels": [
+                {
+                    "type": "prefLabel",
+                    "language": "nl-BE",
+                    "label": "zilver"
+                }
+            ],
+            "narrower": [],
+            "uri": "https://id.erfgoed.net/thesauri/materialen/19",
+            "related": [],
+            "broader": [
+                8
+            ],
+            "type": "concept",
+            "id": 19
+        },
+        {
+            "concept_scheme": {
+                "notes": [],
+                "labels": [],
+                "uri": "urn:x-skosprovider:materials"
+            },
+            "member_of": [],
+            "notes": [],
+            "labels": [
+                {
+                    "type": "prefLabel",
+                    "language": "nl-BE",
+                    "label": "Materiaal"
+                }
+            ],
+            "uri": "https://id.erfgoed.net/thesauri/materialen/0",
+            "members": [
+                1,
+                7,
+                8,
+                20,
+                21,
+                31,
+                38,
+                40,
+                49,
+                50
+            ],
+            "superordinates": [],
+            "type": "collection",
+            "id": 0
+        },
+        {
+            "concept_scheme": {
+                "notes": [],
+                "labels": [],
+                "uri": "urn:x-skosprovider:materials"
+            },
+            "member_of": [],
+            "labels": [
+                {
+                    "type": "prefLabel",
+                    "language": "nl-BE",
+                    "label": "beton naar versterking"
+                }
+            ],
+            "uri": "https://id.erfgoed.net/thesauri/materialen/68",
+            "members": [69],
+            "superordinates": [38],
+            "type": "collection",
+            "infer_concept_relations": "True",
+            "id": 68
+        },
+        {
+            "concept_scheme": {
+                "notes": [],
+                "labels": [],
+                "uri": "urn:x-skosprovider:materials"
+            },
+            "member_of": [68],
+            "labels": [
+                {
+                    "type": "prefLabel",
+                    "language": "nl-BE",
+                    "label": "beton naar bewapening"
+                }
+            ],
+            "uri": "https://id.erfgoed.net/thesauri/materialen/69",
+            "members": [39, 70],
+            "superordinates": [],
+            "type": "collection",
+            "infer_concept_relations": "True",
+            "id": 69
+        },
+        {
+            "subordinate_arrays": [],
+            "concept_scheme": {
+                "notes": [],
+                "labels": [],
+                "uri": "urn:x-skosprovider:materials"
+            },
+            "member_of": [69],
+            "notes": [
+                {
+                    "note": "Ongewapend beton is een gewapend beton dat onschadelijk gemaakt werd met een tijger.",
+                    "type": "definition",
+                    "language": "nl-BE"
+                }
+            ],
+            "labels": [
+                {
+                    "type": "prefLabel",
+                    "language": "nl-BE",
+                    "label": "ongewapend beton"
+                }
+            ],
+            "narrower": [],
+            "uri": "https://id.erfgoed.net/thesauri/materialen/70",
+            "related": [],
+            "broader": [],
+            "type": "concept",
+            "id": 70
+        }
+    ]
+}

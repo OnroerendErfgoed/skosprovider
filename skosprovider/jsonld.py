@@ -1,6 +1,12 @@
 """
 This module contains functions dealing with jsonld reading and writing.
 
+The extra_data of an object is merged into the dict of that object. Only the
+node with the uri of the object is merged, with the nodes it refers to
+embedded. Other nodes in the extra_data have no place in the dict and are
+dropped, so unlike an RDF dump, a JSON-LD dump can lose part of the
+extra_data.
+
 .. versionadded:: 0.7.0
 """
 
@@ -117,7 +123,7 @@ def _(label: skos.Label, dump_context: DumpContext, **kwargs) -> dict:
         if label.label_types:
             rendered["dct:type"] = [{"@id": lt} for lt in label.label_types]
         if label.extra_data is not None:
-            rendered.update(_extra_data_to_props(label.extra_data))
+            rendered.update(_extra_data_to_props(label.extra_data, label.uri))
         return rendered
     else:
         return {"@language": lang, "@value": label.label}
@@ -188,7 +194,7 @@ def _(concept: skos.Concept, dump_context: DumpContext, **kwargs):
     }
     concept_jsonld = _filter_optional_keys(concept_jsonld)
     if concept.extra_data is not None:
-        concept_jsonld.update(_extra_data_to_props(concept.extra_data))
+        concept_jsonld.update(_extra_data_to_props(concept.extra_data, concept.uri))
     return concept_jsonld
 
 
@@ -247,7 +253,9 @@ def _(conceptscheme: skos.ConceptScheme, dump_context: DumpContext, **kwargs):
     }
     concept_scheme_jsonld = _filter_optional_keys(concept_scheme_jsonld)
     if conceptscheme.extra_data is not None:
-        concept_scheme_jsonld.update(_extra_data_to_props(conceptscheme.extra_data))
+        concept_scheme_jsonld.update(
+            _extra_data_to_props(conceptscheme.extra_data, conceptscheme.uri)
+        )
     return concept_scheme_jsonld
 
 
@@ -304,7 +312,9 @@ def _(collection: skos.Collection, dump_context: DumpContext, **kwargs):
     }
     collection_jsonld = _filter_optional_keys(collection_jsonld)
     if collection.extra_data is not None:
-        collection_jsonld.update(_extra_data_to_props(collection.extra_data))
+        collection_jsonld.update(
+            _extra_data_to_props(collection.extra_data, collection.uri)
+        )
     return collection_jsonld
 
 
@@ -320,30 +330,25 @@ def _(note: skos.Note, dump_context: DumpContext, **kwargs) -> dict:
     if note.is_object():
         rendered["@id"] = note.uri
         if note.extra_data is not None:
-            rendered.update(_extra_data_to_props(note.extra_data))
+            rendered.update(_extra_data_to_props(note.extra_data, note.uri))
     return rendered
 
 
 @to_jsonld.register(skos.Source)
 def _(source: skos.Source, dump_context: DumpContext, **kwargs) -> dict:
-    rdf_value = (
+    citation = (
         {"@value": source.citation, "@type": "rdf:HTML"}
         if source.markup is not None
         else {"@value": source.citation}
     )
+    rendered = {
+        "@type": "dct:BibliographicResource",
+        "dct:bibliographicCitation": [citation],
+    }
     if source.is_object():
-        rendered = {
-            "@type": "dct:BibliographicResource",
-            "@id": source.uri,
-            "rdf:value": rdf_value,
-        }
+        rendered["@id"] = source.uri
         if source.extra_data is not None:
-            rendered.update(_extra_data_to_props(source.extra_data))
-    else:
-        rendered = {
-            "@type": "dct:BibliographicResource",
-            "dct:bibliographicCitation": [rdf_value],
-        }
+            rendered.update(_extra_data_to_props(source.extra_data, source.uri))
     return rendered
 
 
@@ -388,13 +393,42 @@ def _filter_optional_keys(full_jsonld: dict) -> dict:
     return {k: v for k, v in full_jsonld.items() if k not in optional or v}
 
 
-def _extra_data_to_props(extra_data: Graph):
-    """Extract properties from an extra_data Graph for merging into a rendered dict."""
+def _extra_data_to_props(extra_data: Graph, uri: str) -> dict:
+    """
+    Extract the properties of an object from its extra_data, for merging into
+    the rendered dict of that object.
+
+    The properties are those of the node with the uri of the object. Nodes
+    that it refers to are embedded. Nodes that can't be reached from it have
+    no place in the dict of the object and are dropped.
+    """
     serialized = json.loads(extra_data.serialize(format="json-ld"))
-    expanded = pyld_jsonld.expand(serialized)
-    if not expanded:
+    nodes = {node["@id"]: node for node in pyld_jsonld.expand(serialized)}
+    if uri not in nodes:
         return {}
-    return {k: v for k, v in expanded[0].items() if k != "@id"}
+    return {
+        key: _embed_nodes(value, nodes, {uri})
+        for key, value in nodes[uri].items()
+        if key != "@id"
+    }
+
+
+def _embed_nodes(value: Any, nodes: dict[str, dict], embedded: set[str]) -> Any:
+    """
+    Replace every reference to one of the nodes by the node itself.
+
+    A node that is already being embedded higher up stays a reference, to
+    break cycles.
+    """
+    if isinstance(value, list):
+        return [_embed_nodes(item, nodes, embedded) for item in value]
+    if not isinstance(value, dict):
+        return value
+    node_id = value.get("@id")
+    if value.keys() == {"@id"} and node_id in nodes and node_id not in embedded:
+        value = nodes[node_id]
+        embedded = embedded | {node_id}
+    return {key: _embed_nodes(item, nodes, embedded) for key, item in value.items()}
 
 
 def id_to_relation_jsonld(skos_id: str, dump_context: DumpContext):
