@@ -1,13 +1,12 @@
 """
 This module contains an RDFProvider, an implementation of the
-:class:`skosprovider.providers.VocabularyProvider` interface that uses a
+:class:`skosprovider.provider.VocabularyProvider` interface that uses a
 :class:`rdflib.graph.Graph` as input.
 """
 
 import logging
 import re
 from collections.abc import Callable
-from functools import partial
 from typing import Any
 
 import rdflib
@@ -24,10 +23,11 @@ from rdflib.term import URIRef
 
 from skosprovider.exceptions import ConceptSchemeException
 from skosprovider.exceptions import InvalidDataException
+from skosprovider.extra_data import SkosObject
 from skosprovider.extra_data import exception_context
 from skosprovider.extra_data import ignore
 from skosprovider.extra_data import load_extra_data
-from skosprovider.providers import MemoryProvider
+from skosprovider.provider import MemoryProvider
 from skosprovider.skos import Collection
 from skosprovider.skos import Concept
 from skosprovider.skos import ConceptScheme
@@ -41,7 +41,7 @@ log = logging.getLogger(__name__)
 SKOS_THES = rdflib.Namespace("http://purl.org/iso25964/skos-thes#")
 SKOSXL = rdflib.Namespace("http://www.w3.org/2008/05/skos-xl#")
 
-RdfExtraDataLoader = Callable[[Graph, Node], Graph | None]
+RdfExtraDataLoader = Callable[[Graph, SkosObject], Graph | None]
 
 
 class RDFProvider(MemoryProvider):
@@ -66,13 +66,17 @@ class RDFProvider(MemoryProvider):
         **kwargs: Any,
     ) -> None:
         """
-        :param extra_data_loader: A callable that receives the graph and the
-            node of a single concept scheme, concept or collection, or of a
-            source, SKOS-XL label or note with a uri, and returns a
-            :class:`rdflib.Graph` or `None`. A source, label or note that is a
-            blank node gets no extra_data. Defaults to
-            :func:`~skosprovider.extra_data.ignore`. A concept scheme passed as
-            `concept_scheme` keeps its own extra_data.
+        :param extra_data_loader: A callable that receives the graph of a
+            single concept scheme, concept or collection, or of a source,
+            SKOS-XL label or note with a uri, and the skos object built from
+            it, and returns a :class:`rdflib.Graph` or `None`. The graph of an
+            object is the Concise Bounded Description of its node,
+            `URIRef(skos_object.uri)`: the triples about the node and,
+            recursively, about the blank nodes it points to. A source, label
+            or note that is a blank node gets no extra_data. See
+            :mod:`skosprovider.rdf.extra_data` for the available loaders.
+            Defaults to :func:`~skosprovider.extra_data.ignore`. A concept
+            scheme passed as `concept_scheme` keeps its own extra_data.
         """
         self.extra_data_loader = extra_data_loader
         self.check_in_scheme = False
@@ -121,17 +125,32 @@ class RDFProvider(MemoryProvider):
     def _create_concept_scheme(self, graph: Graph, subject: Node) -> ConceptScheme:
         uri = self.to_text(subject)
         with exception_context(f"concept scheme {uri!r}"):
-            return ConceptScheme(
+            concept_scheme = ConceptScheme(
                 uri=uri,
                 labels=self._create_labels(graph, subject),
                 notes=self._create_notes(graph, subject),
                 sources=self._create_sources(graph, subject),
                 languages=self._create_languages(graph, subject),
-                extra_data=self._load_extra_data(graph, subject),
             )
+            concept_scheme.extra_data = self._load_extra_data(
+                graph, subject, concept_scheme
+            )
+            return concept_scheme
 
-    def _load_extra_data(self, graph: Graph, subject: Node) -> Graph | None:
-        return load_extra_data(partial(self.extra_data_loader, graph), subject)
+    def _load_extra_data(
+        self, graph: Graph, subject: Node, skos_object: SkosObject
+    ) -> Graph | None:
+        """
+        Load the extra_data of an object from the Concise Bounded Description
+        of its node: the triples about the node and, recursively, about the
+        blank nodes it points to. It keeps the prefixes of the graph.
+        """
+        if self.extra_data_loader is ignore:
+            return None
+        object_graph = graph.cbd(subject, include_reifications=False)
+        for prefix, namespace in graph.namespaces():
+            object_graph.bind(prefix, namespace, override=False)
+        return load_extra_data(self.extra_data_loader, object_graph, skos_object)
 
     def _from_graph(self, graph: Graph) -> list[Concept | Collection]:
         concepts_and_collections: list[Concept | Collection] = [
@@ -171,7 +190,7 @@ class RDFProvider(MemoryProvider):
         uri = self.to_text(subject)
         id_ = self._get_id_for_subject(graph, subject, uri)
         with exception_context(f"concept {id_!r}"):
-            return Concept(
+            concept = Concept(
                 id=id_,
                 uri=uri,
                 concept_scheme=self.concept_scheme,
@@ -197,14 +216,15 @@ class RDFProvider(MemoryProvider):
                     )
                     for match_type in Concept.matchtypes
                 },
-                extra_data=self._load_extra_data(graph, subject),
             )
+            concept.extra_data = self._load_extra_data(graph, subject, concept)
+            return concept
 
     def _create_collection(self, graph: Graph, subject: Node) -> Collection:
         uri = self.to_text(subject)
         id_ = self._get_id_for_subject(graph, subject, uri)
         with exception_context(f"collection {id_!r}"):
-            return Collection(
+            collection = Collection(
                 id=id_,
                 uri=uri,
                 concept_scheme=self.concept_scheme,
@@ -218,8 +238,9 @@ class RDFProvider(MemoryProvider):
                 superordinates=self._create_from_subject_predicate(
                     graph, subject, SKOS_THES.superOrdinate
                 ),
-                extra_data=self._load_extra_data(graph, subject),
             )
+            collection.extra_data = self._load_extra_data(graph, subject, collection)
+            return collection
 
     def _get_in_scheme(self, graph: Graph, subject: Node) -> str | None:
         """
@@ -331,7 +352,7 @@ class RDFProvider(MemoryProvider):
         )
         if label.is_xl():
             with exception_context(repr(label)):
-                label.extra_data = self._load_extra_data(graph, node)
+                label.extra_data = self._load_extra_data(graph, node, label)
         return label
 
     def _create_notes(self, graph: Graph, subject: Node) -> list[Note]:
@@ -459,7 +480,7 @@ class RDFProvider(MemoryProvider):
         )
         if note.is_object():
             with exception_context(repr(note)):
-                note.extra_data = self._load_extra_data(graph, node)
+                note.extra_data = self._load_extra_data(graph, node, note)
         return note
 
     def _create_sources(self, graph: Graph, subject: Node) -> list[Source]:
@@ -489,7 +510,9 @@ class RDFProvider(MemoryProvider):
                 )
                 if source.is_object():
                     with exception_context(repr(source)):
-                        source.extra_data = self._load_extra_data(graph, source_node)
+                        source.extra_data = self._load_extra_data(
+                            graph, source_node, source
+                        )
                 sources.append(source)
         return sources
 

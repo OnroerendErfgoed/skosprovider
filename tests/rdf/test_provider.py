@@ -7,14 +7,14 @@ from rdflib import URIRef
 from rdflib.namespace import RDF
 from rdflib.namespace import SKOS
 
+from skosprovider.dictionary.dumper import dict_dumper
 from skosprovider.exceptions import ConceptSchemeException
 from skosprovider.exceptions import InvalidDataException
-from skosprovider.rdf.providers import RDFProvider
+from skosprovider.rdf.provider import RDFProvider
 from skosprovider.skos import Collection
 from skosprovider.skos import Concept
 from skosprovider.skos import ConceptScheme
 from skosprovider.skos import Note
-from skosprovider.utils import dict_dumper
 from . import TEST_DIR
 
 
@@ -224,8 +224,8 @@ class TestMultipleConceptschemes:
         wb_graph.parse(abspath, format="turtle")
         nodes = []
 
-        def loader(_graph, node):
-            nodes.append(node)
+        def loader(_graph, skos_object):
+            nodes.append(URIRef(skos_object.uri))
 
         RDFProvider(
             {"id": "WAARDETYPES"},
@@ -556,8 +556,8 @@ class TestNodes:
         graph = Graph().parse(data=NODES, format="turtle")
         nodes = []
 
-        def loader(_graph, node):
-            nodes.append(node)
+        def loader(_graph, skos_object):
+            nodes.append(URIRef(skos_object.uri))
 
         RDFProvider({"id": "TREES"}, graph, extra_data_loader=loader)
         assert URIRef("http://id.trees.org/labels/1") in nodes

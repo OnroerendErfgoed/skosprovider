@@ -1,0 +1,50 @@
+{
+  "@context": {
+    "skos": "http://www.w3.org/2004/02/skos/core#",
+    "skosxl": "http://www.w3.org/2008/05/skos-xl#",
+    "dct": "http://purl.org/dc/terms/"
+  },
+  "@graph": [
+    {
+      "@id": "http://id.trees.org",
+      "@type": "skos:ConceptScheme",
+      "skos:prefLabel": {"@value": "Trees", "@language": "en"}
+    },
+    {
+      "@id": "http://id.trees.org/1",
+      "@type": "skos:Concept",
+      "skos:inScheme": {"@id": "http://id.trees.org"},
+      "dct:identifier": "1",
+      "skosxl:prefLabel": {
+        "@id": "http://id.trees.org/labels/1",
+        "@type": "skosxl:Label",
+        "skosxl:literalForm": {"@value": "The Larch", "@language": "en"},
+        "dct:creator": "Jane Doe",
+        "dct:created": "2020"
+      },
+      "skos:note": {"@value": "A type of tree.", "@language": "en"},
+      "dct:source": {
+        "dct:bibliographicCitation": "Monthy Python's Flying Circus, episode three."
+      }
+    },
+    {
+      "@id": "http://id.trees.org/2",
+      "@type": "skos:Concept",
+      "skos:inScheme": {"@id": "http://id.trees.org"},
+      "dct:identifier": "2",
+      "skos:prefLabel": {"@value": "The Chestnut", "@language": "en"},
+      "skos:note": {"@value": "A different type of tree.", "@language": "en"}
+    },
+    {
+      "@id": "http://id.trees.org/3",
+      "@type": "skos:Collection",
+      "skos:inScheme": {"@id": "http://id.trees.org"},
+      "dct:identifier": "3",
+      "skos:prefLabel": {"@value": "Trees by species", "@language": "en"},
+      "skos:member": [
+        {"@id": "http://id.trees.org/1"},
+        {"@id": "http://id.trees.org/2"}
+      ]
+    }
+  ]
+}

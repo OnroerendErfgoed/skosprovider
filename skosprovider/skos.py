@@ -26,7 +26,7 @@ class Label:
     A :term:`SKOS` Label.
     """
 
-    uri = None
+    uri: str | None = None
     """A :term:`URI` for this label."""
 
     label = None
@@ -122,7 +122,7 @@ class Note:
     A :term:`SKOS` Note.
     """
 
-    uri = None
+    uri: str | None = None
     """A :term:`URI` for this note."""
 
     note = None
@@ -234,7 +234,7 @@ class Source:
 
     """
 
-    uri = None
+    uri: str | None = None
     """A :term:`URI` for this source."""
 
     citation = None
@@ -304,7 +304,7 @@ class ConceptScheme:
     :param list notes: A list of :class:`skosprovider.skos.Note` instances.
     """
 
-    uri = None
+    uri: str | None = None
     """A :term:`URI` for this conceptscheme."""
 
     labels = []
@@ -437,7 +437,7 @@ class Concept:
     eg. 12345
     """
 
-    uri = None
+    uri: str | None = None
     """A proper uri for this Concept
 
     eg. `http://id.example.com/skos/trees/1`
@@ -616,7 +616,7 @@ class Collection:
     id = None
     """An id for this Collection within a vocabulary"""
 
-    uri = None
+    uri: str | None = None
     """A proper uri for this Collection"""
 
     type = "collection"
