@@ -1,10 +1,10 @@
 import pytest
-from test_providers import chestnut
-from test_providers import geo
-from test_providers import larch
-from test_providers import species
+from fixtures_data import chestnut
+from fixtures_data import geo
+from fixtures_data import larch
+from fixtures_data import species
 
-from skosprovider.providers import DictionaryProvider
+from skosprovider.dictionary.provider import DictionaryProvider
 from skosprovider.registry import Registry
 from skosprovider.skos import ConceptScheme
 

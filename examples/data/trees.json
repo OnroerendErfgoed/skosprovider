@@ -1,0 +1,32 @@
+[
+  {
+    "id": "1",
+    "uri": "http://id.trees.org/1",
+    "labels": [
+      {
+        "uri": "http://id.trees.org/labels/1",
+        "type": "prefLabel",
+        "language": "en",
+        "label": "The Larch",
+        "extra_data": {"creator": "Jane Doe", "created": "2020"}
+      }
+    ],
+    "notes": [{"type": "note", "language": "en", "note": "A type of tree."}],
+    "sources": [{"citation": "Monthy Python's Flying Circus, episode three."}],
+    "member_of": ["3"]
+  },
+  {
+    "id": "2",
+    "uri": "http://id.trees.org/2",
+    "labels": [{"type": "prefLabel", "language": "en", "label": "The Chestnut"}],
+    "notes": [{"type": "note", "language": "en", "note": "A different type of tree."}],
+    "member_of": ["3"]
+  },
+  {
+    "id": "3",
+    "uri": "http://id.trees.org/3",
+    "type": "collection",
+    "labels": [{"type": "prefLabel", "language": "en", "label": "Trees by species"}],
+    "members": ["1", "2"]
+  }
+]

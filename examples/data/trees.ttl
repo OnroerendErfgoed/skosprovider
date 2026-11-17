@@ -1,0 +1,32 @@
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix skosxl: <http://www.w3.org/2008/05/skos-xl#> .
+@prefix dct: <http://purl.org/dc/terms/> .
+
+<http://id.trees.org> a skos:ConceptScheme ;
+    skos:prefLabel "Trees"@en .
+
+<http://id.trees.org/1> a skos:Concept ;
+    skos:inScheme <http://id.trees.org> ;
+    dct:identifier "1" ;
+    skosxl:prefLabel <http://id.trees.org/labels/1> ;
+    skos:note "A type of tree."@en ;
+    dct:source [
+        dct:bibliographicCitation "Monthy Python's Flying Circus, episode three."
+    ] .
+
+<http://id.trees.org/labels/1> a skosxl:Label ;
+    skosxl:literalForm "The Larch"@en ;
+    dct:creator "Jane Doe" ;
+    dct:created "2020" .
+
+<http://id.trees.org/2> a skos:Concept ;
+    skos:inScheme <http://id.trees.org> ;
+    dct:identifier "2" ;
+    skos:prefLabel "The Chestnut"@en ;
+    skos:note "A different type of tree."@en .
+
+<http://id.trees.org/3> a skos:Collection ;
+    skos:inScheme <http://id.trees.org> ;
+    dct:identifier "3" ;
+    skos:prefLabel "Trees by species"@en ;
+    skos:member <http://id.trees.org/1> , <http://id.trees.org/2> .

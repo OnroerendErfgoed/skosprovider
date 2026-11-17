@@ -1,7 +1,7 @@
 import pytest
-from test_providers import chestnut
-from test_providers import larch
-from test_providers import species
+from fixtures_data import chestnut
+from fixtures_data import larch
+from fixtures_data import species
 
 from skosprovider.registry import Registry
 from skosprovider.registry import RegistryException
@@ -68,8 +68,8 @@ class TestRegistry:
         trees_provider.metadata["id"] = "TREES"
 
     def test_register_provider_wrong_scope(self, registry):
+        from skosprovider.dictionary.provider import DictionaryProvider
         from skosprovider.skos import ConceptScheme
-        from skosprovider.providers import DictionaryProvider
 
         provider = DictionaryProvider(
             {"id": "TREES", "default_language": "nl"},
@@ -145,8 +145,8 @@ class TestRegistry:
         assert concept_or_collection.uri == "http://id.trees.org/1"
 
     def test_one_provider_getConceptByUriDifferentFromConceptScheme(self, registry):
+        from skosprovider.dictionary.provider import DictionaryProvider
         from skosprovider.skos import ConceptScheme
-        from skosprovider.providers import DictionaryProvider
 
         provider = DictionaryProvider(
             {"id": "TREES", "default_language": "nl"},
